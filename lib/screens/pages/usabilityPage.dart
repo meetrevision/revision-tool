@@ -14,6 +14,7 @@ class UsabilityPage extends StatefulWidget {
 
 class _UsabilityPageState extends State<UsabilityPage> {
   bool notifBool = readRegistryInt(RegistryHive.localMachine, r'SOFTWARE\Policies\Microsoft\Windows\Explorer', 'IsNotificationsEnabled') == 1;
+  bool elbnBool = readRegistryInt(RegistryHive.currentUser, r'Software\Policies\Microsoft\Windows\Explorer', 'EnableLegacyBalloonNotifications') != 0;
   bool itpBool = readRegistryInt(RegistryHive.localMachine, r'SOFTWARE\Policies\Microsoft\InputPersonalization', 'AllowInputPersonalization') == 1;
   bool foBool = false;
   @override
@@ -91,6 +92,58 @@ class _UsabilityPageState extends State<UsabilityPage> {
           ),
         ),
         //
+        if (notifBool) ...[
+          const SizedBox(height: 5.0),
+          CardHighlight(
+            child: Row(
+              children: [
+                const SizedBox(width: 5.0),
+                const Icon(
+                  FluentIcons.balloons,
+                  size: 24,
+                ),
+                const SizedBox(width: 15.0),
+                Expanded(
+                  child: SizedBox(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InfoLabel(label: 'Legacy Notification Balloons'),
+                        // Text(
+                        //   "Get notified if there's something new",
+                        //   style: FluentTheme.of(context).brightness.isDark
+                        //       ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
+                        //       : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
+                        // )
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 5.0),
+                Text(elbnBool ? "On" : "Off"),
+                const SizedBox(width: 10.0),
+                ToggleSwitch(
+                  checked: elbnBool,
+                  onChanged: (bool value) async {
+                    setState(() {
+                      elbnBool = value;
+                    });
+                    if (elbnBool) {
+                      writeRegistryDword(Registry.currentUser, r'Software\Policies\Microsoft\Windows\Explorer', 'EnableLegacyBalloonNotifications', 1);
+                      await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
+                      await Process.run('explorer.exe', [], runInShell: true);
+                    } else {
+                      writeRegistryDword(Registry.currentUser, r'Software\Policies\Microsoft\Windows\Explorer', 'EnableLegacyBalloonNotifications', 0);
+                      await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
+                      await Process.run('explorer.exe', [], runInShell: true);
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+
         const SizedBox(height: 5.0),
         CardHighlight(
           child: Row(

@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:revitool/theme.dart';
+import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -75,6 +76,43 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
                 onChanged: (value) {
                   appTheme.mode = theme;
+                },
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 5.0),
+        CardHighlight(
+          child: Row(
+            children: [
+              const SizedBox(width: 5.0),
+              const Icon(FluentIcons.picture_library, size: 24),
+              const SizedBox(width: 15.0),
+              Expanded(
+                child: SizedBox(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      InfoLabel(label: 'Experimental tweaks'),
+                      // Text(
+                      //   "Experimental",
+                      //   style: FluentTheme.of(context).brightness.isDark
+                      //       ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
+                      //       : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
+                      // )
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 5.0),
+              Text(expBool ? "On" : "Off"),
+              const SizedBox(width: 10.0),
+              ToggleSwitch(
+                checked: expBool,
+                onChanged: (bool value) async {
+                  setState(() {
+                    expBool = value;
+                  });
                 },
               ),
             ],

@@ -3,6 +3,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 
 import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
+import 'package:revitool/widgets/subtitle.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
@@ -24,6 +25,11 @@ class _PerformancePageState extends State<PerformancePage> {
 
   bool foBool = readRegistryInt(RegistryHive.currentUser, r'System\GameConfigStore', "GameDVR_FSEBehaviorMode") != 2;
 
+//NTFS
+  bool ntfsLTABool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FileSystem', "RefsDisableLastAccessUpdate") != 1;
+  bool ntfsEdTBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FileSystem', "NtfsDisable8dot3NameCreation") != 1;
+  bool ntfsMUBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FileSystem', "NtfsMemoryUsage") == 2;
+
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
@@ -31,7 +37,6 @@ class _PerformancePageState extends State<PerformancePage> {
         title: Text('Performance'),
       ),
       children: [
-        //  subtitle(content: const Text('A simple ToggleSwitch')),
         CardHighlight(
           child: Row(
             children: [
@@ -232,6 +237,141 @@ class _PerformancePageState extends State<PerformancePage> {
             ],
           ),
         ),
+
+        if (expBool) ...[
+          subtitle(content: const Text("NTFS")),
+          CardHighlight(
+            child: Row(
+              children: [
+                const SizedBox(width: 5.0),
+                const Icon(FluentIcons.time_entry, size: 24),
+                const SizedBox(width: 15.0),
+                Expanded(
+                  child: SizedBox(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InfoLabel(label: 'Last Access Time'),
+                        Text(
+                          "Disabling Last Time Access improves the speed of file and directory access, reduces disk I/O load and latency",
+                          style: FluentTheme.of(context).brightness.isDark
+                              ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
+                              : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 5.0),
+                Text(ntfsLTABool ? "On" : "Off"),
+                const SizedBox(width: 10.0),
+                ToggleSwitch(
+                  checked: ntfsLTABool,
+                  onChanged: (bool value) async {
+                    setState(() {
+                      ntfsLTABool = value;
+                    });
+
+                    if (ntfsLTABool) {
+                      await run('fsutil behavior set disableLastAccess 0');
+                    } else {
+                      await run('fsutil behavior set disableLastAccess 1');
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 5.0),
+          CardHighlight(
+            child: Row(
+              children: [
+                const SizedBox(width: 5.0),
+                const Icon(FluentIcons.file_system, size: 24),
+                const SizedBox(width: 15.0),
+                Expanded(
+                  child: SizedBox(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InfoLabel(label: '8.3 Naming'),
+                        Text(
+                          "Disabling 8.3 names improves speed and security",
+                          style: FluentTheme.of(context).brightness.isDark
+                              ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
+                              : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 5.0),
+                Text(ntfsEdTBool ? "On" : "Off"),
+                const SizedBox(width: 10.0),
+                ToggleSwitch(
+                  checked: ntfsEdTBool,
+                  onChanged: (bool value) async {
+                    setState(() {
+                      ntfsEdTBool = value;
+                    });
+
+                    if (ntfsEdTBool) {
+                      await run('fsutil behavior set disable8dot3 0');
+                    } else {
+                      await run('fsutil behavior set disable8dot3 1');
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 5.0),
+          CardHighlight(
+            expandTitle: "More information",
+            codeSnippet:
+                "Increasing the physical memory doesn't always increase the amount of paged pool memory available to NTFS. Setting memoryusage to 2 raises the limit of paged pool memory. This might improve performance if your system is opening and closing many files in the same file set and is not already using large amounts of system memory for other apps or for cache memory. If your computer is already using large amounts of system memory for other apps or for cache memory, increasing the limit of NTFS paged and non-paged pool memory reduces the available pool memory for other processes. This might reduce overall system performance.\n\nDefault is Off",
+            child: Row(
+              children: [
+                const SizedBox(width: 5.0),
+                const Icon(FluentIcons.hard_drive_unlock, size: 24),
+                const SizedBox(width: 15.0),
+                Expanded(
+                  child: SizedBox(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InfoLabel(label: 'Increase the limit of paged pool memory to NTFS'),
+                        // Text(
+                        //   "improve performance if your system is opening and closing many files in the same file set and is not already using large amounts of system memory for other apps or for cache memory",
+                        //   style: FluentTheme.of(context).brightness.isDark
+                        //       ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
+                        //       : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
+                        // )
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 5.0),
+                Text(ntfsMUBool ? "On" : "Off"),
+                const SizedBox(width: 10.0),
+                ToggleSwitch(
+                  checked: ntfsMUBool,
+                  onChanged: (bool value) async {
+                    setState(() {
+                      ntfsMUBool = value;
+                    });
+
+                    if (ntfsMUBool) {
+                      await run('fsutil behavior set memoryusage 2');
+                    } else {
+                      await run('fsutil behavior set memoryusage 1');
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        ]
       ],
     );
   }

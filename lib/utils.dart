@@ -8,6 +8,9 @@ String mainPath = Platform.resolvedExecutable;
 // nsudo path
 Directory directoryExe = Directory("${mainPath.substring(0, mainPath.lastIndexOf("\\"))}\\data\\flutter_assets\\additionals");
 
+// Experimental features
+bool expBool = false;
+
 int? readRegistryInt(RegistryHive hive, String path, String value) {
   return Registry.openPath(
     hive,

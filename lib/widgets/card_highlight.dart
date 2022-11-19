@@ -3,16 +3,11 @@ import 'dart:math';
 import 'package:fluent_ui/fluent_ui.dart';
 
 class CardHighlight extends StatefulWidget {
-  const CardHighlight({
-    Key? key,
-    this.backgroundColor,
-    required this.child,
-    this.codeSnippet,
-  }) : super(key: key);
+  const CardHighlight({Key? key, this.backgroundColor, required this.child, this.codeSnippet, this.expandTitle}) : super(key: key);
 
   final Widget child;
   final String? codeSnippet;
-
+  final String? expandTitle;
   final Color? backgroundColor;
 
   @override
@@ -27,6 +22,7 @@ class _CardHighlightState extends State<CardHighlight> with AutomaticKeepAliveCl
 
   @override
   Widget build(BuildContext context) {
+    final theme = FluentTheme.of(context);
     super.build(context);
     return Column(children: [
       Card(
@@ -42,6 +38,21 @@ class _CardHighlightState extends State<CardHighlight> with AutomaticKeepAliveCl
           ),
         ),
       ),
+      if (widget.expandTitle != null) ...[
+        Expander(
+          key: PageStorageKey(key),
+          headerShape: (open) => const RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+          ),
+          onStateChanged: (state) {
+            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+              if (mounted) setState(() => isOpen = state);
+            });
+          },
+          header: Text("${widget.expandTitle}"),
+          content: Text("${widget.codeSnippet}"),
+        ),
+      ]
     ]);
   }
 
