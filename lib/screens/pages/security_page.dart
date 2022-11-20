@@ -62,7 +62,7 @@ class _SecurityPageState extends State<SecurityPage> {
                     wdBool = value;
                   });
                   if (wdBool) {
-                    await run('${directoryExe.path}\\NSudoLG.exe -U:T -P:E ${directoryExe.path}\\EnableWD.bat');
+                    await run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\EnableWD.bat"');
                     // // Services and Drivers
                     // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\MsSecFlt', 'Start', 0);
                     // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\SecurityHealthService', 'Start', 3);
@@ -93,7 +93,7 @@ class _SecurityPageState extends State<SecurityPage> {
                     // deleteRegistryKey(Registry.localMachine, r'Software\Policies\Microsoft\Windows Defender\SmartScreen');
                     // deleteRegistryKey(Registry.localMachine, r'Software\Policies\Microsoft\Windows Defender\Signature Updates');
                   } else {
-                    await run('${directoryExe.path}\\NSudoLG.exe -U:T -P:E ${directoryExe.path}\\DisableWD.bat');
+                    await run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\DisableWD.bat"');
                     // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\MsSecFlt', 'Start', 4);
                     // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\SecurityHealthService', 'Start', 4);
                     // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\Sense', 'Start', 4);

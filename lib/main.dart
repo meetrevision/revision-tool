@@ -1,6 +1,6 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:revitool/screens/homePage.dart';
+import 'package:revitool/screens/home_page.dart';
 import 'package:provider/provider.dart';
 import 'package:revitool/theme.dart';
 import 'package:revitool/utils.dart';

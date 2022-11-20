@@ -2,11 +2,8 @@ import 'dart:io';
 
 import 'package:win32_registry/win32_registry.dart';
 
-// returns the abolute path of the executable file of your app:
 String mainPath = Platform.resolvedExecutable;
-
-// nsudo path
-Directory directoryExe = Directory("${mainPath.substring(0, mainPath.lastIndexOf("\\"))}\\data\\flutter_assets\\additionals");
+String directoryExe = Directory("${mainPath.substring(0, mainPath.lastIndexOf("\\"))}\\data\\flutter_assets\\additionals").path;
 
 // Experimental features
 bool expBool = false;

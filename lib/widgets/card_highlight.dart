@@ -22,7 +22,7 @@ class _CardHighlightState extends State<CardHighlight> with AutomaticKeepAliveCl
 
   @override
   Widget build(BuildContext context) {
-    final theme = FluentTheme.of(context);
+    // final theme = FluentTheme.of(context);
     super.build(context);
     return Column(children: [
       Card(

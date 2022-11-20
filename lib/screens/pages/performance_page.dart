@@ -73,7 +73,7 @@ class _PerformancePageState extends State<PerformancePage> {
                     sfBool = value;
                   });
                   if (sfBool) {
-                    await run('${directoryExe.path}\\NSudoLG.exe -U:T -P:E cmd /min /c "${directoryExe.path}\\EnableSF.bat"');
+                    await run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\EnableSF.bat"');
                     showDialog(
                       context: context,
                       builder: (context) => ContentDialog(
@@ -91,7 +91,7 @@ class _PerformancePageState extends State<PerformancePage> {
                   } else {
                     // await run('PowerShell -NonInteractive -NoLogo -NoProfile -Command "Disable-MMAgent -mc"');
                     writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters', 'isMemoryCompressionEnabled', 0);
-                    await run('${directoryExe.path}\\NSudoLG.exe -U:T -P:E cmd /min /c "${directoryExe.path}\\DisableSF.bat"');
+                    await run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\DisableSF.bat"');
                     showDialog(
                       context: context,
                       builder: (context) => ContentDialog(

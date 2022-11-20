@@ -3,13 +3,13 @@ import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:revitool/screens/pages/PerformancePage.dart';
-import 'package:revitool/screens/pages/securityPage.dart';
-import 'package:revitool/screens/pages/updates.dart';
-import 'package:revitool/screens/pages/usabilityPage.dart';
-import 'package:revitool/screens/pages/usabilityPageTwo.dart';
+import 'package:revitool/screens/pages/security_page.dart';
+import 'package:revitool/screens/pages/updates_page.dart';
+import 'package:revitool/screens/pages/usability_page.dart';
+import 'package:revitool/screens/pages/usability_page_two.dart';
 import 'package:revitool/screens/settings.dart';
 import 'package:revitool/utils.dart';
-import 'package:revitool/widgets/windowsButtons.dart';
+import 'package:revitool/widgets/windows_buttons.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 

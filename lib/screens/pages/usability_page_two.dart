@@ -12,7 +12,7 @@ class UsabilityPageTwo extends StatefulWidget {
 }
 
 class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
-  bool mrcBool = readRegistryInt(RegistryHive.localMachine, r'Software\Classes\CLSID', 'IsModernRCEnabled') != 1;
+  bool mrcBool = readRegistryInt(RegistryHive.localMachine, r'Software\Classes\CLSID', 'IsModernRCEnabled') != 0;
   bool fetBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509', 'EnabledState') != 1;
 
   @override
@@ -56,12 +56,12 @@ class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
                   });
                   if (mrcBool) {
                     createRegistryKey(Registry.currentUser, r'Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32');
-                    writeRegistryDword(Registry.localMachine, r'Software\Classes\CLSID', 'IsModernRCEnabled', 0);
+                    writeRegistryDword(Registry.localMachine, r'Software\Classes\CLSID', 'IsModernRCEnabled', 1);
                     await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
                     await Process.run('explorer.exe', [], runInShell: true);
                   } else {
                     deleteRegistryKey(Registry.currentUser, r'Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32');
-                    writeRegistryDword(Registry.localMachine, r'Software\Classes\CLSID', 'IsModernRCEnabled', 1);
+                    writeRegistryDword(Registry.localMachine, r'Software\Classes\CLSID', 'IsModernRCEnabled', 0);
                     await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
                     await Process.run('explorer.exe', [], runInShell: true);
                   }
