@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:process_run/shell_run.dart';
-import 'package:revitool/screens/pages/PerformancePage.dart';
+import 'package:revitool/screens/pages/performance_page.dart';
 import 'package:revitool/screens/pages/security_page.dart';
 import 'package:revitool/screens/pages/updates_page.dart';
 import 'package:revitool/screens/pages/usability_page.dart';
