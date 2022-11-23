@@ -73,7 +73,7 @@ class _PerformancePageState extends State<PerformancePage> {
                     sfBool = value;
                   });
                   if (sfBool) {
-                    await run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\EnableSF.bat"');
+                    run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\EnableSF.bat"');
                     showDialog(
                       context: context,
                       builder: (context) => ContentDialog(
@@ -89,9 +89,8 @@ class _PerformancePageState extends State<PerformancePage> {
                       ),
                     );
                   } else {
-                    // await run('PowerShell -NonInteractive -NoLogo -NoProfile -Command "Disable-MMAgent -mc"');
                     writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters', 'isMemoryCompressionEnabled', 0);
-                    await run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\DisableSF.bat"');
+                    run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\DisableSF.bat"');
                     showDialog(
                       context: context,
                       builder: (context) => ContentDialog(
@@ -150,10 +149,10 @@ class _PerformancePageState extends State<PerformancePage> {
                       mcBool = value;
                     });
                     if (mcBool) {
-                      await run('PowerShell -NonInteractive -NoLogo -NoProfile -Command "Enable-MMAgent -mc"');
+                      run('PowerShell -NonInteractive -NoLogo -NoProfile -Command "Enable-MMAgent -mc"');
                       writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters', 'isMemoryCompressionEnabled', 1);
                     } else {
-                      await run('PowerShell -NonInteractive -NoLogo -NoProfile -Command "Disable-MMAgent -mc"');
+                      run('PowerShell -NonInteractive -NoLogo -NoProfile -Command "Disable-MMAgent -mc"');
                       writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters', 'isMemoryCompressionEnabled', 0);
                     }
                   },
@@ -273,9 +272,9 @@ class _PerformancePageState extends State<PerformancePage> {
                     });
 
                     if (ntfsLTABool) {
-                      await run('fsutil behavior set disableLastAccess 0');
+                      run('fsutil behavior set disableLastAccess 0');
                     } else {
-                      await run('fsutil behavior set disableLastAccess 1');
+                      run('fsutil behavior set disableLastAccess 1');
                     }
                   },
                 ),
@@ -316,9 +315,9 @@ class _PerformancePageState extends State<PerformancePage> {
                     });
 
                     if (ntfsEdTBool) {
-                      await run('fsutil behavior set disable8dot3 0');
+                      run('fsutil behavior set disable8dot3 0');
                     } else {
-                      await run('fsutil behavior set disable8dot3 1');
+                      run('fsutil behavior set disable8dot3 1');
                     }
                   },
                 ),
@@ -362,9 +361,9 @@ class _PerformancePageState extends State<PerformancePage> {
                     });
 
                     if (ntfsMUBool) {
-                      await run('fsutil behavior set memoryusage 2');
+                      run('fsutil behavior set memoryusage 2');
                     } else {
-                      await run('fsutil behavior set memoryusage 1');
+                      run('fsutil behavior set memoryusage 1');
                     }
                   },
                 ),

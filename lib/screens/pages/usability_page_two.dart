@@ -3,6 +3,7 @@ import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'dart:io';
+import 'package:process_run/shell_run.dart';
 
 class UsabilityPageTwo extends StatefulWidget {
   const UsabilityPageTwo({super.key});
@@ -55,13 +56,21 @@ class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
                     mrcBool = value;
                   });
                   if (mrcBool) {
-                    createRegistryKey(Registry.currentUser, r'Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32');
-                    writeRegistryDword(Registry.localMachine, r'Software\Classes\CLSID', 'IsModernRCEnabled', 1);
+                    Shell().run(r'''
+                            reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /ve /t REG_SZ /d "" /f
+	                          reg add "HKLM\Software\Classes\CLSID" /v "IsModernRCEnabled" /t REG_DWORD /d "0" /f
+                        ''');
+                    // createRegistryKey(Registry.currentUser, r'Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32');
+                    // writeRegistryDword(Registry.localMachine, r'Software\Classes\CLSID', 'IsModernRCEnabled', 1);
                     await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
                     await Process.run('explorer.exe', [], runInShell: true);
                   } else {
-                    deleteRegistryKey(Registry.currentUser, r'Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32');
-                    writeRegistryDword(Registry.localMachine, r'Software\Classes\CLSID', 'IsModernRCEnabled', 0);
+                    // deleteRegistryKey(Registry.currentUser, r'Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32');
+                    // writeRegistryDword(Registry.localMachine, r'Software\Classes\CLSID', 'IsModernRCEnabled', 0);
+                    Shell().run(r'''
+                            reg add "HKLM\Software\Classes\CLSID" /v "IsModernRCEnabled" /t REG_DWORD /d "1" /f
+                            reg delete "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" /f
+                        ''');
                     await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
                     await Process.run('explorer.exe', [], runInShell: true);
                   }
@@ -102,17 +111,28 @@ class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
                   });
                   if (fetBool) {
                     writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509', 'EnabledState', 2);
-                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509', 'EnabledStateOptions', 1);
-
-                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\248140940', 'EnabledState', 2);
-                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\248140940', 'EnabledStateOptions', 1);
+                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509', 'EnabledStateOptions', 0);
+                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509', 'Variant', 0);
+                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509', 'VariantPayload', 0);
+                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509', 'VariantPayloadKind', 0);
 
                     writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908', 'EnabledState', 2);
-                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908', 'EnabledStateOptions', 1);
+                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908', 'EnabledStateOptions', 0);
+                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908', 'Variant', 0);
+                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908', 'VariantPayload', 0);
+                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908', 'VariantPayloadKind', 0);
                   } else {
                     writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509', 'EnabledState', 1);
-                    deleteRegistryKey(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\248140940');
-                    deleteRegistryKey(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908');
+                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509', 'EnabledStateOptions', 0);
+                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509', 'Variant', 0);
+                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509', 'VariantPayload', 0);
+                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509', 'VariantPayloadKind', 0);
+
+                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908', 'EnabledState', 1);
+                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908', 'EnabledStateOptions', 0);
+                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908', 'Variant', 0);
+                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908', 'VariantPayload', 0);
+                    writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908', 'VariantPayloadKind', 0);
                   }
                 },
               ),
