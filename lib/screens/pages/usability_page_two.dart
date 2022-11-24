@@ -37,7 +37,7 @@ class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      InfoLabel(label: 'A new context menu'),
+                      InfoLabel(label: 'New Windows 11 Context Menu'),
                       // const Text(
                       //   "",
                       //   style: TextStyle(fontSize: 11, color: Color.fromARGB(255, 207, 207, 207)),
