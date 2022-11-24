@@ -130,7 +130,7 @@ class _PerformancePageState extends State<PerformancePage> {
                       children: [
                         InfoLabel(label: 'Memory Compression'),
                         Text(
-                          "Save memory by compressing of unused programs running in background. Has a little impact on CPU",
+                          "Save memory by compressing unused programs running in the background. Has a small impact on CPU Usage",
                           style: FluentTheme.of(context).brightness.isDark
                               ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
                               : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
@@ -328,7 +328,7 @@ class _PerformancePageState extends State<PerformancePage> {
           CardHighlight(
             expandTitle: "More information",
             codeSnippet:
-                "Increasing the physical memory doesn't always increase the amount of paged pool memory available to NTFS. Setting memoryusage to 2 raises the limit of paged pool memory. This might improve performance if your system is opening and closing many files in the same file set and is not already using large amounts of system memory for other apps or for cache memory. If your computer is already using large amounts of system memory for other apps or for cache memory, increasing the limit of NTFS paged and non-paged pool memory reduces the available pool memory for other processes. This might reduce overall system performance.\n\nDefault is Off",
+                "Increasing the physical memory doesn't always increase the amount of paged pool memory available to NTFS. Setting memoryusage to 2 raises the limit of paged pool memory. This might improve performance if your system is opening and closing many files in the same fileset and is not already using large amounts of system memory for other apps or for cache memory. If your computer is already using large amounts of system memory for other apps or for cache memory, increasing the limit of NTFS paged and non-paged pool memory reduces the available pool memory for other processes. This might reduce overall system performance.\n\nDefault is Off",
             child: Row(
               children: [
                 const SizedBox(width: 5.0),

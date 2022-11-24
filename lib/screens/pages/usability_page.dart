@@ -39,9 +39,9 @@ class _UsabilityPageState extends State<UsabilityPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      InfoLabel(label: 'Notifications'),
+                      InfoLabel(label: 'Windows Notifications'),
                       Text(
-                        "Get notified if there's something new",
+                        "Completely toggle Windows notifications",
                         style: FluentTheme.of(context).brightness.isDark
                             ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
                             : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),

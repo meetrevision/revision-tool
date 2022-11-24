@@ -37,9 +37,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      InfoLabel(label: 'Choose your mode'),
+                      InfoLabel(label: 'Color Theme'),
                       Text(
-                        "Change the theme mode that appears in Revision Tool",
+                        "Switch between light and dark mode, or automatically change the theme with Windows",
                         // style: TextStyle(fontSize: 11, color: Color.fromARGB(255, 207, 207, 207), overflow: TextOverflow.ellipsis),
                         style: FluentTheme.of(context).brightness.isDark
                             ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
@@ -93,13 +93,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      InfoLabel(label: 'Experimental tweaks'),
-                      // Text(
-                      //   "Experimental",
-                      //   style: FluentTheme.of(context).brightness.isDark
-                      //       ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
-                      //       : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
-                      // )
+                      InfoLabel(label: 'Show experimental tweaks'),
+                      Text(
+                         "Show additional, experimental tweaks inside the Revision Tool",
+                         style: FluentTheme.of(context).brightness.isDark
+                            ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
+                            : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
+                      )
                     ],
                   ),
                 ),

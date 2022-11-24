@@ -39,7 +39,7 @@ class _UpdatesPageState extends State<UpdatesPage> {
                     children: [
                       InfoLabel(label: 'Hide the Windows Updates page'),
                       Text(
-                        "Get notified if there's something new",
+                        "Showing this page will also enable update notifications.",
                         style: FluentTheme.of(context).brightness.isDark
                             ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
                             : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
@@ -91,7 +91,7 @@ class _UpdatesPageState extends State<UpdatesPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      InfoLabel(label: 'Automatic Drivers Updating'),
+                      InfoLabel(label: 'Automatic Driver Updates'),
                       Text(
                         "Windows will automatically update drivers",
                         style: FluentTheme.of(context).brightness.isDark
