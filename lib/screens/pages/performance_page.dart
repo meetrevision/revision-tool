@@ -238,7 +238,8 @@ class _PerformancePageState extends State<PerformancePage> {
         ),
 
         if (expBool) ...[
-          subtitle(content: const Text("NTFS")),
+          subtitle(content: const Text("Filesystem")),
+          const SizedBox(height: 5.0),
           CardHighlight(
             child: Row(
               children: [
