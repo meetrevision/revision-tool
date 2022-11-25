@@ -5,6 +5,7 @@ import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
 
+
 class UsabilityPage extends StatefulWidget {
   const UsabilityPage({super.key});
 
@@ -19,6 +20,7 @@ class _UsabilityPageState extends State<UsabilityPage> {
   bool foBool = false;
   @override
   Widget build(BuildContext context) {
+    var powerPlan = readRegistryString(RegistryHive.localMachine, r'SYSTEM\CurrentControlSet\Control\Power\User\PowerSchemes', 'ActivePowerScheme');
     return ScaffoldPage.scrollable(
       header: const PageHeader(
         title: Text('Usability'),
@@ -143,7 +145,7 @@ class _UsabilityPageState extends State<UsabilityPage> {
             ),
           ),
         ],
-
+        //
         const SizedBox(height: 5.0),
         CardHighlight(
           child: Row(
@@ -200,6 +202,65 @@ class _UsabilityPageState extends State<UsabilityPage> {
                     writeRegistryDword(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\InputPersonalization', 'RestrictImplicitTextCollection', 1);
                     writeRegistryDword(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\InputPersonalization', 'AllowInputPersonalization', 0);
                   }
+                },
+              ),
+            ],
+          ),
+        ),
+        //
+        const SizedBox(height: 5.0),
+        CardHighlight(
+
+          child: Row(
+            children: [
+              const SizedBox(width: 5.0),
+              const Icon(
+                FluentIcons.lightbulb,
+                size: 24,
+              ),
+              const SizedBox(width: 15.0),
+              Expanded(
+                child: SizedBox(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      InfoLabel(label: 'Power Mode'),
+                      /* Text(
+                        "",
+                        style: FluentTheme.of(context).brightness.isDark
+                            ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
+                            : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
+                      ) */
+                    ],
+                  ),
+                ),
+              ),
+              ComboBox(
+                value: powerPlan,
+                items: [
+                  ComboBoxItem(
+                    value: "3ff9831b-6f80-4830-8178-736cd4229e7b",
+                    child: Text("Ultra Performance"),
+                    onTap: () => setState(() {
+                      //
+                    }),
+                  ),
+                  ComboBoxItem(
+                    value: "e19c287e-faa8-494f-adf0-d8ed5ee4eef1",
+                    child: Text("Ultimate Performance"),
+                    onTap: () => setState(() {
+                      powerPlan = "3ff9831b-6f80-4830-8178-736cd4229e7b";
+                    }),
+                  ),
+                ],
+                onChanged: (value) {
+                /* Error 0x80070005: Access is denied.
+                  if (powerPlan == "3ff9831b-6f80-4830-8178-736cd4229e7b") {
+                    writeRegistryString(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Power\User\PowerSchemes', 'ActivePowerScheme', "3ff9831b-6f80-4830-8178-736cd4229e7b");
+                  } else {
+                    writeRegistryString(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Power\User\PowerSchemes', 'ActivePowerScheme', "e19c287e-faa8-494f-adf0-d8ed5ee4eef1");
+                  }
+                */
                 },
               ),
             ],
