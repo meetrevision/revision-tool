@@ -4,6 +4,8 @@ import 'package:revitool/theme.dart';
 import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 
+import 'package:process_run/shell_run.dart';
+
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -19,6 +21,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final appTheme = context.watch<AppTheme>();
 
     return ScaffoldPage.scrollable(
+      resizeToAvoidBottomInset: false,
       header: const PageHeader(
         title: Text('Settings'),
       ),
@@ -115,6 +118,29 @@ class _SettingsPageState extends State<SettingsPage> {
                   });
                 },
               ),
+            ],
+          ),
+        ),
+        // 
+        Padding(
+          padding: const EdgeInsets.only(top: 5),
+          child: Flex(
+            direction: Axis.horizontal,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 5, bottom: 5),
+                child: SizedBox(
+                  width: 150,
+                  child: Button(
+                    child: const Text("Check for updates"),
+                    onPressed: () async {
+                      await run("rundll32 url.dll,FileProtocolHandler https://github.com/MeetRevision/revision-tool/releases");
+                    },
+                  ),
+                ),
+              ),
+              //
             ],
           ),
         ),
