@@ -274,18 +274,23 @@ class _PerformancePageState extends State<PerformancePage> {
                       value: "3ff9831b-6f80-4830-8178-736cd4229e7b",
                       child: Text("Ultra Performance"),
                       onTap: () => setState(() {
-                        //
+                        powerPlan = "3ff9831b-6f80-4830-8178-736cd4229e7b";
                       }),
                     ),
                     ComboBoxItem(
                       value: "e19c287e-faa8-494f-adf0-d8ed5ee4eef1",
                       child: Text("Ultimate Performance"),
                       onTap: () => setState(() {
-                        powerPlan = "3ff9831b-6f80-4830-8178-736cd4229e7b";
+                        powerPlan = "e19c287e-faa8-494f-adf0-d8ed5ee4eef1";
                       }),
                     ),
                   ],
                   onChanged: (value) {
+                    if (powerPlan == "3ff9831b-6f80-4830-8178-736cd4229e7b") {
+                      run('"powercfg /S 3ff9831b-6f80-4830-8178-736cd4229e7b"');
+                    } else {
+                      run('"powercfg /S e19c287e-faa8-494f-adf0-d8ed5ee4eef1"');
+                    }
                   /* Error 0x80070005: Access is denied.
                     if (powerPlan == "3ff9831b-6f80-4830-8178-736cd4229e7b") {
                       writeRegistryString(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Power\User\PowerSchemes', 'ActivePowerScheme', "3ff9831b-6f80-4830-8178-736cd4229e7b");
