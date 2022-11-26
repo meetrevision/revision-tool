@@ -217,6 +217,7 @@ class Home extends StatelessWidget {
                           },
                         ),
                       ),
+                      const SizedBox(width: 5.0),
                       Tooltip(
                         message: 'Discord',
                         displayHorizontally: true,
@@ -230,6 +231,7 @@ class Home extends StatelessWidget {
                           },
                         ),
                       ),
+                      const SizedBox(width: 5.0),
                       Tooltip(
                         message: 'FAQ',
                         displayHorizontally: true,
@@ -250,7 +252,7 @@ class Home extends StatelessWidget {
         ),
         //
         Padding(
-          padding: const EdgeInsets.only(left: 5.0, top: 5.0),
+          padding: const EdgeInsets.only(left: 5.0, top: 2.0),
           child: Flex(
             direction: Axis.vertical,
             crossAxisAlignment: CrossAxisAlignment.start,
