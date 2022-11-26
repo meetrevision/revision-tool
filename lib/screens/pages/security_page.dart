@@ -43,7 +43,7 @@ class _SecurityPageState extends State<SecurityPage> {
                     children: [
                       InfoLabel(label: 'Windows Defender'),
                       Text(
-                        "Windows Defender will protect your PC. This will have a minor performance impact due to constantly running in the background.",
+                        "Windows Defender will protect your PC. This will have a minor performance impact due to constantly running in the background",
                         style: FluentTheme.of(context).brightness.isDark
                             ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
                             : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
@@ -154,7 +154,7 @@ class _SecurityPageState extends State<SecurityPage> {
                     children: [
                       InfoLabel(label: 'User Account Control'),
                       Text(
-                        "Limits application to standard user privileges until an administrator authorizes an elevation.",
+                        "Limits application to standard user privileges until an administrator authorizes an elevation",
                         style: FluentTheme.of(context).brightness.isDark
                             ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
                             : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
@@ -218,7 +218,7 @@ class _SecurityPageState extends State<SecurityPage> {
                     children: [
                       InfoLabel(label: 'Spectre & Meltdown Mitigation'),
                       Text(
-                        "Patches to enable mitigation against Spectre & Meltdown vulnerabilities.",
+                        "Patches to enable mitigation against Spectre & Meltdown vulnerabilities",
                         style: FluentTheme.of(context).brightness.isDark
                             ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
                             : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
@@ -268,7 +268,7 @@ class _SecurityPageState extends State<SecurityPage> {
                     children: [
                       InfoLabel(label: 'Intel TSX'),
                       Text(
-                        "Add hardware transactional memory support, which helps speed up the execution of multithreaded software.",
+                        "Add hardware transactional memory support, which helps speed up the execution of multithreaded software",
                         style: FluentTheme.of(context).brightness.isDark
                             ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
                             : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
