@@ -54,6 +54,36 @@ class _SettingsPageState extends State<SettingsPage> {
         CardHighlight(
           child: Row(
             children: [
+              /* const SizedBox(width: 5.0),
+              const Icon(FluentIcons.refresh, size: 24),
+              const SizedBox(width: 15.0), */
+              Expanded(
+                child: SizedBox(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      InfoLabel(label: 'Revision Tool'),
+                      Text(
+                         'Version ${_packageInfo.version}.${_packageInfo.buildNumber}',
+                         style: FluentTheme.of(context).brightness.isDark
+                            ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
+                            : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              Button(
+                    child: const Text("Check for updates"),
+                    onPressed: () async {},
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 5.0),
+        CardHighlight(
+          child: Row(
+            children: [
               const SizedBox(width: 5.0),
               const Icon(
                 FluentIcons.brush,
@@ -143,33 +173,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   });
                 },
               ),
-            ],
-          ),
-        ),
-        //
-        const SizedBox(height: 5.0),
-        Padding(
-          padding: const EdgeInsets.only(top: 5),
-          child: Text('Revision Tool \r\nVersion ${_packageInfo.version}')
-        ),
-        //
-        Padding(
-          padding: const EdgeInsets.only(top: 5),
-          child: Flex(
-            direction: Axis.horizontal,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 5, bottom: 5),
-                child: SizedBox(
-                  width: 150,
-                  child: Button(
-                    child: const Text("Check for updates"),
-                    onPressed: () async {},
-                  ),
-                ),
-              ),
-              //
             ],
           ),
         ),
