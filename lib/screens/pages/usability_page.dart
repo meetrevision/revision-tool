@@ -5,6 +5,7 @@ import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
 
+
 class UsabilityPage extends StatefulWidget {
   const UsabilityPage({super.key});
 
@@ -143,7 +144,7 @@ class _UsabilityPageState extends State<UsabilityPage> {
             ),
           ),
         ],
-
+        //
         const SizedBox(height: 5.0),
         CardHighlight(
           child: Row(

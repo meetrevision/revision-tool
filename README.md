@@ -1,4 +1,11 @@
-# <img src="windows/runner/resources/revision_icon.ico" width="38" height="38" /> Revision Tool
+
+
+<img  align="left" src="windows/runner/resources/revision_icon.ico" width="64" height="64" />
+
+# Revision Tool
+[![Releases](https://img.shields.io/github/v/release/MeetRevision/revision-tool.svg)](https://github.com/MeetRevision/revision-tool/releases)
+[![License](https://img.shields.io/github/license/MeetRevision/revision-tool.svg)](https://github.com/MeetRevision/revision-tool/blob/main/LICENSE)
+<br>
 
 A tool to personalize ReviOS to your needs. Rewritten in Dart with Fluent UI.
 

@@ -143,7 +143,7 @@ class _SecurityPageState extends State<SecurityPage> {
             children: [
               const SizedBox(width: 5.0),
               const Icon(
-                FluentIcons.shield_alert,
+                FluentIcons.local_admin,
                 size: 24,
               ),
               const SizedBox(width: 15.0),
@@ -152,7 +152,13 @@ class _SecurityPageState extends State<SecurityPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      InfoLabel(label: 'UAC'),
+                      InfoLabel(label: 'User Account Control'),
+                      Text(
+                        "Limits application to standard user privileges until an administrator authorizes an elevation.",
+                        style: FluentTheme.of(context).brightness.isDark
+                            ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
+                            : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
+                      )
                     ],
                   ),
                 ),
@@ -211,6 +217,12 @@ class _SecurityPageState extends State<SecurityPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       InfoLabel(label: 'Spectre & Meltdown Mitigation'),
+                      Text(
+                        "Patches to enable mitigation against Spectre & Meltdown vulnerabilities.",
+                        style: FluentTheme.of(context).brightness.isDark
+                            ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
+                            : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
+                      )
                     ],
                   ),
                 ),
@@ -245,7 +257,7 @@ class _SecurityPageState extends State<SecurityPage> {
             children: [
               const SizedBox(width: 5.0),
               const Icon(
-                FluentIcons.c_plus_plus_language,
+                FluentIcons.market,
                 size: 24,
               ),
               const SizedBox(width: 15.0),
@@ -256,7 +268,7 @@ class _SecurityPageState extends State<SecurityPage> {
                     children: [
                       InfoLabel(label: 'Intel TSX'),
                       Text(
-                        "Disabling Intel TSX degrades performance",
+                        "Add hardware transactional memory support, which helps speed up the execution of multithreaded software.",
                         style: FluentTheme.of(context).brightness.isDark
                             ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
                             : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
