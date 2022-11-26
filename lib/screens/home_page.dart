@@ -211,7 +211,7 @@ class Home extends StatelessWidget {
                         useMousePosition: false,
                         style: const TooltipThemeData(preferBelow: true),
                         child: IconButton(
-                          icon: const Icon(FluentIcons.globe, size: 24.0), // Using a chat icon because it doesn't have an official discord icon
+                          icon: const Icon(FluentIcons.globe, size: 24.0),
                           onPressed: () async {
                             await run("rundll32 url.dll,FileProtocolHandler https://revi.cc");
                           },
@@ -238,7 +238,7 @@ class Home extends StatelessWidget {
                         useMousePosition: false,
                         style: const TooltipThemeData(preferBelow: true),
                         child: IconButton(
-                          icon: const Icon(FluentIcons.info, size: 24.0), // Using a chat icon because it doesn't have an official discord icon
+                          icon: const Icon(FluentIcons.info, size: 24.0),
                           onPressed: () async {
                             await run("rundll32 url.dll,FileProtocolHandler https://revios.rignoa.com");
                           },
