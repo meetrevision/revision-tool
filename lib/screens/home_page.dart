@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
-// import 'package:process_run/shell_run.dart';
+import 'package:process_run/shell_run.dart';
 import 'package:revitool/screens/pages/performance_page.dart';
 import 'package:revitool/screens/pages/security_page.dart';
 import 'package:revitool/screens/pages/updates_page.dart';
@@ -212,7 +212,9 @@ class Home extends StatelessWidget {
                         style: const TooltipThemeData(preferBelow: true),
                         child: IconButton(
                           icon: const Icon(FluentIcons.globe, size: 24.0), // Using a chat icon because it doesn't have an official discord icon
-                          onPressed: () {},
+                          onPressed: () async {
+                            await run("rundll32 url.dll,FileProtocolHandler https://revi.cc");
+                          },
                         ),
                       ),
                       Tooltip(
@@ -222,7 +224,10 @@ class Home extends StatelessWidget {
                         style: const TooltipThemeData(preferBelow: true),
                         child: IconButton(
                           icon: const Icon(FluentIcons.chat_invite_friend, size: 24.0), // Using a chat icon because it doesn't have an official discord icon
-                          onPressed: () {},
+                          onPressed: () async {
+                            // discord://-/invite/962y4pU
+                            await run("rundll32 url.dll,FileProtocolHandler https://discord.gg/invite/962y4pU");
+                          },
                         ),
                       ),
                       Tooltip(
@@ -231,8 +236,10 @@ class Home extends StatelessWidget {
                         useMousePosition: false,
                         style: const TooltipThemeData(preferBelow: true),
                         child: IconButton(
-                          icon: const Icon(FluentIcons.review_request_solid, size: 24.0), // Using a chat icon because it doesn't have an official discord icon
-                          onPressed: () {},
+                          icon: const Icon(FluentIcons.info, size: 24.0), // Using a chat icon because it doesn't have an official discord icon
+                          onPressed: () async {
+                            await run("rundll32 url.dll,FileProtocolHandler https://revios.rignoa.com");
+                          },
                         ),
                       ),
                     ],
