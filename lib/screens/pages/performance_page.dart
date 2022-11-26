@@ -56,7 +56,7 @@ class _PerformancePageState extends State<PerformancePage> {
                     children: [
                       InfoLabel(label: 'Superfetch'),
                       Text(
-                        "Speed up your system performance by prefetching frequently used apps. Recommended to only enable it on HDD.",
+                        "Speed up your system performance by prefetching frequently used apps. Recommended to only enable it on HDD",
                         // style: TextStyle(fontSize: 11, color: Color.fromARGB(255, 207, 207, 207), overflow: TextOverflow.ellipsis),
                         style: FluentTheme.of(context).brightness.isDark
                             ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
@@ -180,7 +180,7 @@ class _PerformancePageState extends State<PerformancePage> {
                     children: [
                       InfoLabel(label: 'Fullscreen optimization'),
                       Text(
-                        "Fullscreen Optimizations may lead to better gaming and app performance when they are running in fullscreen mode.",
+                        "Fullscreen Optimizations may lead to better gaming and app performance when they are running in fullscreen mode",
                         style: FluentTheme.of(context).brightness.isDark
                             ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
                             : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
@@ -258,7 +258,7 @@ class _PerformancePageState extends State<PerformancePage> {
                       children: [
                         InfoLabel(label: 'Power Mode'),
                         Text(
-                          "Customized powerplans to improve system latency.",
+                          "Customized powerplans to improve system latency",
                           style: FluentTheme.of(context).brightness.isDark
                               ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
                               : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
