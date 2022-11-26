@@ -134,9 +134,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   width: 150,
                   child: Button(
                     child: const Text("Check for updates"),
-                    onPressed: () async {
-                      await run("rundll32 url.dll,FileProtocolHandler https://github.com/MeetRevision/revision-tool/releases");
-                    },
+                    onPressed: () async {},
                   ),
                 ),
               ),
