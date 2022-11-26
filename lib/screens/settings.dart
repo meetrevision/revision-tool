@@ -1,10 +1,12 @@
+import 'dart:io';
+
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:revitool/theme.dart';
 import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
-
-import 'package:process_run/shell_run.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -15,6 +17,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   late ThemeMode theme;
+  String updateTitle = "Check for Updates";
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +46,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       InfoLabel(label: 'Color Theme'),
                       Text(
                         "Switch between light and dark mode, or automatically change the theme with Windows",
-                        // style: TextStyle(fontSize: 11, color: Color.fromARGB(255, 207, 207, 207), overflow: TextOverflow.ellipsis),
                         style: FluentTheme.of(context).brightness.isDark
                             ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
                             : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
@@ -98,8 +100,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     children: [
                       InfoLabel(label: 'Show experimental tweaks'),
                       Text(
-                         "Show additional, experimental tweaks inside the Revision Tool",
-                         style: FluentTheme.of(context).brightness.isDark
+                        "Show additional, experimental tweaks inside the Revision Tool",
+                        style: FluentTheme.of(context).brightness.isDark
                             ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
                             : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
                       )
@@ -121,7 +123,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           ),
         ),
-        // 
+        //
         Padding(
           padding: const EdgeInsets.only(top: 5),
           child: Flex(
@@ -133,8 +135,51 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: SizedBox(
                   width: 150,
                   child: Button(
-                    child: const Text("Check for updates"),
-                    onPressed: () async {},
+                    child: Text(updateTitle),
+                    onPressed: () async {
+                      Directory tempDir = await getTemporaryDirectory();
+                      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+                      int currentVersion = int.parse(packageInfo.version.replaceAll(".", ""));
+                      Map<String, dynamic> data = await Network.getJSON("https://api.github.com/repos/meetrevision/revision-tool/releases/latest");
+                      int latestVersion = int.parse(data["tag_name"].toString().replaceAll(".", ""));
+                      if (latestVersion > currentVersion) {
+                        setState(() {
+                          updateTitle = "Update was found";
+                        });
+                        showDialog(
+                          context: context,
+                          builder: (context) => ContentDialog(
+                            title: const Text("Update Available"),
+                            content: Text("Would you like to update Revision Tool to ${data["tag_name"]}?"),
+                            actions: [
+                              Button(
+                                child: const Text('OK'),
+                                onPressed: () async {
+                                  setState(() {
+                                    updateTitle = "Updating...";
+                                  });
+                                  Navigator.pop(context);
+                                  await Network.downloadNewVersion(data["assets"][0]["browser_download_url"], tempDir.path);
+                                  setState(() {
+                                    updateTitle = "Updated successfully";
+                                  });
+                                },
+                              ),
+                              FilledButton(
+                                child: const Text('Not now'),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        setState(() {
+                          updateTitle = "No update was found";
+                        });
+                      }
+                    },
                   ),
                 ),
               ),

@@ -30,11 +30,10 @@ class _PerformancePageState extends State<PerformancePage> {
   bool ntfsEdTBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FileSystem', "NtfsDisable8dot3NameCreation") != 1;
   bool ntfsMUBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FileSystem', "NtfsMemoryUsage") == 2;
 
-  String powerPlan = readRegistryString(RegistryHive.localMachine, r'SYSTEM\CurrentControlSet\Control\Power\User\PowerSchemes', 'ActivePowerScheme');
+  String? powerPlan = readRegistryString(RegistryHive.localMachine, r'SYSTEM\CurrentControlSet\Control\Power\User\PowerSchemes', 'ActivePowerScheme');
 
   @override
   Widget build(BuildContext context) {
-    
     return ScaffoldPage.scrollable(
       header: const PageHeader(
         title: Text('Performance'),
@@ -56,8 +55,7 @@ class _PerformancePageState extends State<PerformancePage> {
                     children: [
                       InfoLabel(label: 'Superfetch'),
                       Text(
-                        "Speed up your system performance by prefetching frequently used apps. Recommended to only enable it on HDD",
-                        // style: TextStyle(fontSize: 11, color: Color.fromARGB(255, 207, 207, 207), overflow: TextOverflow.ellipsis),
+                        "Speed up your system performance by prefetching frequently used apps. Enabling Superfetch is recommended for HDD users",
                         style: FluentTheme.of(context).brightness.isDark
                             ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
                             : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
@@ -76,7 +74,7 @@ class _PerformancePageState extends State<PerformancePage> {
                     sfBool = value;
                   });
                   if (sfBool) {
-                    run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\EnableSF.bat"');
+                    await run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\EnableSF.bat"');
                     showDialog(
                       context: context,
                       builder: (context) => ContentDialog(
@@ -93,7 +91,7 @@ class _PerformancePageState extends State<PerformancePage> {
                     );
                   } else {
                     writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters', 'isMemoryCompressionEnabled', 0);
-                    run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\DisableSF.bat"');
+                    await run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\DisableSF.bat"');
                     showDialog(
                       context: context,
                       builder: (context) => ContentDialog(
@@ -133,7 +131,7 @@ class _PerformancePageState extends State<PerformancePage> {
                       children: [
                         InfoLabel(label: 'Memory Compression'),
                         Text(
-                          "Save memory by compressing unused programs running in the background. Has a small impact on CPU Usage",
+                          "Save memory by compressing unused programs running in the background. Might have a small impact on CPU usage depends on a hardware",
                           style: FluentTheme.of(context).brightness.isDark
                               ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
                               : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
@@ -272,14 +270,14 @@ class _PerformancePageState extends State<PerformancePage> {
                   items: [
                     ComboBoxItem(
                       value: "3ff9831b-6f80-4830-8178-736cd4229e7b",
-                      child: Text("Ultra Performance"),
+                      child: const Text("Ultra Performance"),
                       onTap: () => setState(() {
                         powerPlan = "3ff9831b-6f80-4830-8178-736cd4229e7b";
                       }),
                     ),
                     ComboBoxItem(
                       value: "e19c287e-faa8-494f-adf0-d8ed5ee4eef1",
-                      child: Text("Ultimate Performance"),
+                      child: const Text("Ultimate Performance"),
                       onTap: () => setState(() {
                         powerPlan = "e19c287e-faa8-494f-adf0-d8ed5ee4eef1";
                       }),
@@ -291,7 +289,7 @@ class _PerformancePageState extends State<PerformancePage> {
                     } else {
                       run('"powercfg /S e19c287e-faa8-494f-adf0-d8ed5ee4eef1"');
                     }
-                  /* Error 0x80070005: Access is denied.
+                    /* Error 0x80070005: Access is denied.
                     if (powerPlan == "3ff9831b-6f80-4830-8178-736cd4229e7b") {
                       writeRegistryString(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Power\User\PowerSchemes', 'ActivePowerScheme', "3ff9831b-6f80-4830-8178-736cd4229e7b");
                     } else {
@@ -406,12 +404,6 @@ class _PerformancePageState extends State<PerformancePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         InfoLabel(label: 'Increase the limit of paged pool memory to NTFS'),
-                        // Text(
-                        //   "improve performance if your system is opening and closing many files in the same file set and is not already using large amounts of system memory for other apps or for cache memory",
-                        //   style: FluentTheme.of(context).brightness.isDark
-                        //       ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
-                        //       : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
-                        // )
                       ],
                     ),
                   ),
@@ -425,7 +417,6 @@ class _PerformancePageState extends State<PerformancePage> {
                     setState(() {
                       ntfsMUBool = value;
                     });
-
                     if (ntfsMUBool) {
                       run('fsutil behavior set memoryusage 2');
                     } else {

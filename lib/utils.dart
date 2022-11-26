@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:win32_registry/win32_registry.dart';
 
 String mainPath = Platform.resolvedExecutable;
@@ -71,4 +72,40 @@ void createRegistryKey(RegistryKey key, String path) {
   final regKey = key;
   var regPath = path;
   regKey.createKey(regPath);
+}
+
+class Network {
+  static Future<Map<String, dynamic>> getJSON(String url) async {
+    var response = await Dio().get(
+      url,
+      options: Options(
+        headers: {
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; rv:107.0) Gecko/20100101 Firefox/107.0",
+          "content-type": "application/json;charset=utf-8",
+          "accept": "application/json",
+        },
+      ),
+    );
+
+    final responseJson = Map<String, dynamic>.from(response.data);
+
+    if (response.statusCode == 200) {
+      return responseJson;
+    } else {
+      throw Exception('Failed to load');
+    }
+  }
+
+  static Future downloadNewVersion(String url, String path) async {
+    await Dio().download(
+      url,
+      "$path\\RevisionTool-Setup.exe",
+    );
+    await openExeFile("$path\\RevisionTool-Setup.exe");
+  }
+
+  static Future<void> openExeFile(String filePath) async {
+    await Process.start(filePath, ['/VERYSILENT', r'/TASKS="desktopicon"']);
+    await File(filePath).delete();
+  }
 }

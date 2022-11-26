@@ -10,20 +10,6 @@ import 'package:win32_registry/win32_registry.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // await windowManager.ensureInitialized();
-  // WindowOptions windowOptions = const WindowOptions(
-  //   fullScreen: true,
-  //   minimumSize: Size(515, 330),
-  //   center: true,
-  //   backgroundColor: Colors.transparent,
-  //   skipTaskbar: false,
-  //   titleBarStyle: TitleBarStyle.hidden,
-  //   title: "Revision Tool",
-  // );
-  // windowManager.waitUntilReadyToShow(windowOptions, () async {
-  //   await windowManager.show();
-  //   await windowManager.focus();
-  // });
   await SystemTheme.accentColor.load();
   doWhenWindowReady(() async {
     appWindow.minSize = const Size(515, 330);
@@ -56,7 +42,6 @@ class MyApp extends StatelessWidget {
 
   const MyApp({super.key, required this.isSupported});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
