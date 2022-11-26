@@ -110,12 +110,12 @@ class _UsabilityPageState extends State<UsabilityPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         InfoLabel(label: 'Legacy Notification Balloons'),
-                        // Text(
-                        //   "Get notified if there's something new",
-                        //   style: FluentTheme.of(context).brightness.isDark
-                        //       ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
-                        //       : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
-                        // )
+                        Text(
+                          "Restore old-style notifications that appear around the system tray area",
+                          style: FluentTheme.of(context).brightness.isDark
+                              ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
+                              : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
+                        )
                       ],
                     ),
                   ),
