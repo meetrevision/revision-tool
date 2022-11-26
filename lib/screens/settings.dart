@@ -4,6 +4,8 @@ import 'package:revitool/theme.dart';
 import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 
+import 'package:package_info_plus/package_info_plus.dart';
+
 // import 'package:process_run/shell_run.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -16,10 +18,33 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   late ThemeMode theme;
 
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+    buildSignature: 'Unknown',
+    installerStore: 'Unknown',
+  );
+
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _packageInfo = info;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initPackageInfo();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final appTheme = context.watch<AppTheme>();
 
+    final appTheme = context.watch<AppTheme>();
+    
     return ScaffoldPage.scrollable(
       resizeToAvoidBottomInset: false,
       header: const PageHeader(
@@ -121,7 +146,13 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           ),
         ),
-        // 
+        //
+        const SizedBox(height: 5.0),
+        Padding(
+          padding: const EdgeInsets.only(top: 5),
+          child: Text('Revision Tool \r\nVersion ${_packageInfo.version}')
+        ),
+        //
         Padding(
           padding: const EdgeInsets.only(top: 5),
           child: Flex(
