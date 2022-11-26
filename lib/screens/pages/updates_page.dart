@@ -65,7 +65,7 @@ class _UpdatesPageState extends State<UpdatesPage> {
                     await Process.run('explorer.exe', [], runInShell: true);
                   } else {
                     writeRegistryString(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', 'SettingsPageVisibility',
-                        "hide:cortana;privacy-automaticfiledownloads;privacy-feedback;windowsinsider-optin;");
+                        "hide:cortana;privacy-automaticfiledownloads;privacy-feedback;");
                     writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', 'IsWUHidden', 0);
                     await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
                     await Process.run('explorer.exe', [], runInShell: true);
