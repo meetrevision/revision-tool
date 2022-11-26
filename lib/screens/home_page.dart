@@ -9,6 +9,7 @@ import 'package:revitool/screens/pages/usability_page.dart';
 import 'package:revitool/screens/pages/usability_page_two.dart';
 import 'package:revitool/screens/settings.dart';
 import 'package:revitool/utils.dart';
+import 'package:revitool/widgets/subtitle.dart';
 import 'package:revitool/widgets/windows_buttons.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
@@ -23,7 +24,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int? topIndex;
   bool maximize = true;
-
+  
   final pages = <String>[
     'Security',
     'Usability',
@@ -174,28 +175,20 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    int buildNumber = int.parse(readRegistryString(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\', 'CurrentBuildNumber') as String);
+    int? buildRevision = readRegistryInt(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\', 'UBR');
+    String? osVersion = readRegistryString(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\', 'RegisteredOrganisation');
+
     return ScaffoldPage.scrollable(
       resizeToAvoidBottomInset: false,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 50.0),
+          padding: const EdgeInsets.only(left: 5.0),
           child: Flex(
             direction: Axis.vertical,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (MediaQuery.of(context).size.height >= 400) ...[
-                const SizedBox(
-                  height: 100,
-                )
-              ] else ...[
-                const SizedBox(
-                  height: 25,
-                )
-              ],
-              Text(
-                "Welcome to Revision",
-                style: FluentTheme.of(context).brightness.isDark ? const TextStyle(fontSize: 16, color: Color(0xB7FFFFFF)) : const TextStyle(fontSize: 16, color: Color.fromARGB(255, 117, 117, 117)),
-              ),
               const Text(
                 "Revision Tool",
                 style: TextStyle(fontSize: 28),
@@ -208,28 +201,66 @@ class Home extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 5, bottom: 5),
-                child: SizedBox(
-                  width: 175,
-                  child: Button(
-                    child: const Text("Check out Revision"),
-                    onPressed: () async {
-                      await run("rundll32 url.dll,FileProtocolHandler https://www.revi.cc");
-                    },
+                padding: const EdgeInsets.only(top: 1.0),
+                  child: Flex(
+                    direction: Axis.horizontal,
+                    children: [
+                      Tooltip(
+                        message: 'Website',
+                        displayHorizontally: true,
+                        useMousePosition: false,
+                        style: const TooltipThemeData(preferBelow: true),
+                        child: IconButton(
+                          icon: const Icon(FluentIcons.globe, size: 24.0), // Using a chat icon because it doesn't have an official discord icon
+                          onPressed: () async {
+                            await run("rundll32 url.dll,FileProtocolHandler https://revi.cc");
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 5.0),
+                      Tooltip(
+                        message: 'Discord',
+                        displayHorizontally: true,
+                        useMousePosition: false,
+                        style: const TooltipThemeData(preferBelow: true),
+                        child: IconButton(
+                          icon: const Icon(FluentIcons.chat_invite_friend, size: 24.0), // Using a chat icon because it doesn't have an official discord icon
+                          onPressed: () async {
+                            // discord://-/invite/962y4pU
+                            await run("rundll32 url.dll,FileProtocolHandler https://discord.gg/invite/962y4pU");
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 5.0),
+                      Tooltip(
+                        message: 'FAQ',
+                        displayHorizontally: true,
+                        useMousePosition: false,
+                        style: const TooltipThemeData(preferBelow: true),
+                        child: IconButton(
+                          icon: const Icon(FluentIcons.info, size: 24.0), // Using a chat icon because it doesn't have an official discord icon
+                          onPressed: () async {
+                            await run("rundll32 url.dll,FileProtocolHandler https://revios.rignoa.com");
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 5),
-                child: SizedBox(
-                  width: 175,
-                  child: FilledButton(
-                    child: const Text("Check out FAQ"),
-                    onPressed: () async {
-                      await run("rundll32 url.dll,FileProtocolHandler https://revios.rignoa.com");
-                    },
-                  ),
-                ),
+            ],
+          ),
+        ),
+        //
+        Padding(
+          padding: const EdgeInsets.only(left: 5.0, top: 2.0),
+          child: Flex(
+            direction: Axis.vertical,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              subtitle(content: const Text("My Revision")),
+              Tooltip(
+                message: 'Build $buildNumber.$buildRevision',
+                child: Text('$osVersion'),
               ),
             ],
           ),

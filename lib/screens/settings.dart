@@ -4,7 +4,7 @@ import 'package:revitool/theme.dart';
 import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 
-import 'package:process_run/shell_run.dart';
+// import 'package:process_run/shell_run.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
