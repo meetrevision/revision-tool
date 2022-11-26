@@ -179,6 +179,7 @@ class Home extends StatelessWidget {
     int buildNumber = int.parse(readRegistryString(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\', 'CurrentBuildNumber') as String);
     int? buildRevision = readRegistryInt(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\', 'UBR');
     String? osVersion = readRegistryString(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\', 'RegisteredOrganisation');
+    String? cpuInfo = readRegistryString(RegistryHive.localMachine, r'HARDWARE\DESCRIPTION\System\CentralProcessor\0', 'ProcessorNameString');
 
     return ScaffoldPage.scrollable(
       resizeToAvoidBottomInset: false,
@@ -224,7 +225,7 @@ class Home extends StatelessWidget {
                         useMousePosition: false,
                         style: const TooltipThemeData(preferBelow: true),
                         child: IconButton(
-                          icon: const Icon(FluentIcons.chat_invite_friend, size: 24.0), // Using a chat icon because it doesn't have an official discord icon
+                          icon: const Icon(FluentIcons.chat_invite_friend, size: 24.0),
                           onPressed: () async {
                             // discord://-/invite/962y4pU
                             await run("rundll32 url.dll,FileProtocolHandler https://discord.gg/invite/962y4pU");
@@ -258,6 +259,7 @@ class Home extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               subtitle(content: const Text("My Revision")),
+              Text(cpuInfo!),
               Tooltip(
                 message: 'Build $buildNumber.$buildRevision',
                 child: Text('$osVersion'),

@@ -74,7 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               Button(
-                    child: const Text("Check for updates"),
+                    child: const Text("Check for Updates"),
                     onPressed: () async {},
               ),
             ],
