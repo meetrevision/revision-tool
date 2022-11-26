@@ -20,7 +20,7 @@ class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
       header: const PageHeader(
-        title: Text('Usability - Windows 11'),
+        title: Text('Usability > Windows 11'),
       ),
       children: [
         CardHighlight(

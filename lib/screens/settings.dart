@@ -19,16 +19,112 @@ class _SettingsPageState extends State<SettingsPage> {
   late ThemeMode theme;
   String updateTitle = "Check for Updates";
 
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+    buildSignature: 'Unknown',
+    installerStore: 'Unknown',
+  );
+
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _packageInfo = info;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initPackageInfo();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final appTheme = context.watch<AppTheme>();
 
+    final appTheme = context.watch<AppTheme>();
+    
     return ScaffoldPage.scrollable(
       resizeToAvoidBottomInset: false,
       header: const PageHeader(
         title: Text('Settings'),
       ),
       children: [
+        CardHighlight(
+          child: Row(
+            children: [
+              /* const SizedBox(width: 5.0),
+              const Icon(FluentIcons.refresh, size: 24),
+              const SizedBox(width: 15.0), */
+              Expanded(
+                child: SizedBox(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      InfoLabel(label: 'Revision Tool'),
+                      Text(
+                         'Version ${_packageInfo.version}.${_packageInfo.buildNumber}',
+                         style: FluentTheme.of(context).brightness.isDark
+                            ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
+                            : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              Button(
+                    child: Text(updateTitle),
+                    onPressed: () async {
+                      Directory tempDir = await getTemporaryDirectory();
+                      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+                      int currentVersion = int.parse(packageInfo.version.replaceAll(".", ""));
+                      Map<String, dynamic> data = await Network.getJSON("https://api.github.com/repos/meetrevision/revision-tool/releases/latest");
+                      int latestVersion = int.parse(data["tag_name"].toString().replaceAll(".", ""));
+                      if (latestVersion > currentVersion) {
+                        setState(() {
+                          updateTitle = "Update was found";
+                        });
+                        showDialog(
+                          context: context,
+                          builder: (context) => ContentDialog(
+                            title: const Text("Update Available"),
+                            content: Text("Would you like to update Revision Tool to ${data["tag_name"]}?"),
+                            actions: [
+                              Button(
+                                child: const Text('OK'),
+                                onPressed: () async {
+                                  setState(() {
+                                    updateTitle = "Updating...";
+                                  });
+                                  Navigator.pop(context);
+                                  await Network.downloadNewVersion(data["assets"][0]["browser_download_url"], tempDir.path);
+                                  setState(() {
+                                    updateTitle = "Updated successfully";
+                                  });
+                                },
+                              ),
+                              FilledButton(
+                                child: const Text('Not now'),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        setState(() {
+                          updateTitle = "No update was found";
+                        });
+                      }
+                    },
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 5.0),
         CardHighlight(
           child: Row(
             children: [
@@ -120,70 +216,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   });
                 },
               ),
-            ],
-          ),
-        ),
-        //
-        Padding(
-          padding: const EdgeInsets.only(top: 5),
-          child: Flex(
-            direction: Axis.horizontal,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 5, bottom: 5),
-                child: SizedBox(
-                  width: 150,
-                  child: Button(
-                    child: Text(updateTitle),
-                    onPressed: () async {
-                      Directory tempDir = await getTemporaryDirectory();
-                      PackageInfo packageInfo = await PackageInfo.fromPlatform();
-                      int currentVersion = int.parse(packageInfo.version.replaceAll(".", ""));
-                      Map<String, dynamic> data = await Network.getJSON("https://api.github.com/repos/meetrevision/revision-tool/releases/latest");
-                      int latestVersion = int.parse(data["tag_name"].toString().replaceAll(".", ""));
-                      if (latestVersion > currentVersion) {
-                        setState(() {
-                          updateTitle = "Update was found";
-                        });
-                        showDialog(
-                          context: context,
-                          builder: (context) => ContentDialog(
-                            title: const Text("Update Available"),
-                            content: Text("Would you like to update Revision Tool to ${data["tag_name"]}?"),
-                            actions: [
-                              Button(
-                                child: const Text('OK'),
-                                onPressed: () async {
-                                  setState(() {
-                                    updateTitle = "Updating...";
-                                  });
-                                  Navigator.pop(context);
-                                  await Network.downloadNewVersion(data["assets"][0]["browser_download_url"], tempDir.path);
-                                  setState(() {
-                                    updateTitle = "Updated successfully";
-                                  });
-                                },
-                              ),
-                              FilledButton(
-                                child: const Text('Not now'),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ],
-                          ),
-                        );
-                      } else {
-                        setState(() {
-                          updateTitle = "No update was found";
-                        });
-                      }
-                    },
-                  ),
-                ),
-              ),
-              //
             ],
           ),
         ),
