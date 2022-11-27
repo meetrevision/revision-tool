@@ -19,7 +19,7 @@ class _SettingsPageState extends State<SettingsPage> {
   late ThemeMode theme;
   String updateTitle = "Check for Updates";
 
-  PackageInfo _packageInfo = PackageInfo(
+  PackageInfo packageInfo = PackageInfo(
     appName: 'Unknown',
     packageName: 'Unknown',
     version: 'Unknown',
@@ -31,7 +31,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _initPackageInfo() async {
     final info = await PackageInfo.fromPlatform();
     setState(() {
-      _packageInfo = info;
+      packageInfo = info;
     });
   }
 
@@ -65,7 +65,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     children: [
                       InfoLabel(label: 'Revision Tool'),
                       Text(
-                         'Version ${_packageInfo.version}.${_packageInfo.buildNumber}',
+                         'Version ${packageInfo.version}.${packageInfo.buildNumber}',
                          style: FluentTheme.of(context).brightness.isDark
                             ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
                             : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
@@ -78,9 +78,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     child: Text(updateTitle),
                     onPressed: () async {
                       Directory tempDir = await getTemporaryDirectory();
-                      PackageInfo packageInfo = await PackageInfo.fromPlatform();
                       int currentVersion = int.parse(packageInfo.version.replaceAll(".", ""));
                       Map<String, dynamic> data = await Network.getJSON("https://api.github.com/repos/meetrevision/revision-tool/releases/latest");
+                      String versionDetails = data["body"] ;
                       int latestVersion = int.parse(data["tag_name"].toString().replaceAll(".", ""));
                       if (latestVersion > currentVersion) {
                         setState(() {
@@ -90,10 +90,10 @@ class _SettingsPageState extends State<SettingsPage> {
                           context: context,
                           builder: (context) => ContentDialog(
                             title: const Text("Update Available"),
-                            content: Text("Would you like to update Revision Tool to ${data["tag_name"]}?"),
+                            content: Text("$versionDetails \r\n\r\nWould you like to update to ${data["tag_name"]}?"),
                             actions: [
                               Button(
-                                child: const Text('OK'),
+                                child: const Text('Install'),
                                 onPressed: () async {
                                   setState(() {
                                     updateTitle = "Updating...";
@@ -101,12 +101,12 @@ class _SettingsPageState extends State<SettingsPage> {
                                   Navigator.pop(context);
                                   await Network.downloadNewVersion(data["assets"][0]["browser_download_url"], tempDir.path);
                                   setState(() {
-                                    updateTitle = "Updated successfully";
+                                    updateTitle = "Updated successfully!";
                                   });
                                 },
                               ),
                               FilledButton(
-                                child: const Text('Not now'),
+                                child: const Text('Cancel'),
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
