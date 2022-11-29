@@ -22,13 +22,6 @@ jobs:
       
       - run: flutter build windows
       
-      - name: Copy dll files
-        uses: canastro/copy-file-action@master
-        with:
-          source: dlls/.
-          target: build/windows/runner/Release/
-          flags: '-r'
-      
       - name: Build Installer
         run: |
           "%programfiles(x86)%\Inno Setup 6\iscc.exe" "inno-setup.iss"

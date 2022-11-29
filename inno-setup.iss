@@ -43,9 +43,9 @@ Source: "{#SourcePath}\build\windows\runner\Release\flutter_windows.dll"; DestDi
 Source: "{#SourcePath}\build\windows\runner\Release\revitool.exp"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourcePath}\build\windows\runner\Release\revitool.lib"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourcePath}\build\windows\runner\Release\system_theme_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\windows\runner\Release\msvcp140.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\windows\runner\Release\vcruntime140.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\windows\runner\Release\vcruntime140_1.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\dlls\msvcp140.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\dlls\vcruntime140.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\dlls\vcruntime140_1.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourcePath}\build\windows\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
