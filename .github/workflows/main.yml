@@ -1,0 +1,37 @@
+on:
+  push:
+    branches:
+      - main
+name: "Build & Release"
+jobs:
+  build:
+    name: Build & Release
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+        
+      - run: flutter config --no-analytics
+      
+      - run: dart --disable-analytics
+      
+      - run: flutter pub get
+      
+      - run: flutter build windows
+      
+      - name: Build Installer
+        run: |
+          "%programfiles(x86)%\Inno Setup 6\iscc.exe" "inno-setup.iss"
+        shell: cmd
+        
+      - name: Release
+        uses: svenstaro/upload-release-action@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          repo_token: ${{ secrets.TOKEN }}
+          file: build/RevisionTool-Setup.exe
+          asset_name: RevisionTool-Setup.exe
+          tag: ${{ github.ref }}

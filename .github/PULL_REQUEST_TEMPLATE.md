@@ -1,4 +1,3 @@
-<!-- Credits to brave-browser -->
 Resolves 
 
 ## Submitter Checklist:
