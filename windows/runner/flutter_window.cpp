@@ -43,11 +43,12 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
                               LPARAM const lparam) noexcept {
   // Give Flutter, including plugins, an opportunity to handle window messages.
   if (flutter_controller_) {
-    std::optional<LRESULT> result =
+    bool handled = false;
+    LRESULT result =
         flutter_controller_->HandleTopLevelWindowProc(hwnd, message, wparam,
-                                                      lparam);
-    if (result) {
-      return *result;
+                                                      lparam, &handled);
+    if (handled) {
+      return result;
     }
   }
 
