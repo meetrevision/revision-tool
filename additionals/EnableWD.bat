@@ -22,6 +22,7 @@ for /f %%i in ('reg query "HKLM\SYSTEM\ControlSet001\Services" /s /k "webthreatd
 ::
 reg delete "HKLM\Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\smartscreen.exe" /f >NUL 2>nul
 reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Associations" /f >NUL 2>nul
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" /v "SmartScreenEnabled" /t REG_SZ /d "On" /f >NUL 2>nul
 reg delete "HKLM\Software\Policies\Microsoft\Windows Defender\SmartScreen" /f >NUL 2>nul
 reg delete "HKLM\Software\Policies\Microsoft\Windows Defender\Signature Updates" /f >NUL 2>nul
 goto :EOF

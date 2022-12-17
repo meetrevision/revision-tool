@@ -34,6 +34,16 @@ class _HomePageState extends State<HomePage> {
   AutoSuggestBoxItem<String?>? selectedPage;
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     assert(debugCheckHasFluentTheme(context));
     // final theme = FluentTheme.of(context);

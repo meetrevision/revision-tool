@@ -16,6 +16,17 @@ class _SecurityPageState extends State<SecurityPage> {
   bool uacBool = readRegistryInt(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableLUA') != 0;
   bool smBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettingsOverride') != 3;
   bool iTSXBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\Session Manager\Kernel', 'DisableTsx') == 0;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
@@ -26,274 +37,175 @@ class _SecurityPageState extends State<SecurityPage> {
         ),
       ),
       children: [
-        //  subtitle(content: const Text('A simple ToggleSwitch')),
-        CardHighlight(
-          child: Row(
-            children: [
-              const SizedBox(width: 5.0),
-              const Icon(
-                FluentIcons.defender_app,
-                size: 24,
-              ),
-              const SizedBox(width: 15.0),
-              Expanded(
-                child: SizedBox(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      InfoLabel(label: 'Windows Defender'),
-                      Text(
-                        "Windows Defender will protect your PC. This will have a minor performance impact due to constantly running in the background.",
-                        style: FluentTheme.of(context).brightness.isDark
-                            ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
-                            : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
-                      )
-                    ],
+        CardHighlightSwitch(
+          icon: FluentIcons.defender_app,
+          label: "Windows Defender",
+          description: "Windows Defender will protect your PC. This will have a minor performance impact due to constantly running in the background.",
+          switchBool: wdBool,
+          function: (value) async {
+            setState(() {
+              wdBool = value;
+            });
+            if (wdBool) {
+              await run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\EnableWD.bat"');
+              // // Services and Drivers
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\MsSecFlt', 'Start', 0);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\SecurityHealthService', 'Start', 3);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\Sense', 'Start', 3);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WdBoot', 'Start', 0);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WdFilter', 'Start', 0);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WdNisDrv', 'Start', 3);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WdNisSvc', 'Start', 3);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WinDefend', 'Start', 3);
+              // // SystemGuard
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\SgrmAgent', 'Start', 0);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\SgrmBroker', 'Start', 2);
+              // // WindowsSystemTray
+              // writeRegistryString(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Run', 'SecurityHealth', r'%systemroot%\system32\SecurityHealthSystray.exe');
+              // // WebThreatDefSvc
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\webthreatdefsvc', 'Start', 0);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\webthreatdefusersvc', 'Start', 2);
+              // final key = Registry.openPath(RegistryHive.localMachine, path: r'SYSTEM\ControlSet001\Services');
+              // String wtdsvcKey = '';
+              // for (final value in key.subkeyNames) {
+              //   if (value.toString().contains("webthreatdefusersvc_")) {
+              //     wtdsvcKey = value.toString();
+              //   }
+              // }
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\' + wtdsvcKey, 'Start', 2);
+              // deleteRegistryKey(Registry.localMachine, r'Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\smartscreen.exe');
+              // deleteRegistryKey(Registry.currentUser, r'Software\Microsoft\Windows\CurrentVersion\Policies\Associations');
+              // deleteRegistryKey(Registry.localMachine, r'Software\Policies\Microsoft\Windows Defender\SmartScreen');
+              // deleteRegistryKey(Registry.localMachine, r'Software\Policies\Microsoft\Windows Defender\Signature Updates');
+            } else {
+              await run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\DisableWD.bat"');
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\MsSecFlt', 'Start', 4);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\SecurityHealthService', 'Start', 4);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\Sense', 'Start', 4);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WdBoot', 'Start', 4);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WdFilter', 'Start', 4);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WdNisDrv', 'Start', 4);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WdNisSvc', 'Start', 4);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WinDefend', 'Start', 4);
+              // // SystemGuard
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\SgrmAgent', 'Start', 4);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\SgrmBroker', 'Start', 4);
+              // // WindowsSystemTray
+              // deleteRegistry(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Run', 'SecurityHealth');
+              // // WebThreatDefSvc
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\webthreatdefsvc', 'Start', 4);
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\webthreatdefusersvc', 'Start', 4);
+              // final key = Registry.openPath(RegistryHive.localMachine, path: r'SYSTEM\ControlSet001\Services');
+              // String wtdsvcKey = '';
+              // for (final value in key.subkeyNames) {
+              //   if (value.toString().contains("webthreatdefusersvc_")) {
+              //     wtdsvcKey = value.toString();
+              //   }
+              // }
+              // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\' + wtdsvcKey, 'Start', 4);
+              // writeRegistryString(
+              //     Registry.localMachine, r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\smartscreen.exe', 'Debugger', r'%%windir%%\System32\taskkill.exe');
+              // writeRegistryDword(Registry.currentUser, r'Software\Microsoft\Windows\CurrentVersion\Policies\Associations', 'DefaultFileTypeRisk', 1808);
+              // writeRegistryDword(Registry.currentUser, r'Software\Microsoft\Windows\CurrentVersion\Policies\Associations', 'SaveZoneInformation', 1);
+              // writeRegistryString(Registry.localMachine, r'Software\Microsoft\Windows\CurrentVersion\Policies\Associations', 'LowRiskFileTypes',
+              //     r'.avi;.bat;.com;.cmd;.exe;.htm;.html;.lnk;.mpg;.mpeg;.mov;.mp3;.msi;.m3u;.rar;.reg;.txt;.vbs;.wav;.zip;');
+              // writeRegistryString(Registry.localMachine, r'Software\Microsoft\Windows\CurrentVersion\Policies\Associations', 'ModRiskFileTypes', r'.bat;.exe;.reg;.vbs;.chm;.msi;.js;.cmd');
+              // writeRegistryDword(Registry.localMachine, r'Software\Policies\Microsoft\Windows Defender\SmartScreen', 'ConfigureAppInstallControlEnabled', 0);
+              // writeRegistryDword(Registry.localMachine, r'Software\Policies\Microsoft\Windows Defender\SmartScreen', 'ConfigureAppInstallControl', 0);
+              // writeRegistryDword(Registry.localMachine, r'Software\Policies\Microsoft\Windows Defender\SmartScreen', 'EnableSmartScreen', 0);
+              // writeRegistryDword(Registry.currentUser, r'Software\Policies\Microsoft\MicrosoftEdge\PhishingFilter', 'EnabledV9', 0);
+              // writeRegistryDword(Registry.localMachine, r'Software\Policies\Microsoft\MicrosoftEdge\PhishingFilter', 'EnabledV9', 0);
+            }
+
+            showDialog(
+              context: context,
+              builder: (context) => ContentDialog(
+                content: const Text("You must restart your computer for the changes to take effect"),
+                actions: [
+                  Button(
+                    child: const Text('OK'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
                   ),
-                ),
+                ],
               ),
-              const SizedBox(width: 5.0),
-              Text(wdBool ? "On" : "Off"),
-              const SizedBox(width: 10.0),
-              ToggleSwitch(
-                checked: wdBool,
-                onChanged: (bool value) async {
-                  setState(() {
-                    wdBool = value;
-                  });
-                  if (wdBool) {
-                    run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\EnableWD.bat"');
-                    // // Services and Drivers
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\MsSecFlt', 'Start', 0);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\SecurityHealthService', 'Start', 3);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\Sense', 'Start', 3);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WdBoot', 'Start', 0);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WdFilter', 'Start', 0);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WdNisDrv', 'Start', 3);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WdNisSvc', 'Start', 3);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WinDefend', 'Start', 3);
-                    // // SystemGuard
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\SgrmAgent', 'Start', 0);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\SgrmBroker', 'Start', 2);
-                    // // WindowsSystemTray
-                    // writeRegistryString(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Run', 'SecurityHealth', r'%systemroot%\system32\SecurityHealthSystray.exe');
-                    // // WebThreatDefSvc
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\webthreatdefsvc', 'Start', 0);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\webthreatdefusersvc', 'Start', 2);
-                    // final key = Registry.openPath(RegistryHive.localMachine, path: r'SYSTEM\ControlSet001\Services');
-                    // String wtdsvcKey = '';
-                    // for (final value in key.subkeyNames) {
-                    //   if (value.toString().contains("webthreatdefusersvc_")) {
-                    //     wtdsvcKey = value.toString();
-                    //   }
-                    // }
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\' + wtdsvcKey, 'Start', 2);
-                    // deleteRegistryKey(Registry.localMachine, r'Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\smartscreen.exe');
-                    // deleteRegistryKey(Registry.currentUser, r'Software\Microsoft\Windows\CurrentVersion\Policies\Associations');
-                    // deleteRegistryKey(Registry.localMachine, r'Software\Policies\Microsoft\Windows Defender\SmartScreen');
-                    // deleteRegistryKey(Registry.localMachine, r'Software\Policies\Microsoft\Windows Defender\Signature Updates');
-                  } else {
-                    run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\DisableWD.bat"');
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\MsSecFlt', 'Start', 4);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\SecurityHealthService', 'Start', 4);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\Sense', 'Start', 4);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WdBoot', 'Start', 4);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WdFilter', 'Start', 4);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WdNisDrv', 'Start', 4);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WdNisSvc', 'Start', 4);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\WinDefend', 'Start', 4);
-                    // // SystemGuard
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\SgrmAgent', 'Start', 4);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\SgrmBroker', 'Start', 4);
-                    // // WindowsSystemTray
-                    // deleteRegistry(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Run', 'SecurityHealth');
-                    // // WebThreatDefSvc
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\webthreatdefsvc', 'Start', 4);
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\webthreatdefusersvc', 'Start', 4);
-                    // final key = Registry.openPath(RegistryHive.localMachine, path: r'SYSTEM\ControlSet001\Services');
-                    // String wtdsvcKey = '';
-                    // for (final value in key.subkeyNames) {
-                    //   if (value.toString().contains("webthreatdefusersvc_")) {
-                    //     wtdsvcKey = value.toString();
-                    //   }
-                    // }
-                    // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\' + wtdsvcKey, 'Start', 4);
-                    // writeRegistryString(
-                    //     Registry.localMachine, r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\smartscreen.exe', 'Debugger', r'%%windir%%\System32\taskkill.exe');
-                    // writeRegistryDword(Registry.currentUser, r'Software\Microsoft\Windows\CurrentVersion\Policies\Associations', 'DefaultFileTypeRisk', 1808);
-                    // writeRegistryDword(Registry.currentUser, r'Software\Microsoft\Windows\CurrentVersion\Policies\Associations', 'SaveZoneInformation', 1);
-                    // writeRegistryString(Registry.localMachine, r'Software\Microsoft\Windows\CurrentVersion\Policies\Associations', 'LowRiskFileTypes',
-                    //     r'.avi;.bat;.com;.cmd;.exe;.htm;.html;.lnk;.mpg;.mpeg;.mov;.mp3;.msi;.m3u;.rar;.reg;.txt;.vbs;.wav;.zip;');
-                    // writeRegistryString(Registry.localMachine, r'Software\Microsoft\Windows\CurrentVersion\Policies\Associations', 'ModRiskFileTypes', r'.bat;.exe;.reg;.vbs;.chm;.msi;.js;.cmd');
-                    // writeRegistryDword(Registry.localMachine, r'Software\Policies\Microsoft\Windows Defender\SmartScreen', 'ConfigureAppInstallControlEnabled', 0);
-                    // writeRegistryDword(Registry.localMachine, r'Software\Policies\Microsoft\Windows Defender\SmartScreen', 'ConfigureAppInstallControl', 0);
-                    // writeRegistryDword(Registry.localMachine, r'Software\Policies\Microsoft\Windows Defender\SmartScreen', 'EnableSmartScreen', 0);
-                    // writeRegistryDword(Registry.currentUser, r'Software\Policies\Microsoft\MicrosoftEdge\PhishingFilter', 'EnabledV9', 0);
-                    // writeRegistryDword(Registry.localMachine, r'Software\Policies\Microsoft\MicrosoftEdge\PhishingFilter', 'EnabledV9', 0);
-                  }
-                },
-              ),
-            ],
-          ),
+            );
+          },
         ),
         //
         const SizedBox(height: 5.0),
-        CardHighlight(
-          child: Row(
-            children: [
-              const SizedBox(width: 5.0),
-              const Icon(
-                FluentIcons.local_admin,
-                size: 24,
-              ),
-              const SizedBox(width: 15.0),
-              Expanded(
-                child: SizedBox(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      InfoLabel(label: 'User Account Control'),
-                      Text(
-                        "Limits application to standard user privileges until an administrator authorizes an elevation.",
-                        style: FluentTheme.of(context).brightness.isDark
-                            ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
-                            : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 5.0),
-              Text(uacBool ? "On" : "Off"),
-              const SizedBox(width: 10.0),
-              ToggleSwitch(
-                checked: uacBool,
-                onChanged: (bool value) {
-                  setState(() {
-                    uacBool = value;
-                  });
-                  if (uacBool) {
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableVirtualization', 1);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableInstallerDetection', 1);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'PromptOnSecureDesktop', 1);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableLUA', 1);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableSecureUIAPaths', 1);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ConsentPromptBehaviorAdmin', 5);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ValidateAdminCodeSignatures', 0);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableUIADesktopToggle', 0);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ConsentPromptBehaviorUser', 3);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'FilterAdministratorToken', 0);
-                  } else {
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableVirtualization', 0);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableInstallerDetection', 0);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'PromptOnSecureDesktop', 0);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableLUA', 0);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableSecureUIAPaths', 0);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ConsentPromptBehaviorAdmin', 0);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ValidateAdminCodeSignatures', 0);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableUIADesktopToggle', 0);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ConsentPromptBehaviorUser', 0);
-                    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'FilterAdministratorToken', 0);
-                  }
-                },
-              ),
-            ],
-          ),
+        CardHighlightSwitch(
+          icon: FluentIcons.local_admin,
+          label: "User Account Control",
+          description: "Limits application to standard user privileges until an administrator authorizes an elevation",
+          switchBool: uacBool,
+          function: (value) async {
+            setState(() {
+              uacBool = value;
+            });
+            if (uacBool) {
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableVirtualization', 1);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableInstallerDetection', 1);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'PromptOnSecureDesktop', 1);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableLUA', 1);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableSecureUIAPaths', 1);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ConsentPromptBehaviorAdmin', 5);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ValidateAdminCodeSignatures', 0);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableUIADesktopToggle', 0);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ConsentPromptBehaviorUser', 3);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'FilterAdministratorToken', 0);
+            } else {
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableVirtualization', 0);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableInstallerDetection', 0);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'PromptOnSecureDesktop', 0);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableLUA', 0);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableSecureUIAPaths', 0);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ConsentPromptBehaviorAdmin', 0);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ValidateAdminCodeSignatures', 0);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableUIADesktopToggle', 0);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ConsentPromptBehaviorUser', 0);
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'FilterAdministratorToken', 0);
+            }
+          },
         ),
         const SizedBox(height: 5.0),
-        //
-        CardHighlight(
-          child: Row(
-            children: [
-              const SizedBox(width: 5.0),
-              const Icon(
-                FluentIcons.a_t_p_logo,
-                size: 24,
-              ),
-              const SizedBox(width: 15.0),
-              Expanded(
-                child: SizedBox(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      InfoLabel(label: 'Spectre & Meltdown Mitigation'),
-                      Text(
-                        "Patches to enable mitigation against Spectre & Meltdown vulnerabilities.",
-                        style: FluentTheme.of(context).brightness.isDark
-                            ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
-                            : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 5.0),
-              Text(smBool ? "On" : "Off"),
-              const SizedBox(width: 10.0),
-              ToggleSwitch(
-                checked: smBool,
-                onChanged: (bool value) {
-                  setState(() {
-                    smBool = value;
-                  });
-                  if (smBool) {
-                    deleteRegistry(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettings');
-                    writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettingsOverride', 0);
-                    writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettingsOverrideMask', 3);
-                  } else {
-                    writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettings', 1);
-                    writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettingsOverride', 3);
-                    writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettingsOverrideMask', 3);
-                  }
-                },
-              ),
-            ],
-          ),
+        CardHighlightSwitch(
+          icon: FluentIcons.a_t_p_logo,
+          label: "Spectre & Meltdown Mitigation",
+          description: "Patches to enable mitigation against Spectre & Meltdown vulnerabilities.",
+          switchBool: smBool,
+          function: (value) async {
+            setState(() {
+              smBool = value;
+            });
+            if (smBool) {
+              deleteRegistry(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettings');
+              writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettingsOverride', 0);
+              writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettingsOverrideMask', 3);
+            } else {
+              writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettings', 1);
+              writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettingsOverride', 3);
+              writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettingsOverrideMask', 3);
+            }
+          },
         ),
         const SizedBox(height: 5.0),
-        //
-        CardHighlight(
-          child: Row(
-            children: [
-              const SizedBox(width: 5.0),
-              const Icon(
-                FluentIcons.market,
-                size: 24,
-              ),
-              const SizedBox(width: 15.0),
-              Expanded(
-                child: SizedBox(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      InfoLabel(label: 'Intel TSX'),
-                      Text(
-                        "Add hardware transactional memory support, which helps speed up the execution of multithreaded software.",
-                        style: FluentTheme.of(context).brightness.isDark
-                            ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
-                            : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              Text(iTSXBool ? "On" : "Off"),
-              const SizedBox(width: 10.0),
-              ToggleSwitch(
-                checked: iTSXBool,
-                onChanged: (bool value) {
-                  setState(() {
-                    iTSXBool = value;
-                  });
-                  if (smBool) {
-                    writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\kernel', 'DisableTsx', 0);
-                  } else {
-                    writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\kernel', 'DisableTsx', 1);
-                  }
-                },
-              ),
-            ],
-          ),
+        CardHighlightSwitch(
+          icon: FluentIcons.market,
+          label: "Intel TSX",
+          description: "Add hardware transactional memory support, which helps speed up the execution of multithreaded software.",
+          switchBool: iTSXBool,
+          function: (value) async {
+            setState(() {
+              iTSXBool = value;
+            });
+            if (smBool) {
+              writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\kernel', 'DisableTsx', 0);
+            } else {
+              writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\kernel', 'DisableTsx', 1);
+            }
+          },
         ),
       ],
     );
