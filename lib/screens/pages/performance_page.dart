@@ -83,7 +83,7 @@ class _PerformancePageState extends State<PerformancePage> {
           CardHighlightSwitch(
             icon: msicons.FluentIcons.ram_20_regular,
             label: "Memory Compression",
-            description: "Save memory by compressing unused programs running in the background. Might have a small impact on CPU usage depends on a hardware",
+            description: "Save memory by compressing unused programs running in the background. Might have a small impact on CPU usage depending on hardware",
             switchBool: mcBool,
             function: (value) {
               setState(() {
@@ -102,8 +102,8 @@ class _PerformancePageState extends State<PerformancePage> {
         const SizedBox(height: 5.0),
         CardHighlightSwitch(
           icon: FluentIcons.t_v_monitor,
-          label: "Fullscreen optimization",
-          description: "Fullscreen Optimizations may lead to better gaming and app performance when they are running in fullscreen mode",
+          label: "Fullscreen Optimizations",
+          description: "Fullscreen Optimizations may lead to better gaming and app performance when running in fullscreen mode",
           switchBool: foBool,
           function: (value) async {
             setState(() {
@@ -164,7 +164,7 @@ class _PerformancePageState extends State<PerformancePage> {
                       children: [
                         InfoLabel(label: 'Power Mode'),
                         Text(
-                          "Customized powerplans to improve system latency",
+                          "Customized power plans which improve system latency",
                           style: FluentTheme.of(context).brightness.isDark
                               ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
                               : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
