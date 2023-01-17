@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:revitool/l10n/generated/localizations.dart';
 import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
@@ -27,14 +28,14 @@ class _UpdatesPageState extends State<UpdatesPage> {
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
-      header: const PageHeader(
-        title: Text('Windows Updates'),
+      header: PageHeader(
+        title: Text(ReviLocalizations.of(context).pageUpdates),
       ),
       children: [
         CardHighlightSwitch(
           icon: FluentIcons.action_center,
-          label: "Hide the Windows Updates page",
-          description: "Showing this page will also enable update notifications.",
+          label: ReviLocalizations.of(context).wuPageLabel,
+          description: ReviLocalizations.of(context).wuPageDescription,
           switchBool: wuPageBool,
           function: (value) async {
             setState(() {
@@ -54,8 +55,8 @@ class _UpdatesPageState extends State<UpdatesPage> {
         const SizedBox(height: 5.0),
         CardHighlightSwitch(
           icon: FluentIcons.devices4,
-          label: "Automatic Driver Updates",
-          description: "Windows will automatically update drivers",
+          label: ReviLocalizations.of(context).wuDriversLabel,
+          description: ReviLocalizations.of(context).wuDriversDescription,
           switchBool: wuDriversBool,
           function: (value) async {
             setState(() {

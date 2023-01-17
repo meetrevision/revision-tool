@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:revitool/l10n/generated/localizations.dart';
 // import 'package:flutter/material.dart';
 
 import 'package:revitool/utils.dart';
@@ -43,14 +44,14 @@ class _PerformancePageState extends State<PerformancePage> {
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
-      header: const PageHeader(
-        title: Text('Performance'),
+      header: PageHeader(
+        title: Text(ReviLocalizations.of(context).pagePerformance),
       ),
       children: [
         CardHighlightSwitch(
           icon: FluentIcons.speed_high,
-          label: "Superfetch",
-          description: "Speed up your system performance by prefetching frequently used apps. Enabling Superfetch is recommended for HDD users",
+          label: ReviLocalizations.of(context).perfSuperfetchLabel,
+          description: ReviLocalizations.of(context).perfSuperfetchDescription,
           switchBool: sfBool,
           function: (value) async {
             setState(() {
@@ -65,10 +66,10 @@ class _PerformancePageState extends State<PerformancePage> {
             showDialog(
               context: context,
               builder: (context) => ContentDialog(
-                content: const Text("You must restart your computer for the changes to take effect"),
+                content: Text(ReviLocalizations.of(context).restartDialog),
                 actions: [
                   Button(
-                    child: const Text('OK'),
+                    child: Text(ReviLocalizations.of(context).okButton),
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -82,8 +83,8 @@ class _PerformancePageState extends State<PerformancePage> {
           const SizedBox(height: 5.0),
           CardHighlightSwitch(
             icon: msicons.FluentIcons.ram_20_regular,
-            label: "Memory Compression",
-            description: "Save memory by compressing unused programs running in the background. Might have a small impact on CPU usage depending on hardware",
+            label: ReviLocalizations.of(context).perfMCLabel,
+            description: ReviLocalizations.of(context).perfMCDescription,
             switchBool: mcBool,
             function: (value) {
               setState(() {
@@ -102,8 +103,8 @@ class _PerformancePageState extends State<PerformancePage> {
         const SizedBox(height: 5.0),
         CardHighlightSwitch(
           icon: FluentIcons.t_v_monitor,
-          label: "Fullscreen Optimizations",
-          description: "Fullscreen Optimizations may lead to better gaming and app performance when running in fullscreen mode",
+          label: ReviLocalizations.of(context).perfFOLabel,
+          description: ReviLocalizations.of(context).perfFODescription,
           switchBool: foBool,
           function: (value) async {
             setState(() {
@@ -147,74 +148,12 @@ class _PerformancePageState extends State<PerformancePage> {
           },
         ),
         if (expBool) ...[
-          const SizedBox(height: 5.0),
-          CardHighlight(
-            child: Row(
-              children: [
-                const SizedBox(width: 5.0),
-                const Icon(
-                  FluentIcons.lightbulb,
-                  size: 24,
-                ),
-                const SizedBox(width: 15.0),
-                Expanded(
-                  child: SizedBox(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        InfoLabel(label: 'Power Mode'),
-                        Text(
-                          "Customized power plans which improve system latency",
-                          style: FluentTheme.of(context).brightness.isDark
-                              ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
-                              : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                ComboBox(
-                  value: powerPlan,
-                  items: [
-                    ComboBoxItem(
-                      value: "3ff9831b-6f80-4830-8178-736cd4229e7b",
-                      child: const Text("Ultra Performance"),
-                      onTap: () => setState(() {
-                        powerPlan = "3ff9831b-6f80-4830-8178-736cd4229e7b";
-                      }),
-                    ),
-                    ComboBoxItem(
-                      value: "e19c287e-faa8-494f-adf0-d8ed5ee4eef1",
-                      child: const Text("Ultimate Performance"),
-                      onTap: () => setState(() {
-                        powerPlan = "e19c287e-faa8-494f-adf0-d8ed5ee4eef1";
-                      }),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    if (powerPlan == "3ff9831b-6f80-4830-8178-736cd4229e7b") {
-                      run('"powercfg /S 3ff9831b-6f80-4830-8178-736cd4229e7b"');
-                    } else {
-                      run('"powercfg /S e19c287e-faa8-494f-adf0-d8ed5ee4eef1"');
-                    }
-                    /* Error 0x80070005: Access is denied.
-                    if (powerPlan == "3ff9831b-6f80-4830-8178-736cd4229e7b") {
-                      writeRegistryString(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Power\User\PowerSchemes', 'ActivePowerScheme', "3ff9831b-6f80-4830-8178-736cd4229e7b");
-                    } else {
-                      writeRegistryString(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Power\User\PowerSchemes', 'ActivePowerScheme', "e19c287e-faa8-494f-adf0-d8ed5ee4eef1");
-                    }
-                  */
-                  },
-                ),
-              ],
-            ),
-          ),
-          subtitle(content: const Text("Filesystem")),
+          subtitle(content: Text(ReviLocalizations.of(context).perfSectionFS)),
           const SizedBox(height: 5.0),
           CardHighlightSwitch(
             icon: FluentIcons.time_entry,
-            label: "Last Access Time",
-            description: "Disabling Last Time Access improves the speed of file and directory access, reduces disk I/O load and latency",
+            label: ReviLocalizations.of(context).perfLTALabel,
+            description: ReviLocalizations.of(context).perfLTADescription,
             switchBool: ntfsLTABool,
             function: (value) async {
               setState(() {
@@ -230,8 +169,8 @@ class _PerformancePageState extends State<PerformancePage> {
           const SizedBox(height: 5.0),
           CardHighlightSwitch(
             icon: FluentIcons.file_system,
-            label: "8.3 Naming",
-            description: "Disabling 8.3 names improves speed and security",
+            label: ReviLocalizations.of(context).perfEdTLabel,
+            description: ReviLocalizations.of(context).perfEdTDescription,
             switchBool: ntfsEdTBool,
             function: (value) {
               setState(() {
@@ -247,7 +186,7 @@ class _PerformancePageState extends State<PerformancePage> {
           const SizedBox(height: 5.0),
           CardHighlightSwitch(
             icon: FluentIcons.hard_drive_unlock,
-            label: "Increase the limit of paged pool memory to NTFS",
+            label: ReviLocalizations.of(context).perfMULabel,
             switchBool: ntfsMUBool,
             function: (value) async {
               setState(() {
@@ -260,8 +199,7 @@ class _PerformancePageState extends State<PerformancePage> {
               }
             },
             expandTitle: "More information",
-            codeSnippet:
-                "Increasing the physical memory doesn't always increase the amount of paged pool memory available to NTFS. Setting memoryusage to 2 raises the limit of paged pool memory. This might improve performance if your system is opening and closing many files in the same fileset and is not already using large amounts of system memory for other apps or for cache memory. If your computer is already using large amounts of system memory for other apps or for cache memory, increasing the limit of NTFS paged and non-paged pool memory reduces the available pool memory for other processes. This might reduce overall system performance.\n\nDefault is Off",
+            codeSnippet: ReviLocalizations.of(context).perfMUDescription,
           ),
         ]
       ],

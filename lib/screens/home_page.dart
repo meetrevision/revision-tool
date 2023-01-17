@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:process_run/shell_run.dart';
+import 'package:revitool/l10n/generated/localizations.dart';
 import 'package:revitool/screens/pages/performance_page.dart';
 import 'package:revitool/screens/pages/security_page.dart';
 import 'package:revitool/screens/pages/updates_page.dart';
@@ -50,6 +51,12 @@ class _HomePageState extends State<HomePage> {
 
     return SafeArea(
       child: NavigationView(
+        contentShape: const RoundedRectangleBorder(
+          side: BorderSide(width: 0, color: Colors.transparent),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(8.0),
+          ),
+        ),
         appBar: NavigationAppBar(
           title: const Text('Revision Tool'),
           // automaticallyImplyLeading: false,
@@ -68,7 +75,6 @@ class _HomePageState extends State<HomePage> {
           // autoSuggestBoxReplacement: const Icon(FluentIcons.search),
           header: SizedBox(
             height: 80,
-
             // height: kOneLineTileHeight,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -89,7 +95,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Text(
                       "${Registry.openPath(RegistryHive.currentUser, path: r'Volatile Environment').getValueAsString("USERNAME")}",
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
                     ),
                     const Text(
                       "Proud ReviOS user",
@@ -103,7 +109,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           autoSuggestBox: AutoSuggestBox<String?>(
-            placeholder: "Find a setting",
+            placeholder: ReviLocalizations.of(context).suggestionBoxPlaceholder,
             items: pages.map((page) {
               return AutoSuggestBoxItem<String?>(
                   value: page,
@@ -121,22 +127,24 @@ class _HomePageState extends State<HomePage> {
 
           autoSuggestBoxReplacement: const Icon(FluentIcons.search),
           // footerItems: searchValue.isNotEmpty ? [] : footerItems,
-
+          size: NavigationPaneSize(
+            openWidth: MediaQuery.of(context).size.width / 4.5,
+          ),
           items: [
             PaneItem(
               icon: const Icon(FluentIcons.home),
-              title: const Text('Home'),
+              title: Text(ReviLocalizations.of(context).pageHome),
               body: const Home(),
             ),
             PaneItem(
               icon: const Icon(FluentIcons.defender_app),
-              title: const Text('Security'),
+              title: Text(ReviLocalizations.of(context).pageSecurity),
               body: const SecurityPage(),
             ),
             readRegistryString(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentBuildNumber') != "19045"
                 ? PaneItemExpander(
                     icon: const Icon(FluentIcons.search_and_apps),
-                    title: const Text('Usability'),
+                    title: Text(ReviLocalizations.of(context).pageUsability),
                     body: const UsabilityPage(),
                     items: [
                       PaneItem(
@@ -148,28 +156,28 @@ class _HomePageState extends State<HomePage> {
                   )
                 : PaneItem(
                     icon: const Icon(FluentIcons.search_and_apps),
-                    title: const Text('Usability'),
+                    title: Text(ReviLocalizations.of(context).pageUsability),
                     body: const UsabilityPage(),
                   ),
             PaneItem(
               icon: const Icon(FluentIcons.speed_high),
-              title: const Text('Performance'),
+              title: Text(ReviLocalizations.of(context).pagePerformance),
               body: const PerformancePage(),
             ),
             PaneItem(
               icon: const Icon(FluentIcons.update_restore),
-              title: const Text('Windows Updates'),
+              title: Text(ReviLocalizations.of(context).pageUpdates),
               body: const UpdatesPage(),
             ),
           ],
           footerItems: [
-            PaneItemSeparator(),
+            // PaneItemSeparator(),
             PaneItem(
               icon: const Icon(FluentIcons.settings),
-              title: const Text('Settings'),
+              title: Text(ReviLocalizations.of(context).pageSettings),
               body: const SettingsPage(),
             ),
-            PaneItemSeparator(),
+            PaneItemSeparator(color: Colors.transparent),
           ],
         ),
       ),
@@ -203,7 +211,7 @@ class Home extends StatelessWidget {
                 )
               ],
               Text(
-                "Welcome to Revision",
+                ReviLocalizations.of(context).homeWelcome,
                 style: FluentTheme.of(context).brightness.isDark ? const TextStyle(fontSize: 16, color: Color(0xB7FFFFFF)) : const TextStyle(fontSize: 16, color: Color.fromARGB(255, 117, 117, 117)),
               ),
               const Text(
@@ -213,7 +221,7 @@ class Home extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: Text(
-                  "A tool to personalize ReviOS to your needs",
+                  ReviLocalizations.of(context).homeDescription,
                   style: FluentTheme.of(context).brightness.isDark ? const TextStyle(fontSize: 16, color: Color(0xB7FFFFFF)) : const TextStyle(fontSize: 16, color: Color.fromARGB(255, 117, 117, 117)),
                 ),
               ),
@@ -222,7 +230,7 @@ class Home extends StatelessWidget {
                 child: SizedBox(
                   width: 175,
                   child: Button(
-                    child: const Text("Check out Revision"),
+                    child: Text(ReviLocalizations.of(context).homeReviLink),
                     onPressed: () async {
                       await run("rundll32 url.dll,FileProtocolHandler https://www.revi.cc");
                     },
@@ -234,7 +242,7 @@ class Home extends StatelessWidget {
                 child: SizedBox(
                   width: 175,
                   child: FilledButton(
-                    child: const Text("Check out FAQ"),
+                    child: Text(ReviLocalizations.of(context).homeReviFAQLink),
                     onPressed: () async {
                       await run("rundll32 url.dll,FileProtocolHandler https://revios.rignoa.com");
                     },

@@ -6,8 +6,8 @@ import 'package:win32_registry/win32_registry.dart';
 String mainPath = Platform.resolvedExecutable;
 String directoryExe = Directory("${mainPath.substring(0, mainPath.lastIndexOf("\\"))}\\data\\flutter_assets\\additionals").path;
 
-// Experimental features
-bool expBool = false;
+bool expBool = readRegistryInt(RegistryHive.localMachine, r'SOFTWARE\Revision\Revision Tool', 'Experimental') == 0 ? false : true;
+String? themeModeReg = readRegistryString(RegistryHive.localMachine, r'SOFTWARE\Revision\Revision Tool', 'ThemeMode');
 
 int? readRegistryInt(RegistryHive hive, String path, String value) {
   return Registry.openPath(
@@ -23,7 +23,7 @@ String? readRegistryString(RegistryHive hive, String path, String value) {
   ).getValueAsString(value);
 }
 
-void writeRegistryDword(RegistryKey key, String path, String name, int value) {
+Future<void> writeRegistryDword(RegistryKey key, String path, String name, int value) async {
   final regKey = key;
   var regPath = path;
   final subKey = regKey.createKey(regPath);

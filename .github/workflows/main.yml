@@ -19,6 +19,8 @@ jobs:
       - run: dart --disable-analytics
       
       - run: flutter pub get
+
+      - run: flutter gen-l10n
       
       - run: flutter build windows
       

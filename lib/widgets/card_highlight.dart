@@ -1,12 +1,12 @@
 import 'dart:math';
 
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:revitool/l10n/generated/localizations.dart';
 
 class CardHighlightSwitch extends StatefulWidget {
-  const CardHighlightSwitch({Key? key, this.backgroundColor, this.codeSnippet, this.expandTitle, this.icon, this.label, this.description, this.switchBool, required this.function}) : super(key: key);
+  const CardHighlightSwitch({Key? key, this.codeSnippet, this.expandTitle, this.icon, this.label, this.description, this.switchBool, required this.function}) : super(key: key);
   final String? codeSnippet;
   final String? expandTitle;
-  final Color? backgroundColor;
 
   final IconData? icon;
   final String? label;
@@ -31,8 +31,8 @@ class _CardHighlightSwitchState extends State<CardHighlightSwitch> with Automati
     return Column(
       children: [
         Card(
-          backgroundColor: widget.backgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(4.0)),
+          borderColor: FluentTheme.of(context).brightness.isDark ? const Color.fromARGB(255, 29, 29, 29) : const Color.fromARGB(255, 229, 229, 229),
+          borderRadius: const BorderRadius.all(Radius.circular(5.0)),
           child: SizedBox(
             // height: 44,
             width: double.infinity,
@@ -66,7 +66,7 @@ class _CardHighlightSwitchState extends State<CardHighlightSwitch> with Automati
                     ),
                   ),
                   const SizedBox(width: 2.0),
-                  Text(widget.switchBool! ? "On" : "Off"),
+                  Text(widget.switchBool! ? ReviLocalizations.of(context).onStatus : ReviLocalizations.of(context).offStatus),
                   const SizedBox(width: 10.0),
                   ToggleSwitch(
                     checked: widget.switchBool!,
@@ -155,8 +155,8 @@ class _CardHighlightState extends State<CardHighlight> with AutomaticKeepAliveCl
     super.build(context);
     return Column(children: [
       Card(
-        backgroundColor: widget.backgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(4.0)),
+        borderColor: FluentTheme.of(context).brightness.isDark ? const Color.fromARGB(255, 29, 29, 29) : const Color.fromARGB(255, 229, 229, 229),
+        borderRadius: const BorderRadius.all(Radius.circular(5.0)),
         child: SizedBox(
           // height: 44,
           width: double.infinity,

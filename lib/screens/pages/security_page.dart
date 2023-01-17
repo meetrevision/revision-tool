@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:process_run/shell_run.dart';
+import 'package:revitool/l10n/generated/localizations.dart';
 import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
@@ -30,17 +31,17 @@ class _SecurityPageState extends State<SecurityPage> {
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
-      header: const PageHeader(
+      header: PageHeader(
         title: Padding(
-          padding: EdgeInsets.only(left: 8.0),
-          child: Text('Security'),
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Text(ReviLocalizations.of(context).pageSecurity),
         ),
       ),
       children: [
         CardHighlightSwitch(
           icon: FluentIcons.defender_app,
-          label: "Windows Defender",
-          description: "Windows Defender will protect your PC. This will have a minor performance impact due to constantly running in the background.",
+          label: ReviLocalizations.of(context).securityWDLabel,
+          description: ReviLocalizations.of(context).securityWDDescription,
           switchBool: wdBool,
           function: (value) async {
             setState(() {
@@ -120,10 +121,10 @@ class _SecurityPageState extends State<SecurityPage> {
             showDialog(
               context: context,
               builder: (context) => ContentDialog(
-                content: const Text("You must restart your computer for the changes to take effect"),
+                content: Text(ReviLocalizations.of(context).restartDialog),
                 actions: [
                   Button(
-                    child: const Text('OK'),
+                    child: Text(ReviLocalizations.of(context).okButton),
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -137,8 +138,8 @@ class _SecurityPageState extends State<SecurityPage> {
         const SizedBox(height: 5.0),
         CardHighlightSwitch(
           icon: FluentIcons.local_admin,
-          label: "User Account Control",
-          description: "Limits application to standard user privileges until an administrator authorizes an elevation",
+          label: ReviLocalizations.of(context).securityUACLabel,
+          description: ReviLocalizations.of(context).securityUACDescription,
           switchBool: uacBool,
           function: (value) async {
             setState(() {
@@ -172,8 +173,8 @@ class _SecurityPageState extends State<SecurityPage> {
         const SizedBox(height: 5.0),
         CardHighlightSwitch(
           icon: FluentIcons.a_t_p_logo,
-          label: "Spectre & Meltdown Mitigation",
-          description: "Patches to enable mitigation against Spectre & Meltdown vulnerabilities.",
+          label: ReviLocalizations.of(context).securitySMLabel,
+          description: ReviLocalizations.of(context).securitySMDescription,
           switchBool: smBool,
           function: (value) async {
             setState(() {
@@ -193,8 +194,8 @@ class _SecurityPageState extends State<SecurityPage> {
         const SizedBox(height: 5.0),
         CardHighlightSwitch(
           icon: FluentIcons.market,
-          label: "Intel TSX",
-          description: "Add hardware transactional memory support, which helps speed up the execution of multithreaded software.",
+          label: ReviLocalizations.of(context).securityITSXLabel,
+          description: ReviLocalizations.of(context).securityITSXDescription,
           switchBool: iTSXBool,
           function: (value) async {
             setState(() {

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:revitool/l10n/generated/localizations.dart';
 import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
@@ -30,14 +31,14 @@ class _UsabilityPageState extends State<UsabilityPage> {
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
-      header: const PageHeader(
-        title: Text('Usability'),
+      header: PageHeader(
+        title: Text(ReviLocalizations.of(context).pageUsability),
       ),
       children: [
         CardHighlightSwitch(
           icon: FluentIcons.action_center,
-          label: "Windows Notifications",
-          description: "Completely toggle Windows notifications",
+          label: ReviLocalizations.of(context).usabilityNotifLabel,
+          description: ReviLocalizations.of(context).usabilityNotifDescription,
           switchBool: notifBool,
           function: (value) async {
             setState(() {
@@ -76,8 +77,8 @@ class _UsabilityPageState extends State<UsabilityPage> {
           const SizedBox(height: 5.0),
           CardHighlightSwitch(
             icon: FluentIcons.balloons,
-            label: "Legacy Notification Balloons",
-            description: "Completely toggle Windows notifications",
+            label: ReviLocalizations.of(context).usabilityLBNLabel,
+            description: ReviLocalizations.of(context).usabilityLBNDescription,
             switchBool: elbnBool,
             function: (value) async {
               setState(() {
@@ -98,8 +99,8 @@ class _UsabilityPageState extends State<UsabilityPage> {
         const SizedBox(height: 5.0),
         CardHighlightSwitch(
           icon: FluentIcons.keyboard_classic,
-          label: "Inking And Typing Personalization",
-          description: "Windows will learn what you type to improve suggestions when writing",
+          label: ReviLocalizations.of(context).usabilityITPLabel,
+          description: ReviLocalizations.of(context).usabilityITPDescription,
           switchBool: itpBool,
           function: (value) async {
             setState(() {

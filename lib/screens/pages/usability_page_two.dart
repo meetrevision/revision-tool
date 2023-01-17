@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:revitool/l10n/generated/localizations.dart';
 import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
@@ -29,13 +30,13 @@ class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
-      header: const PageHeader(
-        title: Text('Usability > Windows 11'),
+      header: PageHeader(
+        title: Text('${ReviLocalizations.of(context).pageUsability} > Windows 11'),
       ),
       children: [
         CardHighlightSwitch(
           icon: FluentIcons.context_menu,
-          label: "New Windows 11 Context Menu",
+          label: ReviLocalizations.of(context).usability11MRCLabel,
           switchBool: mrcBool,
           function: (value) async {
             setState(() {
@@ -60,7 +61,7 @@ class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
         const SizedBox(height: 5.0),
         CardHighlightSwitch(
           icon: FluentIcons.explore_content,
-          label: "File Explorer Tabs",
+          label: ReviLocalizations.of(context).usability11FETLabel,
           switchBool: fetBool,
           function: (value) async {
             setState(() {
