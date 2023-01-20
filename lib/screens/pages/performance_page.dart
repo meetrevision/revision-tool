@@ -23,7 +23,7 @@ class _PerformancePageState extends State<PerformancePage> {
       : true;
   bool mcBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters', 'isMemoryCompressionEnabled') != 0;
   bool foBool = readRegistryInt(RegistryHive.currentUser, r'System\GameConfigStore', "GameDVR_FSEBehaviorMode") != 2;
-
+  bool owgBool = readRegistryString(RegistryHive.currentUser, r'Software\Microsoft\DirectX\UserGpuPreferences', "DirectXUserGlobalSettings") == "SwapEffectUpgradeEnable=1;";
 //NTFS
   bool ntfsLTABool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FileSystem', "RefsDisableLastAccessUpdate") != 1;
   bool ntfsEdTBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FileSystem', "NtfsDisable8dot3NameCreation") != 1;
@@ -49,7 +49,7 @@ class _PerformancePageState extends State<PerformancePage> {
       ),
       children: [
         CardHighlightSwitch(
-          icon: FluentIcons.speed_high,
+          icon: msicons.FluentIcons.top_speed_20_regular,
           label: ReviLocalizations.of(context).perfSuperfetchLabel,
           description: ReviLocalizations.of(context).perfSuperfetchDescription,
           switchBool: sfBool,
@@ -102,7 +102,7 @@ class _PerformancePageState extends State<PerformancePage> {
         ],
         const SizedBox(height: 5.0),
         CardHighlightSwitch(
-          icon: FluentIcons.t_v_monitor,
+          icon: msicons.FluentIcons.desktop_20_regular,
           label: ReviLocalizations.of(context).perfFOLabel,
           description: ReviLocalizations.of(context).perfFODescription,
           switchBool: foBool,
@@ -147,11 +147,30 @@ class _PerformancePageState extends State<PerformancePage> {
             }
           },
         ),
+        if (w11) ...[
+          const SizedBox(height: 5.0),
+          CardHighlightSwitch(
+            icon: msicons.FluentIcons.desktop_mac_20_regular,
+            label: ReviLocalizations.of(context).perfOWGLabel,
+            description: ReviLocalizations.of(context).perfOWGDescription,
+            switchBool: owgBool,
+            function: (value) {
+              setState(() {
+                owgBool = value;
+              });
+              if (owgBool) {
+                writeRegistryString(Registry.currentUser, r'Software\Microsoft\DirectX\UserGpuPreferences', 'DirectXUserGlobalSettings', r'SwapEffectUpgradeEnable=1;');
+              } else {
+                deleteRegistry(Registry.currentUser, r'Software\Microsoft\DirectX\UserGpuPreferences', 'DirectXUserGlobalSettings');
+              }
+            },
+          ),
+        ],
         if (expBool) ...[
           subtitle(content: Text(ReviLocalizations.of(context).perfSectionFS)),
           const SizedBox(height: 5.0),
           CardHighlightSwitch(
-            icon: FluentIcons.time_entry,
+            icon: msicons.FluentIcons.document_bullet_list_clock_20_regular,
             label: ReviLocalizations.of(context).perfLTALabel,
             description: ReviLocalizations.of(context).perfLTADescription,
             switchBool: ntfsLTABool,
@@ -168,7 +187,7 @@ class _PerformancePageState extends State<PerformancePage> {
           ),
           const SizedBox(height: 5.0),
           CardHighlightSwitch(
-            icon: FluentIcons.file_system,
+            icon: msicons.FluentIcons.hard_drive_20_regular,
             label: ReviLocalizations.of(context).perfEdTLabel,
             description: ReviLocalizations.of(context).perfEdTDescription,
             switchBool: ntfsEdTBool,
@@ -185,7 +204,7 @@ class _PerformancePageState extends State<PerformancePage> {
           ),
           const SizedBox(height: 5.0),
           CardHighlightSwitch(
-            icon: FluentIcons.hard_drive_unlock,
+            icon: msicons.FluentIcons.memory_16_regular,
             label: ReviLocalizations.of(context).perfMULabel,
             switchBool: ntfsMUBool,
             function: (value) async {
@@ -198,7 +217,6 @@ class _PerformancePageState extends State<PerformancePage> {
                 run('fsutil behavior set memoryusage 1');
               }
             },
-            expandTitle: "More information",
             codeSnippet: ReviLocalizations.of(context).perfMUDescription,
           ),
         ]

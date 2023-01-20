@@ -4,6 +4,7 @@ import 'package:revitool/l10n/generated/localizations.dart';
 import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
 class SecurityPage extends StatefulWidget {
   const SecurityPage({super.key});
@@ -39,7 +40,7 @@ class _SecurityPageState extends State<SecurityPage> {
       ),
       children: [
         CardHighlightSwitch(
-          icon: FluentIcons.defender_app,
+          icon: msicons.FluentIcons.shield_20_regular,
           label: ReviLocalizations.of(context).securityWDLabel,
           description: ReviLocalizations.of(context).securityWDDescription,
           switchBool: wdBool,
@@ -137,7 +138,7 @@ class _SecurityPageState extends State<SecurityPage> {
         //
         const SizedBox(height: 5.0),
         CardHighlightSwitch(
-          icon: FluentIcons.local_admin,
+          icon: msicons.FluentIcons.person_lock_20_regular,
           label: ReviLocalizations.of(context).securityUACLabel,
           description: ReviLocalizations.of(context).securityUACDescription,
           switchBool: uacBool,
@@ -172,7 +173,7 @@ class _SecurityPageState extends State<SecurityPage> {
         ),
         const SizedBox(height: 5.0),
         CardHighlightSwitch(
-          icon: FluentIcons.a_t_p_logo,
+          icon: msicons.FluentIcons.shield_badge_20_regular,
           label: ReviLocalizations.of(context).securitySMLabel,
           description: ReviLocalizations.of(context).securitySMDescription,
           switchBool: smBool,
@@ -193,7 +194,7 @@ class _SecurityPageState extends State<SecurityPage> {
         ),
         const SizedBox(height: 5.0),
         CardHighlightSwitch(
-          icon: FluentIcons.market,
+          icon: msicons.FluentIcons.transmission_20_regular,
           label: ReviLocalizations.of(context).securityITSXLabel,
           description: ReviLocalizations.of(context).securityITSXDescription,
           switchBool: iTSXBool,

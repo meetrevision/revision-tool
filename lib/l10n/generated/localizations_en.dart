@@ -44,6 +44,9 @@ class ReviLocalizationsEn extends ReviLocalizations {
   String get pageUpdates => 'Windows Updates';
 
   @override
+  String get pageMiscellaneous => 'Miscellaneous';
+
+  @override
   String get pageSettings => 'Settings';
 
   @override
@@ -128,6 +131,12 @@ class ReviLocalizationsEn extends ReviLocalizations {
   String get perfFODescription => 'Fullscreen Optimizations may lead to better gaming and app performance when running in fullscreen mode';
 
   @override
+  String get perfOWGLabel => 'Optimizations for windowed games';
+
+  @override
+  String get perfOWGDescription => 'Improves frame latency by using a new presentation model for DirectX 10 and 11 games that appear in a window or in a borderless window';
+
+  @override
   String get perfSectionFS => 'Filesystem';
 
   @override
@@ -159,6 +168,12 @@ class ReviLocalizationsEn extends ReviLocalizations {
 
   @override
   String get wuDriversDescription => 'Windows will automatically update drivers';
+
+  @override
+  String get miscFastStartupLabel => 'Fast Startup & Hibernate';
+
+  @override
+  String get miscFastStartupDescription => 'Windows will save the current session to the hibernate (hiberfil.sys) file on disk in order to start your system faster on the next boot. This doesn\'t affect reboots.\nIt\'s disabled by default since it can make the system unstable in certain cases, like when dual-booting or upgrading the system';
 
   @override
   String get settingsUpdateButton => 'Check for Updates';

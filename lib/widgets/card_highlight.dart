@@ -4,9 +4,8 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
 
 class CardHighlightSwitch extends StatefulWidget {
-  const CardHighlightSwitch({Key? key, this.codeSnippet, this.expandTitle, this.icon, this.label, this.description, this.switchBool, required this.function}) : super(key: key);
+  const CardHighlightSwitch({Key? key, this.codeSnippet, this.icon, this.label, this.description, this.switchBool, required this.function}) : super(key: key);
   final String? codeSnippet;
-  final String? expandTitle;
 
   final IconData? icon;
   final String? label;
@@ -77,19 +76,22 @@ class _CardHighlightSwitchState extends State<CardHighlightSwitch> with Automati
             ),
           ),
         ),
-        if (widget.expandTitle != null) ...[
-          Expander(
-            key: PageStorageKey(key),
-            headerShape: (open) => const RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero,
+        if (widget.codeSnippet != null) ...[
+          Card(
+            padding: const EdgeInsets.all(0),
+            borderColor: FluentTheme.of(context).brightness.isDark ? const Color.fromARGB(255, 29, 29, 29) : const Color.fromARGB(255, 229, 229, 229),
+            backgroundColor: Colors.transparent,
+            child: Expander(
+              key: PageStorageKey(key),
+              headerShape: (open) => const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              onStateChanged: (state) {
+                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                  if (mounted) setState(() => isOpen = state);
+                });
+              },
+              header: Text(ReviLocalizations.of(context).moreInformation),
+              content: Text(widget.codeSnippet!),
             ),
-            onStateChanged: (state) {
-              WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                if (mounted) setState(() => isOpen = state);
-              });
-            },
-            header: Text("${widget.expandTitle}"),
-            content: Text("${widget.codeSnippet}"),
           ),
         ]
       ],
@@ -133,11 +135,10 @@ const fluentHighlightTheme = {
 };
 
 class CardHighlight extends StatefulWidget {
-  const CardHighlight({Key? key, this.backgroundColor, required this.child, this.codeSnippet, this.expandTitle}) : super(key: key);
+  const CardHighlight({Key? key, this.backgroundColor, required this.child, this.codeSnippet}) : super(key: key);
 
   final Widget child;
   final String? codeSnippet;
-  final String? expandTitle;
   final Color? backgroundColor;
 
   @override
@@ -167,19 +168,22 @@ class _CardHighlightState extends State<CardHighlight> with AutomaticKeepAliveCl
           ),
         ),
       ),
-      if (widget.expandTitle != null) ...[
-        Expander(
-          key: PageStorageKey(key),
-          headerShape: (open) => const RoundedRectangleBorder(
-            borderRadius: BorderRadius.zero,
+      if (widget.codeSnippet != null) ...[
+        Card(
+          padding: const EdgeInsets.all(0),
+          borderColor: FluentTheme.of(context).brightness.isDark ? const Color.fromARGB(255, 29, 29, 29) : const Color.fromARGB(255, 229, 229, 229),
+          backgroundColor: Colors.transparent,
+          child: Expander(
+            key: PageStorageKey(key),
+            headerShape: (open) => const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+            onStateChanged: (state) {
+              WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                if (mounted) setState(() => isOpen = state);
+              });
+            },
+            header: Text(ReviLocalizations.of(context).moreInformation),
+            content: Text(widget.codeSnippet!),
           ),
-          onStateChanged: (state) {
-            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-              if (mounted) setState(() => isOpen = state);
-            });
-          },
-          header: Text("${widget.expandTitle}"),
-          content: Text("${widget.codeSnippet}"),
         ),
       ]
     ]);

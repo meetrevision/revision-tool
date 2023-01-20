@@ -3,6 +3,7 @@ import 'package:revitool/l10n/generated/localizations.dart';
 import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
 class UpdatesPage extends StatefulWidget {
   const UpdatesPage({super.key});
@@ -33,7 +34,7 @@ class _UpdatesPageState extends State<UpdatesPage> {
       ),
       children: [
         CardHighlightSwitch(
-          icon: FluentIcons.action_center,
+          icon: msicons.FluentIcons.arrow_sync_20_regular,
           label: ReviLocalizations.of(context).wuPageLabel,
           description: ReviLocalizations.of(context).wuPageDescription,
           switchBool: wuPageBool,

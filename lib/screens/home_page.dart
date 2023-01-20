@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
+import 'package:revitool/screens/pages/miscellaneous_page.dart';
 import 'package:revitool/screens/pages/performance_page.dart';
 import 'package:revitool/screens/pages/security_page.dart';
 import 'package:revitool/screens/pages/updates_page.dart';
@@ -13,6 +14,7 @@ import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/windows_buttons.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,14 +27,12 @@ class _HomePageState extends State<HomePage> {
   int? topIndex;
   bool maximize = true;
 
-  final pages = <String>[
-    'Security',
-    'Usability',
-    'Performance',
-    'Windows Updates',
-  ];
+  final viewKey = GlobalKey(debugLabel: 'Navigation View Key');
+  final searchKey = GlobalKey(debugLabel: 'Search Bar Key');
+  final searchFocusNode = FocusNode();
+  final searchController = TextEditingController();
 
-  AutoSuggestBoxItem<String?>? selectedPage;
+  AutoSuggestBoxItem? selectedPage;
 
   @override
   void initState() {
@@ -41,6 +41,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    searchController.dispose();
+    searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -49,8 +51,79 @@ class _HomePageState extends State<HomePage> {
     assert(debugCheckHasFluentTheme(context));
     // final theme = FluentTheme.of(context);
 
+    final List<NavigationPaneItem> items = [
+      PaneItem(
+        icon: const Icon(
+          msicons.FluentIcons.home_24_regular,
+          size: 20,
+        ),
+        title: Text(ReviLocalizations.of(context).pageHome),
+        body: const Home(),
+      ),
+      PaneItem(
+        icon: const Icon(
+          msicons.FluentIcons.window_shield_24_regular,
+          size: 20,
+        ),
+        title: Text(ReviLocalizations.of(context).pageSecurity),
+        body: const SecurityPage(),
+      ),
+      w11
+          ? PaneItemExpander(
+              icon: const Icon(
+                msicons.FluentIcons.search_square_24_regular,
+                size: 20,
+              ),
+              title: Text(ReviLocalizations.of(context).pageUsability),
+              body: const UsabilityPage(),
+              items: [
+                PaneItem(
+                  icon: const Icon(
+                    msicons.FluentIcons.window_apps_24_regular,
+                    size: 20,
+                  ),
+                  title: const Text('Windows 11'),
+                  body: const UsabilityPageTwo(),
+                ),
+              ],
+            )
+          : PaneItem(
+              icon: const Icon(
+                msicons.FluentIcons.search_square_24_regular,
+                size: 20,
+              ),
+              title: Text(ReviLocalizations.of(context).pageUsability),
+              body: const UsabilityPage(),
+            ),
+      PaneItem(
+        icon: const Icon(
+          msicons.FluentIcons.top_speed_24_regular,
+          size: 20,
+        ),
+        title: Text(ReviLocalizations.of(context).pagePerformance),
+        body: const PerformancePage(),
+      ),
+      PaneItem(
+        icon: const Icon(
+          msicons.FluentIcons.dual_screen_24_regular,
+          size: 20,
+        ),
+        title: Text(ReviLocalizations.of(context).pageUpdates),
+        body: const UpdatesPage(),
+      ),
+      PaneItem(
+        icon: const Icon(
+          msicons.FluentIcons.toolbox_24_regular,
+          size: 20,
+        ),
+        title: Text(ReviLocalizations.of(context).pageMiscellaneous),
+        body: const MiscellaneousPage(),
+      ),
+    ];
+
     return SafeArea(
       child: NavigationView(
+        key: viewKey,
         contentShape: const RoundedRectangleBorder(
           side: BorderSide(width: 0, color: Colors.transparent),
           borderRadius: BorderRadius.only(
@@ -58,8 +131,13 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         appBar: NavigationAppBar(
+          // leading: const Icon(
+          //   msicons.FluentIcons.arrow_left_12_regular,
+          //   size: 16,
+          //   color: Color.fromARGB(255, 94, 94, 94),
+          // ),
+          automaticallyImplyLeading: false,
           title: const Text('Revision Tool'),
-          // automaticallyImplyLeading: false,
           actions: Stack(
             children: [
               MoveWindow(),
@@ -71,10 +149,8 @@ class _HomePageState extends State<HomePage> {
           selected: topIndex ?? 0,
           onChanged: (index) => setState(() => topIndex = index),
           displayMode: MediaQuery.of(context).size.width >= 800 ? PaneDisplayMode.open : PaneDisplayMode.minimal,
-          // autoSuggestBox: const TextBox(),
-          // autoSuggestBoxReplacement: const Icon(FluentIcons.search),
           header: SizedBox(
-            height: 80,
+            height: 90,
             // height: kOneLineTileHeight,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -88,13 +164,13 @@ class _HomePageState extends State<HomePage> {
                     File('C:\\ProgramData\\Microsoft\\User Account Pictures\\user-192.png'),
                   ),
                 ),
-                const SizedBox(width: 15.0),
+                const SizedBox(width: 13.0),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "${Registry.openPath(RegistryHive.currentUser, path: r'Volatile Environment').getValueAsString("USERNAME")}",
+                      Registry.openPath(RegistryHive.currentUser, path: r'Volatile Environment').getValueAsString("USERNAME")!,
                       style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
                     ),
                     const Text(
@@ -108,17 +184,33 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          autoSuggestBox: AutoSuggestBox<String?>(
+          autoSuggestBox: AutoSuggestBox(
+            key: searchKey,
+            trailingIcon: const Padding(
+              padding: EdgeInsets.only(right: 7.0, bottom: 2),
+              child: Icon(
+                msicons.FluentIcons.search_20_regular,
+              ),
+            ),
+            focusNode: searchFocusNode,
+            controller: searchController,
             placeholder: ReviLocalizations.of(context).suggestionBoxPlaceholder,
-            items: pages.map((page) {
-              return AutoSuggestBoxItem<String?>(
-                  value: page,
-                  label: page,
-                  onFocusChange: (focused) {
-                    if (focused) {
-                      debugPrint('Focused $page');
-                    }
-                  });
+            items: items.whereType<PaneItem>().map((page) {
+              assert(page.title is Text);
+              final text = (page.title as Text).data!;
+              return AutoSuggestBoxItem(
+                value: text,
+                label: text,
+                onSelected: () async {
+                  final itemIndex = NavigationPane(
+                    items: items,
+                  ).effectiveIndexOf(page);
+
+                  setState(() => topIndex = itemIndex);
+                  await Future.delayed(const Duration(milliseconds: 17));
+                  searchController.clear();
+                },
+              );
             }).toList(),
             onSelected: (item) {
               setState(() => selectedPage = item);
@@ -127,59 +219,22 @@ class _HomePageState extends State<HomePage> {
 
           autoSuggestBoxReplacement: const Icon(FluentIcons.search),
           // footerItems: searchValue.isNotEmpty ? [] : footerItems,
-          size: NavigationPaneSize(
-            openWidth: MediaQuery.of(context).size.width / 4.5,
-          ),
-          items: [
-            PaneItem(
-              icon: const Icon(FluentIcons.home),
-              title: Text(ReviLocalizations.of(context).pageHome),
-              body: const Home(),
-            ),
-            PaneItem(
-              icon: const Icon(FluentIcons.defender_app),
-              title: Text(ReviLocalizations.of(context).pageSecurity),
-              body: const SecurityPage(),
-            ),
-            readRegistryString(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentBuildNumber') != "19045"
-                ? PaneItemExpander(
-                    icon: const Icon(FluentIcons.search_and_apps),
-                    title: Text(ReviLocalizations.of(context).pageUsability),
-                    body: const UsabilityPage(),
-                    items: [
-                      PaneItem(
-                        icon: const Icon(FluentIcons.user_window),
-                        title: const Text('Windows 11'),
-                        body: const UsabilityPageTwo(),
-                      ),
-                    ],
-                  )
-                : PaneItem(
-                    icon: const Icon(FluentIcons.search_and_apps),
-                    title: Text(ReviLocalizations.of(context).pageUsability),
-                    body: const UsabilityPage(),
-                  ),
-            PaneItem(
-              icon: const Icon(FluentIcons.speed_high),
-              title: Text(ReviLocalizations.of(context).pagePerformance),
-              body: const PerformancePage(),
-            ),
-            PaneItem(
-              icon: const Icon(FluentIcons.update_restore),
-              title: Text(ReviLocalizations.of(context).pageUpdates),
-              body: const UpdatesPage(),
-            ),
-          ],
+          items: items,
           footerItems: [
-            // PaneItemSeparator(),
             PaneItem(
-              icon: const Icon(FluentIcons.settings),
+              icon: const Icon(
+                msicons.FluentIcons.settings_24_regular,
+                size: 20,
+              ),
               title: Text(ReviLocalizations.of(context).pageSettings),
               body: const SettingsPage(),
             ),
             PaneItemSeparator(color: Colors.transparent),
           ],
         ),
+        onOpenSearch: () {
+          searchFocusNode.requestFocus();
+        },
       ),
     );
   }

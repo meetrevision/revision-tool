@@ -169,6 +169,12 @@ abstract class ReviLocalizations {
   /// **'Windows Updates'**
   String get pageUpdates;
 
+  /// The label for Miscellaneous
+  ///
+  /// In en, this message translates to:
+  /// **'Miscellaneous'**
+  String get pageMiscellaneous;
+
   /// The label for Settings
   ///
   /// In en, this message translates to:
@@ -337,6 +343,18 @@ abstract class ReviLocalizations {
   /// **'Fullscreen Optimizations may lead to better gaming and app performance when running in fullscreen mode'**
   String get perfFODescription;
 
+  /// The label for Optimizations for windowed games
+  ///
+  /// In en, this message translates to:
+  /// **'Optimizations for windowed games'**
+  String get perfOWGLabel;
+
+  /// The description for Optimizations for windowed games
+  ///
+  /// In en, this message translates to:
+  /// **'Improves frame latency by using a new presentation model for DirectX 10 and 11 games that appear in a window or in a borderless window'**
+  String get perfOWGDescription;
+
   /// The subtitle for Filesystem
   ///
   /// In en, this message translates to:
@@ -402,6 +420,18 @@ abstract class ReviLocalizations {
   /// In en, this message translates to:
   /// **'Windows will automatically update drivers'**
   String get wuDriversDescription;
+
+  /// The label for Fast Startup & Hibernate
+  ///
+  /// In en, this message translates to:
+  /// **'Fast Startup & Hibernate'**
+  String get miscFastStartupLabel;
+
+  /// The description for Fast Startup & Hibernate
+  ///
+  /// In en, this message translates to:
+  /// **'Windows will save the current session to the hibernate (hiberfil.sys) file on disk in order to start your system faster on the next boot. This doesn\'t affect reboots.\nIt\'s disabled by default since it can make the system unstable in certain cases, like when dual-booting or upgrading the system'**
+  String get miscFastStartupDescription;
 
   /// Default state of the Revision Tool's update button
   ///

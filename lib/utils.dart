@@ -6,6 +6,7 @@ import 'package:win32_registry/win32_registry.dart';
 String mainPath = Platform.resolvedExecutable;
 String directoryExe = Directory("${mainPath.substring(0, mainPath.lastIndexOf("\\"))}\\data\\flutter_assets\\additionals").path;
 
+bool w11 = readRegistryString(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentBuildNumber') != "19045";
 bool expBool = readRegistryInt(RegistryHive.localMachine, r'SOFTWARE\Revision\Revision Tool', 'Experimental') == 0 ? false : true;
 String? themeModeReg = readRegistryString(RegistryHive.localMachine, r'SOFTWARE\Revision\Revision Tool', 'ThemeMode');
 

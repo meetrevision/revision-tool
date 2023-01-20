@@ -5,6 +5,7 @@ import 'package:revitool/l10n/generated/localizations.dart';
 import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
 class UsabilityPage extends StatefulWidget {
   const UsabilityPage({super.key});
@@ -36,7 +37,7 @@ class _UsabilityPageState extends State<UsabilityPage> {
       ),
       children: [
         CardHighlightSwitch(
-          icon: FluentIcons.action_center,
+          icon: msicons.FluentIcons.alert_20_regular,
           label: ReviLocalizations.of(context).usabilityNotifLabel,
           description: ReviLocalizations.of(context).usabilityNotifDescription,
           switchBool: notifBool,
@@ -76,7 +77,7 @@ class _UsabilityPageState extends State<UsabilityPage> {
         if (notifBool) ...[
           const SizedBox(height: 5.0),
           CardHighlightSwitch(
-            icon: FluentIcons.balloons,
+            icon: msicons.FluentIcons.balloon_20_regular,
             label: ReviLocalizations.of(context).usabilityLBNLabel,
             description: ReviLocalizations.of(context).usabilityLBNDescription,
             switchBool: elbnBool,
@@ -98,7 +99,7 @@ class _UsabilityPageState extends State<UsabilityPage> {
         ],
         const SizedBox(height: 5.0),
         CardHighlightSwitch(
-          icon: FluentIcons.keyboard_classic,
+          icon: msicons.FluentIcons.keyboard_20_regular,
           label: ReviLocalizations.of(context).usabilityITPLabel,
           description: ReviLocalizations.of(context).usabilityITPDescription,
           switchBool: itpBool,

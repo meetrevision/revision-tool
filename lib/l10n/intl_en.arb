@@ -52,6 +52,10 @@
   "@pageUpdates": {
     "description": "The label for Windows Updates"
   },
+  "pageMiscellaneous": "Miscellaneous",
+  "@pageMiscellaneous": {
+    "description": "The label for Miscellaneous"
+  },
   "pageSettings": "Settings",
   "@pageSettings": {
     "description": "The label for Settings"
@@ -166,6 +170,14 @@
   "@perfFODescription": {
     "description": "The description for Memory Compression"
   },
+  "perfOWGLabel": "Optimizations for windowed games",
+  "@perfOWGLabel": {
+    "description": "The label for Optimizations for windowed games"
+  },
+  "perfOWGDescription": "Improves frame latency by using a new presentation model for DirectX 10 and 11 games that appear in a window or in a borderless window",
+  "@perfOWGDescription": {
+    "description": "The description for Optimizations for windowed games"
+  },
   "perfSectionFS": "Filesystem",
   "@perfSectionFS": {
     "description": "The subtitle for Filesystem"
@@ -213,6 +225,17 @@
   "@wuDriversDescription": {
     "description": "The description for Automatic Driver Updates"
   },
+
+  "miscFastStartupLabel": "Fast Startup & Hibernate",
+  "@miscFastStartupLabel": {
+    "description": "The label for Fast Startup & Hibernate"
+  },
+
+  "miscFastStartupDescription": "Windows will save the current session to the hibernate (hiberfil.sys) file on disk in order to start your system faster on the next boot. This doesn't affect reboots.\nIt's disabled by default since it can make the system unstable in certain cases, like when dual-booting or upgrading the system",
+  "@miscFastStartupDescription": {
+    "description": "The description for Fast Startup & Hibernate"
+  },
+
   "settingsUpdateButton": "Check for Updates",
   "@settingsUpdateButton": {
     "description": "Default state of the Revision Tool's update button"

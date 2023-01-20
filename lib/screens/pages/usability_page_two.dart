@@ -5,6 +5,7 @@ import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'dart:io';
 import 'package:process_run/shell_run.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
 class UsabilityPageTwo extends StatefulWidget {
   const UsabilityPageTwo({super.key});
@@ -35,7 +36,7 @@ class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
       ),
       children: [
         CardHighlightSwitch(
-          icon: FluentIcons.context_menu,
+          icon: msicons.FluentIcons.document_one_page_20_regular,
           label: ReviLocalizations.of(context).usability11MRCLabel,
           switchBool: mrcBool,
           function: (value) async {
@@ -60,7 +61,7 @@ class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
         ),
         const SizedBox(height: 5.0),
         CardHighlightSwitch(
-          icon: FluentIcons.explore_content,
+          icon: msicons.FluentIcons.folder_multiple_16_regular,
           label: ReviLocalizations.of(context).usability11FETLabel,
           switchBool: fetBool,
           function: (value) async {
