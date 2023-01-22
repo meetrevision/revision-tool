@@ -105,7 +105,7 @@ class _HomePageState extends State<HomePage> {
       ),
       PaneItem(
         icon: const Icon(
-          msicons.FluentIcons.dual_screen_24_regular,
+          msicons.FluentIcons.dual_screen_update_24_regular,
           size: 20,
         ),
         title: Text(ReviLocalizations.of(context).pageUpdates),

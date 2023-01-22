@@ -136,7 +136,7 @@ class _SecurityPageState extends State<SecurityPage> {
           },
         ),
         //
-        const SizedBox(height: 5.0),
+
         CardHighlightSwitch(
           icon: msicons.FluentIcons.person_lock_20_regular,
           label: ReviLocalizations.of(context).securityUACLabel,
@@ -171,7 +171,7 @@ class _SecurityPageState extends State<SecurityPage> {
             }
           },
         ),
-        const SizedBox(height: 5.0),
+
         CardHighlightSwitch(
           icon: msicons.FluentIcons.shield_badge_20_regular,
           label: ReviLocalizations.of(context).securitySMLabel,
@@ -192,7 +192,7 @@ class _SecurityPageState extends State<SecurityPage> {
             }
           },
         ),
-        const SizedBox(height: 5.0),
+
         CardHighlightSwitch(
           icon: msicons.FluentIcons.transmission_20_regular,
           label: ReviLocalizations.of(context).securityITSXLabel,

@@ -53,7 +53,6 @@ class _UpdatesPageState extends State<UpdatesPage> {
             }
           },
         ),
-        const SizedBox(height: 5.0),
         CardHighlightSwitch(
           icon: FluentIcons.devices4,
           label: ReviLocalizations.of(context).wuDriversLabel,

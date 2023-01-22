@@ -4,6 +4,7 @@ import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:process_run/shell_run.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
 class MiscellaneousPage extends StatefulWidget {
   const MiscellaneousPage({super.key});
@@ -14,7 +15,8 @@ class MiscellaneousPage extends StatefulWidget {
 
 class _MiscellaneousPageState extends State<MiscellaneousPage> {
   bool fsbBool = readRegistryInt(RegistryHive.localMachine, r'System\ControlSet001\Control\Session Manager\Power', 'HiberbootEnabled') == 1;
-
+  bool tmmBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start') == 2 &&
+      readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Services\Ndu', 'Start') == 2;
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
@@ -23,7 +25,7 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
       ),
       children: [
         CardHighlightSwitch(
-          icon: FluentIcons.hail_night,
+          icon: msicons.FluentIcons.weather_hail_night_20_regular,
           label: ReviLocalizations.of(context).miscFastStartupLabel,
           codeSnippet: ReviLocalizations.of(context).miscFastStartupDescription,
           switchBool: fsbBool,
@@ -49,7 +51,29 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
                     ''');
             }
           },
-        )
+        ),
+        CardHighlightSwitch(
+          icon: FluentIcons.task_manager,
+          label: ReviLocalizations.of(context).miscTMMonitoringLabel,
+          description: ReviLocalizations.of(context).miscTMMonitoringDescription,
+          switchBool: tmmBool,
+          function: (value) async {
+            setState(() {
+              tmmBool = value;
+            });
+            if (tmmBool) {
+              writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start', 2);
+              writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\Ndu', 'Start', 2);
+              await Shell().run(r'''
+                    sc start GraphicsPerfSvc
+                    sc start Ndu
+                    ''');
+            } else {
+              writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start', 4);
+              writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\Ndu', 'Start', 4);
+            }
+          },
+        ),
       ],
     );
   }

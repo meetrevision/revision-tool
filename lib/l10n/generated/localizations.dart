@@ -280,7 +280,7 @@ abstract class ReviLocalizations {
   /// The description for Legacy Notification Balloons
   ///
   /// In en, this message translates to:
-  /// **'Completely toggle Windows notifications'**
+  /// **'Tray programs on the taskbar will render as balloons instead of toast notifications'**
   String get usabilityLBNDescription;
 
   /// The label for Inking And Typing Personalization
@@ -432,6 +432,18 @@ abstract class ReviLocalizations {
   /// In en, this message translates to:
   /// **'Windows will save the current session to the hibernate (hiberfil.sys) file on disk in order to start your system faster on the next boot. This doesn\'t affect reboots.\nIt\'s disabled by default since it can make the system unstable in certain cases, like when dual-booting or upgrading the system'**
   String get miscFastStartupDescription;
+
+  /// The label for Network and GPU monitoring
+  ///
+  /// In en, this message translates to:
+  /// **'Network and GPU monitoring'**
+  String get miscTMMonitoringLabel;
+
+  /// The description for Network and GPU monitoring
+  ///
+  /// In en, this message translates to:
+  /// **'Activate the monitoring services for Task Manager'**
+  String get miscTMMonitoringDescription;
 
   /// Default state of the Revision Tool's update button
   ///

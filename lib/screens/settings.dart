@@ -9,6 +9,7 @@ import 'package:revitool/theme.dart';
 import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -36,7 +37,7 @@ class _SettingsPageState extends State<SettingsPage> {
             children: [
               const SizedBox(width: 5.0),
               const Icon(
-                FluentIcons.brush,
+                msicons.FluentIcons.paint_brush_20_regular,
                 size: 24,
               ),
               const SizedBox(width: 15.0),
@@ -77,9 +78,8 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           ),
         ),
-        const SizedBox(height: 5.0),
         CardHighlightSwitch(
-          icon: FluentIcons.picture_library,
+          icon: msicons.FluentIcons.warning_20_regular,
           label: ReviLocalizations.of(context).settingsEPTLabel,
           description: ReviLocalizations.of(context).settingsEPTDescription,
           switchBool: expBool,

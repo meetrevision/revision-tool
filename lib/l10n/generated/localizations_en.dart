@@ -98,7 +98,7 @@ class ReviLocalizationsEn extends ReviLocalizations {
   String get usabilityLBNLabel => 'Legacy Notification Balloons';
 
   @override
-  String get usabilityLBNDescription => 'Completely toggle Windows notifications';
+  String get usabilityLBNDescription => 'Tray programs on the taskbar will render as balloons instead of toast notifications';
 
   @override
   String get usabilityITPLabel => 'Inking And Typing Personalization';
@@ -174,6 +174,12 @@ class ReviLocalizationsEn extends ReviLocalizations {
 
   @override
   String get miscFastStartupDescription => 'Windows will save the current session to the hibernate (hiberfil.sys) file on disk in order to start your system faster on the next boot. This doesn\'t affect reboots.\nIt\'s disabled by default since it can make the system unstable in certain cases, like when dual-booting or upgrading the system';
+
+  @override
+  String get miscTMMonitoringLabel => 'Network and GPU monitoring';
+
+  @override
+  String get miscTMMonitoringDescription => 'Activate the monitoring services for Task Manager';
 
   @override
   String get settingsUpdateButton => 'Check for Updates';

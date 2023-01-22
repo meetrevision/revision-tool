@@ -75,7 +75,6 @@ class _UsabilityPageState extends State<UsabilityPage> {
           },
         ),
         if (notifBool) ...[
-          const SizedBox(height: 5.0),
           CardHighlightSwitch(
             icon: msicons.FluentIcons.balloon_20_regular,
             label: ReviLocalizations.of(context).usabilityLBNLabel,
@@ -97,7 +96,6 @@ class _UsabilityPageState extends State<UsabilityPage> {
             },
           ),
         ],
-        const SizedBox(height: 5.0),
         CardHighlightSwitch(
           icon: msicons.FluentIcons.keyboard_20_regular,
           label: ReviLocalizations.of(context).usabilityITPLabel,

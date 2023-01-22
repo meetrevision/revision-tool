@@ -59,7 +59,6 @@ class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
             }
           },
         ),
-        const SizedBox(height: 5.0),
         CardHighlightSwitch(
           icon: msicons.FluentIcons.folder_multiple_16_regular,
           label: ReviLocalizations.of(context).usability11FETLabel,

@@ -93,7 +93,8 @@ class _CardHighlightSwitchState extends State<CardHighlightSwitch> with Automati
               content: Text(widget.codeSnippet!),
             ),
           ),
-        ]
+        ],
+        const SizedBox(height: 5.0),
       ],
     );
   }
@@ -185,7 +186,8 @@ class _CardHighlightState extends State<CardHighlight> with AutomaticKeepAliveCl
             content: Text(widget.codeSnippet!),
           ),
         ),
-      ]
+      ],
+      const SizedBox(height: 5.0),
     ]);
   }
 

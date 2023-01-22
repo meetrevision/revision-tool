@@ -29,8 +29,6 @@ class _PerformancePageState extends State<PerformancePage> {
   bool ntfsEdTBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FileSystem', "NtfsDisable8dot3NameCreation") != 1;
   bool ntfsMUBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FileSystem', "NtfsMemoryUsage") == 2;
 
-  String? powerPlan = readRegistryString(RegistryHive.localMachine, r'SYSTEM\CurrentControlSet\Control\Power\User\PowerSchemes', 'ActivePowerScheme');
-
   @override
   void initState() {
     super.initState();
@@ -80,7 +78,6 @@ class _PerformancePageState extends State<PerformancePage> {
           },
         ),
         if (sfBool) ...[
-          const SizedBox(height: 5.0),
           CardHighlightSwitch(
             icon: msicons.FluentIcons.ram_20_regular,
             label: ReviLocalizations.of(context).perfMCLabel,
@@ -100,7 +97,6 @@ class _PerformancePageState extends State<PerformancePage> {
             },
           ),
         ],
-        const SizedBox(height: 5.0),
         CardHighlightSwitch(
           icon: msicons.FluentIcons.desktop_20_regular,
           label: ReviLocalizations.of(context).perfFOLabel,
@@ -148,7 +144,6 @@ class _PerformancePageState extends State<PerformancePage> {
           },
         ),
         if (w11) ...[
-          const SizedBox(height: 5.0),
           CardHighlightSwitch(
             icon: msicons.FluentIcons.desktop_mac_20_regular,
             label: ReviLocalizations.of(context).perfOWGLabel,
@@ -168,7 +163,6 @@ class _PerformancePageState extends State<PerformancePage> {
         ],
         if (expBool) ...[
           subtitle(content: Text(ReviLocalizations.of(context).perfSectionFS)),
-          const SizedBox(height: 5.0),
           CardHighlightSwitch(
             icon: msicons.FluentIcons.document_bullet_list_clock_20_regular,
             label: ReviLocalizations.of(context).perfLTALabel,
@@ -185,7 +179,6 @@ class _PerformancePageState extends State<PerformancePage> {
               }
             },
           ),
-          const SizedBox(height: 5.0),
           CardHighlightSwitch(
             icon: msicons.FluentIcons.hard_drive_20_regular,
             label: ReviLocalizations.of(context).perfEdTLabel,
@@ -202,7 +195,6 @@ class _PerformancePageState extends State<PerformancePage> {
               }
             },
           ),
-          const SizedBox(height: 5.0),
           CardHighlightSwitch(
             icon: msicons.FluentIcons.memory_16_regular,
             label: ReviLocalizations.of(context).perfMULabel,

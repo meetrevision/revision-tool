@@ -12,6 +12,7 @@ import 'package:win32_registry/win32_registry.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   createRegistryKey(Registry.localMachine, r'SOFTWARE\Revision\Revision Tool');
+  createRegistryKey(Registry.currentUser, r'Software\Microsoft\DirectX\UserGpuPreferences');
 
   if (readRegistryString(RegistryHive.localMachine, r'SOFTWARE\Revision\Revision Tool', 'ThemeMode') == null) {
     writeRegistryString(Registry.localMachine, r'SOFTWARE\Revision\Revision Tool', 'ThemeMode', ThemeMode.system.name);

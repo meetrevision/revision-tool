@@ -124,7 +124,7 @@
   "@usabilityLBNLabel": {
     "description": "The label for Legacy Notification Balloons"
   },
-  "usabilityLBNDescription": "Completely toggle Windows notifications",
+  "usabilityLBNDescription": "Tray programs on the taskbar will render as balloons instead of toast notifications",
   "@usabilityLBNDescription": {
     "description": "The description for Legacy Notification Balloons"
   },
@@ -225,17 +225,22 @@
   "@wuDriversDescription": {
     "description": "The description for Automatic Driver Updates"
   },
-
   "miscFastStartupLabel": "Fast Startup & Hibernate",
   "@miscFastStartupLabel": {
     "description": "The label for Fast Startup & Hibernate"
   },
-
   "miscFastStartupDescription": "Windows will save the current session to the hibernate (hiberfil.sys) file on disk in order to start your system faster on the next boot. This doesn't affect reboots.\nIt's disabled by default since it can make the system unstable in certain cases, like when dual-booting or upgrading the system",
   "@miscFastStartupDescription": {
     "description": "The description for Fast Startup & Hibernate"
   },
-
+  "miscTMMonitoringLabel": "Network and GPU monitoring",
+  "@miscTMMonitoringLabel": {
+    "description": "The label for Network and GPU monitoring"
+  },
+  "miscTMMonitoringDescription": "Activate the monitoring services for Task Manager",
+  "@miscTMMonitoringDescription": {
+    "description": "The description for Network and GPU monitoring"
+  },
   "settingsUpdateButton": "Check for Updates",
   "@settingsUpdateButton": {
     "description": "Default state of the Revision Tool's update button"
