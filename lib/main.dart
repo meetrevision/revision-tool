@@ -70,7 +70,7 @@ class MyApp extends StatelessWidget {
           supportedLocales: ReviLocalizations.supportedLocales,
           themeMode: appTheme.themeMode,
           color: appTheme.color,
-          darkTheme: ThemeData(
+          darkTheme: FluentThemeData(
             brightness: Brightness.dark,
             accentColor: appTheme.color,
             scaffoldBackgroundColor: const Color.fromARGB(255, 32, 32, 32),
@@ -80,7 +80,7 @@ class MyApp extends StatelessWidget {
               glowFactor: is10footScreen() ? 2.0 : 0.0,
             ),
           ),
-          theme: ThemeData(
+          theme: FluentThemeData(
             accentColor: appTheme.color,
             visualDensity: VisualDensity.standard,
             scaffoldBackgroundColor: const Color.fromRGBO(243, 243, 243, 100),

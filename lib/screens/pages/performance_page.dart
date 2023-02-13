@@ -25,8 +25,8 @@ class _PerformancePageState extends State<PerformancePage> {
   bool foBool = readRegistryInt(RegistryHive.currentUser, r'System\GameConfigStore', "GameDVR_FSEBehaviorMode") != 2;
   bool owgBool = readRegistryString(RegistryHive.currentUser, r'Software\Microsoft\DirectX\UserGpuPreferences', "DirectXUserGlobalSettings") == "SwapEffectUpgradeEnable=1;";
 //NTFS
-  bool ntfsLTABool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FileSystem', "RefsDisableLastAccessUpdate") != 1;
-  bool ntfsEdTBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FileSystem', "NtfsDisable8dot3NameCreation") != 1;
+  bool ntfsLTABool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FileSystem', "RefsDisableLastAccessUpdate") == 1;
+  bool ntfsEdTBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FileSystem', "NtfsDisable8dot3NameCreation") == 1;
   bool ntfsMUBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FileSystem', "NtfsMemoryUsage") == 2;
 
   @override
@@ -173,9 +173,9 @@ class _PerformancePageState extends State<PerformancePage> {
                 ntfsLTABool = value;
               });
               if (ntfsLTABool) {
-                run('fsutil behavior set disableLastAccess 0');
-              } else {
                 run('fsutil behavior set disableLastAccess 1');
+              } else {
+                run('fsutil behavior set disableLastAccess 0');
               }
             },
           ),
@@ -189,9 +189,9 @@ class _PerformancePageState extends State<PerformancePage> {
                 ntfsEdTBool = value;
               });
               if (ntfsEdTBool) {
-                run('fsutil behavior set disable8dot3 0');
-              } else {
                 run('fsutil behavior set disable8dot3 1');
+              } else {
+                run('fsutil behavior set disable8dot3 0');                
               }
             },
           ),

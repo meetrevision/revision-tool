@@ -81,7 +81,7 @@ class _SettingsPageState extends State<SettingsPage> {
         CardHighlightSwitch(
           icon: msicons.FluentIcons.warning_20_regular,
           label: ReviLocalizations.of(context).settingsEPTLabel,
-          description: ReviLocalizations.of(context).settingsEPTDescription,
+          // description: ReviLocalizations.of(context).settingsEPTDescription,
           switchBool: expBool,
           function: (value) {
             setState(() {

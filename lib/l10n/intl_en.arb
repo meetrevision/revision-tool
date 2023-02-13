@@ -182,20 +182,20 @@
   "@perfSectionFS": {
     "description": "The subtitle for Filesystem"
   },
-  "perfLTALabel": "Last Access Time",
+  "perfLTALabel": "Disable Last Access Time",
   "@perfLTALabel": {
     "description": "The label for Last Access Time"
   },
-  "perfLTADescription": "Disabling Last Time Access improves the speed of file and directory access, reduces disk I/O load and latency",
+  "perfLTADescription": "Disabling Last Time Access improves the performance of file and directory access, reduces disk I/O load and latency",
   "@perfLTADescription": {
     "description": "The description for Last Access Time"
   },
 
-  "perfEdTLabel": "8.3 Naming",
+  "perfEdTLabel": "Disable 8.3 Naming",
   "@perfEdTLabel": {
     "description": "The label for 8.3 Naming"
   },
-  "perfEdTDescription": "Disabling 8.3 names improves speed and security",
+  "perfEdTDescription": "8.3 naming is ancient and disabling it will improve NTFS performance and security",
   "@perfEdTDescription": {
     "description": "The description for 8.3 Naming"
   },
@@ -279,7 +279,7 @@
   "@settingsEPTLabel": {
     "description": "The label for Show experimental tweaks"
   },
-  "settingsEPTDescription": "Switch between light and dark mode, or automatically change the theme with Windows",
+  "settingsEPTDescription": "",
   "@settingsEPTDescription": {
     "description": "The description for Show experimental tweaks"
   }
