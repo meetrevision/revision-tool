@@ -191,7 +191,7 @@ class _PerformancePageState extends State<PerformancePage> {
               if (ntfsEdTBool) {
                 run('fsutil behavior set disable8dot3 1');
               } else {
-                run('fsutil behavior set disable8dot3 0');                
+                run('fsutil behavior set disable8dot3 0');
               }
             },
           ),

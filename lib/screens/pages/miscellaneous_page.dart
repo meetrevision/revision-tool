@@ -80,7 +80,7 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
           label: ReviLocalizations.of(context).miscMpoLabel,
           codeSnippet: ReviLocalizations.of(context).miscMpoCodeSnippet,
           switchBool: mpoBool,
-          function:(value) async {
+          function: (value) async {
             setState(() {
               mpoBool = value;
             });

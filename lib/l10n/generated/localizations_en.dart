@@ -155,7 +155,8 @@ class ReviLocalizationsEn extends ReviLocalizations {
   String get perfMULabel => 'Increase the limit of paged pool memory to NTFS';
 
   @override
-  String get perfMUDescription => 'Increasing the physical memory doesn\'t always increase the amount of paged pool memory available to NTFS. Setting memoryusage to 2 raises the limit of paged pool memory. This might improve performance if your system is opening and closing many files in the same fileset and is not already using large amounts of system memory for other apps or for cache memory. If your computer is already using large amounts of system memory for other apps or for cache memory, increasing the limit of NTFS paged and non-paged pool memory reduces the available pool memory for other processes. This might reduce overall system performance.\n\nDefault is Off';
+  String get perfMUDescription =>
+      'Increasing the physical memory doesn\'t always increase the amount of paged pool memory available to NTFS. Setting memoryusage to 2 raises the limit of paged pool memory. This might improve performance if your system is opening and closing many files in the same fileset and is not already using large amounts of system memory for other apps or for cache memory. If your computer is already using large amounts of system memory for other apps or for cache memory, increasing the limit of NTFS paged and non-paged pool memory reduces the available pool memory for other processes. This might reduce overall system performance.\n\nDefault is Off';
 
   @override
   String get wuPageLabel => 'Hide the Windows Updates page';
@@ -173,7 +174,8 @@ class ReviLocalizationsEn extends ReviLocalizations {
   String get miscFastStartupLabel => 'Fast Startup & Hibernate';
 
   @override
-  String get miscFastStartupDescription => 'Windows will save the current session to the hibernate (hiberfil.sys) file on disk in order to start your system faster on the next boot. This doesn\'t affect reboots.\nIt\'s disabled by default since it can make the system unstable in certain cases, like when dual-booting or upgrading the system';
+  String get miscFastStartupDescription =>
+      'Windows will save the current session to the hibernate (hiberfil.sys) file on disk in order to start your system faster on the next boot. This doesn\'t affect reboots.\nIt\'s disabled by default since it can make the system unstable in certain cases, like when dual-booting or upgrading the system';
 
   @override
   String get miscTMMonitoringLabel => 'Network and GPU monitoring';
@@ -185,7 +187,8 @@ class ReviLocalizationsEn extends ReviLocalizations {
   String get miscMpoLabel => 'Multiplane overlay (MPO)';
 
   @override
-  String get miscMpoCodeSnippet => 'Recommended to turn off on Nvidia GTX 16xx, RTX 3xxx and AMD RX 5xxx cards or newer.\nLeaving this on could cause black screens, stuttering, flickering, and other general display problems.';
+  String get miscMpoCodeSnippet =>
+      'Recommended to turn off on Nvidia GTX 16xx, RTX 3xxx and AMD RX 5xxx cards or newer.\nLeaving this on could cause black screens, stuttering, flickering, and other general display problems.';
 
   @override
   String get settingsUpdateButton => 'Check for Updates';
