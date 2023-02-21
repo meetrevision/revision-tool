@@ -241,6 +241,14 @@
   "@miscTMMonitoringDescription": {
     "description": "The description for Network and GPU monitoring"
   },
+  "miscMpoLabel": "Multiplane overlay (MPO)",
+  "@miscMpoLabel": {
+    "description": "The description for the MPO Label"
+  },
+  "miscMpoCodeSnippet": "Recommended to turn off on Nvidia GTX 16xx, RTX 3xxx and AMD RX 5xxx cards or newer.\nLeaving this on could cause black screens, stuttering, flickering, and other general display problems.",
+  "@miscMpoCodeSnippet": {
+    "description": "The Code snippet for MPO"
+  },
   "settingsUpdateButton": "Check for Updates",
   "@settingsUpdateButton": {
     "description": "Default state of the Revision Tool's update button"
