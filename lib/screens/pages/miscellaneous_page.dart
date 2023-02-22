@@ -17,6 +17,7 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
   bool fsbBool = readRegistryInt(RegistryHive.localMachine, r'System\ControlSet001\Control\Session Manager\Power', 'HiberbootEnabled') == 1;
   bool tmmBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start') == 2 &&
       readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Services\Ndu', 'Start') == 2;
+  bool mpoBool = readRegistryInt(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows\Dwm', 'OverlayTestMode') != 5;
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
@@ -74,6 +75,22 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
             }
           },
         ),
+        CardHighlightSwitch(
+          icon: msicons.FluentIcons.window_settings_20_regular,
+          label: ReviLocalizations.of(context).miscMpoLabel,
+          codeSnippet: ReviLocalizations.of(context).miscMpoCodeSnippet,
+          switchBool: mpoBool,
+          function: (value) async {
+            setState(() {
+              mpoBool = value;
+            });
+            if (mpoBool) {
+              deleteRegistry(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\Dwm', 'OverlayTestMode');
+            } else {
+              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\Dwm', 'OverlayTestMode', 5);
+            }
+          },
+        )
       ],
     );
   }

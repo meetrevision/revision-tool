@@ -59,8 +59,7 @@ import 'localizations_en.dart';
 /// be consistent with the languages listed in the ReviLocalizations.supportedLocales
 /// property.
 abstract class ReviLocalizations {
-  ReviLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  ReviLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -68,8 +67,7 @@ abstract class ReviLocalizations {
     return Localizations.of<ReviLocalizations>(context, ReviLocalizations)!;
   }
 
-  static const LocalizationsDelegate<ReviLocalizations> delegate =
-      _ReviLocalizationsDelegate();
+  static const LocalizationsDelegate<ReviLocalizations> delegate = _ReviLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -81,8 +79,7 @@ abstract class ReviLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
     delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -446,6 +443,18 @@ abstract class ReviLocalizations {
   /// **'Activate the monitoring services for Task Manager'**
   String get miscTMMonitoringDescription;
 
+  /// The description for the MPO Label
+  ///
+  /// In en, this message translates to:
+  /// **'Multiplane overlay (MPO)'**
+  String get miscMpoLabel;
+
+  /// The Code snippet for MPO
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended to turn off on Nvidia GTX 16xx, RTX 3xxx and AMD RX 5xxx cards or newer.\nLeaving this on could cause black screens, stuttering, flickering, and other general display problems.'**
+  String get miscMpoCodeSnippet;
+
   /// Default state of the Revision Tool's update button
   ///
   /// In en, this message translates to:
@@ -507,19 +516,16 @@ abstract class ReviLocalizations {
   String get settingsEPTDescription;
 }
 
-class _ReviLocalizationsDelegate
-    extends LocalizationsDelegate<ReviLocalizations> {
+class _ReviLocalizationsDelegate extends LocalizationsDelegate<ReviLocalizations> {
   const _ReviLocalizationsDelegate();
 
   @override
   Future<ReviLocalizations> load(Locale locale) {
-    return SynchronousFuture<ReviLocalizations>(
-        lookupReviLocalizations(locale));
+    return SynchronousFuture<ReviLocalizations>(lookupReviLocalizations(locale));
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_ReviLocalizationsDelegate old) => false;
@@ -532,8 +538,7 @@ ReviLocalizations lookupReviLocalizations(Locale locale) {
       return ReviLocalizationsEn();
   }
 
-  throw FlutterError(
-      'ReviLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+  throw FlutterError('ReviLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
       'an issue with the localizations generation tool. Please file an issue '
       'on GitHub with a reproducible sample app and the gen-l10n configuration '
       'that was used.');
