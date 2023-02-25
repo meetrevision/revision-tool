@@ -117,7 +117,7 @@ bool Win32Window::CreateAndShow(const std::wstring& title,
   double scale_factor = dpi / 96.0;
 
   HWND window = CreateWindow(
-      window_class, title.c_str(), WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+      window_class, title.c_str(), WS_OVERLAPPEDWINDOW,
       Scale(origin.x, scale_factor), Scale(origin.y, scale_factor),
       Scale(size.width, scale_factor), Scale(size.height, scale_factor),
       nullptr, nullptr, GetModuleHandle(nullptr), this);
@@ -173,15 +173,15 @@ Win32Window::MessageHandler(HWND hwnd,
 
       return 0;
     }
-    case WM_SIZE: {
-      RECT rect = GetClientArea();
-      if (child_content_ != nullptr) {
-        // Size and position the child window.
-        MoveWindow(child_content_, rect.left, rect.top, rect.right - rect.left,
-                   rect.bottom - rect.top, TRUE);
-      }
-      return 0;
-    }
+    // case WM_SIZE: {
+    //   RECT rect = GetClientArea();
+    //   if (child_content_ != nullptr) {
+    //     // Size and position the child window.
+    //     MoveWindow(child_content_, rect.left, rect.top, rect.right - rect.left,
+    //                rect.bottom - rect.top, TRUE);
+    //   }
+    //   return 0;
+    // }
 
     case WM_ACTIVATE:
       if (child_content_ != nullptr) {

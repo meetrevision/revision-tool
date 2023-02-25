@@ -13,8 +13,16 @@ class UpdatesPage extends StatefulWidget {
 }
 
 class _UpdatesPageState extends State<UpdatesPage> {
-  bool wuPageBool = readRegistryInt(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', 'IsWUHidden') == 1;
-  bool wuDriversBool = readRegistryInt(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata', 'PreventDeviceMetadataFromNetwork') != 1;
+  bool wuPageBool = readRegistryInt(
+          RegistryHive.localMachine,
+          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
+          'IsWUHidden') ==
+      1;
+  bool wuDriversBool = readRegistryInt(
+          RegistryHive.localMachine,
+          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata',
+          'PreventDeviceMetadataFromNetwork') !=
+      1;
 
   @override
   void initState() {
@@ -43,13 +51,27 @@ class _UpdatesPageState extends State<UpdatesPage> {
               wuPageBool = value;
             });
             if (wuPageBool) {
-              writeRegistryString(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', 'SettingsPageVisibility',
+              writeRegistryString(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
+                  'SettingsPageVisibility',
                   "hide:cortana;privacy-automaticfiledownloads;privacy-feedback;windowsinsider-optin;windowsinsider;windowsupdate");
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', 'IsWUHidden', 1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
+                  'IsWUHidden',
+                  1);
             } else {
               writeRegistryString(
-                  Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', 'SettingsPageVisibility', "hide:cortana;privacy-automaticfiledownloads;privacy-feedback;");
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', 'IsWUHidden', 0);
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
+                  'SettingsPageVisibility',
+                  "hide:cortana;privacy-automaticfiledownloads;privacy-feedback;");
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
+                  'IsWUHidden',
+                  0);
             }
           },
         ),
@@ -63,19 +85,55 @@ class _UpdatesPageState extends State<UpdatesPage> {
               wuDriversBool = value;
             });
             if (wuDriversBool) {
-              deleteRegistryKey(Registry.currentUser, r'Software\Policies\Microsoft\Windows\DriverSearching');
-              deleteRegistryKey(Registry.localMachine, r'Software\Policies\Microsoft\Windows\DriverSearching');
+              deleteRegistryKey(Registry.currentUser,
+                  r'Software\Policies\Microsoft\Windows\DriverSearching');
+              deleteRegistryKey(Registry.localMachine,
+                  r'Software\Policies\Microsoft\Windows\DriverSearching');
 
-              deleteRegistry(Registry.localMachine, r'Software\Policies\Microsoft\Windows\WindowsUpdate', 'ExcludeWUDriversInQualityUpdate');
-              deleteRegistry(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\Windows\Device Metadata', 'PreventDeviceMetadataFromNetwork');
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata', 'PreventDeviceMetadataFromNetwork', 0);
+              deleteRegistry(
+                  Registry.localMachine,
+                  r'Software\Policies\Microsoft\Windows\WindowsUpdate',
+                  'ExcludeWUDriversInQualityUpdate');
+              deleteRegistry(
+                  Registry.localMachine,
+                  r'SOFTWARE\Policies\Microsoft\Windows\Device Metadata',
+                  'PreventDeviceMetadataFromNetwork');
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata',
+                  'PreventDeviceMetadataFromNetwork',
+                  0);
             } else {
-              writeRegistryDword(Registry.currentUser, r'Software\Policies\Microsoft\Windows\DriverSearching', 'DontPromptForWindowsUpdate', 1);
-              writeRegistryDword(Registry.localMachine, r'Software\Policies\Microsoft\Windows\DriverSearching', 'DontPromptForWindowsUpdate', 1);
-              writeRegistryDword(Registry.localMachine, r'Software\Policies\Microsoft\Windows\DriverSearching', 'SearchOrderConfig', 0);
-              writeRegistryDword(Registry.localMachine, r'Software\Policies\Microsoft\Windows\WindowsUpdate', 'ExcludeWUDriversInQualityUpdate', 1);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata', 'PreventDeviceMetadataFromNetwork', 1);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\Windows\Device Metadata', 'PreventDeviceMetadataFromNetwork', 1);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'Software\Policies\Microsoft\Windows\DriverSearching',
+                  'DontPromptForWindowsUpdate',
+                  1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'Software\Policies\Microsoft\Windows\DriverSearching',
+                  'DontPromptForWindowsUpdate',
+                  1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'Software\Policies\Microsoft\Windows\DriverSearching',
+                  'SearchOrderConfig',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'Software\Policies\Microsoft\Windows\WindowsUpdate',
+                  'ExcludeWUDriversInQualityUpdate',
+                  1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata',
+                  'PreventDeviceMetadataFromNetwork',
+                  1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Policies\Microsoft\Windows\Device Metadata',
+                  'PreventDeviceMetadataFromNetwork',
+                  1);
             }
           },
         ),

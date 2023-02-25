@@ -46,12 +46,19 @@ class _SettingsPageState extends State<SettingsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      InfoLabel(label: ReviLocalizations.of(context).settingsCTLabel),
+                      InfoLabel(
+                          label: ReviLocalizations.of(context).settingsCTLabel),
                       Text(
                         ReviLocalizations.of(context).settingsCTDescription,
                         style: FluentTheme.of(context).brightness.isDark
-                            ? const TextStyle(fontSize: 11, color: Color.fromARGB(255, 200, 200, 200), overflow: TextOverflow.fade)
-                            : const TextStyle(fontSize: 11, color: Color.fromARGB(255, 117, 117, 117), overflow: TextOverflow.fade),
+                            ? const TextStyle(
+                                fontSize: 11,
+                                color: Color.fromARGB(255, 200, 200, 200),
+                                overflow: TextOverflow.fade)
+                            : const TextStyle(
+                                fontSize: 11,
+                                color: Color.fromARGB(255, 117, 117, 117),
+                                overflow: TextOverflow.fade),
                       )
                     ],
                   ),
@@ -86,9 +93,11 @@ class _SettingsPageState extends State<SettingsPage> {
           function: (value) {
             setState(() {
               if (value) {
-                writeRegistryDword(Registry.localMachine, r'SOFTWARE\Revision\Revision Tool', 'Experimental', 1);
+                writeRegistryDword(Registry.localMachine,
+                    r'SOFTWARE\Revision\Revision Tool', 'Experimental', 1);
               } else {
-                writeRegistryDword(Registry.localMachine, r'SOFTWARE\Revision\Revision Tool', 'Experimental', 0);
+                writeRegistryDword(Registry.localMachine,
+                    r'SOFTWARE\Revision\Revision Tool', 'Experimental', 0);
               }
               expBool = value;
             });
@@ -110,35 +119,49 @@ class _SettingsPageState extends State<SettingsPage> {
                     child: Text(updateTitle),
                     onPressed: () async {
                       Directory tempDir = await getTemporaryDirectory();
-                      PackageInfo packageInfo = await PackageInfo.fromPlatform();
-                      int currentVersion = int.parse(packageInfo.version.replaceAll(".", ""));
-                      Map<String, dynamic> data = await Network.getJSON("https://api.github.com/repos/meetrevision/revision-tool/releases/latest");
-                      int latestVersion = int.parse(data["tag_name"].toString().replaceAll(".", ""));
+                      PackageInfo packageInfo =
+                          await PackageInfo.fromPlatform();
+                      int currentVersion =
+                          int.parse(packageInfo.version.replaceAll(".", ""));
+                      Map<String, dynamic> data = await Network.getJSON(
+                          "https://api.github.com/repos/meetrevision/revision-tool/releases/latest");
+                      int latestVersion = int.parse(
+                          data["tag_name"].toString().replaceAll(".", ""));
                       if (latestVersion > currentVersion) {
                         setState(() {
-                          updateTitle = ReviLocalizations.of(context).settingsUpdateButton;
+                          updateTitle = ReviLocalizations.of(context)
+                              .settingsUpdateButton;
                         });
+                        // ignore: use_build_context_synchronously
                         showDialog(
                           context: context,
                           builder: (context) => ContentDialog(
-                            title: Text(ReviLocalizations.of(context).settingsUpdateButtonAvailable),
-                            content: Text("${ReviLocalizations.of(context).settingsUpdateButtonAvailablePrompt} ${data["tag_name"]}?"),
+                            title: Text(ReviLocalizations.of(context)
+                                .settingsUpdateButtonAvailable),
+                            content: Text(
+                                "${ReviLocalizations.of(context).settingsUpdateButtonAvailablePrompt} ${data["tag_name"]}?"),
                             actions: [
                               Button(
-                                child: Text(ReviLocalizations.of(context).okButton),
+                                child: Text(
+                                    ReviLocalizations.of(context).okButton),
                                 onPressed: () async {
                                   setState(() {
-                                    updateTitle = "${ReviLocalizations.of(context).settingsUpdatingStatus}...";
+                                    updateTitle =
+                                        "${ReviLocalizations.of(context).settingsUpdatingStatus}...";
                                   });
                                   Navigator.pop(context);
-                                  await Network.downloadNewVersion(data["assets"][0]["browser_download_url"], tempDir.path);
+                                  await Network.downloadNewVersion(
+                                      data["assets"][0]["browser_download_url"],
+                                      tempDir.path);
                                   setState(() {
-                                    updateTitle = ReviLocalizations.of(context).settingsUpdatingStatusSuccess;
+                                    updateTitle = ReviLocalizations.of(context)
+                                        .settingsUpdatingStatusSuccess;
                                   });
                                 },
                               ),
                               FilledButton(
-                                child: Text(ReviLocalizations.of(context).notNowButton),
+                                child: Text(
+                                    ReviLocalizations.of(context).notNowButton),
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
@@ -148,7 +171,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         );
                       } else {
                         setState(() {
-                          updateTitle = ReviLocalizations.of(context).settingsUpdatingStatusNotFound;
+                          updateTitle = ReviLocalizations.of(context)
+                              .settingsUpdatingStatusNotFound;
                         });
                       }
                     },

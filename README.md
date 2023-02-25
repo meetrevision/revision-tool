@@ -17,5 +17,5 @@ The program is meant to be only used on [ReviOS](https://www.revi.cc/) 22.10 or 
 Revision Tool is licensed under GNU General Public License v3.0. 
 
 The tool also contains:
-* [NSudo](https://github.com/M2Team/NSudo/) - MIT
+* [NanaRun](https://github.com/M2Team/NanaRun) - MIT
 * [Fluent System Icons](https://github.com/microsoft/fluentui-system-icons) by Microsoft - MIT

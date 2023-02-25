@@ -14,10 +14,24 @@ class SecurityPage extends StatefulWidget {
 }
 
 class _SecurityPageState extends State<SecurityPage> {
-  bool wdBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Services\WinDefend', 'Start') != 4;
-  bool uacBool = readRegistryInt(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableLUA') != 0;
-  bool smBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettingsOverride') != 3;
-  bool iTSXBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\Session Manager\Kernel', 'DisableTsx') == 0;
+  bool wdBool = readRegistryInt(RegistryHive.localMachine,
+          r'SYSTEM\ControlSet001\Services\WinDefend', 'Start') !=
+      4;
+  bool uacBool = readRegistryInt(
+          RegistryHive.localMachine,
+          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+          'EnableLUA') !=
+      0;
+  bool smBool = readRegistryInt(
+          RegistryHive.localMachine,
+          r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
+          'FeatureSettingsOverride') !=
+      3;
+  bool iTSXBool = readRegistryInt(
+          RegistryHive.localMachine,
+          r'SYSTEM\ControlSet001\Control\Session Manager\Kernel',
+          'DisableTsx') ==
+      0;
 
   @override
   void initState() {
@@ -49,7 +63,8 @@ class _SecurityPageState extends State<SecurityPage> {
               wdBool = value;
             });
             if (wdBool) {
-              await run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\EnableWD.bat"');
+              await run(
+                  '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\EnableWD.bat"');
               // // Services and Drivers
               // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\MsSecFlt', 'Start', 0);
               // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\SecurityHealthService', 'Start', 3);
@@ -80,7 +95,8 @@ class _SecurityPageState extends State<SecurityPage> {
               // deleteRegistryKey(Registry.localMachine, r'Software\Policies\Microsoft\Windows Defender\SmartScreen');
               // deleteRegistryKey(Registry.localMachine, r'Software\Policies\Microsoft\Windows Defender\Signature Updates');
             } else {
-              await run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\DisableWD.bat"');
+              await run(
+                  '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\DisableWD.bat"');
               // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\MsSecFlt', 'Start', 4);
               // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\SecurityHealthService', 'Start', 4);
               // writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\Sense', 'Start', 4);
@@ -119,6 +135,7 @@ class _SecurityPageState extends State<SecurityPage> {
               // writeRegistryDword(Registry.localMachine, r'Software\Policies\Microsoft\MicrosoftEdge\PhishingFilter', 'EnabledV9', 0);
             }
 
+            // ignore: use_build_context_synchronously
             showDialog(
               context: context,
               builder: (context) => ContentDialog(
@@ -147,27 +164,107 @@ class _SecurityPageState extends State<SecurityPage> {
               uacBool = value;
             });
             if (uacBool) {
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableVirtualization', 1);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableInstallerDetection', 1);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'PromptOnSecureDesktop', 1);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableLUA', 1);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableSecureUIAPaths', 1);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ConsentPromptBehaviorAdmin', 5);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ValidateAdminCodeSignatures', 0);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableUIADesktopToggle', 0);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ConsentPromptBehaviorUser', 3);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'FilterAdministratorToken', 0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'EnableVirtualization',
+                  1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'EnableInstallerDetection',
+                  1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'PromptOnSecureDesktop',
+                  1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'EnableLUA',
+                  1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'EnableSecureUIAPaths',
+                  1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'ConsentPromptBehaviorAdmin',
+                  5);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'ValidateAdminCodeSignatures',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'EnableUIADesktopToggle',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'ConsentPromptBehaviorUser',
+                  3);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'FilterAdministratorToken',
+                  0);
             } else {
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableVirtualization', 0);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableInstallerDetection', 0);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'PromptOnSecureDesktop', 0);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableLUA', 0);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableSecureUIAPaths', 0);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ConsentPromptBehaviorAdmin', 0);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ValidateAdminCodeSignatures', 0);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableUIADesktopToggle', 0);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'ConsentPromptBehaviorUser', 0);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', 'FilterAdministratorToken', 0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'EnableVirtualization',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'EnableInstallerDetection',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'PromptOnSecureDesktop',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'EnableLUA',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'EnableSecureUIAPaths',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'ConsentPromptBehaviorAdmin',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'ValidateAdminCodeSignatures',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'EnableUIADesktopToggle',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'ConsentPromptBehaviorUser',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+                  'FilterAdministratorToken',
+                  0);
             }
           },
         ),
@@ -182,13 +279,36 @@ class _SecurityPageState extends State<SecurityPage> {
               smBool = value;
             });
             if (smBool) {
-              deleteRegistry(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettings');
-              writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettingsOverride', 0);
-              writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettingsOverrideMask', 3);
+              deleteRegistry(
+                  Registry.localMachine,
+                  r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
+                  'FeatureSettings');
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
+                  'FeatureSettingsOverride',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
+                  'FeatureSettingsOverrideMask',
+                  3);
             } else {
-              writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettings', 1);
-              writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettingsOverride', 3);
-              writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', 'FeatureSettingsOverrideMask', 3);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
+                  'FeatureSettings',
+                  1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
+                  'FeatureSettingsOverride',
+                  3);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
+                  'FeatureSettingsOverrideMask',
+                  3);
             }
           },
         ),
@@ -203,9 +323,17 @@ class _SecurityPageState extends State<SecurityPage> {
               iTSXBool = value;
             });
             if (smBool) {
-              writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\kernel', 'DisableTsx', 0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SYSTEM\CurrentControlSet\Control\Session Manager\kernel',
+                  'DisableTsx',
+                  0);
             } else {
-              writeRegistryDword(Registry.localMachine, r'SYSTEM\CurrentControlSet\Control\Session Manager\kernel', 'DisableTsx', 1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SYSTEM\CurrentControlSet\Control\Session Manager\kernel',
+                  'DisableTsx',
+                  1);
             }
           },
         ),

@@ -62,7 +62,9 @@ class AppTheme extends ChangeNotifier {
 }
 
 AccentColor get systemAccentColor {
-  if ((defaultTargetPlatform == TargetPlatform.windows || defaultTargetPlatform == TargetPlatform.android) && !kIsWeb) {
+  if ((defaultTargetPlatform == TargetPlatform.windows ||
+          defaultTargetPlatform == TargetPlatform.android) &&
+      !kIsWeb) {
     return AccentColor.swatch({
       'darkest': SystemTheme.accentColor.darkest,
       'darker': SystemTheme.accentColor.darker,
@@ -88,6 +90,7 @@ class SettingsService {
   }
 
   Future<void> updateThemeMode(ThemeMode theme) async {
-    writeRegistryString(Registry.localMachine, r'SOFTWARE\Revision\Revision Tool', 'ThemeMode', theme.name);
+    writeRegistryString(Registry.localMachine,
+        r'SOFTWARE\Revision\Revision Tool', 'ThemeMode', theme.name);
   }
 }

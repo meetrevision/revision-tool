@@ -14,10 +14,20 @@ class MiscellaneousPage extends StatefulWidget {
 }
 
 class _MiscellaneousPageState extends State<MiscellaneousPage> {
-  bool fsbBool = readRegistryInt(RegistryHive.localMachine, r'System\ControlSet001\Control\Session Manager\Power', 'HiberbootEnabled') == 1;
-  bool tmmBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start') == 2 &&
-      readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Services\Ndu', 'Start') == 2;
-  bool mpoBool = readRegistryInt(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows\Dwm', 'OverlayTestMode') != 5;
+  bool fsbBool = readRegistryInt(
+          RegistryHive.localMachine,
+          r'System\ControlSet001\Control\Session Manager\Power',
+          'HiberbootEnabled') ==
+      1;
+  bool tmmBool = readRegistryInt(RegistryHive.localMachine,
+              r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start') ==
+          2 &&
+      readRegistryInt(RegistryHive.localMachine,
+              r'SYSTEM\ControlSet001\Services\Ndu', 'Start') ==
+          2;
+  bool mpoBool = readRegistryInt(RegistryHive.localMachine,
+          r'SOFTWARE\Microsoft\Windows\Dwm', 'OverlayTestMode') !=
+      5;
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
@@ -35,16 +45,32 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
               fsbBool = value;
             });
             if (fsbBool) {
-              writeRegistryDword(Registry.localMachine, r'System\ControlSet001\Control\Session Manager\Power', 'HiberbootEnabled', 1);
-              writeRegistryDword(Registry.localMachine, r'Software\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings', 'ShowHibernateOption', 1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'System\ControlSet001\Control\Session Manager\Power',
+                  'HiberbootEnabled',
+                  1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'Software\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings',
+                  'ShowHibernateOption',
+                  1);
               await Shell().run(r'''
                      wevtutil sl Microsoft-Windows-SleepStudy/Diagnostic /e:true >NUL
                      wevtutil sl Microsoft-Windows-Kernel-Processor-Power/Diagnostic /e:true >NUL
                      wevtutil sl Microsoft-Windows-UserModePowerService/Diagnostic /e:true >NUL
                     ''');
             } else {
-              writeRegistryDword(Registry.localMachine, r'System\ControlSet001\Control\Session Manager\Power', 'HiberbootEnabled', 0);
-              writeRegistryDword(Registry.localMachine, r'Software\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings', 'ShowHibernateOption', 0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'System\ControlSet001\Control\Session Manager\Power',
+                  'HiberbootEnabled',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'Software\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings',
+                  'ShowHibernateOption',
+                  0);
               await Shell().run(r'''
                      wevtutil sl Microsoft-Windows-SleepStudy/Diagnostic /e:false >NUL
                      wevtutil sl Microsoft-Windows-Kernel-Processor-Power/Diagnostic /e:false >NUL
@@ -56,22 +82,27 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
         CardHighlightSwitch(
           icon: FluentIcons.task_manager,
           label: ReviLocalizations.of(context).miscTMMonitoringLabel,
-          description: ReviLocalizations.of(context).miscTMMonitoringDescription,
+          description:
+              ReviLocalizations.of(context).miscTMMonitoringDescription,
           switchBool: tmmBool,
           function: (value) async {
             setState(() {
               tmmBool = value;
             });
             if (tmmBool) {
-              writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start', 2);
-              writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\Ndu', 'Start', 2);
+              writeRegistryDword(Registry.localMachine,
+                  r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start', 2);
+              writeRegistryDword(Registry.localMachine,
+                  r'SYSTEM\ControlSet001\Services\Ndu', 'Start', 2);
               await Shell().run(r'''
                     sc start GraphicsPerfSvc
                     sc start Ndu
                     ''');
             } else {
-              writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start', 4);
-              writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Services\Ndu', 'Start', 4);
+              writeRegistryDword(Registry.localMachine,
+                  r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start', 4);
+              writeRegistryDword(Registry.localMachine,
+                  r'SYSTEM\ControlSet001\Services\Ndu', 'Start', 4);
             }
           },
         ),
@@ -85,9 +116,11 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
               mpoBool = value;
             });
             if (mpoBool) {
-              deleteRegistry(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\Dwm', 'OverlayTestMode');
+              deleteRegistry(Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\Dwm', 'OverlayTestMode');
             } else {
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\Dwm', 'OverlayTestMode', 5);
+              writeRegistryDword(Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\Dwm', 'OverlayTestMode', 5);
             }
           },
         )

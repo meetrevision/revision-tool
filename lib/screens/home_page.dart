@@ -11,10 +11,9 @@ import 'package:revitool/screens/pages/usability_page.dart';
 import 'package:revitool/screens/pages/usability_page_two.dart';
 import 'package:revitool/screens/settings.dart';
 import 'package:revitool/utils.dart';
-import 'package:revitool/widgets/windows_buttons.dart';
 import 'package:win32_registry/win32_registry.dart';
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
+import 'package:window_plus/window_plus.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -131,24 +130,16 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         appBar: NavigationAppBar(
-          // leading: const Icon(
-          //   msicons.FluentIcons.arrow_left_12_regular,
-          //   size: 16,
-          //   color: Color.fromARGB(255, 94, 94, 94),
-          // ),
           automaticallyImplyLeading: false,
           title: const Text('Revision Tool'),
-          actions: Stack(
-            children: [
-              MoveWindow(),
-              WindowTitleBarBox(child: const WindowButtons()),
-            ],
-          ),
+          actions: WindowCaption(),
         ),
         pane: NavigationPane(
           selected: topIndex ?? 0,
           onChanged: (index) => setState(() => topIndex = index),
-          displayMode: MediaQuery.of(context).size.width >= 800 ? PaneDisplayMode.open : PaneDisplayMode.minimal,
+          displayMode: MediaQuery.of(context).size.width >= 800
+              ? PaneDisplayMode.open
+              : PaneDisplayMode.minimal,
           header: SizedBox(
             height: 90,
             // height: kOneLineTileHeight,
@@ -161,7 +152,8 @@ class _HomePageState extends State<HomePage> {
                   child: Image.file(
                     width: 60,
                     height: 60,
-                    File('C:\\ProgramData\\Microsoft\\User Account Pictures\\user-192.png'),
+                    File(
+                        'C:\\ProgramData\\Microsoft\\User Account Pictures\\user-192.png'),
                   ),
                 ),
                 const SizedBox(width: 13.0),
@@ -170,8 +162,11 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      Registry.openPath(RegistryHive.currentUser, path: r'Volatile Environment').getValueAsString("USERNAME")!,
-                      style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+                      Registry.openPath(RegistryHive.currentUser,
+                              path: r'Volatile Environment')
+                          .getValueAsString("USERNAME")!,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w500, fontSize: 14),
                     ),
                     const Text(
                       "Proud ReviOS user",
@@ -267,7 +262,11 @@ class Home extends StatelessWidget {
               ],
               Text(
                 ReviLocalizations.of(context).homeWelcome,
-                style: FluentTheme.of(context).brightness.isDark ? const TextStyle(fontSize: 16, color: Color(0xB7FFFFFF)) : const TextStyle(fontSize: 16, color: Color.fromARGB(255, 117, 117, 117)),
+                style: FluentTheme.of(context).brightness.isDark
+                    ? const TextStyle(fontSize: 16, color: Color(0xB7FFFFFF))
+                    : const TextStyle(
+                        fontSize: 16,
+                        color: Color.fromARGB(255, 117, 117, 117)),
               ),
               const Text(
                 "Revision Tool",
@@ -277,7 +276,11 @@ class Home extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: Text(
                   ReviLocalizations.of(context).homeDescription,
-                  style: FluentTheme.of(context).brightness.isDark ? const TextStyle(fontSize: 16, color: Color(0xB7FFFFFF)) : const TextStyle(fontSize: 16, color: Color.fromARGB(255, 117, 117, 117)),
+                  style: FluentTheme.of(context).brightness.isDark
+                      ? const TextStyle(fontSize: 16, color: Color(0xB7FFFFFF))
+                      : const TextStyle(
+                          fontSize: 16,
+                          color: Color.fromARGB(255, 117, 117, 117)),
                 ),
               ),
               Padding(
@@ -287,7 +290,8 @@ class Home extends StatelessWidget {
                   child: Button(
                     child: Text(ReviLocalizations.of(context).homeReviLink),
                     onPressed: () async {
-                      await run("rundll32 url.dll,FileProtocolHandler https://www.revi.cc");
+                      await run(
+                          "rundll32 url.dll,FileProtocolHandler https://www.revi.cc");
                     },
                   ),
                 ),
@@ -299,7 +303,8 @@ class Home extends StatelessWidget {
                   child: FilledButton(
                     child: Text(ReviLocalizations.of(context).homeReviFAQLink),
                     onPressed: () async {
-                      await run("rundll32 url.dll,FileProtocolHandler https://revios.rignoa.com");
+                      await run(
+                          "rundll32 url.dll,FileProtocolHandler https://revios.rignoa.com");
                     },
                   ),
                 ),

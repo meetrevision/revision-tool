@@ -17,17 +17,41 @@ class PerformancePage extends StatefulWidget {
 }
 
 class _PerformancePageState extends State<PerformancePage> {
-  bool sfBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Services\rdyboost', 'Start') == 4 &&
-          readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Services\SysMain', 'Start') == 4
+  bool sfBool = readRegistryInt(RegistryHive.localMachine,
+                  r'SYSTEM\ControlSet001\Services\rdyboost', 'Start') ==
+              4 &&
+          readRegistryInt(RegistryHive.localMachine,
+                  r'SYSTEM\ControlSet001\Services\SysMain', 'Start') ==
+              4
       ? false
       : true;
-  bool mcBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters', 'isMemoryCompressionEnabled') != 0;
-  bool foBool = readRegistryInt(RegistryHive.currentUser, r'System\GameConfigStore', "GameDVR_FSEBehaviorMode") != 2;
-  bool owgBool = readRegistryString(RegistryHive.currentUser, r'Software\Microsoft\DirectX\UserGpuPreferences', "DirectXUserGlobalSettings") == "SwapEffectUpgradeEnable=1;";
+  bool mcBool = readRegistryInt(
+          RegistryHive.localMachine,
+          r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
+          'isMemoryCompressionEnabled') !=
+      0;
+  bool foBool = readRegistryInt(RegistryHive.currentUser,
+          r'System\GameConfigStore', "GameDVR_FSEBehaviorMode") !=
+      2;
+  bool owgBool = readRegistryString(
+          RegistryHive.currentUser,
+          r'Software\Microsoft\DirectX\UserGpuPreferences',
+          "DirectXUserGlobalSettings") ==
+      "SwapEffectUpgradeEnable=1;";
 //NTFS
-  bool ntfsLTABool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FileSystem', "RefsDisableLastAccessUpdate") == 1;
-  bool ntfsEdTBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FileSystem', "NtfsDisable8dot3NameCreation") == 1;
-  bool ntfsMUBool = readRegistryInt(RegistryHive.localMachine, r'SYSTEM\ControlSet001\Control\FileSystem', "NtfsMemoryUsage") == 2;
+  bool ntfsLTABool = readRegistryInt(
+          RegistryHive.localMachine,
+          r'SYSTEM\ControlSet001\Control\FileSystem',
+          "RefsDisableLastAccessUpdate") ==
+      1;
+  bool ntfsEdTBool = readRegistryInt(
+          RegistryHive.localMachine,
+          r'SYSTEM\ControlSet001\Control\FileSystem',
+          "NtfsDisable8dot3NameCreation") ==
+      1;
+  bool ntfsMUBool = readRegistryInt(RegistryHive.localMachine,
+          r'SYSTEM\ControlSet001\Control\FileSystem', "NtfsMemoryUsage") ==
+      2;
 
   @override
   void initState() {
@@ -56,11 +80,18 @@ class _PerformancePageState extends State<PerformancePage> {
               sfBool = value;
             });
             if (sfBool) {
-              await run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\EnableSF.bat"');
+              await run(
+                  '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\EnableSF.bat"');
             } else {
-              writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters', 'isMemoryCompressionEnabled', 0);
-              await run('"$directoryExe\\NSudoLG.exe" -U:T -P:E cmd /min /c "$directoryExe\\DisableSF.bat"');
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
+                  'isMemoryCompressionEnabled',
+                  0);
+              await run(
+                  '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\DisableSF.bat"');
             }
+            // ignore: use_build_context_synchronously
             showDialog(
               context: context,
               builder: (context) => ContentDialog(
@@ -89,10 +120,18 @@ class _PerformancePageState extends State<PerformancePage> {
               });
               if (mcBool) {
                 run('PowerShell -NonInteractive -NoLogo -NoProfile -Command "Enable-MMAgent -mc"');
-                writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters', 'isMemoryCompressionEnabled', 1);
+                writeRegistryDword(
+                    Registry.localMachine,
+                    r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
+                    'isMemoryCompressionEnabled',
+                    1);
               } else {
                 run('PowerShell -NonInteractive -NoLogo -NoProfile -Command "Disable-MMAgent -mc"');
-                writeRegistryDword(Registry.localMachine, r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters', 'isMemoryCompressionEnabled', 0);
+                writeRegistryDword(
+                    Registry.localMachine,
+                    r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
+                    'isMemoryCompressionEnabled',
+                    0);
               }
             },
           ),
@@ -107,33 +146,76 @@ class _PerformancePageState extends State<PerformancePage> {
               foBool = value;
             });
             if (foBool) {
-              writeRegistryDword(Registry.currentUser, r'System\GameConfigStore', 'GameDVR_FSEBehaviorMode', 0);
-              deleteRegistry(Registry.currentUser, r'System\GameConfigStore', 'GameDVR_FSEBehavior');
-              deleteRegistry(Registry.currentUser, r'System\GameConfigStore', 'Win32_AutoGameModeDefaultProfile');
-              deleteRegistry(Registry.currentUser, r'System\GameConfigStore', 'Win32_GameModeRelatedProcesses');
-              deleteRegistry(Registry.currentUser, r'System\GameConfigStore', 'GameDVR_HonorUserFSEBehaviorMode');
-              deleteRegistry(Registry.currentUser, r'System\GameConfigStore', 'GameDVR_DXGIHonorFSEWindowsCompatible');
-              deleteRegistry(Registry.currentUser, r'System\GameConfigStore', 'GameDVR_EFSEFeatureFlags');
+              writeRegistryDword(Registry.currentUser,
+                  r'System\GameConfigStore', 'GameDVR_FSEBehaviorMode', 0);
+              deleteRegistry(Registry.currentUser, r'System\GameConfigStore',
+                  'GameDVR_FSEBehavior');
+              deleteRegistry(Registry.currentUser, r'System\GameConfigStore',
+                  'Win32_AutoGameModeDefaultProfile');
+              deleteRegistry(Registry.currentUser, r'System\GameConfigStore',
+                  'Win32_GameModeRelatedProcesses');
+              deleteRegistry(Registry.currentUser, r'System\GameConfigStore',
+                  'GameDVR_HonorUserFSEBehaviorMode');
+              deleteRegistry(Registry.currentUser, r'System\GameConfigStore',
+                  'GameDVR_DXGIHonorFSEWindowsCompatible');
+              deleteRegistry(Registry.currentUser, r'System\GameConfigStore',
+                  'GameDVR_EFSEFeatureFlags');
 
-              writeRegistryDword(Registry.allUsers, r'.DEFAULT\System\GameConfigStore', 'GameDVR_FSEBehaviorMode', 0);
-              deleteRegistry(Registry.allUsers, r'.DEFAULT\System\GameConfigStore', 'GameDVR_FSEBehavior');
-              deleteRegistry(Registry.allUsers, r'.DEFAULT\System\GameConfigStore', 'Win32_AutoGameModeDefaultProfile');
-              deleteRegistry(Registry.allUsers, r'.DEFAULT\System\GameConfigStore', 'Win32_GameModeRelatedProcesses');
-              deleteRegistry(Registry.allUsers, r'.DEFAULT\System\GameConfigStore', 'GameDVR_HonorUserFSEBehaviorMode');
-              deleteRegistry(Registry.allUsers, r'.DEFAULT\System\GameConfigStore', 'GameDVR_DXGIHonorFSEWindowsCompatible');
-              deleteRegistry(Registry.allUsers, r'.DEFAULT\System\GameConfigStore', 'GameDVR_EFSEFeatureFlags');
+              writeRegistryDword(
+                  Registry.allUsers,
+                  r'.DEFAULT\System\GameConfigStore',
+                  'GameDVR_FSEBehaviorMode',
+                  0);
+              deleteRegistry(Registry.allUsers,
+                  r'.DEFAULT\System\GameConfigStore', 'GameDVR_FSEBehavior');
+              deleteRegistry(
+                  Registry.allUsers,
+                  r'.DEFAULT\System\GameConfigStore',
+                  'Win32_AutoGameModeDefaultProfile');
+              deleteRegistry(
+                  Registry.allUsers,
+                  r'.DEFAULT\System\GameConfigStore',
+                  'Win32_GameModeRelatedProcesses');
+              deleteRegistry(
+                  Registry.allUsers,
+                  r'.DEFAULT\System\GameConfigStore',
+                  'GameDVR_HonorUserFSEBehaviorMode');
+              deleteRegistry(
+                  Registry.allUsers,
+                  r'.DEFAULT\System\GameConfigStore',
+                  'GameDVR_DXGIHonorFSEWindowsCompatible');
+              deleteRegistry(
+                  Registry.allUsers,
+                  r'.DEFAULT\System\GameConfigStore',
+                  'GameDVR_EFSEFeatureFlags');
             } else {
-              writeRegistryDword(Registry.currentUser, r'System\GameConfigStore', 'GameDVR_FSEBehaviorMode', 2);
-              writeRegistryDword(Registry.currentUser, r'System\GameConfigStore', 'GameDVR_HonorUserFSEBehaviorMode', 1);
-              writeRegistryDword(Registry.currentUser, r'System\GameConfigStore', 'GameDVR_DXGIHonorFSEWindowsCompatible', 1);
-              writeRegistryDword(Registry.currentUser, r'System\GameConfigStore', 'GameDVR_EFSEFeatureFlags', 0);
-              writeRegistryDword(Registry.currentUser, r'System\GameConfigStore', 'GameDVR_FSEBehavior', 2);
+              writeRegistryDword(Registry.currentUser,
+                  r'System\GameConfigStore', 'GameDVR_FSEBehaviorMode', 2);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'System\GameConfigStore',
+                  'GameDVR_HonorUserFSEBehaviorMode',
+                  1);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'System\GameConfigStore',
+                  'GameDVR_DXGIHonorFSEWindowsCompatible',
+                  1);
+              writeRegistryDword(Registry.currentUser,
+                  r'System\GameConfigStore', 'GameDVR_EFSEFeatureFlags', 0);
+              writeRegistryDword(Registry.currentUser,
+                  r'System\GameConfigStore', 'GameDVR_FSEBehavior', 2);
 
-              writeRegistryDword(Registry.allUsers, r'System\GameConfigStore', 'GameDVR_FSEBehaviorMode', 2);
-              writeRegistryDword(Registry.allUsers, r'System\GameConfigStore', 'GameDVR_HonorUserFSEBehaviorMode', 1);
-              writeRegistryDword(Registry.allUsers, r'System\GameConfigStore', 'GameDVR_DXGIHonorFSEWindowsCompatible', 1);
-              writeRegistryDword(Registry.allUsers, r'System\GameConfigStore', 'GameDVR_EFSEFeatureFlags', 0);
-              writeRegistryDword(Registry.allUsers, r'System\GameConfigStore', 'GameDVR_FSEBehavior', 2);
+              writeRegistryDword(Registry.allUsers, r'System\GameConfigStore',
+                  'GameDVR_FSEBehaviorMode', 2);
+              writeRegistryDword(Registry.allUsers, r'System\GameConfigStore',
+                  'GameDVR_HonorUserFSEBehaviorMode', 1);
+              writeRegistryDword(Registry.allUsers, r'System\GameConfigStore',
+                  'GameDVR_DXGIHonorFSEWindowsCompatible', 1);
+              writeRegistryDword(Registry.allUsers, r'System\GameConfigStore',
+                  'GameDVR_EFSEFeatureFlags', 0);
+              writeRegistryDword(Registry.allUsers, r'System\GameConfigStore',
+                  'GameDVR_FSEBehavior', 2);
               await Shell().run(r'''
                       reg add "HKCU\System\GameConfigStore" /v "Win32_AutoGameModeDefaultProfile" /t REG_BINARY /d "01000100000000000000000000000000000000000000000000000000000000000000000000000000" /f
                       reg add "HKCU\System\GameConfigStore" /v "Win32_GameModeRelatedProcesses" /t REG_BINARY /d "010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" /f
@@ -154,9 +236,16 @@ class _PerformancePageState extends State<PerformancePage> {
                 owgBool = value;
               });
               if (owgBool) {
-                writeRegistryString(Registry.currentUser, r'Software\Microsoft\DirectX\UserGpuPreferences', 'DirectXUserGlobalSettings', r'SwapEffectUpgradeEnable=1;');
+                writeRegistryString(
+                    Registry.currentUser,
+                    r'Software\Microsoft\DirectX\UserGpuPreferences',
+                    'DirectXUserGlobalSettings',
+                    r'SwapEffectUpgradeEnable=1;');
               } else {
-                deleteRegistry(Registry.currentUser, r'Software\Microsoft\DirectX\UserGpuPreferences', 'DirectXUserGlobalSettings');
+                deleteRegistry(
+                    Registry.currentUser,
+                    r'Software\Microsoft\DirectX\UserGpuPreferences',
+                    'DirectXUserGlobalSettings');
               }
             },
           ),

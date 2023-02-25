@@ -15,9 +15,21 @@ class UsabilityPage extends StatefulWidget {
 }
 
 class _UsabilityPageState extends State<UsabilityPage> {
-  bool notifBool = readRegistryInt(RegistryHive.localMachine, r'SOFTWARE\Policies\Microsoft\Windows\Explorer', 'IsNotificationsEnabled') == 1;
-  bool elbnBool = readRegistryInt(RegistryHive.currentUser, r'Software\Policies\Microsoft\Windows\Explorer', 'EnableLegacyBalloonNotifications') != 0;
-  bool itpBool = readRegistryInt(RegistryHive.localMachine, r'SOFTWARE\Policies\Microsoft\InputPersonalization', 'AllowInputPersonalization') == 1;
+  bool notifBool = readRegistryInt(
+          RegistryHive.localMachine,
+          r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
+          'IsNotificationsEnabled') ==
+      1;
+  bool elbnBool = readRegistryInt(
+          RegistryHive.currentUser,
+          r'Software\Policies\Microsoft\Windows\Explorer',
+          'EnableLegacyBalloonNotifications') !=
+      0;
+  bool itpBool = readRegistryInt(
+          RegistryHive.localMachine,
+          r'SOFTWARE\Policies\Microsoft\InputPersonalization',
+          'AllowInputPersonalization') ==
+      1;
 
   @override
   void initState() {
@@ -46,29 +58,102 @@ class _UsabilityPageState extends State<UsabilityPage> {
               notifBool = value;
             });
             if (notifBool) {
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\Windows\Explorer', 'IsNotificationsEnabled', 1);
-              deleteRegistry(Registry.currentUser, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings', 'NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK');
-              deleteRegistry(Registry.currentUser, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings', 'NOC_GLOBAL_SETTING_ALLOW_CRITICAL_TOASTS_ABOVE_LOCK');
-              deleteRegistry(Registry.currentUser, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings', 'NOC_GLOBAL_SETTING_TOASTS_ENABLED');
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\Windows\Explorer', 'DisableNotificationCenter', 0);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\Windows\Explorer', 'DisableNotificationCenter', 0);
-              deleteRegistry(Registry.currentUser, r'SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications', 'ToastEnabled');
-              deleteRegistry(Registry.localMachine, r'SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications', 'ToastEnabled');
-              deleteRegistry(Registry.currentUser, r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications', 'NoToastApplicationNotification');
-              deleteRegistry(Registry.currentUser, r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications', 'NoTileApplicationNotification');
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
+                  'IsNotificationsEnabled',
+                  1);
+              deleteRegistry(
+                  Registry.currentUser,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
+                  'NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK');
+              deleteRegistry(
+                  Registry.currentUser,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
+                  'NOC_GLOBAL_SETTING_ALLOW_CRITICAL_TOASTS_ABOVE_LOCK');
+              deleteRegistry(
+                  Registry.currentUser,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
+                  'NOC_GLOBAL_SETTING_TOASTS_ENABLED');
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
+                  'DisableNotificationCenter',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
+                  'DisableNotificationCenter',
+                  0);
+              deleteRegistry(
+                  Registry.currentUser,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications',
+                  'ToastEnabled');
+              deleteRegistry(
+                  Registry.localMachine,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications',
+                  'ToastEnabled');
+              deleteRegistry(
+                  Registry.currentUser,
+                  r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications',
+                  'NoToastApplicationNotification');
+              deleteRegistry(
+                  Registry.currentUser,
+                  r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications',
+                  'NoTileApplicationNotification');
               await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
               await Process.run('explorer.exe', [], runInShell: true);
             } else {
-              writeRegistryDword(Registry.currentUser, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings', 'NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK', 0);
-              writeRegistryDword(Registry.currentUser, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings', 'NOC_GLOBAL_SETTING_ALLOW_CRITICAL_TOASTS_ABOVE_LOCK', 0);
-              writeRegistryDword(Registry.currentUser, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings', 'NOC_GLOBAL_SETTING_TOASTS_ENABLED', 0);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\Windows\Explorer', 'DisableNotificationCenter', 1);
-              writeRegistryDword(Registry.currentUser, r'SOFTWARE\Policies\Microsoft\Windows\Explorer', 'DisableNotificationCenter', 1);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\Windows\Explorer', 'ToastEnabled', 0);
-              writeRegistryDword(Registry.currentUser, r'SOFTWARE\Policies\Microsoft\Windows\Explorer', 'ToastEnabled', 0);
-              writeRegistryDword(Registry.currentUser, r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications', 'NoToastApplicationNotification', 1);
-              writeRegistryDword(Registry.currentUser, r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications', 'NoTileApplicationNotification', 1);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\Windows\Explorer', 'IsNotificationsEnabled', 0);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
+                  'NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK',
+                  0);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
+                  'NOC_GLOBAL_SETTING_ALLOW_CRITICAL_TOASTS_ABOVE_LOCK',
+                  0);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
+                  'NOC_GLOBAL_SETTING_TOASTS_ENABLED',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
+                  'DisableNotificationCenter',
+                  1);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
+                  'DisableNotificationCenter',
+                  1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
+                  'ToastEnabled',
+                  0);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
+                  'ToastEnabled',
+                  0);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications',
+                  'NoToastApplicationNotification',
+                  1);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications',
+                  'NoTileApplicationNotification',
+                  1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
+                  'IsNotificationsEnabled',
+                  0);
               await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
               await Process.run('explorer.exe', [], runInShell: true);
             }
@@ -85,12 +170,22 @@ class _UsabilityPageState extends State<UsabilityPage> {
                 elbnBool = value;
               });
               if (elbnBool) {
-                writeRegistryDword(Registry.currentUser, r'Software\Policies\Microsoft\Windows\Explorer', 'EnableLegacyBalloonNotifications', 1);
-                await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
+                writeRegistryDword(
+                    Registry.currentUser,
+                    r'Software\Policies\Microsoft\Windows\Explorer',
+                    'EnableLegacyBalloonNotifications',
+                    1);
+                await Process.run(
+                    'taskkill.exe', ['/im', 'explorer.exe', '/f']);
                 await Process.run('explorer.exe', [], runInShell: true);
               } else {
-                writeRegistryDword(Registry.currentUser, r'Software\Policies\Microsoft\Windows\Explorer', 'EnableLegacyBalloonNotifications', 0);
-                await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
+                writeRegistryDword(
+                    Registry.currentUser,
+                    r'Software\Policies\Microsoft\Windows\Explorer',
+                    'EnableLegacyBalloonNotifications',
+                    0);
+                await Process.run(
+                    'taskkill.exe', ['/im', 'explorer.exe', '/f']);
                 await Process.run('explorer.exe', [], runInShell: true);
               }
             },
@@ -106,25 +201,97 @@ class _UsabilityPageState extends State<UsabilityPage> {
               itpBool = value;
             });
             if (itpBool) {
-              writeRegistryDword(Registry.currentUser, r'Software\Microsoft\InputPersonalization', 'RestrictImplicitInkCollection', 0);
-              writeRegistryDword(Registry.currentUser, r'Software\Microsoft\InputPersonalization', 'RestrictImplicitTextCollection', 0);
-              writeRegistryDword(Registry.currentUser, r'Software\Microsoft\InputPersonalization\TrainedDataStore', 'HarvestContacts', 1);
-              writeRegistryDword(Registry.currentUser, r'Software\Microsoft\InputPersonalization\Settings', 'AcceptedPrivacyPolicy', 1);
-              writeRegistryDword(Registry.currentUser, r'SOFTWARE\Policies\Microsoft\InputPersonalization', 'RestrictImplicitInkCollection', 0);
-              writeRegistryDword(Registry.currentUser, r'SOFTWARE\Policies\Microsoft\InputPersonalization', 'RestrictImplicitTextCollection', 0);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\InputPersonalization', 'RestrictImplicitInkCollection', 0);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\InputPersonalization', 'RestrictImplicitTextCollection', 0);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\InputPersonalization', 'AllowInputPersonalization', 1);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'Software\Microsoft\InputPersonalization',
+                  'RestrictImplicitInkCollection',
+                  0);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'Software\Microsoft\InputPersonalization',
+                  'RestrictImplicitTextCollection',
+                  0);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'Software\Microsoft\InputPersonalization\TrainedDataStore',
+                  'HarvestContacts',
+                  1);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'Software\Microsoft\InputPersonalization\Settings',
+                  'AcceptedPrivacyPolicy',
+                  1);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
+                  'RestrictImplicitInkCollection',
+                  0);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
+                  'RestrictImplicitTextCollection',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
+                  'RestrictImplicitInkCollection',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
+                  'RestrictImplicitTextCollection',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
+                  'AllowInputPersonalization',
+                  1);
             } else {
-              writeRegistryDword(Registry.currentUser, r'Software\Microsoft\InputPersonalization', 'RestrictImplicitInkCollection', 1);
-              writeRegistryDword(Registry.currentUser, r'Software\Microsoft\InputPersonalization', 'RestrictImplicitTextCollection', 1);
-              writeRegistryDword(Registry.currentUser, r'Software\Microsoft\InputPersonalization\TrainedDataStore', 'HarvestContacts', 0);
-              writeRegistryDword(Registry.currentUser, r'Software\Microsoft\InputPersonalization\Settings', 'AcceptedPrivacyPolicy', 0);
-              writeRegistryDword(Registry.currentUser, r'SOFTWARE\Policies\Microsoft\InputPersonalization', 'RestrictImplicitInkCollection', 1);
-              writeRegistryDword(Registry.currentUser, r'SOFTWARE\Policies\Microsoft\InputPersonalization', 'RestrictImplicitTextCollection', 1);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\InputPersonalization', 'RestrictImplicitInkCollection', 1);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\InputPersonalization', 'RestrictImplicitTextCollection', 1);
-              writeRegistryDword(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\InputPersonalization', 'AllowInputPersonalization', 0);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'Software\Microsoft\InputPersonalization',
+                  'RestrictImplicitInkCollection',
+                  1);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'Software\Microsoft\InputPersonalization',
+                  'RestrictImplicitTextCollection',
+                  1);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'Software\Microsoft\InputPersonalization\TrainedDataStore',
+                  'HarvestContacts',
+                  0);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'Software\Microsoft\InputPersonalization\Settings',
+                  'AcceptedPrivacyPolicy',
+                  0);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
+                  'RestrictImplicitInkCollection',
+                  1);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
+                  'RestrictImplicitTextCollection',
+                  1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
+                  'RestrictImplicitInkCollection',
+                  1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
+                  'RestrictImplicitTextCollection',
+                  1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
+                  'AllowInputPersonalization',
+                  0);
             }
           },
         ),

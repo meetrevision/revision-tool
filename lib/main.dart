@@ -1,4 +1,3 @@
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
@@ -8,35 +7,43 @@ import 'package:revitool/theme.dart';
 import 'package:revitool/utils.dart';
 import 'package:system_theme/system_theme.dart';
 import 'package:win32_registry/win32_registry.dart';
+import 'package:window_plus/window_plus.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   createRegistryKey(Registry.localMachine, r'SOFTWARE\Revision\Revision Tool');
-  createRegistryKey(Registry.currentUser, r'Software\Microsoft\DirectX\UserGpuPreferences');
+  createRegistryKey(
+      Registry.currentUser, r'Software\Microsoft\DirectX\UserGpuPreferences');
 
-  if (readRegistryString(RegistryHive.localMachine, r'SOFTWARE\Revision\Revision Tool', 'ThemeMode') == null) {
-    writeRegistryString(Registry.localMachine, r'SOFTWARE\Revision\Revision Tool', 'ThemeMode', ThemeMode.system.name);
-    writeRegistryDword(Registry.localMachine, r'SOFTWARE\Revision\Revision Tool', 'Experimental', 0);
+  if (readRegistryString(RegistryHive.localMachine,
+          r'SOFTWARE\Revision\Revision Tool', 'ThemeMode') ==
+      null) {
+    writeRegistryString(Registry.localMachine,
+        r'SOFTWARE\Revision\Revision Tool', 'ThemeMode', ThemeMode.system.name);
+    writeRegistryDword(Registry.localMachine,
+        r'SOFTWARE\Revision\Revision Tool', 'Experimental', 0);
   }
   final settingsController = AppTheme(SettingsService());
   await settingsController.loadSettings();
   await SystemTheme.accentColor.load();
-  doWhenWindowReady(() async {
-    appWindow.minSize = const Size(515, 330);
-    appWindow.alignment = Alignment.center;
-    Size mySize = appWindow.size;
-    final size = Size(mySize.width, mySize.height);
-    appWindow.size = size;
-    WidgetsBinding.instance.scheduleFrameCallback((timeStamp) {
-      appWindow.size = size + const Offset(0, 1);
-    });
 
-    appWindow.show();
-  });
+  await WindowPlus.ensureInitialized(
+    application: 'revision-tool',
+    enableCustomFrame: true,
+    enableEventStreams: false,
+  );
+  await WindowPlus.instance.setMinimumSize(const Size(515, 330));
 
-  final buildNumber = int.parse(readRegistryString(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\', 'CurrentBuildNumber') as String);
+  final buildNumber = int.parse(readRegistryString(
+      RegistryHive.localMachine,
+      r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\',
+      'CurrentBuildNumber') as String);
 
-  if (readRegistryString(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'EditionSubVersion') == "ReviOS") {
+  if (readRegistryString(
+          RegistryHive.localMachine,
+          r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
+          'EditionSubVersion') ==
+      "ReviOS") {
     if (buildNumber > 19044) {
       runApp(const MyApp(isSupported: true));
     } else {
@@ -109,7 +116,7 @@ class UnsupportedError extends StatelessWidget {
           Button(
             child: const Text('OK'),
             onPressed: () {
-              appWindow.close();
+              WindowPlus.instance.close();
             },
           ),
         ],
