@@ -52,10 +52,18 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
                   1);
               writeRegistryDword(
                   Registry.localMachine,
-                  r'Software\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings',
+                  r'Software\Policies\Microsoft\Windows\System',
+                  'HiberbootEnabled',
+                  1);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'Software\Policies\Microsoft\Windows\System',
                   'ShowHibernateOption',
                   1);
+              writeRegistryDword(Registry.localMachine,
+                  r'SYSTEM\ControlSet001\Control\Power', 'HibernateEnabled', 1);
               await Shell().run(r'''
+                     powercfg -h on
                      wevtutil sl Microsoft-Windows-SleepStudy/Diagnostic /e:true >NUL
                      wevtutil sl Microsoft-Windows-Kernel-Processor-Power/Diagnostic /e:true >NUL
                      wevtutil sl Microsoft-Windows-UserModePowerService/Diagnostic /e:true >NUL
@@ -68,10 +76,18 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
                   0);
               writeRegistryDword(
                   Registry.localMachine,
-                  r'Software\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings',
+                  r'Software\Policies\Microsoft\Windows\System',
+                  'HiberbootEnabled',
+                  0);
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'Software\Policies\Microsoft\Windows\System',
                   'ShowHibernateOption',
                   0);
+              writeRegistryDword(Registry.localMachine,
+                  r'SYSTEM\ControlSet001\Control\Power', 'HibernateEnabled', 0);
               await Shell().run(r'''
+                     powercfg -h off
                      wevtutil sl Microsoft-Windows-SleepStudy/Diagnostic /e:false >NUL
                      wevtutil sl Microsoft-Windows-Kernel-Processor-Power/Diagnostic /e:false >NUL
                      wevtutil sl Microsoft-Windows-UserModePowerService/Diagnostic /e:false >NUL
