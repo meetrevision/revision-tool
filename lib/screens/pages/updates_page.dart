@@ -13,16 +13,18 @@ class UpdatesPage extends StatefulWidget {
 }
 
 class _UpdatesPageState extends State<UpdatesPage> {
-  bool wuPageBool = readRegistryInt(
-          RegistryHive.localMachine,
-          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
-          'IsWUHidden') ==
-      1;
+  bool wuPageBool = readRegistryString(
+              RegistryHive.localMachine,
+              r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
+              'SettingsPageVisibility')
+          ?.contains("windowsupdate") ??
+      false;
+
   bool wuDriversBool = readRegistryInt(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata',
-          'PreventDeviceMetadataFromNetwork') !=
-      1;
+          'PreventDeviceMetadataFromNetwork') ==
+      0;
 
   @override
   void initState() {
@@ -56,22 +58,12 @@ class _UpdatesPageState extends State<UpdatesPage> {
                   r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
                   'SettingsPageVisibility',
                   "hide:cortana;privacy-automaticfiledownloads;privacy-feedback;windowsinsider-optin;windowsinsider;windowsupdate");
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
-                  'IsWUHidden',
-                  1);
             } else {
               writeRegistryString(
                   Registry.localMachine,
                   r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
                   'SettingsPageVisibility',
                   "hide:cortana;privacy-automaticfiledownloads;privacy-feedback;");
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
-                  'IsWUHidden',
-                  0);
             }
           },
         ),

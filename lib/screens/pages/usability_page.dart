@@ -18,8 +18,8 @@ class _UsabilityPageState extends State<UsabilityPage> {
   bool notifBool = readRegistryInt(
           RegistryHive.localMachine,
           r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
-          'IsNotificationsEnabled') ==
-      1;
+          'DisableNotificationCenter') ==
+      0;
   bool elbnBool = readRegistryInt(
           RegistryHive.currentUser,
           r'Software\Policies\Microsoft\Windows\Explorer',

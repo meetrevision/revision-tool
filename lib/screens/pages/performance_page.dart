@@ -17,27 +17,44 @@ class PerformancePage extends StatefulWidget {
 }
 
 class _PerformancePageState extends State<PerformancePage> {
-  bool sfBool = readRegistryInt(RegistryHive.localMachine,
+  bool sfBool = (readRegistryInt(RegistryHive.localMachine,
                   r'SYSTEM\ControlSet001\Services\rdyboost', 'Start') ==
               4 &&
           readRegistryInt(RegistryHive.localMachine,
                   r'SYSTEM\ControlSet001\Services\SysMain', 'Start') ==
-              4
+              4)
       ? false
       : true;
+
   bool mcBool = readRegistryInt(
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
-          'isMemoryCompressionEnabled') !=
-      0;
+          'isMemoryCompressionEnabled') ==
+      1;
+
   bool foBool = readRegistryInt(RegistryHive.currentUser,
-          r'System\GameConfigStore', "GameDVR_FSEBehaviorMode") !=
-      2;
+          r'System\GameConfigStore', "GameDVR_FSEBehaviorMode") ==
+      0;
+
+  bool iTSXBool = readRegistryInt(
+          RegistryHive.localMachine,
+          r'SYSTEM\ControlSet001\Control\Session Manager\Kernel',
+          'DisableTsx') ==
+      0;
+
+// Experimental
+
   bool owgBool = readRegistryString(
-          RegistryHive.currentUser,
-          r'Software\Microsoft\DirectX\UserGpuPreferences',
-          "DirectXUserGlobalSettings") ==
-      "SwapEffectUpgradeEnable=1;";
+              RegistryHive.currentUser,
+              r'Software\Microsoft\DirectX\UserGpuPreferences',
+              "DirectXUserGlobalSettings")
+          ?.contains("SwapEffectUpgradeEnable=1") ??
+      false;
+
+  bool cStatesBool = readRegistryInt(RegistryHive.localMachine,
+          r'SYSTEM\ControlSet001\Control\Processor', 'Capabilities') ==
+      516198;
+
 //NTFS
   bool ntfsLTABool = readRegistryInt(
           RegistryHive.localMachine,
@@ -136,6 +153,30 @@ class _PerformancePageState extends State<PerformancePage> {
             },
           ),
         ],
+        CardHighlightSwitch(
+          icon: msicons.FluentIcons.transmission_20_regular,
+          label: ReviLocalizations.of(context).perfITSXLabel,
+          description: ReviLocalizations.of(context).perfITSXDescription,
+          switchBool: iTSXBool,
+          function: (value) async {
+            setState(() {
+              iTSXBool = value;
+            });
+            if (iTSXBool) {
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SYSTEM\CurrentControlSet\Control\Session Manager\kernel',
+                  'DisableTsx',
+                  0);
+            } else {
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SYSTEM\CurrentControlSet\Control\Session Manager\kernel',
+                  'DisableTsx',
+                  1);
+            }
+          },
+        ),
         CardHighlightSwitch(
           icon: msicons.FluentIcons.desktop_20_regular,
           label: ReviLocalizations.of(context).perfFOLabel,
@@ -250,6 +291,27 @@ class _PerformancePageState extends State<PerformancePage> {
             },
           ),
         ],
+        CardHighlightSwitch(
+          icon: msicons.FluentIcons.sleep_20_regular,
+          label: ReviLocalizations.of(context).perfCStatesLabel,
+          description: ReviLocalizations.of(context).perfCStatesDescription,
+          switchBool: cStatesBool,
+          function: (value) async {
+            setState(() {
+              cStatesBool = value;
+            });
+            if (cStatesBool) {
+              writeRegistryDword(
+                  Registry.localMachine,
+                  r'SYSTEM\ControlSet001\Control\Processor',
+                  'Capabilities',
+                  516198);
+            } else {
+              deleteRegistry(Registry.localMachine,
+                  r'SYSTEM\ControlSet001\Control\Processor', 'Capabilities');
+            }
+          },
+        ),
         if (expBool) ...[
           subtitle(content: Text(ReviLocalizations.of(context).perfSectionFS)),
           CardHighlightSwitch(

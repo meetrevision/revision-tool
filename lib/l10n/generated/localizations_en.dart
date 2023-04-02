@@ -73,6 +73,13 @@ class ReviLocalizationsEn extends ReviLocalizations {
       'Windows Defender will protect your PC. This will have a performance impact due to constantly running in the background';
 
   @override
+  String get securityWDButton => 'Disable protections';
+
+  @override
+  String get securityDialog =>
+      'Please disable every protection before completely disabling Windows Defender';
+
+  @override
   String get securityUACLabel => 'User Account Control';
 
   @override
@@ -85,13 +92,6 @@ class ReviLocalizationsEn extends ReviLocalizations {
   @override
   String get securitySMDescription =>
       'Patches to enable mitigation against Spectre & Meltdown vulnerabilities';
-
-  @override
-  String get securityITSXLabel => 'Intel TSX';
-
-  @override
-  String get securityITSXDescription =>
-      'Add hardware transactional memory support, which helps speed up the execution of multithreaded software';
 
   @override
   String get usabilityNotifLabel => 'Windows Notifications';
@@ -135,6 +135,13 @@ class ReviLocalizationsEn extends ReviLocalizations {
       'Save memory by compressing unused programs running in the background. Might have a small impact on CPU usage depending on hardware';
 
   @override
+  String get perfITSXLabel => 'Intel TSX';
+
+  @override
+  String get perfITSXDescription =>
+      'Add hardware transactional memory support, which helps speed up the execution of multithreaded software in cost of security';
+
+  @override
   String get perfFOLabel => 'Fullscreen Optimizations';
 
   @override
@@ -147,6 +154,13 @@ class ReviLocalizationsEn extends ReviLocalizations {
   @override
   String get perfOWGDescription =>
       'Improves frame latency by using a new presentation model for DirectX 10 and 11 games that appear in a window or in a borderless window';
+
+  @override
+  String get perfCStatesLabel => 'Disable the ACPI C2 and C3 states';
+
+  @override
+  String get perfCStatesDescription =>
+      'Disabling ACPI C-states may improve performance and latency, but it will consume more power while idle, potentially reducing battery life';
 
   @override
   String get perfSectionFS => 'Filesystem';
@@ -180,11 +194,11 @@ class ReviLocalizationsEn extends ReviLocalizations {
       'Showing this page will also enable update notifications';
 
   @override
-  String get wuDriversLabel => 'Automatic Driver Updates';
+  String get wuDriversLabel => 'Drivers updates through Windows Updates';
 
   @override
   String get wuDriversDescription =>
-      'Windows will automatically update drivers';
+      'To install drivers in ReviOS, you need to manually check for updates in Settings, as automatic Windows Updates are not supported';
 
   @override
   String get miscFastStartupLabel => 'Fast Startup & Hibernate';

@@ -224,6 +224,18 @@ abstract class ReviLocalizations {
   /// **'Windows Defender will protect your PC. This will have a performance impact due to constantly running in the background'**
   String get securityWDDescription;
 
+  /// The description for Windows Defender's button to disable protection
+  ///
+  /// In en, this message translates to:
+  /// **'Disable protections'**
+  String get securityWDButton;
+
+  /// The text for the security dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Please disable every protection before completely disabling Windows Defender'**
+  String get securityDialog;
+
   /// The label for UAC
   ///
   /// In en, this message translates to:
@@ -247,18 +259,6 @@ abstract class ReviLocalizations {
   /// In en, this message translates to:
   /// **'Patches to enable mitigation against Spectre & Meltdown vulnerabilities'**
   String get securitySMDescription;
-
-  /// The label for Intel TSX
-  ///
-  /// In en, this message translates to:
-  /// **'Intel TSX'**
-  String get securityITSXLabel;
-
-  /// The description for Intel TSX
-  ///
-  /// In en, this message translates to:
-  /// **'Add hardware transactional memory support, which helps speed up the execution of multithreaded software'**
-  String get securityITSXDescription;
 
   /// The label for Notifications
   ///
@@ -332,6 +332,18 @@ abstract class ReviLocalizations {
   /// **'Save memory by compressing unused programs running in the background. Might have a small impact on CPU usage depending on hardware'**
   String get perfMCDescription;
 
+  /// The label for Intel TSX
+  ///
+  /// In en, this message translates to:
+  /// **'Intel TSX'**
+  String get perfITSXLabel;
+
+  /// The description for Intel TSX
+  ///
+  /// In en, this message translates to:
+  /// **'Add hardware transactional memory support, which helps speed up the execution of multithreaded software in cost of security'**
+  String get perfITSXDescription;
+
   /// The label for Memory Compression
   ///
   /// In en, this message translates to:
@@ -355,6 +367,18 @@ abstract class ReviLocalizations {
   /// In en, this message translates to:
   /// **'Improves frame latency by using a new presentation model for DirectX 10 and 11 games that appear in a window or in a borderless window'**
   String get perfOWGDescription;
+
+  /// The label for Optimizations for ACPI C-States
+  ///
+  /// In en, this message translates to:
+  /// **'Disable the ACPI C2 and C3 states'**
+  String get perfCStatesLabel;
+
+  /// The description for Optimizations for windowed games
+  ///
+  /// In en, this message translates to:
+  /// **'Disabling ACPI C-states may improve performance and latency, but it will consume more power while idle, potentially reducing battery life'**
+  String get perfCStatesDescription;
 
   /// The subtitle for Filesystem
   ///
@@ -413,13 +437,13 @@ abstract class ReviLocalizations {
   /// The label for Automatic Driver Updates
   ///
   /// In en, this message translates to:
-  /// **'Automatic Driver Updates'**
+  /// **'Drivers updates through Windows Updates'**
   String get wuDriversLabel;
 
   /// The description for Automatic Driver Updates
   ///
   /// In en, this message translates to:
-  /// **'Windows will automatically update drivers'**
+  /// **'To install drivers in ReviOS, you need to manually check for updates in Settings, as automatic Windows Updates are not supported'**
   String get wuDriversDescription;
 
   /// The label for Fast Startup & Hibernate

@@ -88,6 +88,14 @@
   "@securityWDDescription": {
     "description": "The description for Windows Defender"
   },
+  "securityWDButton": "Disable protections",
+  "@securityWDButton": {
+    "description": "The description for Windows Defender's button to disable protection"
+  },
+  "securityDialog": "Please disable every protection before completely disabling Windows Defender",
+  "@securityDialog": {
+    "description": "The text for the security dialog"
+  },
   "securityUACLabel": "User Account Control",
   "@securityUACLabel": {
     "description": "The label for UAC"
@@ -103,14 +111,6 @@
   "securitySMDescription": "Patches to enable mitigation against Spectre & Meltdown vulnerabilities",
   "@securitySMDescription": {
     "description": "The description for Spectre & Meltdown Mitigation"
-  },
-  "securityITSXLabel": "Intel TSX",
-  "@securityITSXLabel": {
-    "description": "The label for Intel TSX"
-  },
-  "securityITSXDescription": "Add hardware transactional memory support, which helps speed up the execution of multithreaded software",
-  "@securityITSXDescription": {
-    "description": "The description for Intel TSX"
   },
   "usabilityNotifLabel": "Windows Notifications",
   "@usabilityNotifLabel": {
@@ -153,7 +153,6 @@
   "@perfSuperfetchDescription": {
     "description": "The description for Superfetch"
   },
-  
   "perfMCLabel": "Memory Compression",
   "@perfMCLabel": {
     "description": "The label for Memory Compression"
@@ -161,6 +160,14 @@
   "perfMCDescription": "Save memory by compressing unused programs running in the background. Might have a small impact on CPU usage depending on hardware",
   "@perfMCDescription": {
     "description": "The description for Memory Compression"
+  },
+  "perfITSXLabel": "Intel TSX",
+  "@perfITSXLabel": {
+    "description": "The label for Intel TSX"
+  },
+  "perfITSXDescription": "Add hardware transactional memory support, which helps speed up the execution of multithreaded software in cost of security",
+  "@perfITSXDescription": {
+    "description": "The description for Intel TSX"
   },
   "perfFOLabel": "Fullscreen Optimizations",
   "@perfFOLabel": {
@@ -176,6 +183,14 @@
   },
   "perfOWGDescription": "Improves frame latency by using a new presentation model for DirectX 10 and 11 games that appear in a window or in a borderless window",
   "@perfOWGDescription": {
+    "description": "The description for Optimizations for windowed games"
+  },
+  "perfCStatesLabel": "Disable the ACPI C2 and C3 states",
+  "@perfCStatesLabel": {
+    "description": "The label for Optimizations for ACPI C-States"
+  },
+  "perfCStatesDescription": "Disabling ACPI C-states may improve performance and latency, but it will consume more power while idle, potentially reducing battery life",
+  "@perfCStatesDescription": {
     "description": "The description for Optimizations for windowed games"
   },
   "perfSectionFS": "Filesystem",
@@ -217,11 +232,11 @@
     "description": "The description for Hiding Windows Updates"
   },
 
-  "wuDriversLabel": "Automatic Driver Updates",
+  "wuDriversLabel": "Drivers updates through Windows Updates",
   "@wuDriversLabel": {
     "description": "The label for Automatic Driver Updates"
   },
-  "wuDriversDescription": "Windows will automatically update drivers",
+  "wuDriversDescription": "To install drivers in ReviOS, you need to manually check for updates in Settings, as automatic Windows Updates are not supported",
   "@wuDriversDescription": {
     "description": "The description for Automatic Driver Updates"
   },

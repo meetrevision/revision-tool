@@ -21,8 +21,8 @@ class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
   bool fetBool = readRegistryInt(
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509',
-          'EnabledState') !=
-      1;
+          'EnabledState') ==
+      2;
 
   @override
   void initState() {

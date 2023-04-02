@@ -14,25 +14,31 @@ bool w11 = readRegistryString(
         'CurrentBuildNumber') !=
     "19045";
 bool expBool = readRegistryInt(RegistryHive.localMachine,
-            r'SOFTWARE\Revision\Revision Tool', 'Experimental') ==
-        0
-    ? false
-    : true;
+        r'SOFTWARE\Revision\Revision Tool', 'Experimental') ==
+    0;
 String? themeModeReg = readRegistryString(
     RegistryHive.localMachine, r'SOFTWARE\Revision\Revision Tool', 'ThemeMode');
 
 int? readRegistryInt(RegistryHive hive, String path, String value) {
-  return Registry.openPath(
-    hive,
-    path: path,
-  ).getValueAsInt(value);
+  try {
+    return Registry.openPath(
+      hive,
+      path: path,
+    ).getValueAsInt(value);
+  } catch (_) {
+    return null;
+  }
 }
 
 String? readRegistryString(RegistryHive hive, String path, String value) {
-  return Registry.openPath(
-    hive,
-    path: path,
-  ).getValueAsString(value);
+  try {
+    return Registry.openPath(
+      hive,
+      path: path,
+    ).getValueAsString(value);
+  } catch (_) {
+    return null;
+  }
 }
 
 Future<void> writeRegistryDword(
