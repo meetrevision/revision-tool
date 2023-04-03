@@ -42,7 +42,7 @@ void main() async {
           r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
           'EditionSubVersion') ==
       "ReviOS") {
-    if (buildNumber > 19044) {
+    if (buildNumber > 19043) {
       runApp(const MyApp(isSupported: true));
     } else {
       runApp(const MyApp(isSupported: false));
