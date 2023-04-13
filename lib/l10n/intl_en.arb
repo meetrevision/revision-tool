@@ -232,7 +232,7 @@
     "description": "The description for Hiding Windows Updates"
   },
 
-  "wuDriversLabel": "Drivers updates through Windows Updates",
+  "wuDriversLabel": "Drivers install through Windows Updates",
   "@wuDriversLabel": {
     "description": "The label for Automatic Driver Updates"
   },
@@ -263,6 +263,10 @@
   "miscMpoCodeSnippet": "Recommended to turn off on Nvidia GTX 16xx, RTX 3xxx and AMD RX 5xxx cards or newer.\nLeaving this on could cause black screens, stuttering, flickering, and other general display problems.",
   "@miscMpoCodeSnippet": {
     "description": "The Code snippet for MPO"
+  },
+  "settingsUpdateLabel": "Update Revision Tool",
+  "@settingsUpdateLabel": {
+    "description": "Default state of the Revision Tool's update card label"
   },
   "settingsUpdateButton": "Check for Updates",
   "@settingsUpdateButton": {

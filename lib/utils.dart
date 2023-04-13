@@ -3,19 +3,20 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:win32_registry/win32_registry.dart';
 
+final int buildNumber = int.parse(readRegistryString(
+    RegistryHive.localMachine,
+    r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\',
+    'CurrentBuildNumber') as String);
+
 String mainPath = Platform.resolvedExecutable;
 String directoryExe = Directory(
         "${mainPath.substring(0, mainPath.lastIndexOf("\\"))}\\data\\flutter_assets\\additionals")
     .path;
 
-bool w11 = readRegistryString(
-        RegistryHive.localMachine,
-        r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
-        'CurrentBuildNumber') !=
-    "19045";
+bool w11 = buildNumber > 19045 ? true : false;
 bool expBool = readRegistryInt(RegistryHive.localMachine,
         r'SOFTWARE\Revision\Revision Tool', 'Experimental') ==
-    0;
+    1;
 String? themeModeReg = readRegistryString(
     RegistryHive.localMachine, r'SOFTWARE\Revision\Revision Tool', 'ThemeMode');
 

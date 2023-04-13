@@ -11,7 +11,7 @@ import 'package:window_plus/window_plus.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  createRegistryKey(Registry.localMachine, r'SOFTWARE\Revision\Revision Tool');
+  // createRegistryKey(Registry.localMachine, r'SOFTWARE\Revision\Revision Tool');
 
   if (readRegistryString(RegistryHive.localMachine,
           r'SOFTWARE\Revision\Revision Tool', 'ThemeMode') ==
@@ -32,24 +32,18 @@ void main() async {
   );
   await WindowPlus.instance.setMinimumSize(const Size(515, 330));
 
-  final buildNumber = int.parse(readRegistryString(
-      RegistryHive.localMachine,
-      r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\',
-      'CurrentBuildNumber') as String);
+  bool isSupported = false;
 
   if (readRegistryString(
-          RegistryHive.localMachine,
-          r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
-          'EditionSubVersion') ==
-      "ReviOS") {
-    if (buildNumber > 19043) {
-      runApp(const MyApp(isSupported: true));
-    } else {
-      runApp(const MyApp(isSupported: false));
-    }
-  } else {
-    runApp(const MyApp(isSupported: false));
+              RegistryHive.localMachine,
+              r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
+              'EditionSubVersion') ==
+          'ReviOS' &&
+      buildNumber > 19043) {
+    isSupported = true;
   }
+
+  runApp(MyApp(isSupported: isSupported));
 }
 
 class MyApp extends StatelessWidget {

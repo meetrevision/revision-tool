@@ -3,6 +3,19 @@ import 'dart:math';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
 
+const cardBorderColorForDark = Color.fromARGB(255, 29, 29, 29);
+const cardBorderColorForLight = Color.fromARGB(255, 229, 229, 229);
+const cardBorderRadius = BorderRadius.all(Radius.circular(5.0));
+const cardDescStyleForDark = TextStyle(
+    fontSize: 11,
+    color: Color.fromARGB(255, 200, 200, 200),
+    overflow: TextOverflow.fade);
+
+const cardDescStyleForLight = TextStyle(
+    fontSize: 11,
+    color: Color.fromARGB(255, 117, 117, 117),
+    overflow: TextOverflow.fade);
+
 class CardHighlightSwitch extends StatefulWidget {
   const CardHighlightSwitch(
       {Key? key,
@@ -40,9 +53,9 @@ class _CardHighlightSwitchState extends State<CardHighlightSwitch>
       children: [
         Card(
           borderColor: FluentTheme.of(context).brightness.isDark
-              ? const Color.fromARGB(255, 29, 29, 29)
-              : const Color.fromARGB(255, 229, 229, 229),
-          borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+              ? cardBorderColorForDark
+              : cardBorderColorForLight,
+          borderRadius: cardBorderRadius,
           child: SizedBox(
             // height: 44,
             width: double.infinity,
@@ -51,12 +64,11 @@ class _CardHighlightSwitchState extends State<CardHighlightSwitch>
               alignment: AlignmentDirectional.center,
               child: Row(
                 children: [
-                  const SizedBox(width: 5.0),
-                  Icon(
-                    widget.icon,
-                    size: 24,
-                  ),
-                  const SizedBox(width: 15.0),
+                  if (widget.icon != null) ...[
+                    const SizedBox(width: 5.0),
+                    Icon(widget.icon, size: 24),
+                    const SizedBox(width: 15.0),
+                  ],
                   Expanded(
                     child: SizedBox(
                       child: Column(
@@ -67,14 +79,8 @@ class _CardHighlightSwitchState extends State<CardHighlightSwitch>
                             Text(
                               widget.description!,
                               style: FluentTheme.of(context).brightness.isDark
-                                  ? const TextStyle(
-                                      fontSize: 11,
-                                      color: Color.fromARGB(255, 200, 200, 200),
-                                      overflow: TextOverflow.fade)
-                                  : const TextStyle(
-                                      fontSize: 11,
-                                      color: Color.fromARGB(255, 117, 117, 117),
-                                      overflow: TextOverflow.fade),
+                                  ? cardDescStyleForDark
+                                  : cardDescStyleForLight,
                             ),
                           ]
                         ],
@@ -161,12 +167,21 @@ const fluentHighlightTheme = {
 
 class CardHighlight extends StatefulWidget {
   const CardHighlight(
-      {Key? key, this.backgroundColor, required this.child, this.codeSnippet})
+      {Key? key,
+      this.backgroundColor,
+      required this.child,
+      this.codeSnippet,
+      this.icon,
+      this.label,
+      this.description})
       : super(key: key);
 
   final Widget child;
   final String? codeSnippet;
   final Color? backgroundColor;
+  final IconData? icon;
+  final String? label;
+  final String? description;
 
   @override
   State<CardHighlight> createState() => _CardHighlightState();
@@ -185,16 +200,43 @@ class _CardHighlightState extends State<CardHighlight>
     return Column(children: [
       Card(
         borderColor: FluentTheme.of(context).brightness.isDark
-            ? const Color.fromARGB(255, 29, 29, 29)
-            : const Color.fromARGB(255, 229, 229, 229),
-        borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+            ? cardBorderColorForDark
+            : cardBorderColorForLight,
+        borderRadius: cardBorderRadius,
         child: SizedBox(
           // height: 44,
           width: double.infinity,
           child: Align(
             heightFactor: 1.18,
             alignment: AlignmentDirectional.center,
-            child: widget.child,
+            child: Row(
+              children: [
+                if (widget.icon != null) ...[
+                  const SizedBox(width: 5.0),
+                  Icon(widget.icon, size: 24),
+                  const SizedBox(width: 15.0),
+                ],
+                Expanded(
+                  child: SizedBox(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InfoLabel(label: widget.label!),
+                        if (widget.description != null) ...[
+                          Text(
+                            widget.description ?? "",
+                            style: FluentTheme.of(context).brightness.isDark
+                                ? cardDescStyleForDark
+                                : cardDescStyleForLight,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                widget.child,
+              ],
+            ),
           ),
         ),
       ),
@@ -202,13 +244,13 @@ class _CardHighlightState extends State<CardHighlight>
         Card(
           padding: const EdgeInsets.all(0),
           borderColor: FluentTheme.of(context).brightness.isDark
-              ? const Color.fromARGB(255, 29, 29, 29)
-              : const Color.fromARGB(255, 229, 229, 229),
+              ? cardBorderColorForDark
+              : cardBorderColorForLight,
           backgroundColor: Colors.transparent,
           child: Expander(
             key: PageStorageKey(key),
-            headerShape: (open) => const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(5.0))),
+            headerShape: (open) =>
+                const RoundedRectangleBorder(borderRadius: cardBorderRadius),
             onStateChanged: (state) {
               WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                 if (mounted) setState(() => isOpen = state);

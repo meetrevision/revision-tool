@@ -7,7 +7,6 @@ import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
-import 'package:window_plus/window_plus.dart';
 
 class SecurityPage extends StatefulWidget {
   const SecurityPage({super.key});
@@ -95,71 +94,39 @@ class _SecurityPageState extends State<SecurityPage> {
             },
           ),
           child: CardHighlight(
-            child: Row(
-              children: [
-                const SizedBox(width: 5.0),
-                const Icon(
-                  msicons.FluentIcons.shield_20_regular,
-                  size: 24,
-                ),
-                const SizedBox(width: 15.0),
-                Expanded(
-                  child: SizedBox(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        InfoLabel(
-                            label:
-                                ReviLocalizations.of(context).securityWDLabel),
-                        Text(
-                          ReviLocalizations.of(context).securityWDDescription,
-                          style: FluentTheme.of(context).brightness.isDark
-                              ? const TextStyle(
-                                  fontSize: 11,
-                                  color: Color.fromARGB(255, 200, 200, 200),
-                                  overflow: TextOverflow.fade)
-                              : const TextStyle(
-                                  fontSize: 11,
-                                  color: Color.fromARGB(255, 117, 117, 117),
-                                  overflow: TextOverflow.fade),
-                        )
+            icon: msicons.FluentIcons.shield_20_regular,
+            label: ReviLocalizations.of(context).securityWDLabel,
+            description: ReviLocalizations.of(context).securityWDDescription,
+            child: SizedBox(
+              width: 150,
+              child: Button(
+                onPressed: () async {
+                  final process = await Process.start(
+                    'explorer.exe',
+                    ['windowsdefender://threatsettings'],
+                  );
+                  await process.exitCode;
+                  setState(() {
+                    wdButtonCalled = true;
+                  });
+                  showDialog(
+                    context: context,
+                    builder: (context) => ContentDialog(
+                      content:
+                          Text(ReviLocalizations.of(context).securityDialog),
+                      actions: [
+                        Button(
+                          child: Text(ReviLocalizations.of(context).okButton),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
                       ],
                     ),
-                  ),
-                ),
-                SizedBox(
-                  width: 150,
-                  child: Button(
-                    onPressed: () async {
-                      final process = await Process.start(
-                        'explorer.exe',
-                        ['windowsdefender://threatsettings'],
-                      );
-                      await process.exitCode;
-                      setState(() {
-                        wdButtonCalled = true;
-                      });
-                      showDialog(
-                        context: context,
-                        builder: (context) => ContentDialog(
-                          content: Text(
-                              ReviLocalizations.of(context).securityDialog),
-                          actions: [
-                            Button(
-                              child:
-                                  Text(ReviLocalizations.of(context).okButton),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    child: Text(ReviLocalizations.of(context).securityWDButton),
-                  ),
-                ),
-              ],
+                  );
+                },
+                child: Text(ReviLocalizations.of(context).securityWDButton),
+              ),
             ),
           ),
         ),
