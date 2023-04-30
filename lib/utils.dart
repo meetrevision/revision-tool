@@ -1,7 +1,11 @@
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:collection/collection.dart';
 
 import 'package:dio/dio.dart';
 import 'package:win32_registry/win32_registry.dart';
+
+const ListEquality eq = ListEquality();
 
 final int buildNumber = int.parse(readRegistryString(
     RegistryHive.localMachine,
@@ -42,6 +46,17 @@ String? readRegistryString(RegistryHive hive, String path, String value) {
   }
 }
 
+Uint8List? readRegistryBinary(RegistryHive hive, String path, String value) {
+  try {
+    return Registry.openPath(
+      hive,
+      path: path,
+    ).getValue(value)!.data as Uint8List;
+  } catch (_) {
+    return null;
+  }
+}
+
 Future<void> writeRegistryDword(
     RegistryKey key, String path, String name, int value) async {
   final regKey = key;
@@ -75,25 +90,41 @@ void writeRegistryStringMultiSZ(
   subKey.createValue(string);
 }
 
+void writeRegistryBinary(
+    RegistryKey key, String path, String name, List<int> value) {
+  final regKey = key;
+  var regPath = path;
+  final subKey = regKey.createKey(regPath);
+
+  var bin = RegistryValue(name, RegistryValueType.binary, value);
+
+  subKey.createValue(bin);
+}
+
 void deleteRegistry(RegistryKey key, String path, String name) {
   final regKey = key;
   var regPath = path;
   final subKey = regKey.createKey(regPath);
 
-  subKey.deleteValue(name);
+  try {
+    subKey.deleteValue(name);
+  } catch (_) {}
 }
 
 void deleteRegistryKey(RegistryKey key, String path) {
   final regKey = key;
   var regPath = path;
-
-  regKey.deleteKey(regPath);
+  try {
+    regKey.deleteKey(regPath);
+  } catch (_) {}
 }
 
 void createRegistryKey(RegistryKey key, String path) {
   final regKey = key;
   var regPath = path;
-  regKey.createKey(regPath);
+  try {
+    regKey.createKey(regPath);
+  } catch (_) {}
 }
 
 class Network {

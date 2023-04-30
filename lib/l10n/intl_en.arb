@@ -136,6 +136,10 @@
   "@usabilityITPDescription": {
     "description": "The description for Inking And Typing Personalization"
   },
+  "usabilityCPLLabel": "CapsLock Key",
+  "@usabilityCPLLabel": {
+    "description": "The label for CapsLock Key"
+  },
   "usability11MRCLabel": "New Context Menu",
   "@usability11MRCLabel": {
     "description": "The label for New Context Menu"
@@ -231,7 +235,6 @@
   "@wuPageDescription": {
     "description": "The description for Hiding Windows Updates"
   },
-
   "wuDriversLabel": "Drivers install through Windows Updates",
   "@wuDriversLabel": {
     "description": "The label for Automatic Driver Updates"

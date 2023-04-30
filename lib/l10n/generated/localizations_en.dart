@@ -107,6 +107,9 @@ class ReviLocalizationsEn extends ReviLocalizations {
   String get usabilityITPDescription => 'Windows will learn what you type to improve suggestions when writing';
 
   @override
+  String get usabilityCPLLabel => 'CapsLock Key';
+
+  @override
   String get usability11MRCLabel => 'New Context Menu';
 
   @override

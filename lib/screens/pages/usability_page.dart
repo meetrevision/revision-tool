@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
@@ -15,21 +16,29 @@ class UsabilityPage extends StatefulWidget {
 }
 
 class _UsabilityPageState extends State<UsabilityPage> {
-  bool notifBool = readRegistryInt(
-          RegistryHive.localMachine,
-          r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
-          'DisableNotificationCenter') ==
-      0;
-  bool elbnBool = readRegistryInt(
+  bool _notifBool = readRegistryInt(
+          RegistryHive.currentUser,
+          r'Software\Microsoft\Windows\CurrentVersion\PushNotifications',
+          'ToastEnabled') ==
+      1;
+  bool _elbnBool = readRegistryInt(
           RegistryHive.currentUser,
           r'Software\Policies\Microsoft\Windows\Explorer',
           'EnableLegacyBalloonNotifications') !=
       0;
-  bool itpBool = readRegistryInt(
+  bool _itpBool = readRegistryInt(
           RegistryHive.localMachine,
           r'SOFTWARE\Policies\Microsoft\InputPersonalization',
           'AllowInputPersonalization') ==
       1;
+
+  static final Uint8List _cplValue = Uint8List.fromList(
+      [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 58, 0, 0, 0, 0, 0]);
+
+  bool _cplBool = eq.equals(
+      _cplValue,
+      readRegistryBinary(RegistryHive.localMachine,
+          r'SYSTEM\CurrentControlSet\Control\Keyboard Layout', 'Scancode Map'));
 
   @override
   void initState() {
@@ -52,17 +61,16 @@ class _UsabilityPageState extends State<UsabilityPage> {
           icon: msicons.FluentIcons.alert_20_regular,
           label: ReviLocalizations.of(context).usabilityNotifLabel,
           description: ReviLocalizations.of(context).usabilityNotifDescription,
-          switchBool: notifBool,
+          switchBool: _notifBool,
           function: (value) async {
             setState(() {
-              notifBool = value;
+              _notifBool = value;
             });
-            if (notifBool) {
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
-                  'IsNotificationsEnabled',
-                  1);
+            if (_notifBool) {
+              deleteRegistry(
+                  Registry.currentUser,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
+                  'NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND');
               deleteRegistry(
                   Registry.currentUser,
                   r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
@@ -75,23 +83,30 @@ class _UsabilityPageState extends State<UsabilityPage> {
                   Registry.currentUser,
                   r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
                   'NOC_GLOBAL_SETTING_TOASTS_ENABLED');
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
-                  'DisableNotificationCenter',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
-                  'DisableNotificationCenter',
-                  0);
               deleteRegistry(
                   Registry.currentUser,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications',
+                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
+                  'DisableNotificationCenter');
+              deleteRegistry(
+                  Registry.localMachine,
+                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
+                  'DisableNotificationCenter');
+              deleteRegistry(
+                  Registry.currentUser,
+                  r'Software\Policies\Microsoft\Windows\Explorer',
                   'ToastEnabled');
               deleteRegistry(
                   Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications',
+                  r'Software\Policies\Microsoft\Windows\Explorer',
+                  'ToastEnabled');
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'Software\Microsoft\Windows\CurrentVersion\PushNotifications',
+                  'ToastEnabled',
+                  1);
+              deleteRegistry(
+                  Registry.localMachine,
+                  r'Software\Microsoft\Windows\CurrentVersion\PushNotifications',
                   'ToastEnabled');
               deleteRegistry(
                   Registry.currentUser,
@@ -104,6 +119,11 @@ class _UsabilityPageState extends State<UsabilityPage> {
               await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
               await Process.run('explorer.exe', [], runInShell: true);
             } else {
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
+                  'NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND',
+                  0);
               writeRegistryDword(
                   Registry.currentUser,
                   r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
@@ -140,36 +160,31 @@ class _UsabilityPageState extends State<UsabilityPage> {
                   'ToastEnabled',
                   0);
               writeRegistryDword(
-                  Registry.currentUser,
-                  r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications',
-                  'NoToastApplicationNotification',
-                  1);
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications',
-                  'NoTileApplicationNotification',
-                  1);
-              writeRegistryDword(
                   Registry.localMachine,
-                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
-                  'IsNotificationsEnabled',
+                  r'Software\Microsoft\Windows\CurrentVersion\PushNotifications',
+                  'ToastEnabled',
+                  0);
+              writeRegistryDword(
+                  Registry.currentUser,
+                  r'Software\Microsoft\Windows\CurrentVersion\PushNotifications',
+                  'ToastEnabled',
                   0);
               await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
               await Process.run('explorer.exe', [], runInShell: true);
             }
           },
         ),
-        if (notifBool) ...[
+        if (_notifBool) ...[
           CardHighlightSwitch(
             icon: msicons.FluentIcons.balloon_20_regular,
             label: ReviLocalizations.of(context).usabilityLBNLabel,
             description: ReviLocalizations.of(context).usabilityLBNDescription,
-            switchBool: elbnBool,
+            switchBool: _elbnBool,
             function: (value) async {
               setState(() {
-                elbnBool = value;
+                _elbnBool = value;
               });
-              if (elbnBool) {
+              if (_elbnBool) {
                 writeRegistryDword(
                     Registry.currentUser,
                     r'Software\Policies\Microsoft\Windows\Explorer',
@@ -195,12 +210,12 @@ class _UsabilityPageState extends State<UsabilityPage> {
           icon: msicons.FluentIcons.keyboard_20_regular,
           label: ReviLocalizations.of(context).usabilityITPLabel,
           description: ReviLocalizations.of(context).usabilityITPDescription,
-          switchBool: itpBool,
+          switchBool: _itpBool,
           function: (value) async {
             setState(() {
-              itpBool = value;
+              _itpBool = value;
             });
-            if (itpBool) {
+            if (_itpBool) {
               writeRegistryDword(
                   Registry.currentUser,
                   r'Software\Microsoft\InputPersonalization',
@@ -292,6 +307,28 @@ class _UsabilityPageState extends State<UsabilityPage> {
                   r'SOFTWARE\Policies\Microsoft\InputPersonalization',
                   'AllowInputPersonalization',
                   0);
+            }
+          },
+        ),
+        CardHighlightSwitch(
+          icon: msicons.FluentIcons.desktop_keyboard_20_regular,
+          label: ReviLocalizations.of(context).usabilityCPLLabel,
+          switchBool: _cplBool,
+          function: (value) async {
+            setState(() {
+              _cplBool = value;
+            });
+            if (_cplBool) {
+              writeRegistryBinary(
+                  Registry.localMachine,
+                  r"SYSTEM\CurrentControlSet\Control\Keyboard Layout",
+                  "Scancode Map",
+                  _cplValue);
+            } else {
+              deleteRegistry(
+                  Registry.localMachine,
+                  r"SYSTEM\CurrentControlSet\Control\Keyboard Layout",
+                  "Scancode Map");
             }
           },
         ),

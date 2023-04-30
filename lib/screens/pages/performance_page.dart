@@ -192,10 +192,6 @@ class _PerformancePageState extends State<PerformancePage> {
               deleteRegistry(Registry.currentUser, r'System\GameConfigStore',
                   'GameDVR_FSEBehavior');
               deleteRegistry(Registry.currentUser, r'System\GameConfigStore',
-                  'Win32_AutoGameModeDefaultProfile');
-              deleteRegistry(Registry.currentUser, r'System\GameConfigStore',
-                  'Win32_GameModeRelatedProcesses');
-              deleteRegistry(Registry.currentUser, r'System\GameConfigStore',
                   'GameDVR_HonorUserFSEBehaviorMode');
               deleteRegistry(Registry.currentUser, r'System\GameConfigStore',
                   'GameDVR_DXGIHonorFSEWindowsCompatible');
@@ -209,14 +205,6 @@ class _PerformancePageState extends State<PerformancePage> {
                   0);
               deleteRegistry(Registry.allUsers,
                   r'.DEFAULT\System\GameConfigStore', 'GameDVR_FSEBehavior');
-              deleteRegistry(
-                  Registry.allUsers,
-                  r'.DEFAULT\System\GameConfigStore',
-                  'Win32_AutoGameModeDefaultProfile');
-              deleteRegistry(
-                  Registry.allUsers,
-                  r'.DEFAULT\System\GameConfigStore',
-                  'Win32_GameModeRelatedProcesses');
               deleteRegistry(
                   Registry.allUsers,
                   r'.DEFAULT\System\GameConfigStore',
@@ -257,12 +245,6 @@ class _PerformancePageState extends State<PerformancePage> {
                   'GameDVR_EFSEFeatureFlags', 0);
               writeRegistryDword(Registry.allUsers, r'System\GameConfigStore',
                   'GameDVR_FSEBehavior', 2);
-              await Shell().run(r'''
-                      reg add "HKCU\System\GameConfigStore" /v "Win32_AutoGameModeDefaultProfile" /t REG_BINARY /d "01000100000000000000000000000000000000000000000000000000000000000000000000000000" /f
-                      reg add "HKCU\System\GameConfigStore" /v "Win32_GameModeRelatedProcesses" /t REG_BINARY /d "010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" /f
-                      reg add "HKU\.DEFAULT\System\GameConfigStore" /v "Win32_AutoGameModeDefaultProfile" /t REG_BINARY /d "01000100000000000000000000000000000000000000000000000000000000000000000000000000" /f
-                      reg add "HKU\.DEFAULT\System\GameConfigStore" /v "Win32_GameModeRelatedProcesses" /t REG_BINARY /d "010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" /f
-                    ''');
             }
           },
         ),
@@ -291,28 +273,28 @@ class _PerformancePageState extends State<PerformancePage> {
             },
           ),
         ],
-        CardHighlightSwitch(
-          icon: msicons.FluentIcons.sleep_20_regular,
-          label: ReviLocalizations.of(context).perfCStatesLabel,
-          description: ReviLocalizations.of(context).perfCStatesDescription,
-          switchBool: cStatesBool,
-          function: (value) async {
-            setState(() {
-              cStatesBool = value;
-            });
-            if (cStatesBool) {
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Control\Processor',
-                  'Capabilities',
-                  516198);
-            } else {
-              deleteRegistry(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Control\Processor', 'Capabilities');
-            }
-          },
-        ),
         if (expBool) ...[
+          CardHighlightSwitch(
+            icon: msicons.FluentIcons.sleep_20_regular,
+            label: ReviLocalizations.of(context).perfCStatesLabel,
+            description: ReviLocalizations.of(context).perfCStatesDescription,
+            switchBool: cStatesBool,
+            function: (value) async {
+              setState(() {
+                cStatesBool = value;
+              });
+              if (cStatesBool) {
+                writeRegistryDword(
+                    Registry.localMachine,
+                    r'SYSTEM\ControlSet001\Control\Processor',
+                    'Capabilities',
+                    516198);
+              } else {
+                deleteRegistry(Registry.localMachine,
+                    r'SYSTEM\ControlSet001\Control\Processor', 'Capabilities');
+              }
+            },
+          ),
           subtitle(content: Text(ReviLocalizations.of(context).perfSectionFS)),
           CardHighlightSwitch(
             icon: msicons.FluentIcons.document_bullet_list_clock_20_regular,

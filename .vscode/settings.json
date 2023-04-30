@@ -5,4 +5,11 @@
         ]
     },
     "dart.lineLength": 80,
+    "spellright.language": [
+        "en"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex"
+    ],
 }

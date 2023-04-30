@@ -6,5 +6,5 @@ template-arb-file: intl_en.arb
 preferred-supported-locales: ["en"]
 synthetic-package: false
 nullable-getter: false
-format: true
+format: false
 untranslated-messages-file: lib/l10n/untranslated.json
