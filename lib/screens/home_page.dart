@@ -23,13 +23,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int? topIndex;
-  bool maximize = true;
-
-  final viewKey = GlobalKey(debugLabel: 'Navigation View Key');
-  final searchKey = GlobalKey(debugLabel: 'Search Bar Key');
-  final searchFocusNode = FocusNode();
-  final searchController = TextEditingController();
+  int? _topIndex;
+  final _viewKey = GlobalKey(debugLabel: 'Navigation View Key');
+  final _searchKey = GlobalKey(debugLabel: 'Search Bar Key');
+  final _searchFocusNode = FocusNode();
+  final _searchController = TextEditingController();
 
   AutoSuggestBoxItem? selectedPage;
 
@@ -40,8 +38,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    searchController.dispose();
-    searchFocusNode.dispose();
+    _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -122,7 +120,7 @@ class _HomePageState extends State<HomePage> {
 
     return SafeArea(
       child: NavigationView(
-        key: viewKey,
+        key: _viewKey,
         contentShape: const RoundedRectangleBorder(
           side: BorderSide(width: 0, color: Colors.transparent),
           borderRadius: BorderRadius.only(
@@ -135,8 +133,8 @@ class _HomePageState extends State<HomePage> {
           actions: WindowCaption(),
         ),
         pane: NavigationPane(
-          selected: topIndex ?? 0,
-          onChanged: (index) => setState(() => topIndex = index),
+          selected: _topIndex ?? 0,
+          onChanged: (index) => setState(() => _topIndex = index),
           displayMode: MediaQuery.of(context).size.width >= 800
               ? PaneDisplayMode.open
               : PaneDisplayMode.minimal,
@@ -171,8 +169,7 @@ class _HomePageState extends State<HomePage> {
                     const Text(
                       "Proud ReviOS user",
                       style: TextStyle(
-                        fontSize: 12,
-                      ),
+                          fontSize: 11, fontWeight: FontWeight.normal),
                     ),
                   ],
                 )
@@ -180,15 +177,15 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           autoSuggestBox: AutoSuggestBox(
-            key: searchKey,
+            key: _searchKey,
             trailingIcon: const Padding(
               padding: EdgeInsets.only(right: 7.0, bottom: 2),
               child: Icon(
                 msicons.FluentIcons.search_20_regular,
               ),
             ),
-            focusNode: searchFocusNode,
-            controller: searchController,
+            focusNode: _searchFocusNode,
+            controller: _searchController,
             placeholder: ReviLocalizations.of(context).suggestionBoxPlaceholder,
             items: items.whereType<PaneItem>().map((page) {
               assert(page.title is Text);
@@ -201,9 +198,9 @@ class _HomePageState extends State<HomePage> {
                     items: items,
                   ).effectiveIndexOf(page);
 
-                  setState(() => topIndex = itemIndex);
+                  setState(() => _topIndex = itemIndex);
                   await Future.delayed(const Duration(milliseconds: 17));
-                  searchController.clear();
+                  _searchController.clear();
                 },
               );
             }).toList(),
@@ -228,7 +225,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         onOpenSearch: () {
-          searchFocusNode.requestFocus();
+          _searchFocusNode.requestFocus();
         },
       ),
     );
@@ -304,7 +301,7 @@ class Home extends StatelessWidget {
                     child: Text(ReviLocalizations.of(context).homeReviFAQLink),
                     onPressed: () async {
                       await run(
-                          "rundll32 url.dll,FileProtocolHandler https://revios.rignoa.com");
+                          "rundll32 url.dll,FileProtocolHandler https://www.revi.cc/docs/faq");
                     },
                   ),
                 ),

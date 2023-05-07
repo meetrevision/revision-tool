@@ -41,16 +41,6 @@ class _UsabilityPageState extends State<UsabilityPage> {
           r'SYSTEM\CurrentControlSet\Control\Keyboard Layout', 'Scancode Map'));
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
       header: PageHeader(

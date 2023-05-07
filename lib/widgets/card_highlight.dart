@@ -40,10 +40,10 @@ class CardHighlightSwitch extends StatefulWidget {
 
 class _CardHighlightSwitchState extends State<CardHighlightSwitch>
     with AutomaticKeepAliveClientMixin<CardHighlightSwitch> {
-  bool isOpen = false;
-  bool isCopying = false;
+  static bool _isOpen = false;
+  static bool _isCopying = false;
 
-  final key = Random().nextInt(1000);
+  final _key = Random().nextInt(1000);
 
   @override
   Widget build(BuildContext context) {
@@ -109,12 +109,12 @@ class _CardHighlightSwitchState extends State<CardHighlightSwitch>
                 : const Color.fromARGB(255, 229, 229, 229),
             backgroundColor: Colors.transparent,
             child: Expander(
-              key: PageStorageKey(key),
+              key: PageStorageKey(_key),
               headerShape: (open) => const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(5.0))),
               onStateChanged: (state) {
                 WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                  if (mounted) setState(() => isOpen = state);
+                  if (mounted) setState(() => _isOpen = state);
                 });
               },
               header: Text(ReviLocalizations.of(context).moreInformation),
@@ -189,8 +189,8 @@ class CardHighlight extends StatefulWidget {
 
 class _CardHighlightState extends State<CardHighlight>
     with AutomaticKeepAliveClientMixin<CardHighlight> {
-  bool isOpen = false;
-  bool isCopying = false;
+  bool _isOpen = false;
+  bool _isCopying = false;
 
   final key = Random().nextInt(1000);
 
@@ -253,7 +253,7 @@ class _CardHighlightState extends State<CardHighlight>
                 const RoundedRectangleBorder(borderRadius: cardBorderRadius),
             onStateChanged: (state) {
               WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                if (mounted) setState(() => isOpen = state);
+                if (mounted) setState(() => _isOpen = state);
               });
             },
             header: Text(ReviLocalizations.of(context).moreInformation),

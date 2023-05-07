@@ -451,16 +451,40 @@ abstract class ReviLocalizations {
   /// **'To install drivers in ReviOS, you need to manually check for updates in Settings, as automatic Windows Updates are not supported'**
   String get wuDriversDescription;
 
-  /// The label for Fast Startup & Hibernate
+  /// The label for Hibernate
   ///
   /// In en, this message translates to:
-  /// **'Fast Startup & Hibernate'**
+  /// **'Hibernate'**
+  String get miscHibernateLabel;
+
+  /// No description provided for @miscHibernateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A power-saving S4 state, saves the current session to hiberfile and turns off the device. Disabled by default to avoid instability during dual-booting or system upgrades'**
+  String get miscHibernateDescription;
+
+  /// The label for Hibernate Mode
+  ///
+  /// In en, this message translates to:
+  /// **'Hibernate Mode'**
+  String get miscHibernateModeLabel;
+
+  /// The description for Hibernate Mode
+  ///
+  /// In en, this message translates to:
+  /// **'Full - Supports hibernate and fast startup. The hiberfile will be 40% of physical RAM installed. Hibernate is available to be added to the power menu.\n\nReduced - Only supports Fast Startup without hibernate, The hiberfile will be 20% of physical RAM installed and removes hibernate from the power menu'**
+  String get miscHibernateModeDescription;
+
+  /// The label for Fast Startup
+  ///
+  /// In en, this message translates to:
+  /// **'Fast Startup'**
   String get miscFastStartupLabel;
 
-  /// The description for Fast Startup & Hibernate
+  /// The description for Fast Startup
   ///
   /// In en, this message translates to:
-  /// **'Windows will save the current session to the hibernate (hiberfil.sys) file on disk in order to start your system faster on the next boot. This doesn\'t affect reboots.\nIt\'s disabled by default since it can make the system unstable in certain cases, like when dual-booting or upgrading the system'**
+  /// **'Save the current session to C:\\hiberfil.sys for faster startup, does not affect reboots. Disabled by default to avoid instability during dual-booting or system upgrades'**
   String get miscFastStartupDescription;
 
   /// The label for Network and GPU monitoring
@@ -484,8 +508,20 @@ abstract class ReviLocalizations {
   /// The Code snippet for MPO
   ///
   /// In en, this message translates to:
-  /// **'Recommended to turn off on Nvidia GTX 16xx, RTX 3xxx and AMD RX 5xxx cards or newer.\nLeaving this on could cause black screens, stuttering, flickering, and other general display problems.'**
+  /// **'Recommended to turn off on Nvidia GTX 16xx, RTX 3xxx and AMD RX 5xxx cards or newer.\nLeaving this on could cause black screens, stuttering, flickering, and other general display problems'**
   String get miscMpoCodeSnippet;
+
+  /// The label for Battery Health Reporting
+  ///
+  /// In en, this message translates to:
+  /// **'Battery Health Reporting'**
+  String get miscBHRLabel;
+
+  /// No description provided for @miscBHRDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports Battery health status; Enabling will increase system usage'**
+  String get miscBHRDescription;
 
   /// Default state of the Revision Tool's update card label
   ///

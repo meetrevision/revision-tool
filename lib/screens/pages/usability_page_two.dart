@@ -15,24 +15,17 @@ class UsabilityPageTwo extends StatefulWidget {
 }
 
 class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
-  bool mrcBool = readRegistryInt(RegistryHive.localMachine,
-          r'Software\Classes\CLSID', 'IsModernRCEnabled') !=
-      0;
-  bool fetBool = readRegistryInt(
+  bool _mrcBool = readRegistryString(
+              RegistryHive.currentUser,
+              r'Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32',
+              '')
+          ?.isNotEmpty ??
+      true;
+  bool _fetBool = readRegistryInt(
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509',
           'EnabledState') ==
       2;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,18 +38,17 @@ class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
         CardHighlightSwitch(
           icon: msicons.FluentIcons.document_one_page_20_regular,
           label: ReviLocalizations.of(context).usability11MRCLabel,
-          switchBool: mrcBool,
+          switchBool: _mrcBool,
           function: (value) async {
             setState(() {
-              mrcBool = value;
+              _mrcBool = value;
             });
-            if (mrcBool) {
+            if (_mrcBool) {
               Shell().run(
                   r'reg delete "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" /f');
               // Error 0x80070005: Access is denied.
-              // deleteRegistryKey(Registry.currentUser, r'Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}');
-              writeRegistryDword(Registry.localMachine,
-                  r'Software\Classes\CLSID', 'IsModernRCEnabled', 1);
+              // deleteRegistryKey(Registry.currentUser,
+              // r'Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}');
               await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
               await Process.run('explorer.exe', [], runInShell: true);
             } else {
@@ -67,8 +59,6 @@ class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
                   r'Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32',
                   '',
                   '');
-              writeRegistryDword(Registry.localMachine,
-                  r'Software\Classes\CLSID', 'IsModernRCEnabled', 0);
               await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
               await Process.run('explorer.exe', [], runInShell: true);
             }
@@ -77,12 +67,12 @@ class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
         CardHighlightSwitch(
           icon: msicons.FluentIcons.folder_multiple_16_regular,
           label: ReviLocalizations.of(context).usability11FETLabel,
-          switchBool: fetBool,
+          switchBool: _fetBool,
           function: (value) async {
             setState(() {
-              fetBool = value;
+              _fetBool = value;
             });
-            if (fetBool) {
+            if (_fetBool) {
               writeRegistryDword(
                   Registry.localMachine,
                   r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509',

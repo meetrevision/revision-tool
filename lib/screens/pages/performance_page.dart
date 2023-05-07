@@ -17,7 +17,7 @@ class PerformancePage extends StatefulWidget {
 }
 
 class _PerformancePageState extends State<PerformancePage> {
-  bool sfBool = (readRegistryInt(RegistryHive.localMachine,
+  bool _sfBool = (readRegistryInt(RegistryHive.localMachine,
                   r'SYSTEM\ControlSet001\Services\rdyboost', 'Start') ==
               4 &&
           readRegistryInt(RegistryHive.localMachine,
@@ -26,17 +26,17 @@ class _PerformancePageState extends State<PerformancePage> {
       ? false
       : true;
 
-  bool mcBool = readRegistryInt(
+  bool _mcBool = readRegistryInt(
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
           'isMemoryCompressionEnabled') ==
       1;
 
-  bool foBool = readRegistryInt(RegistryHive.currentUser,
+  bool _foBool = readRegistryInt(RegistryHive.currentUser,
           r'System\GameConfigStore', "GameDVR_FSEBehaviorMode") ==
       0;
 
-  bool iTSXBool = readRegistryInt(
+  bool _iTSXBool = readRegistryInt(
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\Session Manager\Kernel',
           'DisableTsx') ==
@@ -44,41 +44,31 @@ class _PerformancePageState extends State<PerformancePage> {
 
 // Experimental
 
-  bool owgBool = readRegistryString(
+  bool _owgBool = readRegistryString(
               RegistryHive.currentUser,
               r'Software\Microsoft\DirectX\UserGpuPreferences',
               "DirectXUserGlobalSettings")
           ?.contains("SwapEffectUpgradeEnable=1") ??
       false;
 
-  bool cStatesBool = readRegistryInt(RegistryHive.localMachine,
+  bool _cStatesBool = readRegistryInt(RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\Processor', 'Capabilities') ==
       516198;
 
 //NTFS
-  bool ntfsLTABool = readRegistryInt(
+  bool _ntfsLTABool = readRegistryInt(
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\FileSystem',
           "RefsDisableLastAccessUpdate") ==
       1;
-  bool ntfsEdTBool = readRegistryInt(
+  bool _ntfsEdTBool = readRegistryInt(
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\FileSystem',
           "NtfsDisable8dot3NameCreation") ==
       1;
-  bool ntfsMUBool = readRegistryInt(RegistryHive.localMachine,
+  bool _ntfsMUBool = readRegistryInt(RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\FileSystem', "NtfsMemoryUsage") ==
       2;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,12 +81,12 @@ class _PerformancePageState extends State<PerformancePage> {
           icon: msicons.FluentIcons.top_speed_20_regular,
           label: ReviLocalizations.of(context).perfSuperfetchLabel,
           description: ReviLocalizations.of(context).perfSuperfetchDescription,
-          switchBool: sfBool,
+          switchBool: _sfBool,
           function: (value) async {
             setState(() {
-              sfBool = value;
+              _sfBool = value;
             });
-            if (sfBool) {
+            if (_sfBool) {
               await run(
                   '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\EnableSF.bat"');
             } else {
@@ -125,17 +115,17 @@ class _PerformancePageState extends State<PerformancePage> {
             );
           },
         ),
-        if (sfBool) ...[
+        if (_sfBool) ...[
           CardHighlightSwitch(
             icon: msicons.FluentIcons.ram_20_regular,
             label: ReviLocalizations.of(context).perfMCLabel,
             description: ReviLocalizations.of(context).perfMCDescription,
-            switchBool: mcBool,
+            switchBool: _mcBool,
             function: (value) {
               setState(() {
-                mcBool = value;
+                _mcBool = value;
               });
-              if (mcBool) {
+              if (_mcBool) {
                 run('PowerShell -NonInteractive -NoLogo -NoProfile -Command "Enable-MMAgent -mc"');
                 writeRegistryDword(
                     Registry.localMachine,
@@ -157,12 +147,12 @@ class _PerformancePageState extends State<PerformancePage> {
           icon: msicons.FluentIcons.transmission_20_regular,
           label: ReviLocalizations.of(context).perfITSXLabel,
           description: ReviLocalizations.of(context).perfITSXDescription,
-          switchBool: iTSXBool,
+          switchBool: _iTSXBool,
           function: (value) async {
             setState(() {
-              iTSXBool = value;
+              _iTSXBool = value;
             });
-            if (iTSXBool) {
+            if (_iTSXBool) {
               writeRegistryDword(
                   Registry.localMachine,
                   r'SYSTEM\CurrentControlSet\Control\Session Manager\kernel',
@@ -181,12 +171,12 @@ class _PerformancePageState extends State<PerformancePage> {
           icon: msicons.FluentIcons.desktop_20_regular,
           label: ReviLocalizations.of(context).perfFOLabel,
           description: ReviLocalizations.of(context).perfFODescription,
-          switchBool: foBool,
+          switchBool: _foBool,
           function: (value) async {
             setState(() {
-              foBool = value;
+              _foBool = value;
             });
-            if (foBool) {
+            if (_foBool) {
               writeRegistryDword(Registry.currentUser,
                   r'System\GameConfigStore', 'GameDVR_FSEBehaviorMode', 0);
               deleteRegistry(Registry.currentUser, r'System\GameConfigStore',
@@ -253,12 +243,12 @@ class _PerformancePageState extends State<PerformancePage> {
             icon: msicons.FluentIcons.desktop_mac_20_regular,
             label: ReviLocalizations.of(context).perfOWGLabel,
             description: ReviLocalizations.of(context).perfOWGDescription,
-            switchBool: owgBool,
+            switchBool: _owgBool,
             function: (value) {
               setState(() {
-                owgBool = value;
+                _owgBool = value;
               });
-              if (owgBool) {
+              if (_owgBool) {
                 writeRegistryString(
                     Registry.currentUser,
                     r'Software\Microsoft\DirectX\UserGpuPreferences',
@@ -278,12 +268,12 @@ class _PerformancePageState extends State<PerformancePage> {
             icon: msicons.FluentIcons.sleep_20_regular,
             label: ReviLocalizations.of(context).perfCStatesLabel,
             description: ReviLocalizations.of(context).perfCStatesDescription,
-            switchBool: cStatesBool,
+            switchBool: _cStatesBool,
             function: (value) async {
               setState(() {
-                cStatesBool = value;
+                _cStatesBool = value;
               });
-              if (cStatesBool) {
+              if (_cStatesBool) {
                 writeRegistryDword(
                     Registry.localMachine,
                     r'SYSTEM\ControlSet001\Control\Processor',
@@ -300,12 +290,12 @@ class _PerformancePageState extends State<PerformancePage> {
             icon: msicons.FluentIcons.document_bullet_list_clock_20_regular,
             label: ReviLocalizations.of(context).perfLTALabel,
             description: ReviLocalizations.of(context).perfLTADescription,
-            switchBool: ntfsLTABool,
+            switchBool: _ntfsLTABool,
             function: (value) async {
               setState(() {
-                ntfsLTABool = value;
+                _ntfsLTABool = value;
               });
-              if (ntfsLTABool) {
+              if (_ntfsLTABool) {
                 run('fsutil behavior set disableLastAccess 1');
               } else {
                 run('fsutil behavior set disableLastAccess 0');
@@ -316,12 +306,12 @@ class _PerformancePageState extends State<PerformancePage> {
             icon: msicons.FluentIcons.hard_drive_20_regular,
             label: ReviLocalizations.of(context).perfEdTLabel,
             description: ReviLocalizations.of(context).perfEdTDescription,
-            switchBool: ntfsEdTBool,
+            switchBool: _ntfsEdTBool,
             function: (value) {
               setState(() {
-                ntfsEdTBool = value;
+                _ntfsEdTBool = value;
               });
-              if (ntfsEdTBool) {
+              if (_ntfsEdTBool) {
                 run('fsutil behavior set disable8dot3 1');
               } else {
                 run('fsutil behavior set disable8dot3 0');
@@ -331,12 +321,12 @@ class _PerformancePageState extends State<PerformancePage> {
           CardHighlightSwitch(
             icon: msicons.FluentIcons.memory_16_regular,
             label: ReviLocalizations.of(context).perfMULabel,
-            switchBool: ntfsMUBool,
+            switchBool: _ntfsMUBool,
             function: (value) async {
               setState(() {
-                ntfsMUBool = value;
+                _ntfsMUBool = value;
               });
-              if (ntfsMUBool) {
+              if (_ntfsMUBool) {
                 run('fsutil behavior set memoryusage 2');
               } else {
                 run('fsutil behavior set memoryusage 1');

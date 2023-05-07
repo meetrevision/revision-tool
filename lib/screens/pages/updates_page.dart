@@ -13,28 +13,18 @@ class UpdatesPage extends StatefulWidget {
 }
 
 class _UpdatesPageState extends State<UpdatesPage> {
-  bool wuPageBool = readRegistryString(
+  bool _wuPageBool = readRegistryString(
               RegistryHive.localMachine,
               r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
               'SettingsPageVisibility')
           ?.contains("windowsupdate") ??
       false;
 
-  bool wuDriversBool = readRegistryInt(
+  bool _wuDriversBool = readRegistryInt(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata',
           'PreventDeviceMetadataFromNetwork') ==
       0;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,12 +37,12 @@ class _UpdatesPageState extends State<UpdatesPage> {
           icon: msicons.FluentIcons.arrow_sync_20_regular,
           label: ReviLocalizations.of(context).wuPageLabel,
           description: ReviLocalizations.of(context).wuPageDescription,
-          switchBool: wuPageBool,
+          switchBool: _wuPageBool,
           function: (value) async {
             setState(() {
-              wuPageBool = value;
+              _wuPageBool = value;
             });
-            if (wuPageBool) {
+            if (_wuPageBool) {
               writeRegistryString(
                   Registry.localMachine,
                   r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
@@ -71,12 +61,12 @@ class _UpdatesPageState extends State<UpdatesPage> {
           icon: FluentIcons.devices4,
           label: ReviLocalizations.of(context).wuDriversLabel,
           description: ReviLocalizations.of(context).wuDriversDescription,
-          switchBool: wuDriversBool,
+          switchBool: _wuDriversBool,
           function: (value) async {
             setState(() {
-              wuDriversBool = value;
+              _wuDriversBool = value;
             });
-            if (wuDriversBool) {
+            if (_wuDriversBool) {
               deleteRegistryKey(Registry.currentUser,
                   r'Software\Policies\Microsoft\Windows\DriverSearching');
               deleteRegistryKey(Registry.localMachine,

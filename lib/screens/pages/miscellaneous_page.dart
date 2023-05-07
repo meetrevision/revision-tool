@@ -14,20 +14,29 @@ class MiscellaneousPage extends StatefulWidget {
 }
 
 class _MiscellaneousPageState extends State<MiscellaneousPage> {
-  bool fsbBool = readRegistryInt(
+  bool _hibBool = readRegistryInt(RegistryHive.localMachine,
+          r'SYSTEM\ControlSet001\Control\Power', 'HibernateEnabled') ==
+      1;
+
+  bool _fsbBool = readRegistryInt(
           RegistryHive.localMachine,
           r'System\ControlSet001\Control\Session Manager\Power',
           'HiberbootEnabled') ==
       1;
-  bool tmmBool = readRegistryInt(RegistryHive.localMachine,
+  bool _tmmBool = readRegistryInt(RegistryHive.localMachine,
               r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start') ==
           2 &&
       readRegistryInt(RegistryHive.localMachine,
               r'SYSTEM\ControlSet001\Services\Ndu', 'Start') ==
           2;
-  bool mpoBool = readRegistryInt(RegistryHive.localMachine,
+  bool _mpoBool = readRegistryInt(RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows\Dwm', 'OverlayTestMode') !=
       5;
+
+  bool _bhrBool = readRegistryInt(RegistryHive.localMachine,
+          r'SYSTEM\ControlSet001\Services\DPS', 'Start') !=
+      4;
+
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
@@ -36,25 +45,15 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
       ),
       children: [
         CardHighlightSwitch(
-          icon: msicons.FluentIcons.weather_hail_night_20_regular,
-          label: ReviLocalizations.of(context).miscFastStartupLabel,
-          codeSnippet: ReviLocalizations.of(context).miscFastStartupDescription,
-          switchBool: fsbBool,
+          icon: msicons.FluentIcons.sleep_20_regular,
+          label: ReviLocalizations.of(context).miscHibernateLabel,
+          description: ReviLocalizations.of(context).miscHibernateDescription,
+          switchBool: _hibBool,
           function: (value) async {
             setState(() {
-              fsbBool = value;
+              _hibBool = value;
             });
-            if (fsbBool) {
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'System\ControlSet001\Control\Session Manager\Power',
-                  'HiberbootEnabled',
-                  1);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'Software\Policies\Microsoft\Windows\System',
-                  'HiberbootEnabled',
-                  1);
+            if (_hibBool) {
               writeRegistryDword(
                   Registry.localMachine,
                   r'Software\Policies\Microsoft\Windows\System',
@@ -64,21 +63,9 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
                   r'SYSTEM\ControlSet001\Control\Power', 'HibernateEnabled', 1);
               await Shell().run(r'''
                      powercfg -h on
-                     wevtutil sl Microsoft-Windows-SleepStudy/Diagnostic /e:true >NUL
-                     wevtutil sl Microsoft-Windows-Kernel-Processor-Power/Diagnostic /e:true >NUL
-                     wevtutil sl Microsoft-Windows-UserModePowerService/Diagnostic /e:true >NUL
+                     powercfg /h /type full
                     ''');
             } else {
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'System\ControlSet001\Control\Session Manager\Power',
-                  'HiberbootEnabled',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'Software\Policies\Microsoft\Windows\System',
-                  'HiberbootEnabled',
-                  0);
               writeRegistryDword(
                   Registry.localMachine,
                   r'Software\Policies\Microsoft\Windows\System',
@@ -88,24 +75,95 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
                   r'SYSTEM\ControlSet001\Control\Power', 'HibernateEnabled', 0);
               await Shell().run(r'''
                      powercfg -h off
-                     wevtutil sl Microsoft-Windows-SleepStudy/Diagnostic /e:false >NUL
-                     wevtutil sl Microsoft-Windows-Kernel-Processor-Power/Diagnostic /e:false >NUL
-                     wevtutil sl Microsoft-Windows-UserModePowerService/Diagnostic /e:false >NUL
                     ''');
             }
           },
         ),
+        if (_hibBool) ...[
+          CardHighlight(
+            icon: msicons.FluentIcons.document_save_20_regular,
+            label: ReviLocalizations.of(context).miscHibernateModeLabel,
+            description:
+                ReviLocalizations.of(context).miscHibernateModeDescription,
+            child: ComboBox(
+              value: readRegistryInt(RegistryHive.localMachine,
+                  r'System\ControlSet001\Control\Power', 'HiberFileType'),
+              onChanged: (value) async {
+                switch (value) {
+                  case 1:
+                    await Shell().run(r'''
+                     powercfg /h /type reduced
+                    ''');
+                    setState(() {});
+                    break;
+                  case 2:
+                    await Shell().run(r'''
+                     powercfg /h /type full
+                    ''');
+                    setState(() {});
+                    break;
+                  default:
+                }
+              },
+              items: const <ComboBoxItem>[
+                ComboBoxItem(
+                  value: 2,
+                  child: Text("Full"),
+                ),
+                ComboBoxItem(
+                  value: 1,
+                  child: Text("Reduced"),
+                ),
+              ],
+            ),
+          ),
+          CardHighlightSwitch(
+            icon: msicons.FluentIcons.weather_hail_night_20_regular,
+            label: ReviLocalizations.of(context).miscFastStartupLabel,
+            description:
+                ReviLocalizations.of(context).miscFastStartupDescription,
+            switchBool: _fsbBool,
+            function: (value) async {
+              setState(() {
+                _fsbBool = value;
+              });
+              if (_fsbBool) {
+                writeRegistryDword(
+                    Registry.localMachine,
+                    r'System\ControlSet001\Control\Session Manager\Power',
+                    'HiberbootEnabled',
+                    1);
+                writeRegistryDword(
+                    Registry.localMachine,
+                    r'Software\Policies\Microsoft\Windows\System',
+                    'HiberbootEnabled',
+                    1);
+              } else {
+                writeRegistryDword(
+                    Registry.localMachine,
+                    r'System\ControlSet001\Control\Session Manager\Power',
+                    'HiberbootEnabled',
+                    0);
+                writeRegistryDword(
+                    Registry.localMachine,
+                    r'Software\Policies\Microsoft\Windows\System',
+                    'HiberbootEnabled',
+                    0);
+              }
+            },
+          ),
+        ],
         CardHighlightSwitch(
           icon: FluentIcons.task_manager,
           label: ReviLocalizations.of(context).miscTMMonitoringLabel,
           description:
               ReviLocalizations.of(context).miscTMMonitoringDescription,
-          switchBool: tmmBool,
+          switchBool: _tmmBool,
           function: (value) async {
             setState(() {
-              tmmBool = value;
+              _tmmBool = value;
             });
-            if (tmmBool) {
+            if (_tmmBool) {
               writeRegistryDword(Registry.localMachine,
                   r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start', 2);
               writeRegistryDword(Registry.localMachine,
@@ -126,12 +184,12 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
           icon: msicons.FluentIcons.window_settings_20_regular,
           label: ReviLocalizations.of(context).miscMpoLabel,
           codeSnippet: ReviLocalizations.of(context).miscMpoCodeSnippet,
-          switchBool: mpoBool,
+          switchBool: _mpoBool,
           function: (value) async {
             setState(() {
-              mpoBool = value;
+              _mpoBool = value;
             });
-            if (mpoBool) {
+            if (_mpoBool) {
               deleteRegistry(Registry.localMachine,
                   r'SOFTWARE\Microsoft\Windows\Dwm', 'OverlayTestMode');
             } else {
@@ -139,7 +197,48 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
                   r'SOFTWARE\Microsoft\Windows\Dwm', 'OverlayTestMode', 5);
             }
           },
-        )
+        ),
+        CardHighlightSwitch(
+          icon: msicons.FluentIcons.battery_checkmark_20_regular,
+          label: "Battery Health Reporting",
+          codeSnippet:
+              "Reports Battery health status; Enabling will increase system usage",
+          switchBool: _bhrBool,
+          function: (value) async {
+            setState(() {
+              _bhrBool = value;
+            });
+            if (_bhrBool) {
+              writeRegistryDword(Registry.localMachine,
+                  r'SYSTEM\ControlSet001\Services\DPS', 'Start', 2);
+              writeRegistryDword(Registry.localMachine,
+                  r'SYSTEM\ControlSet001\Services\diagsvc', 'Start', 2);
+              writeRegistryDword(Registry.localMachine,
+                  r'SYSTEM\ControlSet001\Services\WdiServiceHost', 'Start', 2);
+              writeRegistryDword(Registry.localMachine,
+                  r'SYSTEM\ControlSet001\Services\WdiSystemHost', 'Start', 2);
+              await Shell().run(r'''
+                     wevtutil sl Microsoft-Windows-SleepStudy/Diagnostic /e:true >NUL
+                     wevtutil sl Microsoft-Windows-Kernel-Processor-Power/Diagnostic /e:true >NUL
+                     wevtutil sl Microsoft-Windows-UserModePowerService/Diagnostic /e:true >NUL
+                    ''');
+            } else {
+              writeRegistryDword(Registry.localMachine,
+                  r'SYSTEM\ControlSet001\Services\Ndu', 'Start', 4);
+              writeRegistryDword(Registry.localMachine,
+                  r'SYSTEM\ControlSet001\Services\diagsvc', 'Start', 4);
+              writeRegistryDword(Registry.localMachine,
+                  r'SYSTEM\ControlSet001\Services\WdiServiceHost', 'Start', 4);
+              writeRegistryDword(Registry.localMachine,
+                  r'SYSTEM\ControlSet001\Services\WdiServiceHost', 'Start', 4);
+              await Shell().run(r'''
+                     wevtutil sl Microsoft-Windows-SleepStudy/Diagnostic /e:false >NUL
+                     wevtutil sl Microsoft-Windows-Kernel-Processor-Power/Diagnostic /e:false >NUL
+                     wevtutil sl Microsoft-Windows-UserModePowerService/Diagnostic /e:false >NUL
+                    ''');
+            }
+          },
+        ),
       ],
     );
   }

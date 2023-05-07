@@ -16,32 +16,22 @@ class SecurityPage extends StatefulWidget {
 }
 
 class _SecurityPageState extends State<SecurityPage> {
-  bool wdBool = (readRegistryInt(RegistryHive.localMachine,
+  bool _wdBool = (readRegistryInt(RegistryHive.localMachine,
               r'SYSTEM\ControlSet001\Services\WinDefend', 'Start') ??
           4) <=
       3;
-  bool wdButtonCalled = false;
+  bool _wdButtonCalled = false;
 
-  bool uacBool = readRegistryInt(
+  bool _uacBool = readRegistryInt(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
           'EnableLUA') ==
       1;
-  bool smBool = readRegistryInt(
+  bool _smBool = readRegistryInt(
           RegistryHive.localMachine,
           r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
           'FeatureSettingsOverride') ==
       0;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,17 +49,17 @@ class _SecurityPageState extends State<SecurityPage> {
                       r'SOFTWARE\Microsoft\Windows Defender\Features',
                       'TamperProtection') ==
                   5 &&
-              !wdButtonCalled),
+              !_wdButtonCalled),
           replacement: CardHighlightSwitch(
             icon: msicons.FluentIcons.shield_20_regular,
             label: ReviLocalizations.of(context).securityWDLabel,
             description: ReviLocalizations.of(context).securityWDDescription,
-            switchBool: wdBool,
+            switchBool: _wdBool,
             function: (value) async {
               setState(() {
-                wdBool = value;
+                _wdBool = value;
               });
-              if (wdBool) {
+              if (_wdBool) {
                 await run(
                     '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\EnableWD.bat"');
               } else {
@@ -107,7 +97,7 @@ class _SecurityPageState extends State<SecurityPage> {
                   );
                   await process.exitCode;
                   setState(() {
-                    wdButtonCalled = true;
+                    _wdButtonCalled = true;
                   });
                   showDialog(
                     context: context,
@@ -131,7 +121,7 @@ class _SecurityPageState extends State<SecurityPage> {
           ),
         ),
 
-        // if (wdBool && tamperProtection) ...[
+        // if (_wdBool && tamperProtection) ...[
         //   CardHighlight(
         //     child: Row(
         //       children: [
@@ -175,7 +165,7 @@ class _SecurityPageState extends State<SecurityPage> {
         //               );
         //               await process.exitCode;
 
-        //               wdButtonCalled = true;
+        //               _wdButtonCalled = true;
         //               setState(() {});
         //             },
         //             child: Text(ReviLocalizations.of(context).securityWDButton),
@@ -189,12 +179,12 @@ class _SecurityPageState extends State<SecurityPage> {
         //     icon: msicons.FluentIcons.shield_20_regular,
         //     label: ReviLocalizations.of(context).securityWDLabel,
         //     description: ReviLocalizations.of(context).securityWDDescription,
-        //     switchBool: wdBool,
+        //     switchBool: _wdBool,
         //     function: (value) async {
         //       setState(() {
-        //         wdBool = value;
+        //         _wdBool = value;
         //       });
-        //       if (wdBool) {
+        //       if (_wdBool) {
         //         await run(
         //             '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\EnableWD.bat"');
         //       } else {
@@ -238,12 +228,12 @@ class _SecurityPageState extends State<SecurityPage> {
           icon: msicons.FluentIcons.person_lock_20_regular,
           label: ReviLocalizations.of(context).securityUACLabel,
           description: ReviLocalizations.of(context).securityUACDescription,
-          switchBool: uacBool,
+          switchBool: _uacBool,
           function: (value) async {
             setState(() {
-              uacBool = value;
+              _uacBool = value;
             });
-            if (uacBool) {
+            if (_uacBool) {
               writeRegistryDword(
                   Registry.localMachine,
                   r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
@@ -352,12 +342,12 @@ class _SecurityPageState extends State<SecurityPage> {
           icon: msicons.FluentIcons.shield_badge_20_regular,
           label: ReviLocalizations.of(context).securitySMLabel,
           description: ReviLocalizations.of(context).securitySMDescription,
-          switchBool: smBool,
+          switchBool: _smBool,
           function: (value) async {
             setState(() {
-              smBool = value;
+              _smBool = value;
             });
-            if (smBool) {
+            if (_smBool) {
               deleteRegistry(
                   Registry.localMachine,
                   r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',

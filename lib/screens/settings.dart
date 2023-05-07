@@ -20,7 +20,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   late ThemeMode theme;
-  String updateTitle = "Check for Updates";
+  String _updateTitle = "Check for Updates";
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +77,7 @@ class _SettingsPageState extends State<SettingsPage> {
           label: ReviLocalizations.of(context).settingsUpdateLabel,
           icon: msicons.FluentIcons.arrow_clockwise_20_regular,
           child: FilledButton(
-            child: Text(updateTitle),
+            child: Text(_updateTitle),
             onPressed: () async {
               Directory tempDir = await getTemporaryDirectory();
               PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -89,7 +89,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   int.parse(data["tag_name"].toString().replaceAll(".", ""));
               if (latestVersion > currentVersion) {
                 setState(() {
-                  updateTitle =
+                  _updateTitle =
                       ReviLocalizations.of(context).settingsUpdateButton;
                 });
                 // ignore: use_build_context_synchronously
@@ -105,7 +105,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         child: Text(ReviLocalizations.of(context).okButton),
                         onPressed: () async {
                           setState(() {
-                            updateTitle =
+                            _updateTitle =
                                 "${ReviLocalizations.of(context).settingsUpdatingStatus}...";
                           });
                           Navigator.pop(context);
@@ -113,7 +113,7 @@ class _SettingsPageState extends State<SettingsPage> {
                               data["assets"][0]["browser_download_url"],
                               tempDir.path);
                           setState(() {
-                            updateTitle = ReviLocalizations.of(context)
+                            _updateTitle = ReviLocalizations.of(context)
                                 .settingsUpdatingStatusSuccess;
                           });
                         },
@@ -129,7 +129,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 );
               } else {
                 setState(() {
-                  updateTitle = ReviLocalizations.of(context)
+                  _updateTitle = ReviLocalizations.of(context)
                       .settingsUpdatingStatusNotFound;
                 });
               }

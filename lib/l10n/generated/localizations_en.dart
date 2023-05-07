@@ -185,10 +185,22 @@ class ReviLocalizationsEn extends ReviLocalizations {
   String get wuDriversDescription => 'To install drivers in ReviOS, you need to manually check for updates in Settings, as automatic Windows Updates are not supported';
 
   @override
-  String get miscFastStartupLabel => 'Fast Startup & Hibernate';
+  String get miscHibernateLabel => 'Hibernate';
 
   @override
-  String get miscFastStartupDescription => 'Windows will save the current session to the hibernate (hiberfil.sys) file on disk in order to start your system faster on the next boot. This doesn\'t affect reboots.\nIt\'s disabled by default since it can make the system unstable in certain cases, like when dual-booting or upgrading the system';
+  String get miscHibernateDescription => 'A power-saving S4 state, saves the current session to hiberfile and turns off the device. Disabled by default to avoid instability during dual-booting or system upgrades';
+
+  @override
+  String get miscHibernateModeLabel => 'Hibernate Mode';
+
+  @override
+  String get miscHibernateModeDescription => 'Full - Supports hibernate and fast startup. The hiberfile will be 40% of physical RAM installed. Hibernate is available to be added to the power menu.\n\nReduced - Only supports Fast Startup without hibernate, The hiberfile will be 20% of physical RAM installed and removes hibernate from the power menu';
+
+  @override
+  String get miscFastStartupLabel => 'Fast Startup';
+
+  @override
+  String get miscFastStartupDescription => 'Save the current session to C:\\hiberfil.sys for faster startup, does not affect reboots. Disabled by default to avoid instability during dual-booting or system upgrades';
 
   @override
   String get miscTMMonitoringLabel => 'Network and GPU monitoring';
@@ -200,7 +212,13 @@ class ReviLocalizationsEn extends ReviLocalizations {
   String get miscMpoLabel => 'Multiplane overlay (MPO)';
 
   @override
-  String get miscMpoCodeSnippet => 'Recommended to turn off on Nvidia GTX 16xx, RTX 3xxx and AMD RX 5xxx cards or newer.\nLeaving this on could cause black screens, stuttering, flickering, and other general display problems.';
+  String get miscMpoCodeSnippet => 'Recommended to turn off on Nvidia GTX 16xx, RTX 3xxx and AMD RX 5xxx cards or newer.\nLeaving this on could cause black screens, stuttering, flickering, and other general display problems';
+
+  @override
+  String get miscBHRLabel => 'Battery Health Reporting';
+
+  @override
+  String get miscBHRDescription => 'Reports Battery health status; Enabling will increase system usage';
 
   @override
   String get settingsUpdateLabel => 'Update Revision Tool';
