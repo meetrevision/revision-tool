@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_final_fields, unused_field
+
 import 'dart:math';
 
 import 'package:fluent_ui/fluent_ui.dart';
@@ -189,10 +191,10 @@ class CardHighlight extends StatefulWidget {
 
 class _CardHighlightState extends State<CardHighlight>
     with AutomaticKeepAliveClientMixin<CardHighlight> {
-  bool _isOpen = false;
-  bool _isCopying = false;
+  static bool _isOpen = false;
+  static bool _isCopying = false;
 
-  final key = Random().nextInt(1000);
+  final _key = Random().nextInt(1000);
 
   @override
   Widget build(BuildContext context) {
@@ -248,7 +250,7 @@ class _CardHighlightState extends State<CardHighlight>
               : cardBorderColorForLight,
           backgroundColor: Colors.transparent,
           child: Expander(
-            key: PageStorageKey(key),
+            key: PageStorageKey(_key),
             headerShape: (open) =>
                 const RoundedRectangleBorder(borderRadius: cardBorderRadius),
             onStateChanged: (state) {

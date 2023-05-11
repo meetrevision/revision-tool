@@ -76,7 +76,7 @@ class MyApp extends StatelessWidget {
             cardColor: const Color.fromARGB(255, 43, 43, 43),
             visualDensity: VisualDensity.standard,
             focusTheme: FocusThemeData(
-              glowFactor: is10footScreen() ? 2.0 : 0.0,
+              glowFactor: is10footScreen(context) ? 2.0 : 0.0,
             ),
           ),
           theme: FluentThemeData(
@@ -85,7 +85,7 @@ class MyApp extends StatelessWidget {
             scaffoldBackgroundColor: const Color.fromRGBO(243, 243, 243, 100),
             cardColor: const Color.fromARGB(255, 251, 251, 251),
             focusTheme: FocusThemeData(
-              glowFactor: is10footScreen() ? 2.0 : 0.0,
+              glowFactor: is10footScreen(context) ? 2.0 : 0.0,
             ),
           ),
           home: isSupported ? const HomePage() : const UnsupportedError(),

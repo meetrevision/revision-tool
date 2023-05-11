@@ -200,9 +200,8 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
         ),
         CardHighlightSwitch(
           icon: msicons.FluentIcons.battery_checkmark_20_regular,
-          label: "Battery Health Reporting",
-          codeSnippet:
-              "Reports Battery health status; Enabling will increase system usage",
+          label: ReviLocalizations.of(context).miscBHRLabel,
+          description: ReviLocalizations.of(context).miscBHRDescription,
           switchBool: _bhrBool,
           function: (value) async {
             setState(() {
