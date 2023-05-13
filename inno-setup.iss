@@ -26,6 +26,7 @@ OutputBaseFilename=RevisionTool-Setup
 SetupIconFile={#SourcePath}\windows\runner\resources\revision_icon.ico
 Compression=lzma
 SolidCompression=yes
+UninstallDisplayIcon={app}\{#MyAppExeName}
 WizardStyle=modern
 PrivilegesRequired=admin
 
