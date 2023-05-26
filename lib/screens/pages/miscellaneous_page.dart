@@ -223,13 +223,13 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
                     ''');
             } else {
               writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Services\Ndu', 'Start', 4);
+                  r'SYSTEM\ControlSet001\Services\DPS', 'Start', 4);
               writeRegistryDword(Registry.localMachine,
                   r'SYSTEM\ControlSet001\Services\diagsvc', 'Start', 4);
               writeRegistryDword(Registry.localMachine,
                   r'SYSTEM\ControlSet001\Services\WdiServiceHost', 'Start', 4);
               writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Services\WdiServiceHost', 'Start', 4);
+                  r'SYSTEM\ControlSet001\Services\WdiSystemHost', 'Start', 4);
               await Shell().run(r'''
                      wevtutil sl Microsoft-Windows-SleepStudy/Diagnostic /e:false >NUL
                      wevtutil sl Microsoft-Windows-Kernel-Processor-Power/Diagnostic /e:false >NUL
