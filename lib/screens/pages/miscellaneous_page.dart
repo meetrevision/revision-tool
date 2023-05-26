@@ -211,8 +211,6 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
               writeRegistryDword(Registry.localMachine,
                   r'SYSTEM\ControlSet001\Services\DPS', 'Start', 2);
               writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Services\Ndu', 'Start', 2);
-              writeRegistryDword(Registry.localMachine,
                   r'SYSTEM\ControlSet001\Services\diagsvc', 'Start', 2);
               writeRegistryDword(Registry.localMachine,
                   r'SYSTEM\ControlSet001\Services\WdiServiceHost', 'Start', 2);
@@ -226,8 +224,6 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
             } else {
               writeRegistryDword(Registry.localMachine,
                   r'SYSTEM\ControlSet001\Services\DPS', 'Start', 4);
-              writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Services\Ndu', 'Start', 4);
               writeRegistryDword(Registry.localMachine,
                   r'SYSTEM\ControlSet001\Services\diagsvc', 'Start', 4);
               writeRegistryDword(Registry.localMachine,
