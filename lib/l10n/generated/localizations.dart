@@ -295,10 +295,10 @@ abstract class ReviLocalizations {
   /// **'Windows will learn what you type to improve suggestions when writing'**
   String get usabilityITPDescription;
 
-  /// The label for CapsLock Key
+  /// The label for disabling the CapsLock Key
   ///
   /// In en, this message translates to:
-  /// **'CapsLock Key'**
+  /// **'Disable CapsLock Key'**
   String get usabilityCPLLabel;
 
   /// The label for New Context Menu

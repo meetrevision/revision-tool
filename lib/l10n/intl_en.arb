@@ -136,9 +136,9 @@
   "@usabilityITPDescription": {
     "description": "The description for Inking And Typing Personalization"
   },
-  "usabilityCPLLabel": "CapsLock Key",
+  "usabilityCPLLabel": "Disable CapsLock Key",
   "@usabilityCPLLabel": {
-    "description": "The label for CapsLock Key"
+    "description": "The label for disabling the CapsLock Key"
   },
   "usability11MRCLabel": "New Context Menu",
   "@usability11MRCLabel": {
