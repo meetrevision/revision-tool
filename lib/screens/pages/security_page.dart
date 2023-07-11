@@ -44,7 +44,10 @@ class _SecurityPageState extends State<SecurityPage> {
       ),
       children: [
         Visibility(
-          visible: (readRegistryInt(
+          visible: ((readRegistryInt(RegistryHive.localMachine,
+                      r'SYSTEM\ControlSet001\Services\WinDefend', 'Start') !=
+                  4) &&
+              readRegistryInt(
                       RegistryHive.localMachine,
                       r'SOFTWARE\Microsoft\Windows Defender\Features',
                       'TamperProtection') ==
@@ -99,6 +102,7 @@ class _SecurityPageState extends State<SecurityPage> {
                   setState(() {
                     _wdButtonCalled = true;
                   });
+                  // ignore: use_build_context_synchronously
                   showDialog(
                     context: context,
                     builder: (context) => ContentDialog(
@@ -380,6 +384,39 @@ class _SecurityPageState extends State<SecurityPage> {
                   3);
             }
           },
+        ),
+
+        CardHighlight(
+          icon: msicons.FluentIcons.certificate_20_regular,
+          label: ReviLocalizations.of(context).miscCertsLabel,
+          description: ReviLocalizations.of(context).miscCertsDescription,
+          child: SizedBox(
+            width: 150,
+            child: Button(
+              onPressed: () async {
+                await run(
+                    'PowerShell -NonInteractive -NoLogo -NoP -C "& {\$tmp = (New-TemporaryFile).FullName; CertUtil -generateSSTFromWU -f \$tmp; if ( (Get-Item \$tmp | Measure-Object -Property Length -Sum).sum -gt 0 ) { \$SST_File = Get-ChildItem -Path \$tmp; \$SST_File | Import-Certificate -CertStoreLocation "Cert:\\LocalMachine\\Root"; \$SST_File | Import-Certificate -CertStoreLocation "Cert:\\LocalMachine\\AuthRoot" } Remove-Item -Path \$tmp}"');
+
+                // ignore: use_build_context_synchronously
+                showDialog(
+                  context: context,
+                  builder: (context) => ContentDialog(
+                    content:
+                        Text(ReviLocalizations.of(context).miscCertsDialog),
+                    actions: [
+                      Button(
+                        child: Text(ReviLocalizations.of(context).okButton),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+              child: Text(ReviLocalizations.of(context).updateButton),
+            ),
+          ),
         ),
       ],
     );

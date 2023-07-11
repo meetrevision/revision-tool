@@ -221,7 +221,19 @@ class ReviLocalizationsEn extends ReviLocalizations {
   String get miscBHRDescription => 'Reports Battery health status; Enabling will increase system usage';
 
   @override
+  String get miscCertsLabel => 'Update Root Certificates';
+
+  @override
+  String get miscCertsDescription => 'Use it when having issues with certificates';
+
+  @override
+  String get miscCertsDialog => 'Updating of root certificates has finished. Try the software that you had issues with again, and if the issue persists, please contact our support.';
+
+  @override
   String get settingsUpdateLabel => 'Update Revision Tool';
+
+  @override
+  String get updateButton => 'Update';
 
   @override
   String get settingsUpdateButton => 'Check for Updates';

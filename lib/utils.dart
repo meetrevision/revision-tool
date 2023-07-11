@@ -12,12 +12,12 @@ final int buildNumber = int.parse(readRegistryString(
     r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\',
     'CurrentBuildNumber') as String);
 
-String mainPath = Platform.resolvedExecutable;
-String directoryExe = Directory(
+final String mainPath = Platform.resolvedExecutable;
+final String directoryExe = Directory(
         "${mainPath.substring(0, mainPath.lastIndexOf("\\"))}\\data\\flutter_assets\\additionals")
     .path;
 
-bool w11 = buildNumber > 19045 ? true : false;
+final bool w11 = buildNumber > 19045;
 bool expBool = readRegistryInt(RegistryHive.localMachine,
         r'SOFTWARE\Revision\Revision Tool', 'Experimental') ==
     1;

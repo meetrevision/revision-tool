@@ -285,7 +285,7 @@ class _PerformancePageState extends State<PerformancePage> {
               }
             },
           ),
-          subtitle(content: Text(ReviLocalizations.of(context).perfSectionFS)),
+          Subtitle(content: Text(ReviLocalizations.of(context).perfSectionFS)),
           CardHighlightSwitch(
             icon: msicons.FluentIcons.document_bullet_list_clock_20_regular,
             label: ReviLocalizations.of(context).perfLTALabel,

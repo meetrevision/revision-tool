@@ -292,9 +292,25 @@
   "@miscBHRgDescription": {
     "description": "The description for Battery Health Reporting"
   },
+  "miscCertsLabel": "Update Root Certificates",
+  "@miscCertsLabel": {
+    "description": "The label for Update Root Certificates"
+  },
+  "miscCertsDescription": "Use it when having issues with certificates",
+  "@miscCertsgDescription": {
+    "description": "The description for Update Root Certificates"
+  },
+  "miscCertsDialog": "Updating of root certificates has finished. Try the software that you had issues with again, and if the issue persists, please contact our support.",
+  "@miscCertsDialog": {
+    "description": "The dialog content for Update Root Certificates"
+  },
   "settingsUpdateLabel": "Update Revision Tool",
   "@settingsUpdateLabel": {
     "description": "Default state of the Revision Tool's update card label"
+  },
+  "updateButton": "Update",
+  "@updateButton": {
+    "description": "Update button"
   },
   "settingsUpdateButton": "Check for Updates",
   "@settingsUpdateButton": {

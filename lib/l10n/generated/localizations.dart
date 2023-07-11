@@ -523,11 +523,35 @@ abstract class ReviLocalizations {
   /// **'Reports Battery health status; Enabling will increase system usage'**
   String get miscBHRDescription;
 
+  /// The label for Update Root Certificates
+  ///
+  /// In en, this message translates to:
+  /// **'Update Root Certificates'**
+  String get miscCertsLabel;
+
+  /// No description provided for @miscCertsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Use it when having issues with certificates'**
+  String get miscCertsDescription;
+
+  /// The dialog content for Update Root Certificates
+  ///
+  /// In en, this message translates to:
+  /// **'Updating of root certificates has finished. Try the software that you had issues with again, and if the issue persists, please contact our support.'**
+  String get miscCertsDialog;
+
   /// Default state of the Revision Tool's update card label
   ///
   /// In en, this message translates to:
   /// **'Update Revision Tool'**
   String get settingsUpdateLabel;
+
+  /// Update button
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get updateButton;
 
   /// Default state of the Revision Tool's update button
   ///
