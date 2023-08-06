@@ -301,7 +301,7 @@
   "@miscCertsDialog": {
     "description": "O conteúdo da caixa de diálogo para Atualizar Certificados Raiz"
   },
-  "settingsUpdateLabel": "Atualizar RevisionTool",
+  "settingsUpdateLabel": "Atualizar o Revision Tool",
   "@settingsUpdateLabel": {
     "description": "Estado padrão do rótulo do cartão de atualização da Ferramenta Revision"
   },
@@ -350,5 +350,13 @@
   "settingsEPTDescription": "",
   "@settingsEPTDescription": {
     "description": "A descrição para Mostrar ajustes experimentais"
+  },
+  "restartAppDialog": "Você precisa reiniciar o aplicativo para que as alterações tenham efeito.",
+  "@restartAppDialog": {
+    "description": ""
+  },
+  "settingsLanguageLabel": "Idioma",
+  "@settingsLanguageLabel": {
+    "description": ""
   }
 }

@@ -166,6 +166,10 @@ class _SettingsPageState extends State<SettingsPage> {
               ComboBoxItem(
                 value: 'en_US',
                 child: Text('English'),
+              ),
+                ComboBoxItem(
+                value: 'pt_BR',
+                child: Text('Português (Brasileiro)'),
               )
             ],
           ),

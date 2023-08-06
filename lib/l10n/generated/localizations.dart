@@ -614,6 +614,18 @@ abstract class ReviLocalizations {
   /// In en, this message translates to:
   /// **''**
   String get settingsEPTDescription;
+
+  ///
+  ///
+  /// In en, this message translates to:
+  /// **'You must restart your app for the changes to take effect'**
+  String get restartAppDialog;
+
+  ///
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguageLabel;
 }
 
 class _ReviLocalizationsDelegate extends LocalizationsDelegate<ReviLocalizations> {

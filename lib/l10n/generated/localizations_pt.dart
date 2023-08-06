@@ -264,4 +264,10 @@ class ReviLocalizationsPt extends ReviLocalizations {
 
   @override
   String get settingsEPTDescription => '';
+
+  @override
+  String get restartAppDialog => 'Você precisa reiniciar o aplicativo para que as alterações tenham efeito.';
+
+  @override
+  String get settingsLanguageLabel => 'Idioma';
 }
