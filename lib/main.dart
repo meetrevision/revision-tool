@@ -20,6 +20,8 @@ void main() async {
         r'SOFTWARE\Revision\Revision Tool', 'ThemeMode', ThemeMode.system.name);
     writeRegistryDword(Registry.localMachine,
         r'SOFTWARE\Revision\Revision Tool', 'Experimental', 0);
+    writeRegistryString(Registry.localMachine,
+        r'SOFTWARE\Revision\Revision Tool', 'Language', 'en_US');
   }
   final settingsController = AppTheme(SettingsService());
   await settingsController.loadSettings();
@@ -53,6 +55,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return ChangeNotifierProvider(
       create: (_) => AppTheme(SettingsService()),
       builder: (context, _) {
@@ -65,7 +68,7 @@ class MyApp extends StatelessWidget {
             ReviLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
           ],
-          locale: appTheme.locale,
+          locale: Locale(appLanguage.split('_')[0], appLanguage.split('_')[1]),
           supportedLocales: ReviLocalizations.supportedLocales,
           themeMode: appTheme.themeMode,
           color: appTheme.color,

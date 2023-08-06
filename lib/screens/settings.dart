@@ -136,6 +136,40 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
         ),
+        CardHighlight(
+          icon: msicons.FluentIcons.local_language_20_regular,
+          label: ReviLocalizations.of(context).settingsLanguageLabel,
+          child: ComboBox(
+            value: appLanguage,
+            onChanged: (value) {
+              setState(() {
+                appLanguage = value ?? 'en_US';
+                writeRegistryString(Registry.localMachine,
+                    r'SOFTWARE\Revision\Revision Tool', 'Language', appLanguage);
+              });
+              showDialog(
+                context: context,
+                builder: (context) => ContentDialog(
+                  content: Text(ReviLocalizations.of(context).restartAppDialog),
+                  actions: [
+                    Button(
+                      child: Text(ReviLocalizations.of(context).okButton),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    )
+                  ],
+                ),
+              );
+            },
+            items: [
+              ComboBoxItem(
+                value: 'en_US',
+                child: Text('English'),
+              )
+            ],
+          ),
+        ),
       ],
     );
   }

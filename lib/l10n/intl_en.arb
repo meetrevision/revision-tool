@@ -353,5 +353,13 @@
   "settingsEPTDescription": "",
   "@settingsEPTDescription": {
     "description": "The description for Show experimental tweaks"
+  },
+  "restartAppDialog": "You must restart your app for the changes to take effect",
+  "@restartAppDialog": {
+    "description": ""
+  },
+  "settingsLanguageLabel": "Language",
+  "@settingsLanguageLabel": {
+    "description": ""
   }
 }
