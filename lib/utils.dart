@@ -24,6 +24,9 @@ bool expBool = readRegistryInt(RegistryHive.localMachine,
 String? themeModeReg = readRegistryString(
     RegistryHive.localMachine, r'SOFTWARE\Revision\Revision Tool', 'ThemeMode');
 
+String appLanguage = readRegistryString(
+    RegistryHive.localMachine, r'SOFTWARE\Revision\Revision Tool', 'Language',) ?? 'en_US';
+
 int? readRegistryInt(RegistryHive hive, String path, String value) {
   try {
     return Registry.openPath(
