@@ -60,18 +60,13 @@ class _SettingsPageState extends State<SettingsPage> {
           label: ReviLocalizations.of(context).settingsEPTLabel,
           // description: ReviLocalizations.of(context).settingsEPTDescription,
           switchBool: expBool,
-          function: (value) {
+          function: (value) =>
             setState(() {
-              if (value) {
-                writeRegistryDword(Registry.localMachine,
-                    r'SOFTWARE\Revision\Revision Tool', 'Experimental', 1);
-              } else {
-                writeRegistryDword(Registry.localMachine,
-                    r'SOFTWARE\Revision\Revision Tool', 'Experimental', 0);
-              }
+              writeRegistryDword(Registry.localMachine,
+                  r'SOFTWARE\Revision\Revision Tool', 'Experimental', value ? 1 : 0);
               expBool = value;
-            });
-          },
+            })
+          ,
         ),
         CardHighlight(
           label: ReviLocalizations.of(context).settingsUpdateLabel,
@@ -79,9 +74,9 @@ class _SettingsPageState extends State<SettingsPage> {
           child: FilledButton(
             child: Text(_updateTitle),
             onPressed: () async {
-              Directory tempDir = await getTemporaryDirectory();
-              PackageInfo packageInfo = await PackageInfo.fromPlatform();
-              int currentVersion =
+              final Directory tempDir = await getTemporaryDirectory();
+              final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+              final int currentVersion =
                   int.parse(packageInfo.version.replaceAll(".", ""));
               Map<String, dynamic> data = await Network.getJSON(
                   "https://api.github.com/repos/meetrevision/revision-tool/releases/latest");
@@ -162,7 +157,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               );
             },
-            items: [
+            items: const [
               ComboBoxItem(
                 value: 'en_US',
                 child: Text('English'),

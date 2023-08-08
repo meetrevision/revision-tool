@@ -30,7 +30,7 @@ for %%j in (
 	if not exist "%%j.revi" if exist %%j (
 		takeown /F %%j /A >NUL 2>nul
 		icacls %%j /grant Administrators:F >NUL 2>nul
-		xcopy "%%j" "%%j.revi" >NUL 2>nul
+		xcopy "%%j" "%%j.revi" /O >NUL 2>nul
 		del "%%j" >NUL 2>nul
 	)
 )
