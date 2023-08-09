@@ -1,0 +1,362 @@
+{
+  "@@locale": "pt",
+  "unsupportedTitle": "Erro",
+  "@unsupportedTitle": {
+    "description": "O título para a caixa de diálogo de versão não suportada"
+  },
+  "unsupportedContent": "Versão incompatível!",
+  "@unsupportedContent": {
+    "description": "O conteúdo para a caixa de diálogo de versão não suportada"
+  },
+  "okButton": "OK",
+  "@okButton": {
+    "description": "Botão OK para widgets ContentDialog"
+  },
+  "notNowButton": "Agora não",
+  "@notNowButton": {
+    "description": "Botão 'Agora não' para widgets ContentDialog"
+  },
+  "restartDialog": "Você deve reiniciar o computador para que as alterações surtam efeito.",
+  "@restartDialog": {
+    "description": "O texto para a caixa de diálogo de reinício"
+  },
+  "moreInformation": "Mais informações",
+  "@moreInformation": {
+    "description": "O texto para descrições expansíveis"
+  },
+  "onStatus": "Ativado",
+  "@onStatus": {
+    "description": ""
+  },
+  "offStatus": "Desativado",
+  "@offStatus": {
+    "description": ""
+  },
+  "pageHome": "Início",
+  "@pageHome": {
+    "description": "O rótulo para a Página Inicial"
+  },
+  "pageSecurity": "Segurança",
+  "@pageSecurity": {
+    "description": "O rótulo para a Página de Segurança"
+  },
+  "pageUsability": "Usabilidade",
+  "@pageUsability": {
+    "description": "O rótulo para a Página de Usabilidade"
+  },
+  "pagePerformance": "Desempenho",
+  "@pagePerformance": {
+    "description": "O rótulo para a Página de Desempenho"
+  },
+  "pageUpdates": "Windows Update",
+  "@pageUpdates": {
+    "description": "O rótulo para a Página de Atualizações do Windows"
+  },
+  "pageMiscellaneous": "Outros",
+  "@pageMiscellaneous": {
+    "description": "O rótulo para a Página de Outros"
+  },
+  "pageSettings": "Configurações",
+  "@pageSettings": {
+    "description": "O rótulo para a Página de Configurações"
+  },
+  "suggestionBoxPlaceholder": "Pesquisar",
+  "@suggestionBoxPlaceholder": {
+    "description": "Um espaço reservado para AutoSuggestionBox"
+  },
+  "homeWelcome": "Bem-vindo(a) ao Revision",
+  "@homeWelcome": {
+    "description": "O texto de boas-vindas para a Página Inicial"
+  },
+  "homeDescription": "Uma ferramenta para personalizar o ReviOS de acordo com suas necessidades.",
+  "@homeDescription": {
+    "description": "A descrição para a Página Inicial"
+  },
+  "homeReviLink": "Visite nosso site",
+  "@homeReviLink": {
+    "description": "O texto para um botão que redireciona para o site do Revision"
+  },
+  "homeReviFAQLink": "Perguntas Frequentes",
+  "@homeReviFAQLink": {
+    "description": "O texto para um botão que redireciona para o FAQ"
+  },
+  "securityWDLabel": "Windows Defender",
+  "@securityWDLabel": {
+    "description": "O rótulo para o Windows Defender"
+  },
+  "securityWDDescription": "O Windows Defender protegerá seu PC. Isso terá um impacto no desempenho devido à sua execução constante em segundo plano.",
+  "@securityWDDescription": {
+    "description": "A descrição para o Windows Defender"
+  },
+  "securityWDButton": "Desativar proteções",
+  "@securityWDButton": {
+    "description": "A descrição para o botão do Windows Defender para desativar a proteção"
+  },
+  "securityDialog": "Por favor, desative todas as proteções antes de desativar completamente o Windows Defender.",
+  "@securityDialog": {
+    "description": "O texto para a caixa de diálogo de segurança"
+  },
+  "securityUACLabel": "Controle de Conta de Usuário",
+  "@securityUACLabel": {
+    "description": "O rótulo para o Controle de Conta de Usuário (UAC)"
+  },
+  "securityUACDescription": "Limita a aplicação a privilégios de usuário padrão até que um administrador autorize uma elevação.",
+  "@securityUACDescription": {
+    "description": "A descrição para o Controle de Conta de Usuário (UAC)"
+  },
+  "securitySMLabel": "Mitigação do Spectre e Meltdown",
+  "@securitySMLabel": {
+    "description": "O rótulo para Mitigação do Spectre e Meltdown"
+  },
+  "securitySMDescription": "Patches para habilitar a mitigação contra as vulnerabilidades do Spectre e Meltdown.",
+  "@securitySMDescription": {
+    "description": "A descrição para Mitigação do Spectre e Meltdown"
+  },
+  "usabilityNotifLabel": "Notificações do Windows",
+  "@usabilityNotifLabel": {
+    "description": "O rótulo para Notificações"
+  },
+  "usabilityNotifDescription": "Desativar completamente as notificações do Windows.",
+  "@usabilityNotifDescription": {
+    "description": "A descrição para Notificações"
+  },
+  "usabilityLBNLabel": "Estilo de Notificação Antigo",
+  "@usabilityLBNLabel": {
+    "description": "O rótulo para Balões de Notificação Antigos"
+  },
+  "usabilityLBNDescription": "Programas da bandeja na barra de tarefas serão exibidos como balões em vez de notificações toasts.",
+  "@usabilityLBNDescription": {
+    "description": "A descrição para Balões de Notificação Antigos"
+  },
+  "usabilityITPLabel": "Personalização de Escrita e Digitação",
+  "@usabilityITPLabel": {
+    "description": "O rótulo para Personalização de Escrita e Digitação"
+  },
+  "usabilityITPDescription": "O Windows aprenderá o que você digita para aprimorar as sugestões ao escrever.",
+  "@usabilityITPDescription": {
+    "description": "A descrição para Personalização de Escrita e Digitação"
+  },
+  "usabilityCPLLabel": "Desativar a tecla Caps Lock",
+  "@usabilityCPLLabel": {
+    "description": "O rótulo para desativar a tecla Caps Lock"
+  },
+  "usability11MRCLabel": "Novo Menu de Contexto",
+  "@usability11MRCLabel": {
+    "description": "O rótulo para o Novo Menu de Contexto"
+  },
+  "usability11FETLabel": "Guias no Explorador de Arquivos",
+  "@usability11FETLabel": {
+    "description": "O rótulo para Guias no Explorador de Arquivos"
+  },
+
+  "perfSuperfetchLabel": "Superfetch",
+  "@perfSuperfetchLabel": {
+    "description": "O rótulo para o Superfetch"
+  },
+  "perfSuperfetchDescription": "Acelere o tempo de inicialização e carregue os programas mais rapidamente pré-carregando todos os dados necessários na memória. Habilitar o Superfetch é recomendado apenas para usuários de HDD (disco rígido).",
+  "@perfSuperfetchDescription": {
+    "description": "A descrição para o Superfetch"
+  },
+  "perfMCLabel": "Compactação de Memória",
+  "@perfMCLabel": {
+    "description": "O rótulo para a Compactação de Memória"
+  },
+  "perfMCDescription": "Economize memória comprimindo programas não utilizados em execução em segundo plano. Pode ter um pequeno impacto no uso da CPU, dependendo do hardware.",
+  "@perfMCDescription": {
+    "description": "A descrição para a Compactação de Memória"
+  },
+  "perfITSXLabel": "Intel TSX",
+  "@perfITSXLabel": {
+    "description": "O rótulo para a Intel TSX"
+  },
+  "perfITSXDescription": "Adicionar suporte a memória transacional de hardware, o que ajuda a acelerar a execução de software multithread em detrimento da segurança.",
+  "@perfITSXDescription": {
+    "description": "A descrição para a Intel TSX"
+  },
+  "perfFOLabel": "Otimizações em Tela Cheia",
+  "@perfFOLabel": {
+    "description": "O rótulo para Otimizações em Tela Cheia"
+  },
+  "perfFODescription": "As 'Otimizações em Tela Cheia' podem levar a um melhor desempenho de jogos e aplicativos ao serem executados em modo de tela cheia.",
+  "@perfFODescription": {
+    "description": "A descrição para Otimizações em Tela Cheia"
+  },
+  "perfOWGLabel": "Otimizações em modo de janela",
+  "@perfOWGLabel": {
+    "description": "O rótulo para Otimizações para jogos em janela"
+  },
+  "perfOWGDescription": "Melhora a latência de quadros ao utilizar um novo modelo de apresentação para jogos DirectX 10 e 11 que são executados em uma janela ou em uma janela sem bordas.",
+  "@perfOWGDescription": {
+    "description": "A descrição para Otimizações para jogos em janela"
+  },
+  "perfCStatesLabel": "Desative os estados ACPI C2 e C3",
+  "@perfCStatesLabel": {
+    "description": "O rótulo para Otimizações para estados ACPI C"
+  },
+  "perfCStatesDescription": "Desativar os estados C do ACPI pode melhorar o desempenho e a latência, mas consumirá mais energia em repouso, o que pode reduzir a vida útil da bateria.",
+  "@perfCStatesDescription": {
+    "description": "A descrição para Otimizações para estados ACPI C"
+  },
+  "perfSectionFS": "Sistema de Arquivos",
+  "@perfSectionFS": {
+    "description": "O subtítulo para Sistema de Arquivos"
+  },
+  "perfLTALabel": "Desativar o registro do último horário de acesso",
+  "@perfLTALabel": {
+    "description": "O rótulo para o último horário de acesso"
+  },
+  "perfLTADescription": "Desativar o registro do último horário de acesso melhora o desempenho do acesso a arquivos e diretórios, reduz a carga de E/S no disco e a latência.",
+  "@perfLTADescription": {
+    "description": "A descrição para o último horário de acesso"
+  },
+  "perfEdTLabel": "Desativar a nomenclatura 8.3",
+  "@perfEdTLabel": {
+    "description": "O rótulo para a Nomenclatura 8.3"
+  },
+  "perfEdTDescription": "A nomenclatura 8.3 é antiga e desativá-la irá melhorar o desempenho e a segurança do NTFS.",
+  "@perfEdTDescription": {
+    "description": "A descrição para a Nomenclatura 8.3"
+  },
+  "perfMULabel": "Aumente o limite de memória de pool paginado para o NTFS",
+  "@perfMULabel": {
+    "description": "O rótulo para o Uso da Memória"
+  },
+  "perfMUDescription": "Aumentar a memória física nem sempre aumenta a quantidade de memória de pool paginado disponível para o NTFS. Definir 'memoryusage' para 2 eleva o limite de memória de pool paginado. Isso pode melhorar o desempenho se o seu sistema estiver abrindo e fechando muitos arquivos no mesmo conjunto de arquivos e não estiver usando grandes quantidades de memória do sistema para outros aplicativos ou para memória cache. Se o seu computador já estiver usando grandes quantidades de memória do sistema para outros aplicativos ou para memória cache, aumentar o limite de memória de pool paginado e não paginado do NTFS reduz a memória de pool disponível para outros processos. Isso pode reduzir o desempenho geral do sistema.\n\nDesativado por padrão.",
+  "@perfMUDescription": {
+    "description": "A descrição para o Uso da Memória"
+  },
+  "wuPageLabel": "Ocultar a página de atualizações do Windows",
+  "@wuPageLabel": {
+    "description": "O rótulo para Ocultar Atualizações do Windows"
+  },
+  "wuPageDescription": "Mostrar esta página também habilitará notificações de atualizações",
+  "@wuPageDescription": {
+    "description": "A descrição para Ocultar Atualizações do Windows"
+  },
+  "wuDriversLabel": "Drivers instalados através do Windows Update",
+  "@wuDriversLabel": {
+    "description": "O rótulo para Atualizações Automáticas de Drivers"
+  },
+  "wuDriversDescription": "Para instalar drivers no ReviOS, você precisa verificar manualmente as atualizações em Configurações, pois as atualizações automáticas do Windows não são suportadas",
+  "@wuDriversDescription": {
+    "description": "A descrição para Atualizações Automáticas de Drivers"
+  },
+  "miscHibernateLabel": "Hibernate",
+  "@miscHibernateLabel": {
+    "description": "O rótulo para Hibernação"
+  },
+  "miscHibernateDescription": "Um estado de economia de energia S4, salva a sessão atual no hiberfile e desliga o dispositivo. Desabilitado por padrão para evitar instabilidade durante o dual-boot ou atualizações do sistema",
+  "@miscHibernatepDescription": {
+    "description": "A descrição para Hibernação"
+  },
+  "miscHibernateModeLabel": "Modo de Hibernação",
+  "@miscHibernateModeLabel": {
+    "description": "O rótulo para o Modo de Hibernação"
+  },
+  "miscHibernateModeDescription": "Completo - Suporta hibernação e inicialização rápida. O hiberfile será 40% da RAM física instalada. A hibernação estará disponível no menu de energia.\n\nReduzido - Suporta apenas a Inicialização Rápida sem hibernação, o hiberfile será 20% da RAM física instalada e remove a hibernação do menu de energia",
+  "@miscHibernateModeDescription": {
+    "description": "A descrição para o Modo de Hibernação"
+  },
+  "miscFastStartupLabel": "Inicialização Rápida",
+  "@miscFastStartupLabel": {
+    "description": "O rótulo para a Inicialização Rápida"
+  },
+  "miscFastStartupDescription": "Salva a sessão atual em C:\\hiberfil.sys para inicialização mais rápida, não afeta os reinícios. Desabilitado por padrão para evitar instabilidade durante o dual-boot ou atualizações do sistema",
+  "@miscFastStartupDescription": {
+    "description": "A descrição para a Inicialização Rápida"
+  },
+  "miscTMMonitoringLabel": "Monitoramento de Rede e GPU",
+  "@miscTMMonitoringLabel": {
+    "description": "O rótulo para o Monitoramento de Rede e GPU"
+  },
+  "miscTMMonitoringDescription": "Ativa os serviços de monitoramento para o Gerenciador de Tarefas",
+  "@miscTMMonitoringDescription": {
+    "description": "A descrição para o Monitoramento de Rede e GPU"
+  },
+  "miscMpoLabel": "Overlay Multiplane (MPO)",
+  "@miscMpoLabel": {
+    "description": "O rótulo para Overlay Multiplane (MPO)"
+  },
+  "miscMpoCodeSnippet": "Recomendado desativar em placas Nvidia GTX 16xx, RTX 3xxx e AMD RX 5xxx ou mais recentes.\nDeixar isso ativado pode causar telas pretas, travamentos, cintilações e outros problemas gerais de exibição",
+  "@miscMpoCodeSnippet": {
+    "description": "O trecho de código para Overlay Multiplane (MPO)"
+  },
+  "miscBHRLabel": "Relatório de Saúde da Bateria",
+  "@miscBHRLabel": {
+    "description": "O rótulo para o Relatório de Saúde da Bateria"
+  },
+  "miscBHRDescription": "Relata o estado da saúde da bateria; Habilitar isso aumentará o uso do sistema",
+  "@miscBHRgDescription": {
+    "description": "A descrição para o Relatório de Saúde da Bateria"
+  },
+  "miscCertsLabel": "Atualizar Certificados Raiz",
+  "@miscCertsLabel": {
+    "description": "O rótulo para Atualizar Certificados Raiz"
+  },
+  "miscCertsDescription": "Use quando tiver problemas com certificados",
+  "@miscCertsgDescription": {
+    "description": "A descrição para Atualizar Certificados Raiz"
+  },
+  "miscCertsDialog": "A atualização dos certificados raiz foi concluída. Tente o software com o qual você teve problemas novamente e, se o problema persistir, entre em contato com nosso suporte.",
+  "@miscCertsDialog": {
+    "description": "O conteúdo da caixa de diálogo para Atualizar Certificados Raiz"
+  },
+  "settingsUpdateLabel": "Atualizar o Revision Tool",
+  "@settingsUpdateLabel": {
+    "description": "Estado padrão do rótulo do cartão de atualização da Ferramenta Revision"
+  },
+  "updateButton": "Atualizar",
+  "@updateButton": {
+    "description": "Botão de atualização"
+  },
+  "settingsUpdateButton": "Verificar Atualizações",
+  "@settingsUpdateButton": {
+    "description": "Estado padrão do botão de atualização da Ferramenta Revision"
+  },
+  "settingsUpdateButtonAvailable": "Atualização Disponível",
+  "@settingsUpdateButtonAvailable": {
+    "description": "Botão de atualização quando uma atualização está disponível"
+  },
+  "settingsUpdateButtonAvailablePrompt": "Você deseja atualizar a Ferramenta Revision para",
+  "@settingsUpdateButtonAvailablePrompt": {
+    "description": "Prompt para o botão de atualização disponível"
+  },
+  "settingsUpdatingStatus": "Atualizando",
+  "@settingsUpdatingStatus": {
+    "description": "Status de atualização"
+  },
+  "settingsUpdatingStatusSuccess": "Atualizado com sucesso",
+  "@settingsUpdatingStatusSuccess": {
+    "description": "Status de atualização bem-sucedida"
+  },
+  "settingsUpdatingStatusNotFound": "Nenhuma atualização encontrada",
+  "@settingsUpdatingStatusNotFound": {
+    "description": "Status de nenhuma atualização encontrada"
+  },
+
+  "settingsCTLabel": "Tema de Cores",
+  "@settingsCTLabel": {
+    "description": "O rótulo para Tema de Cores"
+  },
+  "settingsCTDescription": "Alterne entre os modos claro e escuro, ou alterne automaticamente o tema com o Windows",
+  "@settingsCTDescription": {
+    "description": "A descrição para o Tema de Cores"
+  },
+
+  "settingsEPTLabel": "Mostrar ajustes experimentais",
+  "@settingsEPTLabel": {
+    "description": "O rótulo para Mostrar ajustes experimentais"
+  },
+  "settingsEPTDescription": "",
+  "@settingsEPTDescription": {
+    "description": "A descrição para Mostrar ajustes experimentais"
+  },
+  "restartAppDialog": "Você precisa reiniciar o aplicativo para que as alterações tenham efeito.",
+  "@restartAppDialog": {
+    "description": ""
+  },
+  "settingsLanguageLabel": "Idioma",
+  "@settingsLanguageLabel": {
+    "description": ""
+  }
+}

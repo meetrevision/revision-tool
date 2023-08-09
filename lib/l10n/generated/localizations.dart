@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'localizations_en.dart';
+import 'localizations_pt.dart';
 
 /// Callers can lookup localized strings with an instance of ReviLocalizations
 /// returned by `ReviLocalizations.of(context)`.
@@ -88,7 +89,8 @@ abstract class ReviLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
-    Locale('en')
+    Locale('en'),
+    Locale('pt')
   ];
 
   /// The title for the unsupported build dialog
@@ -635,7 +637,7 @@ class _ReviLocalizationsDelegate extends LocalizationsDelegate<ReviLocalizations
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'pt'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_ReviLocalizationsDelegate old) => false;
@@ -647,6 +649,7 @@ ReviLocalizations lookupReviLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
     case 'en': return ReviLocalizationsEn();
+    case 'pt': return ReviLocalizationsPt();
   }
 
   throw FlutterError(
