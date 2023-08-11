@@ -35,7 +35,7 @@ jobs:
       - name: Calculate SHA256 hash
         run: |
           $hash = Get-FileHash "build/RevisionTool-Setup.exe" -Algorithm SHA256
-          echo "SHA256_HASH=${hash.Hash}" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "SHA256_HASH=$($hash.Hash)" | Out-File -FilePath $env:GITHUB_ENV -Append
         
       - name: Release
         uses: svenstaro/upload-release-action@v2
