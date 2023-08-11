@@ -31,6 +31,11 @@ jobs:
         run: |
           "%programfiles(x86)%\Inno Setup 6\iscc.exe" "inno-setup.iss"
         shell: cmd
+
+      - name: Calculate SHA256 hash
+        run: |
+          $hash = Get-FileHash "build/RevisionTool-Setup.exe" -Algorithm SHA256
+          echo "SHA256_HASH=${hash.Hash}" | Out-File -FilePath $env:GITHUB_ENV -Append
         
       - name: Release
         uses: svenstaro/upload-release-action@v2
@@ -40,3 +45,4 @@ jobs:
           asset_name: RevisionTool-Setup.exe
           tag: ${{ github.ref }}
           overwrite: true
+          body: "\n\n${{ env.SHA256_HASH }}"
