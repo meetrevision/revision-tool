@@ -45,4 +45,4 @@ jobs:
           asset_name: RevisionTool-Setup.exe
           tag: ${{ github.ref }}
           overwrite: true
-          body: "\n\n${{ env.SHA256_HASH }}"
+          body: "\n\nSHA256: `${{ env.SHA256_HASH }}`"
