@@ -14,7 +14,7 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - run: echo "NEW_VERSION=${{ env.GITHUB_REF/refs\/tags\/v/ }}" >> $GITHUB_ENV
+      - run: echo "NEW_VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
         
       - run: flutter config --no-analytics
       
@@ -22,10 +22,10 @@ jobs:
 
       - name: Bump MyAppVersion in Inno Setup
         run: |
-          (Get-Content -Path "inno-setup.iss") -replace '#define MyAppVersion "[\d\.]+"', "#define MyAppVersion `"\"$env:NEW_VERSION`\""" | Set-Content -Path "inno-setup.iss"
+          (Get-Content -Path "inno-setup.iss") -replace '#define MyAppVersion "[\d\.]+"', "#define MyAppVersion `"${{ env.NEW_VERSION }}`"" | Set-Content -Path "inno-setup.iss"
         shell: pwsh
       
-      - run: flutter build windows --build-name=$NEW_VERSION --build-number=1
+      - run: flutter build windows --build-name=${{ env.NEW_VERSION }} --build-number=1
       
       - name: Build Installer
         run: |
