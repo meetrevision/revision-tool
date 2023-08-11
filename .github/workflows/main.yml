@@ -14,7 +14,7 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - run: echo "NEW_VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
+      - run: echo "NEW_VERSION=${{ github.ref_name }}" | Out-File -FilePath $env:GITHUB_ENV -Append
         
       - run: flutter config --no-analytics
       
