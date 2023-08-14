@@ -1,0 +1,362 @@
+{
+  "@@locale": "zh",
+  "unsupportedTitle": "错误",
+  "@unsupportedTitle": {
+    "description": "不支持的构建对话框的标题"
+  },
+  "unsupportedContent": "检测到不支持的构建",
+  "@unsupportedContent": {
+    "description": "不支持的构建对话框内容"
+  },
+  "okButton": "OK",
+  "@okButton": {
+    "description": "ContentDialog widget 的确定按钮 "
+  },
+  "notNowButton": "稍后",
+  "@notNowButton": {
+    "description": " ContentDialog widget 的稍后按钮 "
+  },
+  "restartDialog": "您必须重新启动计算机才能使更改生效",
+  "@restartDialog": {
+    "description": "重新启动对话框的文本"
+  },
+  "moreInformation": "更多信息",
+  "@moreInformation": {
+    "description": "可扩展描述的文本"
+  },
+  "onStatus": "开启",
+  "@onStatus": {
+    "description": ""
+  },
+  "offStatus": "关闭",
+  "@offStatus": {
+    "description": ""
+  },
+  "pageHome": "主菜单",
+  "@pageHome": {
+    "description": "主菜单的标签"
+  },
+  "pageSecurity": "安全",
+  "@pageSecurity": {
+    "description": "安全的标签"
+  },
+  "pageUsability": "易用性",
+  "@pageUsability": {
+    "description": "易用性的标签"
+  },
+  "pagePerformance": "性能",
+  "@pagePerformance": {
+    "description": "性能的标签"
+  },
+  "pageUpdates": "Windows 更新",
+  "@pageUpdates": {
+    "description": "Windows 更新的标签"
+  },
+  "pageMiscellaneous": "杂项",
+  "@pageMiscellaneous": {
+    "description": "杂项的标签"
+  },
+  "pageSettings": "设置",
+  "@pageSettings": {
+    "description": "设置的标签"
+  },
+  "suggestionBoxPlaceholder": "查找设置",
+  "@suggestionBoxPlaceholder": {
+    "description": "自动建议框的占位符"
+  },
+  "homeWelcome": "欢迎使用  Revision",
+  "@homeWelcome": {
+    "description": "Home() 的欢迎文本"
+  },
+  "homeDescription": "一款个性化您的ReviOS体验的工具",
+  "@homeDescription": {
+    "description": "Home() 的描述文本"
+  },
+  "homeReviLink": "关于 Revision",
+  "@homeReviLink": {
+    "description": "重定向到Revision网站的按钮文本"
+  },
+  "homeReviFAQLink": "查看FAQ",
+  "@homeReviFAQLink": {
+    "description": "重定向到 FAQ 的按钮文本"
+  },
+  "securityWDLabel": "Windows 安全中心",
+  "@securityWDLabel": {
+    "description": "Windows 安全中心的标签"
+  },
+  "securityWDDescription": "Windows 安全中心将会保护您的电脑。保护程序将在后台不断运行，对性能产生影响",
+  "@securityWDDescription": {
+    "description": "Windows 安全中心的描述"
+  },
+  "securityWDButton": "停止保护",
+  "@securityWDButton": {
+    "description": "Windows Defender 禁用保护按钮的说明"
+  },
+  "securityDialog": "请在完全禁用 Windows 安全中心之前，禁用所有保护功能",
+  "@securityDialog": {
+    "description": "安全对话框的文本"
+  },
+  "securityUACLabel": "用户账户控制",
+  "@securityUACLabel": {
+    "description": "用户账户控制的标签"
+  },
+  "securityUACDescription": "在管理员授权提升权限之前，将应用程序限制为标准用户权限",
+  "@securityUACDescription": {
+    "description": "用户账户控制的文本"
+  },
+  "securitySMLabel": "撤销 Spectre & Meltdown",
+  "@securitySMLabel": {
+    "description": "Spectre & Meltdown的标签"
+  },
+  "securitySMDescription": "可撤销 Spectre 和 Meltdown 漏洞的修补程序",
+  "@securitySMDescription": {
+    "description": "Spectre & Meltdown的描述"
+  },
+  "usabilityNotifLabel": "Windows 通知",
+  "@usabilityNotifLabel": {
+    "description": "Windows 通知的标签"
+  },
+  "usabilityNotifDescription": "完全关闭 Windows 通知",
+  "@usabilityNotifDescription": {
+    "description": "Windows 通知的描述"
+  },
+  "usabilityLBNLabel": "旧版本通知气泡",
+  "@usabilityLBNLabel": {
+    "description": "旧版本通知气泡的标签"
+  },
+  "usabilityLBNDescription": "任务栏上的托盘程序使用气泡通知，而不是弹出通知",
+  "@usabilityLBNDescription": {
+    "description": "旧版本通知气泡的描述"
+  },
+  "usabilityITPLabel": "墨迹书写和键入个性化",
+  "@usabilityITPLabel": {
+    "description": "墨迹书写和键入个性化的标签"
+  },
+  "usabilityITPDescription": "Windows 将了解您输入的内容，以便在撰写时改进建议",
+  "@usabilityITPDescription": {
+    "description": "墨迹书写和键入个性化的描述"
+  },
+  "usabilityCPLLabel": "禁用大写锁定键",
+  "@usabilityCPLLabel": {
+    "description": "禁用大写锁定键的标签"
+  },
+  "usability11MRCLabel": "新版右键菜单",
+  "@usability11MRCLabel": {
+    "description": "新版右键菜单的标签"
+  },
+  "usability11FETLabel": "文件资源管理器标签页",
+  "@usability11FETLabel": {
+    "description": "文件资源管理器标签页的标签"
+  },
+
+  "perfSuperfetchLabel": "预存取（Superfetch）",
+  "@perfSuperfetchLabel": {
+    "description": "预存取的标签"
+  },
+  "perfSuperfetchDescription": "通过将所有必要数据预加载到内存中，加快启动时间并更快地加载程序。仅建议硬盘用户启用 Superfetch 功能",
+  "@perfSuperfetchDescription": {
+    "description": "预存取的描述"
+  },
+  "perfMCLabel": "内存压缩",
+  "@perfMCLabel": {
+    "description": "内存压缩的标签"
+  },
+  "perfMCDescription": "压缩后台运行的闲置程序，节省内存。根据硬件情况，可能会对 CPU 占用率产生轻微影响",
+  "@perfMCDescription": {
+    "description": "内存压缩的描述"
+  },
+  "perfITSXLabel": "英特尔事务同步扩展 （Intel TSX）",
+  "@perfITSXLabel": {
+    "description": "Intel TSX的标签"
+  },
+  "perfITSXDescription": "增加硬件事务内存支持，有助于加快多线程软件的执行速度，降低安全成本",
+  "@perfITSXDescription": {
+    "description": "Intel TSX的描述"
+  },
+  "perfFOLabel": "全屏优化",
+  "@perfFOLabel": {
+    "description": "全屏优化的标签"
+  },
+  "perfFODescription": "全屏优化可提高在全屏模式下运行游戏和应用程序时的性能",
+  "@perfFODescription": {
+    "description": "全屏优化的描述"
+  },
+  "perfOWGLabel": "窗口化游戏优化",
+  "@perfOWGLabel": {
+    "description": "窗口化游戏优化的标签"
+  },
+  "perfOWGDescription": "通过为在窗口或无边框窗口中显示的 DirectX 10 和 11 游戏使用新的显示模型，改善帧延迟",
+  "@perfOWGDescription": {
+    "description": "窗口化游戏优化的描述"
+  },
+  "perfCStatesLabel": "禁用 ACPI C2 和 C3 状态",
+  "@perfCStatesLabel": {
+    "description": "优化 ACPI C 状态的标签"
+  },
+  "perfCStatesDescription": "禁用 ACPI C 状态可能会提高性能和延迟，但在空闲时会消耗更多电能，可能会缩短电源寿命",
+  "@perfCStatesDescription": {
+    "description": "优化 ACPI C 状态的描述"
+  },
+  "perfSectionFS": "文件系统",
+  "@perfSectionFS": {
+    "description": "文件系统的副标题"
+  },
+  "perfLTALabel": "禁用上次访问时间",
+  "@perfLTALabel": {
+    "description": "上次访问时间的标签"
+  },
+  "perfLTADescription": "禁用上次访问时间可提高文件和目录访问性能，减少磁盘 I/O 负载和延迟",
+  "@perfLTADescription": {
+    "description": "上次访问时间的描述"
+  },
+  "perfEdTLabel": "禁用 8.3 命名",
+  "@perfEdTLabel": {
+    "description": "8.3 命名的标签"
+  },
+  "perfEdTDescription": "8.3 命名已过时，禁用它将提高 NTFS 性能和安全性",
+  "@perfEdTDescription": {
+    "description": "8.3 命名的描述"
+  },
+  "perfMULabel": "增加 NTFS 分页池内存限制",
+  "@perfMULabel": {
+    "description": "内存使用的标签"
+  },
+  "perfMUDescription": "增加物理内存并不总能增加 NTFS 可用的分页池内存量。将内存使用率设置为 2 会提高分页池内存的上限。如果你的系统正在打开和关闭同一文件集中的许多文件，并且尚未将大量系统内存用于其他应用程序或缓存内存，那么这可能会提高性能。如果计算机已将大量系统内存用于其他应用程序或缓存内存，则增加 NTFS 分页和非分页池内存限制会减少其他进程的可用池内存。这可能会降低系统的整体性能\n\n默认为关闭",
+  "@perfMUDescription": {
+    "description": "内存使用的描述"
+  },
+  "wuPageLabel": "隐藏 Windows 更新页面",
+  "@wuPageLabel": {
+    "description": "隐藏 Windows 更新页面的标签"
+  },
+  "wuPageDescription": "显示此页面还将启用更新通知功能",
+  "@wuPageDescription": {
+    "description": "隐藏 Windows 更新页面的描述"
+  },
+  "wuDriversLabel": "通过 Windows 更新安装驱动程序",
+  "@wuDriversLabel": {
+    "description": "自动更新驱动的标签"
+  },
+  "wuDriversDescription": "要在 ReviOS 中安装驱动程序，您需要在设置中手动检查更新，因为 Windows 不支持自动更新",
+  "@wuDriversDescription": {
+    "description": "自动更新驱动的描述"
+  },
+  "miscHibernateLabel": "休眠",
+  "@miscHibernateLabel": {
+    "description": "休眠的标签"
+  },
+  "miscHibernateDescription": "省电 S4 状态，将当前会话保存到 休眠文件 并关闭设备。默认情况下已禁用，以避免多系统启动或系统升级时的不稳定性",
+  "@miscHibernatepDescription": {
+    "description": "休眠的描述"
+  },
+  "miscHibernateModeLabel": "休眠模式",
+  "@miscHibernateModeLabel": {
+    "description": "休眠模式的标签"
+  },
+  "miscHibernateModeDescription": "完全 - 支持休眠和快速启动。休眠文件将占用物理内存的 40%\n\n半休眠 - 仅支持不带休眠功能的快速启动，休眠文件占用物理内存的 20%，并在电源菜单中移除休眠功能",
+  "@miscHibernateModeDescription": {
+    "description": "休眠模式的描述"
+  },
+  "miscFastStartupLabel": "快速启动",
+  "@miscFastStartupLabel": {
+    "description": "快速启动的标签"
+  },
+  "miscFastStartupDescription": "将当前会话保存到 C:\\hiberfil.sys，以加快启动速度，但不影响重启。默认情况下已禁用，以避免多系统启动或系统升级时的不稳定性",
+  "@miscFastStartupDescription": {
+    "description": "快速启动的描述"
+  },
+  "miscTMMonitoringLabel": "网络和 GPU 监控",
+  "@miscTMMonitoringLabel": {
+    "description": "网络和 GPU 监控的标签"
+  },
+  "miscTMMonitoringDescription": "激活任务管理器的监控服务",
+  "@miscTMMonitoringDescription": {
+    "description": "网络和 GPU 监控的描述"
+  },
+  "miscMpoLabel": "多平面叠加（MPO）",
+  "@miscMpoLabel": {
+    "description": "多平面叠加的标签"
+  },
+  "miscMpoCodeSnippet": "建议在 Nvidia GTX 16xx、RTX 3xxx 和 AMD RX 5xxx 显卡或更新的显卡上关闭此功能。\n开启此功能可能会导致黑屏、卡顿、闪烁和其他一般显示问题",
+  "@miscMpoCodeSnippet": {
+    "description": "MPO 的代码片段"
+  },
+  "miscBHRLabel": "电池健康报告",
+  "@miscBHRLabel": {
+    "description": "电池健康报告的标签"
+  },
+  "miscBHRDescription": "报告电池健康状况；启用会增加系统使用率",
+  "@miscBHRgDescription": {
+    "description": "电池健康报告的描述"
+  },
+  "miscCertsLabel": "更新根证书",
+  "@miscCertsLabel": {
+    "description": "更新根证书的标签"
+  },
+  "miscCertsDescription": "在遇到证书问题时使用",
+  "@miscCertsgDescription": {
+    "description": "更新根证书的描述"
+  },
+  "miscCertsDialog": "根证书更新已完成。再次尝试出现问题的软件，如果问题仍然存在，请联系我们的支持人员",
+  "@miscCertsDialog": {
+    "description": "更新根证书对话框的内容"
+  },
+  "settingsUpdateLabel": "更新 Revision Tool",
+  "@settingsUpdateLabel": {
+    "description": "Revision Tool更新卡标签的默认状态"
+  },
+  "updateButton": "更新",
+  "@updateButton": {
+    "description": "更新按钮"
+  },
+  "settingsUpdateButton": "检查更新",
+  "@settingsUpdateButton": {
+    "description": "Revision Tool更新按钮的默认状态"
+  },
+  "settingsUpdateButtonAvailable": "更新可用",
+  "@settingsUpdateButtonAvailable": {
+    "description": "更新可用按钮"
+  },
+  "settingsUpdateButtonAvailablePrompt": "您是否希望将Revision Tool更新为",
+  "@settingsUpdateButtonAvailablePrompt": {
+    "description": "更新可用按钮的提示"
+  },
+  "settingsUpdatingStatus": "更新中",
+  "@settingsUpdatingStatus": {
+    "description": "更新中的状态"
+  },
+  "settingsUpdatingStatusSuccess": "更新成功",
+  "@settingsUpdatingStatusSuccess": {
+    "description": "更新成功的状态"
+  },
+  "settingsUpdatingStatusNotFound": "没有找到更新",
+  "@settingsUpdatingStatusNotFound": {
+    "description": "没有更新的状态"
+  },
+
+  "settingsCTLabel": "颜色主题",
+  "@settingsCTLabel": {
+    "description": "颜色主题的标签"
+  },
+  "settingsCTDescription": "在明暗模式之间切换，或跟随 Windows 系统设置自动更换",
+  "@settingsCTDescription": {
+    "description": "颜色主题的描述"
+  },
+
+  "settingsEPTLabel": "显示实验性优化",
+  "@settingsEPTLabel": {
+    "description": "显示实验性优化的标签"
+  },
+  "settingsEPTDescription": "",
+  "@settingsEPTDescription": {
+    "description": "显示实验性优化的描述"
+  },
+  "restartAppDialog": "您必须重新启动应用程序才能使更改生效",
+  "@restartAppDialog": {
+    "description": ""
+  },
+  "settingsLanguageLabel": "语言",
+  "@settingsLanguageLabel": {
+    "description": ""
+  }
+}
