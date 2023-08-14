@@ -1,7 +1,7 @@
 on:
+  workflow_dispatch:
   push:
     tags:
-      workflow_dispatch:
       - '*'
 name: "Build & Release"
 jobs:
