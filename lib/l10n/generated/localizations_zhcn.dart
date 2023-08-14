@@ -2,7 +2,7 @@ import 'localizations.dart';
 
 /// The translations for SimplifiedChinese (`zhcn`).
 class ReviLocalizationsZhcn extends ReviLocalizations {
-  ReviLocalizationsEn([String locale = 'zhcn']) : super(locale);
+  ReviLocalizationsZhcn([String locale = 'zhcn']) : super(locale);
 
   @override
   String get unsupportedTitle => '错误';
