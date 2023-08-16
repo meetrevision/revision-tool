@@ -26,7 +26,8 @@ class CardHighlightSwitch extends StatefulWidget {
       this.label,
       this.description,
       this.switchBool,
-      required this.function})
+      required this.function,
+      this.requiresRestart})
       : super(key: key);
   final String? codeSnippet;
 
@@ -35,6 +36,7 @@ class CardHighlightSwitch extends StatefulWidget {
   final String? description;
   final bool? switchBool;
   final ValueChanged function;
+  final bool? requiresRestart;
 
   @override
   State<CardHighlightSwitch> createState() => _CardHighlightSwitchState();
@@ -96,8 +98,47 @@ class _CardHighlightSwitchState extends State<CardHighlightSwitch>
                   const SizedBox(width: 10.0),
                   ToggleSwitch(
                     checked: widget.switchBool!,
-                    onChanged: widget.function,
+                    onChanged: (value) {
+                      widget.function(value);
+                      if (widget.requiresRestart != null) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => ContentDialog(
+                            content: Text(
+                                ReviLocalizations.of(context).restartDialog),
+                            actions: [
+                              Button(
+                                child: Text(
+                                    ReviLocalizations.of(context).okButton),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                              )
+                            ],
+                          ),
+                        );
+                      }
+                    },
                   ),
+
+                  // if (widget.requiresRestart != null) {
+                  //       showDialog(
+                  //         context: context,
+                  //         builder: (context) => ContentDialog(
+                  //           content: Text(
+                  //               ReviLocalizations.of(context).restartDialog),
+                  //           actions: [
+                  //             Button(
+                  //               child: Text(
+                  //                   ReviLocalizations.of(context).okButton),
+                  //               onPressed: () {
+                  //                 Navigator.pop(context);
+                  //               },
+                  //             )
+                  //           ],
+                  //         ),
+                  //       );
+                  //     }
                 ],
               ),
             ),
@@ -113,7 +154,7 @@ class _CardHighlightSwitchState extends State<CardHighlightSwitch>
             child: Expander(
               key: PageStorageKey(_key),
               headerShape: (open) => const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                  borderRadius: BorderRadius.all(Radius.circular(4.0))),
               onStateChanged: (state) {
                 WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                   if (mounted) setState(() => _isOpen = state);

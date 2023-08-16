@@ -11,6 +11,8 @@ import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
+import '../services/network_service.dart';
+
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -60,13 +62,14 @@ class _SettingsPageState extends State<SettingsPage> {
           label: ReviLocalizations.of(context).settingsEPTLabel,
           // description: ReviLocalizations.of(context).settingsEPTDescription,
           switchBool: expBool,
-          function: (value) =>
-            setState(() {
-              writeRegistryDword(Registry.localMachine,
-                  r'SOFTWARE\Revision\Revision Tool', 'Experimental', value ? 1 : 0);
-              expBool = value;
-            })
-          ,
+          function: (value) => setState(() {
+            registryUtilsService.writeDword(
+                Registry.localMachine,
+                r'SOFTWARE\Revision\Revision Tool',
+                'Experimental',
+                value ? 1 : 0);
+            expBool = value;
+          }),
         ),
         CardHighlight(
           label: ReviLocalizations.of(context).settingsUpdateLabel,
@@ -139,8 +142,11 @@ class _SettingsPageState extends State<SettingsPage> {
             onChanged: (value) {
               setState(() {
                 appLanguage = value ?? 'en_US';
-                writeRegistryString(Registry.localMachine,
-                    r'SOFTWARE\Revision\Revision Tool', 'Language', appLanguage);
+                registryUtilsService.writeString(
+                    Registry.localMachine,
+                    r'SOFTWARE\Revision\Revision Tool',
+                    'Language',
+                    appLanguage);
               });
               showDialog(
                 context: context,
@@ -162,13 +168,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 value: 'en_US',
                 child: Text('English'),
               ),
-                ComboBoxItem(
+              ComboBoxItem(
                 value: 'pt_BR',
                 child: Text('Português (Brasileiro)'),
               ),
-                 ComboBoxItem(
-                 value: 'zh_CN',
-                 child: Text('简体中文'),
+              ComboBoxItem(
+                value: 'zh_CN',
+                child: Text('简体中文'),
               )
             ],
           ),

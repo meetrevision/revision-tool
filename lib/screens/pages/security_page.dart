@@ -1,12 +1,13 @@
 import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:process_run/shell_run.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
-import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
+
+import '../../services/security_service.dart';
+import '../../utils.dart';
 
 class SecurityPage extends StatefulWidget {
   const SecurityPage({super.key});
@@ -16,22 +17,11 @@ class SecurityPage extends StatefulWidget {
 }
 
 class _SecurityPageState extends State<SecurityPage> {
-  bool _wdBool = (readRegistryInt(RegistryHive.localMachine,
-              r'SYSTEM\ControlSet001\Services\WinDefend', 'Start') ??
-          4) <=
-      3;
+  final SecurityService _securityService = SecurityService();
+  late bool _wdBool = _securityService.statusDefender;
   bool _wdButtonCalled = false;
-
-  bool _uacBool = readRegistryInt(
-          RegistryHive.localMachine,
-          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-          'EnableLUA') ==
-      1;
-  bool _smBool = readRegistryInt(
-          RegistryHive.localMachine,
-          r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
-          'FeatureSettingsOverride') ==
-      0;
+  late bool _uacBool = _securityService.statusUAC;
+  late bool _smBool = _securityService.statusSpectreMeltdown;
 
   @override
   Widget build(BuildContext context) {
@@ -44,46 +34,22 @@ class _SecurityPageState extends State<SecurityPage> {
       ),
       children: [
         Visibility(
-          visible: ((readRegistryInt(RegistryHive.localMachine,
+          visible: ((registryUtilsService.readInt(RegistryHive.localMachine,
                       r'SYSTEM\ControlSet001\Services\WinDefend', 'Start') !=
                   4) &&
-              readRegistryInt(
-                      RegistryHive.localMachine,
-                      r'SOFTWARE\Microsoft\Windows Defender\Features',
-                      'TamperProtection') ==
-                  5 &&
+              _securityService.statusTamperProtection &&
               !_wdButtonCalled),
           replacement: CardHighlightSwitch(
             icon: msicons.FluentIcons.shield_20_regular,
             label: ReviLocalizations.of(context).securityWDLabel,
             description: ReviLocalizations.of(context).securityWDDescription,
             switchBool: _wdBool,
+            requiresRestart: true,
             function: (value) async {
-              setState(() {
-                _wdBool = value;
-              });
-              if (_wdBool) {
-                await run(
-                    '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\EnableWD.bat"');
-              } else {
-                await run(
-                    '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\DisableWD.bat"');
-                // ignore: use_build_context_synchronously
-                showDialog(
-                  context: context,
-                  builder: (context) => ContentDialog(
-                    content: Text(ReviLocalizations.of(context).restartDialog),
-                    actions: [
-                      Button(
-                        child: Text(ReviLocalizations.of(context).okButton),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      )
-                    ],
-                  ),
-                );
-              }
+              setState(() => _wdBool = value);
+              _wdBool
+                  ? _securityService.enableDefender()
+                  : _securityService.disableDefender();
             },
           ),
           child: CardHighlight(
@@ -99,9 +65,7 @@ class _SecurityPageState extends State<SecurityPage> {
                     ['windowsdefender://threatsettings'],
                   );
                   await process.exitCode;
-                  setState(() {
-                    _wdButtonCalled = true;
-                  });
+                  setState(() => _wdButtonCalled = true);
                   // ignore: use_build_context_synchronously
                   showDialog(
                     context: context,
@@ -233,156 +197,26 @@ class _SecurityPageState extends State<SecurityPage> {
           label: ReviLocalizations.of(context).securityUACLabel,
           description: ReviLocalizations.of(context).securityUACDescription,
           switchBool: _uacBool,
+          requiresRestart: true,
           function: (value) async {
-            setState(() {
-              _uacBool = value;
-            });
-            if (_uacBool) {
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'EnableVirtualization',
-                  1);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'EnableInstallerDetection',
-                  1);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'PromptOnSecureDesktop',
-                  1);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'EnableLUA',
-                  1);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'EnableSecureUIAPaths',
-                  1);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'ConsentPromptBehaviorAdmin',
-                  5);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'ValidateAdminCodeSignatures',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'EnableUIADesktopToggle',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'ConsentPromptBehaviorUser',
-                  3);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'FilterAdministratorToken',
-                  0);
-            } else {
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'EnableVirtualization',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'EnableInstallerDetection',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'PromptOnSecureDesktop',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'EnableLUA',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'EnableSecureUIAPaths',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'ConsentPromptBehaviorAdmin',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'ValidateAdminCodeSignatures',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'EnableUIADesktopToggle',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'ConsentPromptBehaviorUser',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-                  'FilterAdministratorToken',
-                  0);
-            }
+            setState(() => _uacBool = value);
+            _uacBool
+                ? _securityService.enableUAC()
+                : _securityService.disableUAC();
           },
         ),
+
         CardHighlightSwitch(
           icon: msicons.FluentIcons.shield_badge_20_regular,
           label: ReviLocalizations.of(context).securitySMLabel,
           description: ReviLocalizations.of(context).securitySMDescription,
           switchBool: _smBool,
+          requiresRestart: true,
           function: (value) async {
-            setState(() {
-              _smBool = value;
-            });
-            if (_smBool) {
-              deleteRegistry(
-                  Registry.localMachine,
-                  r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
-                  'FeatureSettings');
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
-                  'FeatureSettingsOverride',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
-                  'FeatureSettingsOverrideMask',
-                  3);
-            } else {
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
-                  'FeatureSettings',
-                  1);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
-                  'FeatureSettingsOverride',
-                  3);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
-                  'FeatureSettingsOverrideMask',
-                  3);
-            }
+            setState(() => _smBool = value);
+            _smBool
+                ? _securityService.enableSpectreMeltdown()
+                : _securityService.disableSpectreMeltdown();
           },
         ),
 
@@ -394,9 +228,7 @@ class _SecurityPageState extends State<SecurityPage> {
             width: 150,
             child: Button(
               onPressed: () async {
-                await run(
-                    'PowerShell -NonInteractive -NoLogo -NoP -C "& {\$tmp = (New-TemporaryFile).FullName; CertUtil -generateSSTFromWU -f \$tmp; if ( (Get-Item \$tmp | Measure-Object -Property Length -Sum).sum -gt 0 ) { \$SST_File = Get-ChildItem -Path \$tmp; \$SST_File | Import-Certificate -CertStoreLocation "Cert:\\LocalMachine\\Root"; \$SST_File | Import-Certificate -CertStoreLocation "Cert:\\LocalMachine\\AuthRoot" } Remove-Item -Path \$tmp}"');
-
+                _securityService.updateCertificates();
                 // ignore: use_build_context_synchronously
                 showDialog(
                   context: context,
@@ -405,11 +237,8 @@ class _SecurityPageState extends State<SecurityPage> {
                         Text(ReviLocalizations.of(context).miscCertsDialog),
                     actions: [
                       Button(
-                        child: Text(ReviLocalizations.of(context).okButton),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
+                          child: Text(ReviLocalizations.of(context).okButton),
+                          onPressed: () => Navigator.pop(context)),
                     ],
                   ),
                 );

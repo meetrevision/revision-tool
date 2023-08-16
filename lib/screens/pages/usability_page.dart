@@ -1,11 +1,7 @@
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
-import 'package:revitool/utils.dart';
+import 'package:revitool/services/usability_service.dart';
 import 'package:revitool/widgets/card_highlight.dart';
-import 'package:win32_registry/win32_registry.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
 class UsabilityPage extends StatefulWidget {
@@ -16,29 +12,11 @@ class UsabilityPage extends StatefulWidget {
 }
 
 class _UsabilityPageState extends State<UsabilityPage> {
-  bool _notifBool = readRegistryInt(
-          RegistryHive.currentUser,
-          r'Software\Microsoft\Windows\CurrentVersion\PushNotifications',
-          'ToastEnabled') ==
-      1;
-  bool _elbnBool = readRegistryInt(
-          RegistryHive.currentUser,
-          r'Software\Policies\Microsoft\Windows\Explorer',
-          'EnableLegacyBalloonNotifications') !=
-      0;
-  bool _itpBool = readRegistryInt(
-          RegistryHive.localMachine,
-          r'SOFTWARE\Policies\Microsoft\InputPersonalization',
-          'AllowInputPersonalization') ==
-      1;
-
-  static final Uint8List _cplValue = Uint8List.fromList(
-      [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 58, 0, 0, 0, 0, 0]);
-
-  bool _cplBool = eq.equals(
-      _cplValue,
-      readRegistryBinary(RegistryHive.localMachine,
-          r'SYSTEM\CurrentControlSet\Control\Keyboard Layout', 'Scancode Map'));
+  final UsabilityService _usabilityService = UsabilityService();
+  late bool _notifBool = _usabilityService.statusNotification;
+  late bool _lbnBool = _usabilityService.statusLegacyBalloon;
+  late bool _itpBool = _usabilityService.statusInputPersonalization;
+  late bool _dCplBool = _usabilityService.statusCapsLock;
 
   @override
   Widget build(BuildContext context) {
@@ -53,115 +31,10 @@ class _UsabilityPageState extends State<UsabilityPage> {
           description: ReviLocalizations.of(context).usabilityNotifDescription,
           switchBool: _notifBool,
           function: (value) async {
-            setState(() {
-              _notifBool = value;
-            });
-            if (_notifBool) {
-              deleteRegistry(
-                  Registry.currentUser,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
-                  'NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND');
-              deleteRegistry(
-                  Registry.currentUser,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
-                  'NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK');
-              deleteRegistry(
-                  Registry.currentUser,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
-                  'NOC_GLOBAL_SETTING_ALLOW_CRITICAL_TOASTS_ABOVE_LOCK');
-              deleteRegistry(
-                  Registry.currentUser,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
-                  'NOC_GLOBAL_SETTING_TOASTS_ENABLED');
-              deleteRegistry(
-                  Registry.currentUser,
-                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
-                  'DisableNotificationCenter');
-              deleteRegistry(
-                  Registry.localMachine,
-                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
-                  'DisableNotificationCenter');
-              deleteRegistry(
-                  Registry.currentUser,
-                  r'Software\Policies\Microsoft\Windows\Explorer',
-                  'ToastEnabled');
-              deleteRegistry(
-                  Registry.localMachine,
-                  r'Software\Policies\Microsoft\Windows\Explorer',
-                  'ToastEnabled');
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'Software\Microsoft\Windows\CurrentVersion\PushNotifications',
-                  'ToastEnabled',
-                  1);
-              deleteRegistry(
-                  Registry.localMachine,
-                  r'Software\Microsoft\Windows\CurrentVersion\PushNotifications',
-                  'ToastEnabled');
-              deleteRegistry(
-                  Registry.currentUser,
-                  r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications',
-                  'NoToastApplicationNotification');
-              deleteRegistry(
-                  Registry.currentUser,
-                  r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications',
-                  'NoTileApplicationNotification');
-              await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
-              await Process.run('explorer.exe', [], runInShell: true);
-            } else {
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
-                  'NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND',
-                  0);
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
-                  'NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK',
-                  0);
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
-                  'NOC_GLOBAL_SETTING_ALLOW_CRITICAL_TOASTS_ABOVE_LOCK',
-                  0);
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
-                  'NOC_GLOBAL_SETTING_TOASTS_ENABLED',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
-                  'DisableNotificationCenter',
-                  1);
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
-                  'DisableNotificationCenter',
-                  1);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
-                  'ToastEnabled',
-                  0);
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
-                  'ToastEnabled',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'Software\Microsoft\Windows\CurrentVersion\PushNotifications',
-                  'ToastEnabled',
-                  0);
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'Software\Microsoft\Windows\CurrentVersion\PushNotifications',
-                  'ToastEnabled',
-                  0);
-              await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
-              await Process.run('explorer.exe', [], runInShell: true);
-            }
+            setState(() => _notifBool = value);
+            _notifBool
+                ? _usabilityService.enableNotification()
+                : _usabilityService.disableNotification();
           },
         ),
         if (_notifBool) ...[
@@ -169,30 +42,12 @@ class _UsabilityPageState extends State<UsabilityPage> {
             icon: msicons.FluentIcons.balloon_20_regular,
             label: ReviLocalizations.of(context).usabilityLBNLabel,
             description: ReviLocalizations.of(context).usabilityLBNDescription,
-            switchBool: _elbnBool,
+            switchBool: _lbnBool,
             function: (value) async {
-              setState(() {
-                _elbnBool = value;
-              });
-              if (_elbnBool) {
-                writeRegistryDword(
-                    Registry.currentUser,
-                    r'Software\Policies\Microsoft\Windows\Explorer',
-                    'EnableLegacyBalloonNotifications',
-                    1);
-                await Process.run(
-                    'taskkill.exe', ['/im', 'explorer.exe', '/f']);
-                await Process.run('explorer.exe', [], runInShell: true);
-              } else {
-                writeRegistryDword(
-                    Registry.currentUser,
-                    r'Software\Policies\Microsoft\Windows\Explorer',
-                    'EnableLegacyBalloonNotifications',
-                    0);
-                await Process.run(
-                    'taskkill.exe', ['/im', 'explorer.exe', '/f']);
-                await Process.run('explorer.exe', [], runInShell: true);
-              }
+              setState(() => _lbnBool = value);
+              _lbnBool
+                  ? _usabilityService.enableLegacyBalloon()
+                  : _usabilityService.disableLegacyBalloon();
             },
           ),
         ],
@@ -202,124 +57,21 @@ class _UsabilityPageState extends State<UsabilityPage> {
           description: ReviLocalizations.of(context).usabilityITPDescription,
           switchBool: _itpBool,
           function: (value) async {
-            setState(() {
-              _itpBool = value;
-            });
-            if (_itpBool) {
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'Software\Microsoft\InputPersonalization',
-                  'RestrictImplicitInkCollection',
-                  0);
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'Software\Microsoft\InputPersonalization',
-                  'RestrictImplicitTextCollection',
-                  0);
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'Software\Microsoft\InputPersonalization\TrainedDataStore',
-                  'HarvestContacts',
-                  1);
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'Software\Microsoft\InputPersonalization\Settings',
-                  'AcceptedPrivacyPolicy',
-                  1);
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
-                  'RestrictImplicitInkCollection',
-                  0);
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
-                  'RestrictImplicitTextCollection',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
-                  'RestrictImplicitInkCollection',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
-                  'RestrictImplicitTextCollection',
-                  0);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
-                  'AllowInputPersonalization',
-                  1);
-            } else {
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'Software\Microsoft\InputPersonalization',
-                  'RestrictImplicitInkCollection',
-                  1);
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'Software\Microsoft\InputPersonalization',
-                  'RestrictImplicitTextCollection',
-                  1);
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'Software\Microsoft\InputPersonalization\TrainedDataStore',
-                  'HarvestContacts',
-                  0);
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'Software\Microsoft\InputPersonalization\Settings',
-                  'AcceptedPrivacyPolicy',
-                  0);
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
-                  'RestrictImplicitInkCollection',
-                  1);
-              writeRegistryDword(
-                  Registry.currentUser,
-                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
-                  'RestrictImplicitTextCollection',
-                  1);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
-                  'RestrictImplicitInkCollection',
-                  1);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
-                  'RestrictImplicitTextCollection',
-                  1);
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'SOFTWARE\Policies\Microsoft\InputPersonalization',
-                  'AllowInputPersonalization',
-                  0);
-            }
+            setState(() => _itpBool = value);
+            _itpBool
+                ? _usabilityService.enableInputPersonalization()
+                : _usabilityService.disableInputPersonalization();
           },
         ),
         CardHighlightSwitch(
           icon: msicons.FluentIcons.desktop_keyboard_20_regular,
           label: ReviLocalizations.of(context).usabilityCPLLabel,
-          switchBool: _cplBool,
+          switchBool: _dCplBool,
           function: (value) async {
-            setState(() {
-              _cplBool = value;
-            });
-            if (_cplBool) {
-              writeRegistryBinary(
-                  Registry.localMachine,
-                  r"SYSTEM\CurrentControlSet\Control\Keyboard Layout",
-                  "Scancode Map",
-                  _cplValue);
-            } else {
-              deleteRegistry(
-                  Registry.localMachine,
-                  r"SYSTEM\CurrentControlSet\Control\Keyboard Layout",
-                  "Scancode Map");
-            }
+            setState(() => _dCplBool = value);
+            _dCplBool
+                ? _usabilityService.disableCapsLock()
+                : _usabilityService.enableCapsLock();
           },
         ),
       ],

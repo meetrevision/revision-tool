@@ -1,9 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
-import 'package:revitool/utils.dart';
+import 'package:revitool/services/miscellaneous_service.dart';
 import 'package:revitool/widgets/card_highlight.dart';
-import 'package:win32_registry/win32_registry.dart';
-import 'package:process_run/shell_run.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
 class MiscellaneousPage extends StatefulWidget {
@@ -14,28 +12,12 @@ class MiscellaneousPage extends StatefulWidget {
 }
 
 class _MiscellaneousPageState extends State<MiscellaneousPage> {
-  bool _hibBool = readRegistryInt(RegistryHive.localMachine,
-          r'SYSTEM\ControlSet001\Control\Power', 'HibernateEnabled') ==
-      1;
-
-  bool _fsbBool = readRegistryInt(
-          RegistryHive.localMachine,
-          r'System\ControlSet001\Control\Session Manager\Power',
-          'HiberbootEnabled') ==
-      1;
-  bool _tmmBool = readRegistryInt(RegistryHive.localMachine,
-              r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start') ==
-          2 &&
-      readRegistryInt(RegistryHive.localMachine,
-              r'SYSTEM\ControlSet001\Services\Ndu', 'Start') ==
-          2;
-  bool _mpoBool = readRegistryInt(RegistryHive.localMachine,
-          r'SOFTWARE\Microsoft\Windows\Dwm', 'OverlayTestMode') !=
-      5;
-
-  bool _bhrBool = readRegistryInt(RegistryHive.localMachine,
-          r'SYSTEM\ControlSet001\Services\DPS', 'Start') !=
-      4;
+  final MiscellaneousService _miscellaneousService = MiscellaneousService();
+  late bool _hibBool = _miscellaneousService.statusHibernation;
+  late bool _fsbBool = _miscellaneousService.statusFastStartup;
+  late bool _tmmBool = _miscellaneousService.statusTMMonitoring;
+  late bool _mpoBool = _miscellaneousService.statusMPO;
+  late bool _bhrBool = _miscellaneousService.statusBatteryHealthReporting;
 
   @override
   Widget build(BuildContext context) {
@@ -50,33 +32,10 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
           description: ReviLocalizations.of(context).miscHibernateDescription,
           switchBool: _hibBool,
           function: (value) async {
-            setState(() {
-              _hibBool = value;
-            });
-            if (_hibBool) {
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'Software\Policies\Microsoft\Windows\System',
-                  'ShowHibernateOption',
-                  1);
-              writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Control\Power', 'HibernateEnabled', 1);
-              await Shell().run(r'''
-                     powercfg -h on
-                     powercfg /h /type full
-                    ''');
-            } else {
-              writeRegistryDword(
-                  Registry.localMachine,
-                  r'Software\Policies\Microsoft\Windows\System',
-                  'ShowHibernateOption',
-                  0);
-              writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Control\Power', 'HibernateEnabled', 0);
-              await Shell().run(r'''
-                     powercfg -h off
-                    ''');
-            }
+            setState(() => _hibBool = value);
+            _hibBool
+                ? _miscellaneousService.enableHibernation()
+                : _miscellaneousService.disableHibernation();
           },
         ),
         if (_hibBool) ...[
@@ -86,32 +45,27 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
             description:
                 ReviLocalizations.of(context).miscHibernateModeDescription,
             child: ComboBox(
-              value: readRegistryInt(RegistryHive.localMachine,
-                  r'System\ControlSet001\Control\Power', 'HiberFileType'),
+              value: _miscellaneousService.statusHibernationMode,
               onChanged: (value) async {
                 switch (value) {
                   case 1:
-                    await Shell().run(r'''
-                     powercfg /h /type reduced
-                    ''');
+                    _miscellaneousService.setHibernateModeFull();
                     setState(() {});
                     break;
                   case 2:
-                    await Shell().run(r'''
-                     powercfg /h /type full
-                    ''');
+                    _miscellaneousService.setHibernateModeReduced();
                     setState(() {});
                     break;
                   default:
                 }
               },
-              items: const <ComboBoxItem>[
+              items: const [
                 ComboBoxItem(
-                  value: 2,
+                  value: 1,
                   child: Text("Full"),
                 ),
                 ComboBoxItem(
-                  value: 1,
+                  value: 2,
                   child: Text("Reduced"),
                 ),
               ],
@@ -124,32 +78,10 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
                 ReviLocalizations.of(context).miscFastStartupDescription,
             switchBool: _fsbBool,
             function: (value) async {
-              setState(() {
-                _fsbBool = value;
-              });
-              if (_fsbBool) {
-                writeRegistryDword(
-                    Registry.localMachine,
-                    r'System\ControlSet001\Control\Session Manager\Power',
-                    'HiberbootEnabled',
-                    1);
-                writeRegistryDword(
-                    Registry.localMachine,
-                    r'Software\Policies\Microsoft\Windows\System',
-                    'HiberbootEnabled',
-                    1);
-              } else {
-                writeRegistryDword(
-                    Registry.localMachine,
-                    r'System\ControlSet001\Control\Session Manager\Power',
-                    'HiberbootEnabled',
-                    0);
-                writeRegistryDword(
-                    Registry.localMachine,
-                    r'Software\Policies\Microsoft\Windows\System',
-                    'HiberbootEnabled',
-                    0);
-              }
+              setState(() => _fsbBool = value);
+              _fsbBool
+                  ? _miscellaneousService.enableFastStartup()
+                  : _miscellaneousService.disableFastStartup();
             },
           ),
         ],
@@ -159,25 +91,12 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
           description:
               ReviLocalizations.of(context).miscTMMonitoringDescription,
           switchBool: _tmmBool,
+          requiresRestart: true,
           function: (value) async {
-            setState(() {
-              _tmmBool = value;
-            });
-            if (_tmmBool) {
-              writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start', 2);
-              writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Services\Ndu', 'Start', 2);
-              await Shell().run(r'''
-                    sc start GraphicsPerfSvc
-                    sc start Ndu
-                    ''');
-            } else {
-              writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start', 4);
-              writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Services\Ndu', 'Start', 4);
-            }
+            setState(() => _tmmBool = value);
+            _tmmBool
+                ? _miscellaneousService.enableTMMonitoring()
+                : _miscellaneousService.disableTMMonitoring();
           },
         ),
         CardHighlightSwitch(
@@ -186,16 +105,10 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
           codeSnippet: ReviLocalizations.of(context).miscMpoCodeSnippet,
           switchBool: _mpoBool,
           function: (value) async {
-            setState(() {
-              _mpoBool = value;
-            });
-            if (_mpoBool) {
-              deleteRegistry(Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\Dwm', 'OverlayTestMode');
-            } else {
-              writeRegistryDword(Registry.localMachine,
-                  r'SOFTWARE\Microsoft\Windows\Dwm', 'OverlayTestMode', 5);
-            }
+            setState(() => _mpoBool = value);
+            _mpoBool
+                ? _miscellaneousService.enableMPO()
+                : _miscellaneousService.disableMPO();
           },
         ),
         CardHighlightSwitch(
@@ -204,38 +117,10 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
           description: ReviLocalizations.of(context).miscBHRDescription,
           switchBool: _bhrBool,
           function: (value) async {
-            setState(() {
-              _bhrBool = value;
-            });
-            if (_bhrBool) {
-              writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Services\DPS', 'Start', 2);
-              writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Services\diagsvc', 'Start', 2);
-              writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Services\WdiServiceHost', 'Start', 2);
-              writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Services\WdiSystemHost', 'Start', 2);
-              await Shell().run(r'''
-                     wevtutil sl Microsoft-Windows-SleepStudy/Diagnostic /e:true >NUL
-                     wevtutil sl Microsoft-Windows-Kernel-Processor-Power/Diagnostic /e:true >NUL
-                     wevtutil sl Microsoft-Windows-UserModePowerService/Diagnostic /e:true >NUL
-                    ''');
-            } else {
-              writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Services\DPS', 'Start', 4);
-              writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Services\diagsvc', 'Start', 4);
-              writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Services\WdiServiceHost', 'Start', 4);
-              writeRegistryDword(Registry.localMachine,
-                  r'SYSTEM\ControlSet001\Services\WdiSystemHost', 'Start', 4);
-              await Shell().run(r'''
-                     wevtutil sl Microsoft-Windows-SleepStudy/Diagnostic /e:false >NUL
-                     wevtutil sl Microsoft-Windows-Kernel-Processor-Power/Diagnostic /e:false >NUL
-                     wevtutil sl Microsoft-Windows-UserModePowerService/Diagnostic /e:false >NUL
-                    ''');
-            }
+            setState(() => _bhrBool = value);
+            _bhrBool
+                ? _miscellaneousService.enableBatteryHealthReporting()
+                : _miscellaneousService.disableBatteryHealthReporting();
           },
         ),
       ],

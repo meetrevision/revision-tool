@@ -23,19 +23,20 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: '>=0.18.0 <= 1.0.0'
-  fluent_ui: ^4.7.0
-  system_theme: ^2.3.0
+  fluent_ui: ^4.7.2
+  system_theme: ^2.3.1
   provider: ^6.0.5
-  path_provider: ^2.0.15
-  dio: ^5.2.1+1
+  path_provider: ^2.1.0
+  dio: ^5.3.2
   win32_registry: 
-  process_run: ^0.13.0
+  process_run: ^0.13.1
   window_plus:
     git:
-      url: https://github.com/alexmercerind/window_plus
-  fluentui_system_icons: ^1.1.205
+      url: https://github.com/melo936/window_plus
+  fluentui_system_icons: ^1.1.210
   package_info_plus: any
   collection: any
+  win32: ^5.0.6
 
 dev_dependencies:
   flutter_test:

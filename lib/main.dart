@@ -11,16 +11,17 @@ import 'package:window_plus/window_plus.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   // createRegistryKey(Registry.localMachine, r'SOFTWARE\Revision\Revision Tool');
 
-  if (readRegistryString(RegistryHive.localMachine,
+  if (registryUtilsService.readString(RegistryHive.localMachine,
           r'SOFTWARE\Revision\Revision Tool', 'ThemeMode') ==
       null) {
-    writeRegistryString(Registry.localMachine,
+    registryUtilsService.writeString(Registry.localMachine,
         r'SOFTWARE\Revision\Revision Tool', 'ThemeMode', ThemeMode.system.name);
-    writeRegistryDword(Registry.localMachine,
+    registryUtilsService.writeDword(Registry.localMachine,
         r'SOFTWARE\Revision\Revision Tool', 'Experimental', 0);
-    writeRegistryString(Registry.localMachine,
+    registryUtilsService.writeString(Registry.localMachine,
         r'SOFTWARE\Revision\Revision Tool', 'Language', 'en_US');
   }
   final settingsController = AppTheme(SettingsService());
@@ -36,7 +37,7 @@ void main() async {
 
   bool isSupported = false;
 
-  if (readRegistryString(
+  if (registryUtilsService.readString(
               RegistryHive.localMachine,
               r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
               'EditionSubVersion') ==
@@ -55,7 +56,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return ChangeNotifierProvider(
       create: (_) => AppTheme(SettingsService()),
       builder: (context, _) {

@@ -4,6 +4,8 @@ import 'package:revitool/utils.dart';
 import 'package:system_theme/system_theme.dart';
 import 'package:win32_registry/win32_registry.dart';
 
+import 'services/registry_utils_service.dart';
+
 enum NavigationIndicators { sticky, end }
 
 class AppTheme extends ChangeNotifier {
@@ -79,18 +81,21 @@ AccentColor get systemAccentColor {
 }
 
 class SettingsService {
+  final RegistryUtilsService _registryUtilsService = RegistryUtilsService();
+
   Future<ThemeMode> themeMode() async {
-    if (themeModeReg == "light") {
-      return ThemeMode.light;
-    } else if (themeModeReg == "dark") {
-      return ThemeMode.dark;
-    } else {
-      return ThemeMode.system;
+    switch (themeModeReg) {
+      case "light":
+        return ThemeMode.light;
+      case "dark":
+        return ThemeMode.dark;
+      default:
+        return ThemeMode.system;
     }
   }
 
   Future<void> updateThemeMode(ThemeMode theme) async {
-    writeRegistryString(Registry.localMachine,
+    _registryUtilsService.writeString(Registry.localMachine,
         r'SOFTWARE\Revision\Revision Tool', 'ThemeMode', theme.name);
   }
 }

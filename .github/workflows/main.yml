@@ -25,6 +25,8 @@ jobs:
           (Get-Content -Path "inno-setup.iss") -replace '#define MyAppVersion "[\d\.]+"', "#define MyAppVersion `"${{ env.NEW_VERSION }}`"" | Set-Content -Path "inno-setup.iss"
         shell: pwsh
       
+      - run: flutter gen-l10n
+
       - run: flutter build windows --build-name=${{ env.NEW_VERSION }} --build-number=1
       
       - name: Build Installer
@@ -45,4 +47,4 @@ jobs:
           asset_name: RevisionTool-Setup.exe
           tag: ${{ github.ref }}
           overwrite: true
-          body: "\n\nSHA256: `${{ env.SHA256_HASH }}`"
+          body: "SHA256: `${{ env.SHA256_HASH }}`"
