@@ -13,9 +13,99 @@ class UpdatesService implements SetupService {
   }
 
   UpdatesService._private();
-
   @override
   void recommendation() {}
+
+  bool get statusPauseUpdatesWU {
+    return _registryUtilsService
+            .readString(
+                RegistryHive.localMachine,
+                r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
+                "PauseUpdatesExpiryTime")
+            ?.contains("2038-01-19T03:14:07Z") ??
+        false;
+  }
+
+  void enablePauseUpdatesWU() {
+    _registryUtilsService.writeDword(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
+        "FlightSettingsMaxPauseDays",
+        5269);
+
+    _registryUtilsService.writeString(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
+        "PauseFeatureUpdatesStartTime",
+        "2023-08-17T12:47:51Z");
+
+    _registryUtilsService.writeString(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
+        "PauseFeatureUpdatesEndTime",
+        "2038-01-19T03:14:07Z");
+
+    _registryUtilsService.writeString(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
+        "PauseQualityUpdatesStartTime",
+        "2023-08-17T12:47:51Z");
+
+    _registryUtilsService.writeString(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
+        "PauseQualityUpdatesEndTime",
+        "2038-01-19T03:14:07Z");
+
+    _registryUtilsService.writeString(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
+        "PauseUpdatesStartTime",
+        "2023-08-17T12:47:51Z");
+
+    _registryUtilsService.writeString(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
+        "PauseUpdatesExpiryTime",
+        "2038-01-19T03:14:07Z");
+  }
+
+  void disablePauseUpdatesWU() {
+    _registryUtilsService.deleteValue(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
+        'FlightSettingsMaxPauseDays');
+
+    _registryUtilsService.deleteValue(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
+        'PauseFeatureUpdatesStartTime');
+
+    _registryUtilsService.deleteValue(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
+        'PauseFeatureUpdatesEndTime');
+
+    _registryUtilsService.deleteValue(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
+        'PauseQualityUpdatesStartTime');
+
+    _registryUtilsService.deleteValue(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
+        'PauseQualityUpdatesEndTime');
+
+    _registryUtilsService.deleteValue(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
+        'PauseUpdatesStartTime');
+
+    _registryUtilsService.deleteValue(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
+        'PauseUpdatesExpiryTime');
+  }
 
   bool get statusVisibilityWU {
     return _registryUtilsService

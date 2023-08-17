@@ -13,6 +13,7 @@ class UpdatesPage extends StatefulWidget {
 
 class _UpdatesPageState extends State<UpdatesPage> {
   final UpdatesService _updatesService = UpdatesService();
+  late bool _pausedBool = _updatesService.statusPauseUpdatesWU;
   late bool _wuPageBool = _updatesService.statusVisibilityWU;
   late bool _wuDriversBool = _updatesService.statusDriversWU;
 
@@ -23,6 +24,18 @@ class _UpdatesPageState extends State<UpdatesPage> {
         title: Text(ReviLocalizations.of(context).pageUpdates),
       ),
       children: [
+        CardHighlightSwitch(
+          icon: msicons.FluentIcons.pause_20_regular,
+          label: ReviLocalizations.of(context).wuPauseLabel,
+          description: ReviLocalizations.of(context).wuPauseDescription,
+          switchBool: _pausedBool,
+          function: (value) async {
+            setState(() => _pausedBool = value);
+            _pausedBool
+                ? _updatesService.enablePauseUpdatesWU()
+                : _updatesService.disablePauseUpdatesWU();
+          },
+        ),
         CardHighlightSwitch(
           icon: msicons.FluentIcons.arrow_sync_20_regular,
           label: ReviLocalizations.of(context).wuPageLabel,

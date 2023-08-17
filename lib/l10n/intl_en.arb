@@ -227,6 +227,14 @@
   "@perfMUTDescription": {
     "description": "The description for Memory Usage"
   },
+  "wuPauseLabel": "Pause Windows Updates",
+  "@wuPauseLabel": {
+    "description": "The label for Hiding Windows Updates"
+  },
+  "wuPauseDescription": "When enabled, Windows Updates are paused 'till 2038/01/19",
+  "@wuPauseDescription": {
+    "description": "The description for Hiding Windows Updates"
+  },
   "wuPageLabel": "Hide the Windows Updates page",
   "@wuPageLabel": {
     "description": "The label for Hiding Windows Updates"

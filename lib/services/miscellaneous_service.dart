@@ -61,15 +61,11 @@ class MiscellaneousService implements SetupService {
   }
 
   void setHibernateModeReduced() async {
-    await Shell().run(r'''
-                     powercfg /h /type reduced
-                    ''');
+    await run('powercfg /h /type reduced');
   }
 
   void setHibernateModeFull() async {
-    await Shell().run(r'''
-                     powercfg /h /type full
-                    ''');
+    await run('powercfg /h /type full');
   }
 
   bool get statusFastStartup {

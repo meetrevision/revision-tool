@@ -14,6 +14,7 @@ class MiscellaneousPage extends StatefulWidget {
 class _MiscellaneousPageState extends State<MiscellaneousPage> {
   final MiscellaneousService _miscellaneousService = MiscellaneousService();
   late bool _hibBool = _miscellaneousService.statusHibernation;
+  late int? _hibMode = _miscellaneousService.statusHibernationMode;
   late bool _fsbBool = _miscellaneousService.statusFastStartup;
   late bool _tmmBool = _miscellaneousService.statusTMMonitoring;
   late bool _mpoBool = _miscellaneousService.statusMPO;
@@ -45,19 +46,18 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
             description:
                 ReviLocalizations.of(context).miscHibernateModeDescription,
             child: ComboBox(
-              value: _miscellaneousService.statusHibernationMode,
-              onChanged: (value) async {
+              value: _hibMode,
+              onChanged: (value) {
                 switch (value) {
                   case 1:
                     _miscellaneousService.setHibernateModeFull();
-                    setState(() {});
                     break;
                   case 2:
                     _miscellaneousService.setHibernateModeReduced();
-                    setState(() {});
                     break;
                   default:
                 }
+                setState(() => _hibMode = value);
               },
               items: const [
                 ComboBoxItem(
