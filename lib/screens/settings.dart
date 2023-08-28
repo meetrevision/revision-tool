@@ -81,7 +81,7 @@ class _SettingsPageState extends State<SettingsPage> {
               final PackageInfo packageInfo = await PackageInfo.fromPlatform();
               final int currentVersion =
                   int.parse(packageInfo.version.replaceAll(".", ""));
-              Map<String, dynamic> data = await Network.getJSON(
+              Map<String, dynamic> data = await Network().getJSON(
                   "https://api.github.com/repos/meetrevision/revision-tool/releases/latest");
               int latestVersion =
                   int.parse(data["tag_name"].toString().replaceAll(".", ""));
@@ -107,7 +107,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                 "${ReviLocalizations.of(context).settingsUpdatingStatus}...";
                           });
                           Navigator.pop(context);
-                          await Network.downloadNewVersion(
+                          await Network().downloadNewVersion(
                               data["assets"][0]["browser_download_url"],
                               tempDir.path);
                           setState(() {
@@ -137,6 +137,8 @@ class _SettingsPageState extends State<SettingsPage> {
         CardHighlight(
           icon: msicons.FluentIcons.local_language_20_regular,
           label: ReviLocalizations.of(context).settingsLanguageLabel,
+          description:
+              ReviLocalizations.of(context).settingsLanguageDescription,
           child: ComboBox(
             value: appLanguage,
             onChanged: (value) {

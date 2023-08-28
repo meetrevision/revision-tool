@@ -1,11 +1,31 @@
 {
   "pt": [
+    "experimental",
+    "warning",
+    "install",
+    "close",
+    "search",
     "wuPauseLabel",
-    "wuPauseDescription"
+    "wuPauseDescription",
+    "settingsLanguageDescription",
+    "pageMSStore",
+    "msstoreSearchingPackages",
+    "msstoreWait",
+    "msstorePackagesPrompt"
   ],
 
   "zh": [
+    "experimental",
+    "warning",
+    "install",
+    "close",
+    "search",
     "wuPauseLabel",
-    "wuPauseDescription"
+    "wuPauseDescription",
+    "settingsLanguageDescription",
+    "pageMSStore",
+    "msstoreSearchingPackages",
+    "msstoreWait",
+    "msstorePackagesPrompt"
   ]
 }

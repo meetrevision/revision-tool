@@ -37,6 +37,10 @@ dependencies:
   package_info_plus: any
   collection: any
   win32: ^5.0.6
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.8.1
+  xml: any
+  version: ^3.0.2
 
 dev_dependencies:
   flutter_test:
@@ -48,6 +52,10 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  build_runner:
+  freezed: ^2.4.2
+  json_serializable: ^6.7.1
+  
   # msix: ^3.7.0
 
 # For information on the generic Dart part of this file, see the
@@ -65,6 +73,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - additionals/
+    - additionals/msstore/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

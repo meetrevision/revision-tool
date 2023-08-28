@@ -81,16 +81,20 @@ class MyApp extends StatelessWidget {
             focusTheme: FocusThemeData(
               glowFactor: is10footScreen(context) ? 2.0 : 0.0,
             ),
-          ),
-          theme: FluentThemeData(
-            accentColor: appTheme.color,
-            visualDensity: VisualDensity.standard,
-            scaffoldBackgroundColor: const Color.fromRGBO(243, 243, 243, 100),
-            cardColor: const Color.fromARGB(255, 251, 251, 251),
-            focusTheme: FocusThemeData(
-              glowFactor: is10footScreen(context) ? 2.0 : 0.0,
+            resources: const ResourceDictionary.dark(
+              cardStrokeColorDefault: Color.fromARGB(255, 29, 29, 29),
             ),
           ),
+          theme: FluentThemeData(
+              accentColor: appTheme.color,
+              visualDensity: VisualDensity.standard,
+              scaffoldBackgroundColor: const Color.fromRGBO(243, 243, 243, 100),
+              cardColor: const Color.fromARGB(255, 251, 251, 251),
+              focusTheme: FocusThemeData(
+                glowFactor: is10footScreen(context) ? 2.0 : 0.0,
+              ),
+              resources: const ResourceDictionary.light(
+                  cardStrokeColorDefault: Color.fromARGB(255, 229, 229, 229))),
           home: isSupported ? const HomePage() : const UnsupportedError(),
         );
       },

@@ -5,8 +5,8 @@ import 'dart:math';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
 
-const cardBorderColorForDark = Color.fromARGB(255, 29, 29, 29);
-const cardBorderColorForLight = Color.fromARGB(255, 229, 229, 229);
+// const cardBorderColorForDark = Color.fromARGB(255, 29, 29, 29);
+// const cardBorderColorForLight = Color.fromARGB(255, 229, 229, 229);
 const cardBorderRadius = BorderRadius.all(Radius.circular(5.0));
 const cardDescStyleForDark = TextStyle(
     fontSize: 11,
@@ -56,9 +56,6 @@ class _CardHighlightSwitchState extends State<CardHighlightSwitch>
     return Column(
       children: [
         Card(
-          borderColor: FluentTheme.of(context).brightness.isDark
-              ? cardBorderColorForDark
-              : cardBorderColorForLight,
           borderRadius: cardBorderRadius,
           child: SizedBox(
             // height: 44,
@@ -75,19 +72,17 @@ class _CardHighlightSwitchState extends State<CardHighlightSwitch>
                   ],
                   Expanded(
                     child: SizedBox(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          InfoLabel(label: widget.label!),
-                          if (widget.description != null) ...[
-                            Text(
-                              widget.description!,
-                              style: FluentTheme.of(context).brightness.isDark
-                                  ? cardDescStyleForDark
-                                  : cardDescStyleForLight,
-                            ),
-                          ]
-                        ],
+                      child: InfoLabel(
+                        label: widget.label!,
+                        labelStyle: const TextStyle(overflow: TextOverflow.ellipsis),
+                        child: widget.description != null
+                            ? Text(
+                                widget.description ?? "",
+                                style: FluentTheme.of(context).brightness.isDark
+                                    ? cardDescStyleForDark
+                                    : cardDescStyleForLight,
+                              )
+                            : const SizedBox(),
                       ),
                     ),
                   ),
@@ -147,9 +142,6 @@ class _CardHighlightSwitchState extends State<CardHighlightSwitch>
         if (widget.codeSnippet != null) ...[
           Card(
             padding: const EdgeInsets.all(0),
-            borderColor: FluentTheme.of(context).brightness.isDark
-                ? const Color.fromARGB(255, 29, 29, 29)
-                : const Color.fromARGB(255, 229, 229, 229),
             backgroundColor: Colors.transparent,
             child: Expander(
               key: PageStorageKey(_key),
@@ -216,7 +208,9 @@ class CardHighlight extends StatefulWidget {
       this.codeSnippet,
       this.icon,
       this.label,
-      this.description})
+      this.description,
+      this.image,
+      this.borderColor})
       : super(key: key);
 
   final Widget child;
@@ -225,6 +219,8 @@ class CardHighlight extends StatefulWidget {
   final IconData? icon;
   final String? label;
   final String? description;
+  final String? image;
+  final Color? borderColor;
 
   @override
   State<CardHighlight> createState() => _CardHighlightState();
@@ -242,10 +238,9 @@ class _CardHighlightState extends State<CardHighlight>
     super.build(context);
     return Column(children: [
       Card(
-        borderColor: FluentTheme.of(context).brightness.isDark
-            ? cardBorderColorForDark
-            : cardBorderColorForLight,
+        backgroundColor: widget.backgroundColor,
         borderRadius: cardBorderRadius,
+        borderColor: widget.borderColor,
         child: SizedBox(
           // height: 44,
           width: double.infinity,
@@ -259,22 +254,31 @@ class _CardHighlightState extends State<CardHighlight>
                   Icon(widget.icon, size: 24),
                   const SizedBox(width: 15.0),
                 ],
+                if (widget.image != null) ...[
+                  const SizedBox(width: 5.0),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(5),
+                    child: Image.network(
+                      widget.image!,
+                      width: 48,
+                      height: 48,
+                      filterQuality: FilterQuality.high,
+                    ),
+                  ),
+                  const SizedBox(width: 15.0),
+                ],
                 Expanded(
-                  child: SizedBox(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        InfoLabel(label: widget.label!),
-                        if (widget.description != null) ...[
-                          Text(
-                            widget.description ?? "",
+                  child: InfoLabel(
+                    label: widget.label!,
+                    labelStyle:
+                        const TextStyle(overflow: TextOverflow.ellipsis),
+                    child: widget.description != null
+                        ? Text(widget.description ?? "",
                             style: FluentTheme.of(context).brightness.isDark
                                 ? cardDescStyleForDark
                                 : cardDescStyleForLight,
-                          ),
-                        ],
-                      ],
-                    ),
+                            overflow: TextOverflow.ellipsis)
+                        : const SizedBox(),
                   ),
                 ),
                 widget.child,
@@ -286,9 +290,6 @@ class _CardHighlightState extends State<CardHighlight>
       if (widget.codeSnippet != null) ...[
         Card(
           padding: const EdgeInsets.all(0),
-          borderColor: FluentTheme.of(context).brightness.isDark
-              ? cardBorderColorForDark
-              : cardBorderColorForLight,
           backgroundColor: Colors.transparent,
           child: Expander(
             key: PageStorageKey(_key),

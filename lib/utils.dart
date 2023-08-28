@@ -23,6 +23,13 @@ bool expBool = registryUtilsService.readInt(RegistryHive.localMachine,
 String? themeModeReg = registryUtilsService.readString(
     RegistryHive.localMachine, r'SOFTWARE\Revision\Revision Tool', 'ThemeMode');
 
+String systemLanguage = registryUtilsService.readString(
+      RegistryHive.currentUser,
+      r'Control Panel\International',
+      'LocaleName',
+    ) ??
+    'en_US';
+
 String appLanguage = registryUtilsService.readString(
       RegistryHive.localMachine,
       r'SOFTWARE\Revision\Revision Tool',

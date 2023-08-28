@@ -1,373 +1,102 @@
 {
   "@@locale": "en",
-  "unsupportedTitle": "Error",
-  "@unsupportedTitle": {
-    "description": "The title for the unsupported build dialog"
-  },
-  "unsupportedContent": "Unsupported build detected",
-  "@unsupportedContent": {
-    "description": "The content for the unsupported build dialog"
-  },
   "okButton": "OK",
-  "@okButton": {
-    "description": "OK button for ContentDialog widgets"
-  },
   "notNowButton": "Not now",
-  "@notNowButton": {
-    "description": "Not now button for ContentDialog widgets"
-  },
   "restartDialog": "You must restart your computer for the changes to take effect",
-  "@restartDialog": {
-    "description": "The text for the restart dialog"
-  },
   "moreInformation": "More information",
-  "@moreInformation": {
-    "description": "The text for expandable descriptions"
-  },
   "onStatus": "On",
-  "@onStatus": {
-    "description": ""
-  },
   "offStatus": "Off",
-  "@offStatus": {
-    "description": ""
-  },
+  "experimental": "Experimental",
+  "warning": "Warning",
+  "install": "Install",
+  "close": "Close",
+  "search": "Search",
   "pageHome": "Home",
-  "@pageHome": {
-    "description": "The label for Home"
-  },
   "pageSecurity": "Security",
-  "@pageSecurity": {
-    "description": "The label for Security"
-  },
   "pageUsability": "Usability",
-  "@pageUsability": {
-    "description": "The label for Usability"
-  },
   "pagePerformance": "Performance",
-  "@pagePerformance": {
-    "description": "The label for Performance"
-  },
   "pageUpdates": "Windows Updates",
-  "@pageUpdates": {
-    "description": "The label for Windows Updates"
-  },
   "pageMiscellaneous": "Miscellaneous",
-  "@pageMiscellaneous": {
-    "description": "The label for Miscellaneous"
-  },
   "pageSettings": "Settings",
-  "@pageSettings": {
-    "description": "The label for Settings"
-  },
   "suggestionBoxPlaceholder": "Find a setting",
-  "@suggestionBoxPlaceholder": {
-    "description": "A placeholder for AutoSuggestionBox"
-  },
   "homeWelcome": "Welcome to Revision",
-  "@homeWelcome": {
-    "description": "The welcome text for Home()"
-  },
   "homeDescription": "A tool to personalize ReviOS to your needs",
-  "@homeDescription": {
-    "description": "The description for Home()"
-  },
   "homeReviLink": "Check out Revision",
-  "@homeReviLink": {
-    "description": "The text for a button which redirects to the Revision website"
-  },
   "homeReviFAQLink": "Check out FAQ",
-  "@homeReviFAQLink": {
-    "description": "The text for a button which redirects to FAQ"
-  },
   "securityWDLabel": "Windows Defender",
-  "@securityWDLabel": {
-    "description": "The label for Windows Defender"
-  },
   "securityWDDescription": "Windows Defender will protect your PC. This will have a performance impact due to constantly running in the background",
-  "@securityWDDescription": {
-    "description": "The description for Windows Defender"
-  },
   "securityWDButton": "Disable protections",
-  "@securityWDButton": {
-    "description": "The description for Windows Defender's button to disable protection"
-  },
   "securityDialog": "Please disable every protection before completely disabling Windows Defender",
-  "@securityDialog": {
-    "description": "The text for the security dialog"
-  },
   "securityUACLabel": "User Account Control",
-  "@securityUACLabel": {
-    "description": "The label for UAC"
-  },
   "securityUACDescription": "Limits application to standard user privileges until an administrator authorizes an elevation",
-  "@securityUACDescription": {
-    "description": "The description for UAC"
-  },
   "securitySMLabel": "Spectre & Meltdown Mitigation",
-  "@securitySMLabel": {
-    "description": "The label for Spectre & Meltdown Mitigation"
-  },
   "securitySMDescription": "Patches to enable mitigation against Spectre & Meltdown vulnerabilities",
-  "@securitySMDescription": {
-    "description": "The description for Spectre & Meltdown Mitigation"
-  },
   "usabilityNotifLabel": "Windows Notifications",
-  "@usabilityNotifLabel": {
-    "description": "The label for Notifications"
-  },
   "usabilityNotifDescription": "Completely toggle Windows notifications",
-  "@usabilityNotifDescription": {
-    "description": "The description for Notifications"
-  },
   "usabilityLBNLabel": "Legacy Notification Balloons",
-  "@usabilityLBNLabel": {
-    "description": "The label for Legacy Notification Balloons"
-  },
   "usabilityLBNDescription": "Tray programs on the taskbar will render as balloons instead of toast notifications",
-  "@usabilityLBNDescription": {
-    "description": "The description for Legacy Notification Balloons"
-  },
   "usabilityITPLabel": "Inking And Typing Personalization",
-  "@usabilityITPLabel": {
-    "description": "The label for Inking And Typing Personalization"
-  },
   "usabilityITPDescription": "Windows will learn what you type to improve suggestions when writing",
-  "@usabilityITPDescription": {
-    "description": "The description for Inking And Typing Personalization"
-  },
   "usabilityCPLLabel": "Disable CapsLock Key",
-  "@usabilityCPLLabel": {
-    "description": "The label for disabling the CapsLock Key"
-  },
   "usability11MRCLabel": "New Context Menu",
-  "@usability11MRCLabel": {
-    "description": "The label for New Context Menu"
-  },
   "usability11FETLabel": "File Explorer Tabs",
-  "@usability11FETLabel": {
-    "description": "The label for File Explorer Tabs"
-  },
-
   "perfSuperfetchLabel": "Superfetch",
-  "@perfSuperfetchLabel": {
-    "description": "The label for Superfetch"
-  },
   "perfSuperfetchDescription": "Speed up boot time and load programs faster by preloading all of the necessary data into memory. Enabling Superfetch is only recommended for HDD users",
-  "@perfSuperfetchDescription": {
-    "description": "The description for Superfetch"
-  },
   "perfMCLabel": "Memory Compression",
-  "@perfMCLabel": {
-    "description": "The label for Memory Compression"
-  },
   "perfMCDescription": "Save memory by compressing unused programs running in the background. Might have a small impact on CPU usage depending on hardware",
-  "@perfMCDescription": {
-    "description": "The description for Memory Compression"
-  },
   "perfITSXLabel": "Intel TSX",
-  "@perfITSXLabel": {
-    "description": "The label for Intel TSX"
-  },
   "perfITSXDescription": "Add hardware transactional memory support, which helps speed up the execution of multithreaded software in cost of security",
-  "@perfITSXDescription": {
-    "description": "The description for Intel TSX"
-  },
   "perfFOLabel": "Fullscreen Optimizations",
-  "@perfFOLabel": {
-    "description": "The label for Memory Compression"
-  },
   "perfFODescription": "Fullscreen Optimizations may lead to better gaming and app performance when running in fullscreen mode",
-  "@perfFODescription": {
-    "description": "The description for Memory Compression"
-  },
   "perfOWGLabel": "Optimizations for windowed games",
-  "@perfOWGLabel": {
-    "description": "The label for Optimizations for windowed games"
-  },
   "perfOWGDescription": "Improves frame latency by using a new presentation model for DirectX 10 and 11 games that appear in a window or in a borderless window",
-  "@perfOWGDescription": {
-    "description": "The description for Optimizations for windowed games"
-  },
   "perfCStatesLabel": "Disable the ACPI C2 and C3 states",
-  "@perfCStatesLabel": {
-    "description": "The label for Optimizations for ACPI C-States"
-  },
   "perfCStatesDescription": "Disabling ACPI C-states may improve performance and latency, but it will consume more power while idle, potentially reducing battery life",
-  "@perfCStatesDescription": {
-    "description": "The description for Optimizations for windowed games"
-  },
   "perfSectionFS": "Filesystem",
-  "@perfSectionFS": {
-    "description": "The subtitle for Filesystem"
-  },
   "perfLTALabel": "Disable Last Access Time",
-  "@perfLTALabel": {
-    "description": "The label for Last Access Time"
-  },
   "perfLTADescription": "Disabling Last Time Access improves the performance of file and directory access, reduces disk I/O load and latency",
-  "@perfLTADescription": {
-    "description": "The description for Last Access Time"
-  },
-
   "perfEdTLabel": "Disable 8.3 Naming",
-  "@perfEdTLabel": {
-    "description": "The label for 8.3 Naming"
-  },
   "perfEdTDescription": "8.3 naming is ancient and disabling it will improve NTFS performance and security",
-  "@perfEdTDescription": {
-    "description": "The description for 8.3 Naming"
-  },
-
   "perfMULabel": "Increase the limit of paged pool memory to NTFS",
-  "@perfMULabel": {
-    "description": "The label for Memory Usage"
-  },
   "perfMUDescription": "Increasing the physical memory doesn't always increase the amount of paged pool memory available to NTFS. Setting memoryusage to 2 raises the limit of paged pool memory. This might improve performance if your system is opening and closing many files in the same fileset and is not already using large amounts of system memory for other apps or for cache memory. If your computer is already using large amounts of system memory for other apps or for cache memory, increasing the limit of NTFS paged and non-paged pool memory reduces the available pool memory for other processes. This might reduce overall system performance.\n\nDefault is Off",
-  "@perfMUTDescription": {
-    "description": "The description for Memory Usage"
-  },
   "wuPauseLabel": "Pause Windows Updates",
-  "@wuPauseLabel": {
-    "description": "The label for Hiding Windows Updates"
-  },
   "wuPauseDescription": "When enabled, Windows Updates are paused 'till 2038/01/19",
-  "@wuPauseDescription": {
-    "description": "The description for Hiding Windows Updates"
-  },
   "wuPageLabel": "Hide the Windows Updates page",
-  "@wuPageLabel": {
-    "description": "The label for Hiding Windows Updates"
-  },
   "wuPageDescription": "Showing this page will also enable update notifications",
-  "@wuPageDescription": {
-    "description": "The description for Hiding Windows Updates"
-  },
   "wuDriversLabel": "Drivers install through Windows Updates",
-  "@wuDriversLabel": {
-    "description": "The label for Automatic Driver Updates"
-  },
   "wuDriversDescription": "To install drivers in ReviOS, you need to manually check for updates in Settings, as automatic Windows Updates are not supported",
-  "@wuDriversDescription": {
-    "description": "The description for Automatic Driver Updates"
-  },
   "miscHibernateLabel": "Hibernate",
-  "@miscHibernateLabel": {
-    "description": "The label for Hibernate"
-  },
   "miscHibernateDescription": "A power-saving S4 state, saves the current session to hiberfile and turns off the device. Disabled by default to avoid instability during dual-booting or system upgrades",
-  "@miscHibernatepDescription": {
-    "description": "The description for Hibernate"
-  },
-
   "miscHibernateModeLabel": "Hibernate Mode",
-  "@miscHibernateModeLabel": {
-    "description": "The label for Hibernate Mode"
-  },
   "miscHibernateModeDescription": "Full - Supports hibernate and fast startup. The hiberfile will be 40% of physical RAM installed. Hibernate is available to be added to the power menu.\n\nReduced - Only supports Fast Startup without hibernate, The hiberfile will be 20% of physical RAM installed and removes hibernate from the power menu",
-  "@miscHibernateModeDescription": {
-    "description": "The description for Hibernate Mode"
-  },
   "miscFastStartupLabel": "Fast Startup",
-  "@miscFastStartupLabel": {
-    "description": "The label for Fast Startup"
-  },
   "miscFastStartupDescription": "Save the current session to C:\\hiberfil.sys for faster startup, does not affect reboots. Disabled by default to avoid instability during dual-booting or system upgrades",
-  "@miscFastStartupDescription": {
-    "description": "The description for Fast Startup"
-  },
   "miscTMMonitoringLabel": "Network and GPU monitoring",
-  "@miscTMMonitoringLabel": {
-    "description": "The label for Network and GPU monitoring"
-  },
   "miscTMMonitoringDescription": "Activate the monitoring services for Task Manager",
-  "@miscTMMonitoringDescription": {
-    "description": "The description for Network and GPU monitoring"
-  },
   "miscMpoLabel": "Multiplane overlay (MPO)",
-  "@miscMpoLabel": {
-    "description": "The description for the MPO Label"
-  },
   "miscMpoCodeSnippet": "Recommended to turn off on Nvidia GTX 16xx, RTX 3xxx and AMD RX 5xxx cards or newer.\nLeaving this on could cause black screens, stuttering, flickering, and other general display problems",
-  "@miscMpoCodeSnippet": {
-    "description": "The Code snippet for MPO"
-  },
   "miscBHRLabel": "Battery Health Reporting",
-  "@miscBHRLabel": {
-    "description": "The label for Battery Health Reporting"
-  },
   "miscBHRDescription": "Reports Battery health status; Enabling will increase system usage",
-  "@miscBHRgDescription": {
-    "description": "The description for Battery Health Reporting"
-  },
   "miscCertsLabel": "Update Root Certificates",
-  "@miscCertsLabel": {
-    "description": "The label for Update Root Certificates"
-  },
   "miscCertsDescription": "Use it when having issues with certificates",
-  "@miscCertsgDescription": {
-    "description": "The description for Update Root Certificates"
-  },
   "miscCertsDialog": "Updating of root certificates has finished. Try the software that you had issues with again, and if the issue persists, please contact our support.",
-  "@miscCertsDialog": {
-    "description": "The dialog content for Update Root Certificates"
-  },
   "settingsUpdateLabel": "Update Revision Tool",
-  "@settingsUpdateLabel": {
-    "description": "Default state of the Revision Tool's update card label"
-  },
   "updateButton": "Update",
-  "@updateButton": {
-    "description": "Update button"
-  },
   "settingsUpdateButton": "Check for Updates",
-  "@settingsUpdateButton": {
-    "description": "Default state of the Revision Tool's update button"
-  },
   "settingsUpdateButtonAvailable": "Update Available",
-  "@settingsUpdateButtonAvailable": {
-    "description": "Available update button"
-  },
   "settingsUpdateButtonAvailablePrompt": "Would you like to update Revision Tool to",
-  "@settingsUpdateButtonAvailablePrompt": {
-    "description": "Prompt for available update button"
-  },
   "settingsUpdatingStatus": "Updating",
-  "@settingsUpdatingStatus": {
-    "description": "Updating status"
-  },
   "settingsUpdatingStatusSuccess": "Updated successfully",
-  "@settingsUpdatingStatusSuccess": {
-    "description": "Successful update status"
-  },
   "settingsUpdatingStatusNotFound": "No update was found",
-  "@settingsUpdatingStatusNotFound": {
-    "description": "No update status"
-  },
-
   "settingsCTLabel": "Color Theme",
-  "@settingsCTLabel": {
-    "description": "The label for Color Theme"
-  },
   "settingsCTDescription": "Switch between light and dark mode, or automatically change the theme with Windows",
-  "@settingsCTDescription": {
-    "description": "The description for Color Theme"
-  },
-
   "settingsEPTLabel": "Show experimental tweaks",
-  "@settingsEPTLabel": {
-    "description": "The label for Show experimental tweaks"
-  },
   "settingsEPTDescription": "",
-  "@settingsEPTDescription": {
-    "description": "The description for Show experimental tweaks"
-  },
   "restartAppDialog": "You must restart your app for the changes to take effect",
-  "@restartAppDialog": {
-    "description": ""
-  },
   "settingsLanguageLabel": "Language",
-  "@settingsLanguageLabel": {
-    "description": ""
-  }
+  "settingsLanguageDescription": "Languages are not guraranteed to be fully translated or correct",
+  "pageMSStore": "Microsoft Store",
+  "msstoreSearchingPackages": "Searching for packages",
+  "msstoreWait": "Please wait...",
+  "msstorePackagesPrompt": "Would you like to install the following packages?"
 }
