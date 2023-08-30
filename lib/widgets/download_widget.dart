@@ -7,6 +7,7 @@ import 'package:revitool/l10n/generated/localizations.dart';
 import 'package:revitool/models/ms_store/packages_info.dart';
 
 import '../services/msstore_service.dart';
+import 'dialogs/msstore_dialogs.dart';
 
 class DownloadWidget extends StatefulWidget {
   final List<PackagesInfo> items;
@@ -54,84 +55,89 @@ class _DownloadWidgetState extends State<DownloadWidget> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
-        stream: _downloadCompletionController.stream,
-        builder: (context, snapshot) {
-          _completedDownloadsCount = snapshot.data ?? 0;
+      stream: _downloadCompletionController.stream,
+      builder: (context, snapshoti) {
+        _completedDownloadsCount = snapshoti.data ?? 0;
 
-          return ContentDialog(
-            constraints: const BoxConstraints(maxWidth: 600, maxHeight: 600),
-            content: Center(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (int i = 0; i < widget.items.length; i++)
-                      Card(
-                        child: InfoLabel(
-                          label: widget.items[i].name!,
-                          child: StreamBuilder<Response>(
-                            stream: _streams[i],
-                            builder: (context, snapshot) {
-                              if (snapshot.hasError) {
-                                return Text(snapshot.error.toString());
-                              } else {
-                                final index =
-                                    widget.items.indexOf(widget.items[i]);
+        return ContentDialog(
+          constraints: const BoxConstraints(maxWidth: 600, maxHeight: 600),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (int i = 0; i < widget.items.length; i++)
+                  Card(
+                    child: InfoLabel(
+                      label: widget.items[i].name!,
+                      child: StreamBuilder<Response>(
+                        stream: _streams[i],
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            return Text(snapshot.error.toString());
+                          } else {
+                            final index = widget.items.indexOf(widget.items[i]);
 
-                                if (snapshot.connectionState ==
-                                    ConnectionState.done) {
-                                  _downloadCompletionController.add(i++);
-                                }
-                                return Column(
-                                  children: [
-                                    ValueListenableBuilder<double>(
-                                      valueListenable: _progressList[index],
-                                      builder: (context, value, child) {
-                                        return Row(
-                                          children: [
-                                            ProgressBar(value: value),
-                                            const SizedBox(width: 10),
-                                            Text("$value%"),
-                                          ],
-                                        );
-                                      },
-                                    )
-                                  ],
-                                );
-                              }
-                            },
-                          ),
-                        ),
+                            if (snapshot.connectionState ==
+                                ConnectionState.done) {
+                              _downloadCompletionController.add(i++);
+                            }
+                            return Column(
+                              children: [
+                                ValueListenableBuilder<double>(
+                                  valueListenable: _progressList[index],
+                                  builder: (context, value, child) {
+                                    return Row(
+                                      children: [
+                                        ProgressBar(value: value),
+                                        const SizedBox(width: 10),
+                                        Text("$value%"),
+                                      ],
+                                    );
+                                  },
+                                )
+                              ],
+                            );
+                          }
+                        },
                       ),
-                  ],
-                ),
-              ),
-            ),
-            actions: [
-              if (_completedDownloadsCount + 1 == widget.items.length) ...[
-                FilledButton(
-                  child: Text(ReviLocalizations.of(context).install),
-                  onPressed: () async {
-                    await _ms.installUWPPackages(
-                        '${Directory.systemTemp.path}\\Revision-Tool\\MSStore\\${widget.productId}');
-                  },
-                ),
-                Button(
-                  child: Text(ReviLocalizations.of(context).close),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ] else ...[
-                MouseRegion(
-                  cursor: SystemMouseCursors.forbidden,
-                  child: Button(
-                    child: Text(ReviLocalizations.of(context).install),
-                    onPressed: () {},
+                    ),
                   ),
-                )
-              ]
-            ],
-          );
-        });
+              ],
+            ),
+          ),
+          actions: [
+            if (_completedDownloadsCount + 1 == widget.items.length) ...[
+              FilledButton(
+                child: Text(ReviLocalizations.of(context).install),
+                onPressed: () async {
+                  showLoadingDialog(
+                      context, ReviLocalizations.of(context).installing);
+
+                  final processResult = await _ms.installUWPPackages(
+                      '${Directory.systemTemp.path}\\Revision-Tool\\MSStore\\${widget.productId}');
+
+                  if (!mounted) return;
+                  Navigator.pop(context);
+                  await showInstallProcess(context, processResult);
+                },
+              ),
+              Button(
+                child: Text(ReviLocalizations.of(context).close),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ] else ...[
+              MouseRegion(
+                cursor: SystemMouseCursors.forbidden,
+                child: Button(
+                  child: Text(ReviLocalizations.of(context).install),
+                  onPressed: () {},
+                ),
+              )
+            ]
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -141,7 +147,6 @@ class _DownloadWidgetState extends State<DownloadWidget> {
     }
     _downloadCompletionController.close();
     _dio.close();
-
     super.dispose();
   }
 }

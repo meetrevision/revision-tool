@@ -40,7 +40,6 @@ dependencies:
   freezed_annotation: ^2.4.1
   json_annotation: ^4.8.1
   xml: any
-  version: ^3.0.2
 
 dev_dependencies:
   flutter_test:

@@ -18,10 +18,13 @@ class SecurityPage extends StatefulWidget {
 
 class _SecurityPageState extends State<SecurityPage> {
   final SecurityService _securityService = SecurityService();
-  late bool _wdBool = _securityService.statusDefender;
+  late ValueNotifier<bool> _wdBool =
+      ValueNotifier<bool>(_securityService.statusDefender);
   bool _wdButtonCalled = false;
-  late bool _uacBool = _securityService.statusUAC;
-  late bool _smBool = _securityService.statusSpectreMeltdown;
+  late ValueNotifier<bool> _uacBool =
+      ValueNotifier<bool>(_securityService.statusUAC);
+  late ValueNotifier<bool> _smBool =
+      ValueNotifier<bool>(_securityService.statusSpectreMeltdown);
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +49,8 @@ class _SecurityPageState extends State<SecurityPage> {
             switchBool: _wdBool,
             requiresRestart: true,
             function: (value) async {
-              setState(() => _wdBool = value);
-              _wdBool
+              _wdBool.value = value;
+              _wdBool.value
                   ? _securityService.enableDefender()
                   : _securityService.disableDefender();
             },
@@ -199,8 +202,8 @@ class _SecurityPageState extends State<SecurityPage> {
           switchBool: _uacBool,
           requiresRestart: true,
           function: (value) async {
-            setState(() => _uacBool = value);
-            _uacBool
+            _uacBool = value;
+            _uacBool.value
                 ? _securityService.enableUAC()
                 : _securityService.disableUAC();
           },
@@ -213,8 +216,8 @@ class _SecurityPageState extends State<SecurityPage> {
           switchBool: _smBool,
           requiresRestart: true,
           function: (value) async {
-            setState(() => _smBool = value);
-            _smBool
+            _smBool = value;
+            _smBool.value
                 ? _securityService.enableSpectreMeltdown()
                 : _securityService.disableSpectreMeltdown();
           },

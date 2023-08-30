@@ -222,7 +222,7 @@ class _HomePageState extends State<HomePage> {
                 msicons.FluentIcons.store_microsoft_24_regular,
                 size: 20,
               ),
-              title: Text("MS Store"),
+              title: const Text("MS Store"),
               body: const MSStorePage(),
             ),
             PaneItem(

@@ -9,6 +9,7 @@ import '../models/ms_store/packages_info.dart';
 import 'package:xml/xml.dart' as xml;
 import '../models/products_list.dart';
 import '../utils.dart';
+import 'registry_utils_service.dart';
 
 class MSStoreService {
   static final MSStoreService _instance = MSStoreService._private();
@@ -61,6 +62,7 @@ class MSStoreService {
 
   final _dio = Dio();
   final _cancelToken = CancelToken();
+  final RegistryUtilsService _registryUtilsService = RegistryUtilsService();
 
   factory MSStoreService() {
     return _instance;
@@ -318,9 +320,9 @@ class MSStoreService {
     return int.parse(versionParts.join(''));
   }
 
-  Future<String> installUWPPackages(String path) async {
-    await run(
-        'powershell -Command "& {\$appxFiles = Get-ChildItem -Path "$path"; foreach (\$file in \$appxFiles) {Add-AppxPackage -Path \$file.FullName}}"');
-    return "";
+  Future<List<ProcessResult>> installUWPPackages(String path) async {
+    return await run(
+      'powershell -NoP -ExecutionPolicy Bypass -NonInteractive -C "& {\$appxFiles = Get-ChildItem -Path "$path"; foreach (\$file in \$appxFiles) { Add-AppxPackage -Path \$file.FullName; echo "\$(\$file.Name)";}}"',
+    );
   }
 }

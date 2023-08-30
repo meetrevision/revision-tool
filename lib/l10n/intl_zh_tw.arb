@@ -1,5 +1,5 @@
 {
-  "@@locale": "zh_tw",
+  "@@locale": "zh_TW",
   "unsupportedTitle": "錯誤",
   "unsupportedContent": "檢測到不支持的構建",
   "okButton": "確定",

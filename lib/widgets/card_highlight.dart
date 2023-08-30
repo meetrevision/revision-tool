@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_final_fields, unused_field
-
 import 'dart:math';
 
 import 'package:fluent_ui/fluent_ui.dart';
@@ -18,41 +16,31 @@ const cardDescStyleForLight = TextStyle(
     color: Color.fromARGB(255, 117, 117, 117),
     overflow: TextOverflow.fade);
 
-class CardHighlightSwitch extends StatefulWidget {
-  const CardHighlightSwitch(
-      {Key? key,
-      this.codeSnippet,
-      this.icon,
-      this.label,
-      this.description,
-      this.switchBool,
-      required this.function,
-      this.requiresRestart})
-      : super(key: key);
-  final String? codeSnippet;
+class CardHighlightSwitch extends StatelessWidget {
+  const CardHighlightSwitch({
+    super.key,
+    this.icon,
+    this.label,
+    this.description,
+    this.switchBool,
+    required this.function,
+    this.requiresRestart,
+    this.codeSnippet,
+  });
 
   final IconData? icon;
   final String? label;
   final String? description;
-  final bool? switchBool;
+  final ValueNotifier<bool>? switchBool;
   final ValueChanged function;
   final bool? requiresRestart;
+  final String? codeSnippet;
 
-  @override
-  State<CardHighlightSwitch> createState() => _CardHighlightSwitchState();
-}
+  static bool isOpen = false;
 
-class _CardHighlightSwitchState extends State<CardHighlightSwitch>
-    with AutomaticKeepAliveClientMixin<CardHighlightSwitch> {
-  static bool _isOpen = false;
-  static bool _isCopying = false;
-
-  final _key = Random().nextInt(1000);
-
+  static final _key = Random().nextInt(1000);
   @override
   Widget build(BuildContext context) {
-    // final theme = FluentTheme.of(context);
-    super.build(context);
     return Column(
       children: [
         Card(
@@ -65,19 +53,20 @@ class _CardHighlightSwitchState extends State<CardHighlightSwitch>
               alignment: AlignmentDirectional.center,
               child: Row(
                 children: [
-                  if (widget.icon != null) ...[
+                  if (icon != null) ...[
                     const SizedBox(width: 5.0),
-                    Icon(widget.icon, size: 24),
+                    Icon(icon, size: 24),
                     const SizedBox(width: 15.0),
                   ],
                   Expanded(
                     child: SizedBox(
                       child: InfoLabel(
-                        label: widget.label!,
-                        labelStyle: const TextStyle(overflow: TextOverflow.ellipsis),
-                        child: widget.description != null
+                        label: label!,
+                        labelStyle:
+                            const TextStyle(overflow: TextOverflow.ellipsis),
+                        child: description != null
                             ? Text(
-                                widget.description ?? "",
+                                description ?? "",
                                 style: FluentTheme.of(context).brightness.isDark
                                     ? cardDescStyleForDark
                                     : cardDescStyleForLight,
@@ -87,83 +76,56 @@ class _CardHighlightSwitchState extends State<CardHighlightSwitch>
                     ),
                   ),
                   const SizedBox(width: 2.0),
-                  Text(widget.switchBool!
-                      ? ReviLocalizations.of(context).onStatus
-                      : ReviLocalizations.of(context).offStatus),
+                  ValueListenableBuilder<bool>(
+                      valueListenable: switchBool!,
+                      builder: (context, value, child) {
+                        return Text(value
+                            ? ReviLocalizations.of(context).onStatus
+                            : ReviLocalizations.of(context).offStatus);
+                      }),
                   const SizedBox(width: 10.0),
-                  ToggleSwitch(
-                    checked: widget.switchBool!,
-                    onChanged: (value) {
-                      widget.function(value);
-                      if (widget.requiresRestart != null) {
-                        showDialog(
-                          context: context,
-                          builder: (context) => ContentDialog(
-                            content: Text(
-                                ReviLocalizations.of(context).restartDialog),
-                            actions: [
-                              Button(
-                                child: Text(
-                                    ReviLocalizations.of(context).okButton),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                              )
-                            ],
-                          ),
-                        );
-                      }
+                  ValueListenableBuilder<bool>(
+                    valueListenable: switchBool!,
+                    builder: (context, builderValue, child) {
+                      return ToggleSwitch(
+                        checked: builderValue,
+                        onChanged: (value) async {
+                          function(value);
+                          if (requiresRestart != null) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => ContentDialog(
+                                content: Text(ReviLocalizations.of(context)
+                                    .restartDialog),
+                                actions: [
+                                  Button(
+                                    child: Text(
+                                        ReviLocalizations.of(context).okButton),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  )
+                                ],
+                              ),
+                            );
+                          }
+                        },
+                      );
                     },
                   ),
-
-                  // if (widget.requiresRestart != null) {
-                  //       showDialog(
-                  //         context: context,
-                  //         builder: (context) => ContentDialog(
-                  //           content: Text(
-                  //               ReviLocalizations.of(context).restartDialog),
-                  //           actions: [
-                  //             Button(
-                  //               child: Text(
-                  //                   ReviLocalizations.of(context).okButton),
-                  //               onPressed: () {
-                  //                 Navigator.pop(context);
-                  //               },
-                  //             )
-                  //           ],
-                  //         ),
-                  //       );
-                  //     }
                 ],
               ),
             ),
           ),
         ),
-        if (widget.codeSnippet != null) ...[
-          Card(
-            padding: const EdgeInsets.all(0),
-            backgroundColor: Colors.transparent,
-            child: Expander(
-              key: PageStorageKey(_key),
-              headerShape: (open) => const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(4.0))),
-              onStateChanged: (state) {
-                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                  if (mounted) setState(() => _isOpen = state);
-                });
-              },
-              header: Text(ReviLocalizations.of(context).moreInformation),
-              content: Text(widget.codeSnippet!),
-            ),
-          ),
+        if (codeSnippet != null) ...[
+          CardHighlightCodeSnippet(
+              pageStorageKey: _key, codeSnippet: codeSnippet),
         ],
         const SizedBox(height: 5.0),
       ],
     );
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }
 
 const fluentHighlightTheme = {
@@ -200,19 +162,17 @@ const fluentHighlightTheme = {
   'emphasis': TextStyle(fontStyle: FontStyle.italic),
 };
 
-class CardHighlight extends StatefulWidget {
+class CardHighlight extends StatelessWidget {
   const CardHighlight(
-      {Key? key,
-      this.backgroundColor,
+      {super.key,
       required this.child,
       this.codeSnippet,
+      this.backgroundColor,
       this.icon,
       this.label,
       this.description,
       this.image,
-      this.borderColor})
-      : super(key: key);
-
+      this.borderColor});
   final Widget child;
   final String? codeSnippet;
   final Color? backgroundColor;
@@ -222,93 +182,100 @@ class CardHighlight extends StatefulWidget {
   final String? image;
   final Color? borderColor;
 
-  @override
-  State<CardHighlight> createState() => _CardHighlightState();
-}
-
-class _CardHighlightState extends State<CardHighlight>
-    with AutomaticKeepAliveClientMixin<CardHighlight> {
-  static bool _isOpen = false;
-  static bool _isCopying = false;
-
-  final _key = Random().nextInt(1000);
+  static final _key = Random().nextInt(1000);
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    return Column(children: [
-      Card(
-        backgroundColor: widget.backgroundColor,
-        borderRadius: cardBorderRadius,
-        borderColor: widget.borderColor,
-        child: SizedBox(
-          // height: 44,
-          width: double.infinity,
-          child: Align(
-            heightFactor: 1.18,
-            alignment: AlignmentDirectional.center,
-            child: Row(
-              children: [
-                if (widget.icon != null) ...[
-                  const SizedBox(width: 5.0),
-                  Icon(widget.icon, size: 24),
-                  const SizedBox(width: 15.0),
-                ],
-                if (widget.image != null) ...[
-                  const SizedBox(width: 5.0),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(5),
-                    child: Image.network(
-                      widget.image!,
-                      width: 48,
-                      height: 48,
-                      filterQuality: FilterQuality.high,
+    return Column(
+      children: [
+        Card(
+          backgroundColor: backgroundColor,
+          borderRadius: cardBorderRadius,
+          borderColor: borderColor,
+          child: SizedBox(
+            // height: 44,
+            width: double.infinity,
+            child: Align(
+              heightFactor: 1.18,
+              alignment: AlignmentDirectional.center,
+              child: Row(
+                children: [
+                  if (icon != null) ...[
+                    const SizedBox(width: 5.0),
+                    Icon(icon, size: 24),
+                    const SizedBox(width: 15.0),
+                  ],
+                  if (image != null) ...[
+                    const SizedBox(width: 5.0),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(5),
+                      child: Image.network(
+                        image!,
+                        width: 48,
+                        height: 48,
+                        filterQuality: FilterQuality.high,
+                      ),
+                    ),
+                    const SizedBox(width: 15.0),
+                  ],
+                  Expanded(
+                    child: InfoLabel(
+                      label: label!,
+                      labelStyle:
+                          const TextStyle(overflow: TextOverflow.ellipsis),
+                      child: description != null
+                          ? Text(description ?? "",
+                              style: FluentTheme.of(context).brightness.isDark
+                                  ? cardDescStyleForDark
+                                  : cardDescStyleForLight,
+                              overflow: TextOverflow.ellipsis)
+                          : const SizedBox(),
                     ),
                   ),
-                  const SizedBox(width: 15.0),
+                  child,
                 ],
-                Expanded(
-                  child: InfoLabel(
-                    label: widget.label!,
-                    labelStyle:
-                        const TextStyle(overflow: TextOverflow.ellipsis),
-                    child: widget.description != null
-                        ? Text(widget.description ?? "",
-                            style: FluentTheme.of(context).brightness.isDark
-                                ? cardDescStyleForDark
-                                : cardDescStyleForLight,
-                            overflow: TextOverflow.ellipsis)
-                        : const SizedBox(),
-                  ),
-                ),
-                widget.child,
-              ],
+              ),
             ),
           ),
         ),
-      ),
-      if (widget.codeSnippet != null) ...[
-        Card(
-          padding: const EdgeInsets.all(0),
-          backgroundColor: Colors.transparent,
-          child: Expander(
-            key: PageStorageKey(_key),
-            headerShape: (open) =>
-                const RoundedRectangleBorder(borderRadius: cardBorderRadius),
-            onStateChanged: (state) {
-              WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                if (mounted) setState(() => _isOpen = state);
-              });
-            },
-            header: Text(ReviLocalizations.of(context).moreInformation),
-            content: Text(widget.codeSnippet!),
-          ),
-        ),
+        if (codeSnippet != null) ...[
+          CardHighlightCodeSnippet(
+              pageStorageKey: _key, codeSnippet: codeSnippet)
+        ],
+        const SizedBox(height: 5.0),
       ],
-      const SizedBox(height: 5.0),
-    ]);
+    );
   }
+}
+
+class CardHighlightCodeSnippet extends StatelessWidget {
+  const CardHighlightCodeSnippet({
+    super.key,
+    required this.pageStorageKey,
+    this.codeSnippet,
+  });
+
+  final int pageStorageKey;
+  final String? codeSnippet;
+  static bool isOpen = false;
 
   @override
-  bool get wantKeepAlive => true;
+  Widget build(BuildContext context) {
+    return StatefulBuilder(builder: (context, setState) {
+      return Card(
+        padding: const EdgeInsets.all(0),
+        backgroundColor: Colors.transparent,
+        child: Expander(
+          key: PageStorageKey(pageStorageKey),
+          headerShape: (open) => const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(4.0))),
+          onStateChanged: (state) {
+            setState(() => isOpen = state);
+          },
+          header: Text(ReviLocalizations.of(context).moreInformation),
+          content: Text(codeSnippet!),
+        ),
+      );
+    });
+  }
 }

@@ -13,12 +13,18 @@ class MiscellaneousPage extends StatefulWidget {
 
 class _MiscellaneousPageState extends State<MiscellaneousPage> {
   final MiscellaneousService _miscellaneousService = MiscellaneousService();
-  late bool _hibBool = _miscellaneousService.statusHibernation;
-  late int? _hibMode = _miscellaneousService.statusHibernationMode;
-  late bool _fsbBool = _miscellaneousService.statusFastStartup;
-  late bool _tmmBool = _miscellaneousService.statusTMMonitoring;
-  late bool _mpoBool = _miscellaneousService.statusMPO;
-  late bool _bhrBool = _miscellaneousService.statusBatteryHealthReporting;
+  late final ValueNotifier<bool> _hibBool =
+      ValueNotifier<bool>(_miscellaneousService.statusHibernation);
+  late final ValueNotifier<int> _hibMode =
+      ValueNotifier<int>(_miscellaneousService.statusHibernationMode!);
+  late final ValueNotifier<bool> _fsbBool =
+      ValueNotifier<bool>(_miscellaneousService.statusFastStartup);
+  late final ValueNotifier<bool> _tmmBool =
+      ValueNotifier<bool>(_miscellaneousService.statusTMMonitoring);
+  late final ValueNotifier<bool> _mpoBool =
+      ValueNotifier<bool>(_miscellaneousService.statusMPO);
+  late final ValueNotifier<bool> _bhrBool =
+      ValueNotifier<bool>(_miscellaneousService.statusBatteryHealthReporting);
 
   @override
   Widget build(BuildContext context) {
@@ -33,20 +39,20 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
           description: ReviLocalizations.of(context).miscHibernateDescription,
           switchBool: _hibBool,
           function: (value) async {
-            setState(() => _hibBool = value);
-            _hibBool
+            _hibBool.value = value;
+            _hibBool.value
                 ? _miscellaneousService.enableHibernation()
                 : _miscellaneousService.disableHibernation();
           },
         ),
-        if (_hibBool) ...[
+        if (_hibBool.value) ...[
           CardHighlight(
             icon: msicons.FluentIcons.document_save_20_regular,
             label: ReviLocalizations.of(context).miscHibernateModeLabel,
             description:
                 ReviLocalizations.of(context).miscHibernateModeDescription,
             child: ComboBox(
-              value: _hibMode,
+              value: _hibMode.value,
               onChanged: (value) {
                 switch (value) {
                   case 1:
@@ -57,7 +63,7 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
                     break;
                   default:
                 }
-                setState(() => _hibMode = value);
+                _hibMode.value = value!;
               },
               items: const [
                 ComboBoxItem(
@@ -78,8 +84,8 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
                 ReviLocalizations.of(context).miscFastStartupDescription,
             switchBool: _fsbBool,
             function: (value) async {
-              setState(() => _fsbBool = value);
-              _fsbBool
+              _fsbBool.value = value;
+              _fsbBool.value
                   ? _miscellaneousService.enableFastStartup()
                   : _miscellaneousService.disableFastStartup();
             },
@@ -93,8 +99,8 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
           switchBool: _tmmBool,
           requiresRestart: true,
           function: (value) async {
-            setState(() => _tmmBool = value);
-            _tmmBool
+            _tmmBool.value = value;
+            _tmmBool.value
                 ? _miscellaneousService.enableTMMonitoring()
                 : _miscellaneousService.disableTMMonitoring();
           },
@@ -105,8 +111,8 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
           codeSnippet: ReviLocalizations.of(context).miscMpoCodeSnippet,
           switchBool: _mpoBool,
           function: (value) async {
-            setState(() => _mpoBool = value);
-            _mpoBool
+            _mpoBool.value = value;
+            _mpoBool.value
                 ? _miscellaneousService.enableMPO()
                 : _miscellaneousService.disableMPO();
           },
@@ -117,8 +123,8 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
           description: ReviLocalizations.of(context).miscBHRDescription,
           switchBool: _bhrBool,
           function: (value) async {
-            setState(() => _bhrBool = value);
-            _bhrBool
+            _bhrBool.value = value;
+            _bhrBool.value
                 ? _miscellaneousService.enableBatteryHealthReporting()
                 : _miscellaneousService.disableBatteryHealthReporting();
           },

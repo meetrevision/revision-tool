@@ -13,9 +13,12 @@ class UpdatesPage extends StatefulWidget {
 
 class _UpdatesPageState extends State<UpdatesPage> {
   final UpdatesService _updatesService = UpdatesService();
-  late bool _pausedBool = _updatesService.statusPauseUpdatesWU;
-  late bool _wuPageBool = _updatesService.statusVisibilityWU;
-  late bool _wuDriversBool = _updatesService.statusDriversWU;
+  late final ValueNotifier<bool> _pausedBool =
+      ValueNotifier<bool>(_updatesService.statusPauseUpdatesWU);
+  late final ValueNotifier<bool> _wuPageBool =
+      ValueNotifier<bool>(_updatesService.statusVisibilityWU);
+  late final ValueNotifier<bool> _wuDriversBool =
+      ValueNotifier<bool>(_updatesService.statusDriversWU);
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +33,8 @@ class _UpdatesPageState extends State<UpdatesPage> {
           description: ReviLocalizations.of(context).wuPauseDescription,
           switchBool: _pausedBool,
           function: (value) async {
-            setState(() => _pausedBool = value);
-            _pausedBool
+            _pausedBool.value = value;
+            _pausedBool.value
                 ? _updatesService.enablePauseUpdatesWU()
                 : _updatesService.disablePauseUpdatesWU();
           },
@@ -42,8 +45,8 @@ class _UpdatesPageState extends State<UpdatesPage> {
           description: ReviLocalizations.of(context).wuPageDescription,
           switchBool: _wuPageBool,
           function: (value) async {
-            setState(() => _wuPageBool = value);
-            _wuPageBool
+            _wuPageBool.value = value;
+            _wuPageBool.value
                 ? _updatesService.enableVisibilityWU()
                 : _updatesService.disableVisibilityWU();
           },
@@ -54,8 +57,8 @@ class _UpdatesPageState extends State<UpdatesPage> {
           description: ReviLocalizations.of(context).wuDriversDescription,
           switchBool: _wuDriversBool,
           function: (value) async {
-            setState(() => _wuDriversBool = value);
-            _wuDriversBool
+            _wuDriversBool.value = value;
+            _wuDriversBool.value
                 ? _updatesService.enableDriversWU()
                 : _updatesService.disableDriversWU();
           },

@@ -4,6 +4,7 @@ import '../../models/products_list.dart';
 import '../../widgets/card_highlight.dart';
 import '../../models/ms_store/packages_info.dart';
 import '../../services/msstore_service.dart';
+import '../../widgets/dialogs/msstore_dialogs.dart';
 import '../../widgets/download_widget.dart';
 
 class MSStorePage extends StatefulWidget {
@@ -62,27 +63,8 @@ class _MSStorePageState extends State<MSStorePage>
               child: FilledButton(
                 child: Text(ReviLocalizations.of(context).install),
                 onPressed: () async {
-                  showDialog(
-                    context: context,
-                    dismissWithEsc: false,
-                    builder: (context) => ContentDialog(
-                      constraints:
-                          const BoxConstraints(maxWidth: 500, maxHeight: 300),
-                      title: Text(ReviLocalizations.of(context)
-                          .msstoreSearchingPackages),
-                      content: Center(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const ProgressRing(),
-                            const SizedBox(height: 10),
-                            Text(ReviLocalizations.of(context).msstoreWait),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
+                  showLoadingDialog(context,
+                      ReviLocalizations.of(context).msstoreSearchingPackages);
 
                   final List<PackagesInfo> packages = await _msStoreService
                       .startProcess(product.productId!, "Retail");

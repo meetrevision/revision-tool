@@ -1,8 +1,23 @@
 {
+  "de": [
+    "experimental",
+    "warning",
+    "install",
+    "installing",
+    "close",
+    "search",
+    "settingsLanguageDescription",
+    "pageMSStore",
+    "msstoreSearchingPackages",
+    "msstoreWait",
+    "msstorePackagesPrompt"
+  ],
+
   "pt": [
     "experimental",
     "warning",
     "install",
+    "installing",
     "close",
     "search",
     "wuPauseLabel",
@@ -18,10 +33,25 @@
     "experimental",
     "warning",
     "install",
+    "installing",
     "close",
     "search",
     "wuPauseLabel",
     "wuPauseDescription",
+    "settingsLanguageDescription",
+    "pageMSStore",
+    "msstoreSearchingPackages",
+    "msstoreWait",
+    "msstorePackagesPrompt"
+  ],
+
+  "zh_TW": [
+    "experimental",
+    "warning",
+    "install",
+    "installing",
+    "close",
+    "search",
     "settingsLanguageDescription",
     "pageMSStore",
     "msstoreSearchingPackages",

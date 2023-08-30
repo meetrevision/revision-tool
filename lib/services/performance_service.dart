@@ -148,16 +148,16 @@ class PerformanceService implements SetupService {
     _registryUtilsService.writeDword(Registry.currentUser,
         r'System\GameConfigStore', 'GameDVR_FSEBehavior', 2);
 
-    _registryUtilsService.writeDword(Registry.allUsers,
-        r'System\GameConfigStore', 'GameDVR_FSEBehaviorMode', 2);
-    _registryUtilsService.writeDword(Registry.allUsers,
-        r'System\GameConfigStore', 'GameDVR_HonorUserFSEBehaviorMode', 1);
-    _registryUtilsService.writeDword(Registry.allUsers,
-        r'System\GameConfigStore', 'GameDVR_DXGIHonorFSEWindowsCompatible', 1);
-    _registryUtilsService.writeDword(Registry.allUsers,
-        r'System\GameConfigStore', 'GameDVR_EFSEFeatureFlags', 0);
-    _registryUtilsService.writeDword(
-        Registry.allUsers, r'System\GameConfigStore', 'GameDVR_FSEBehavior', 2);
+    // _registryUtilsService.writeDword(Registry.allUsers,
+    //     r'System\GameConfigStore', 'GameDVR_FSEBehaviorMode', 2);
+    // _registryUtilsService.writeDword(Registry.allUsers,
+    //     r'System\GameConfigStore', 'GameDVR_HonorUserFSEBehaviorMode', 1);
+    // _registryUtilsService.writeDword(Registry.allUsers,
+    //     r'System\GameConfigStore', 'GameDVR_DXGIHonorFSEWindowsCompatible', 1);
+    // _registryUtilsService.writeDword(Registry.allUsers,
+    //     r'System\GameConfigStore', 'GameDVR_EFSEFeatureFlags', 0);
+    // _registryUtilsService.writeDword(
+    //     Registry.allUsers, r'System\GameConfigStore', 'GameDVR_FSEBehavior', 2);
   }
 
   bool get statusWindowedOptimization {

@@ -13,8 +13,10 @@ class UsabilityPageTwo extends StatefulWidget {
 
 class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
   final UsabilityService _usabilityService = UsabilityService();
-  late bool _mrcBool = _usabilityService.statusNewContextMenu;
-  late bool _tabsUWPbool = _usabilityService.statusTabsUWP;
+  late final ValueNotifier<bool> _mrcBool =
+      ValueNotifier<bool>(_usabilityService.statusNewContextMenu);
+  late final ValueNotifier<bool> _tabsUWPbool =
+      ValueNotifier<bool>(_usabilityService.statusTabsUWP);
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +31,8 @@ class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
           label: ReviLocalizations.of(context).usability11MRCLabel,
           switchBool: _mrcBool,
           function: (value) async {
-            setState(() => _mrcBool = value);
-            _mrcBool
+            _mrcBool.value = value;
+            _mrcBool.value
                 ? _usabilityService.enableNewContextMenu()
                 : _usabilityService.disableNewContextMenu();
           },
@@ -40,8 +42,8 @@ class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
           label: ReviLocalizations.of(context).usability11FETLabel,
           switchBool: _tabsUWPbool,
           function: (value) async {
-            setState(() => _tabsUWPbool = value);
-            _tabsUWPbool
+            _tabsUWPbool.value = value;
+            _tabsUWPbool.value
                 ? _usabilityService.enableTabsUWP()
                 : _usabilityService.disableTabsUWP();
           },
