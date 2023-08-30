@@ -1,373 +1,94 @@
 {
-  „@@locale“: „de“,
-  „unsupportedTitle“: „Fehler“,
-  „@unsupportedTitle“: {
-    „description“: „Der Titel für den nicht unterstützten Build-Dialog“
-  },
-  „unsupportedContent“: „Nicht unterstützter Build erkannt“,
-  „@unsupportedContent“: {
-    „description“: „Der Inhalt für den nicht unterstützten Build-Dialog“
-  },
-  „okButton“: „OK“,
-  „@okButton“: {
-    „description“: „OK-Schaltfläche für ContentDialog-Widgets“
-  },
-  „notNowButton“: „Nicht jetzt“,
-  „@notNowButton“: {
-    „description“: „Nicht jetzt-Schaltfläche für ContentDialog-Widgets“
-  },
-  „restartDialog“: „Sie müssen Ihren Computer neu starten, damit die Änderungen wirksam werden“,
-  „@restartDialog“: {
-    „description“: „Der Text für den Neustartdialog“
-  },
+  "@@locale": "de",
+  "unsupportedTitle": "Fehler",
+  "unsupportedContent": "Nicht unterstützter Build erkannt",
+  "okButton": "OK",
+  "notNowButton": "Nicht jetzt",
+  "restartDialog": "Sie müssen Ihren Computer neu starten, damit die Änderungen wirksam werden",
   "moreInformation": "Weitere Informationen",
-  "@Mehr Informationen": {
-    „description“: „Der Text für erweiterbare Beschreibungen“
-  },
-  „onStatus“: „Ein“,
-  „@onStatus“: {
-    "Beschreibung": ""
-  },
-  „offStatus“: „Aus“,
-  „@offStatus“: {
-    "Beschreibung": ""
-  },
+  "onStatus": "Ein",
+  "offStatus": "Aus",
   "pageHome": "Home",
-  „@pageHome“: {
-    „description“: „Das Label für Home“
-  },
-  „pageSecurity“: „Sicherheit“,
-  „@pageSecurity“: {
-    „description“: „Das Label für Sicherheit“
-  },
+  "pageSecurity": "Sicherheit",
   "pageUsability": "Benutzerfreundlichkeit",
-  „@pageUsability“: {
-    „description“: „Das Label für Benutzerfreundlichkeit“
-  },
-  „pagePerformance“: „Leistung“,
-  „@pagePerformance“: {
-    „description“: „Das Label für Leistung“
-  },
-  „pageUpdates“: „Windows-Updates“,
-  „@pageUpdates“: {
-    „description“: „Die Bezeichnung für Windows-Updates“
-  },
+  "pagePerformance": "Leistung",
+  "pageUpdates": "Windows-Updates",
   "pageMiscellaneous": "Verschiedenes",
-  „@pageMiscellaneous“: {
-    „description“: „Das Label für Verschiedenes“
-  },
   "pageSettings": "Einstellungen",
-  „@pageSettings“: {
-    „description“: „Die Bezeichnung für Einstellungen“
-  },
-  „suggestionBoxPlaceholder“: „Einstellung suchen“,
-  „@suggestionBoxPlaceholder“: {
-    „description“: „Ein Platzhalter für AutoSuggestionBox“
-  },
-  „homeWelcome“: „Willkommen bei Revision“,
-  „@homeWelcome“: {
-    „description“: „Der Begrüßungstext für Home()“
-  },
-  „homeDescription“: „Ein Tool zur Personalisierung von ReviOS an Ihre Bedürfnisse“,
-  „@homeDescription“: {
-    „description“: „Die Beschreibung für Home()“
-  },
-  „homeReviLink“: „Revision auschecken“,
-  „@homeReviLink“: {
-    „description“: „Der Text für eine Schaltfläche, die zur Revision-Website weiterleitet“
-  },
-  „homeReviFAQLink“: „FAQ ansehen“,
-  „@homeReviFAQLink“: {
-    „description“: „Der Text für eine Schaltfläche, die zu FAQ weiterleitet“
-  },
-  „securityWDLabel“: „Windows Defender“,
-  „@securityWDLabel“: {
-    „description“: „Die Bezeichnung für Windows Defender“
-  },
-  „securityWDDescription“: „Windows Defender schützt Ihren PC. Dies wirkt sich negativ auf die Leistung aus, da es ständig im Hintergrund ausgeführt wird“,
-  „@securityWDDescription“: {
-    „description“: „Die Beschreibung für Windows Defender“
-  },
-  „securityWDButton“: „Schutzmaßnahmen deaktivieren“,
-  „@securityWDButton“: {
-    „description“: „Die Beschreibung für die Schaltfläche von Windows Defender zum Deaktivieren des Schutzes“
-  },
-  „securityDialog“: „Bitte deaktivieren Sie alle Schutzmaßnahmen, bevor Sie Windows Defender vollständig deaktivieren“,
-  „@securityDialog“: {
-    „description“: „Der Text für den Sicherheitsdialog“
-  },
-  „securityUACLabel“: „Benutzerkontensteuerung“,
-  „@securityUACLabel“: {
-    „description“: „Das Label für UAC“
-  },
-  „securityUACDescription“: „Beschränkt die Anwendung auf Standardbenutzerrechte, bis ein Administrator eine Erhöhung genehmigt“,
-  „@securityUACDescription“: {
-    „description“: „Die Beschreibung für UAC“
-  },
-  „securitySMLabel“: „Spectre & Meltdown Mitigation“,
-  „@securitySMLabel“: {
-    „description“: „Das Label für Spectre & Meltdown Mitigation“
-  },
-  „securitySMDescription“: „Patches zur Abschwächung von Spectre- und Meltdown-Schwachstellen“,
-  „@securitySMDescription“: {
-    „description“: „Die Beschreibung für Spectre & Meltdown Mitigation“
-  },
-  „usabilityNotifLabel“: „Windows-Benachrichtigungen“,
-  „@usabilityNotifLabel“: {
-    „description“: „Das Label für Benachrichtigungen“
-  },
-  „usabilityNotifDescription“: „Windows-Benachrichtigungen vollständig umschalten“,
-  „@usabilityNotifDescription“: {
-    „description“: „Die Beschreibung für Benachrichtigungen“
-  },
-  „usabilityLBNLabel“: „Legacy-Benachrichtigungsballons“,
-  „@usabilityLBNLabel“: {
-    „description“: „Die Bezeichnung für Legacy-Benachrichtigungsballons“
-  },
-  „usabilityLBNDescription“: „Tray-Programme in der Taskleiste werden als Sprechblasen statt als Popup-Benachrichtigungen dargestellt“,
-  „@usabilityLBNDescription“: {
-    „description“: „Die Beschreibung für Legacy-Benachrichtigungsballons“
-  },
-  „usabilityITPLabel“: „Personalisierung von Freihand- und Schreibeingaben“,
-  „@usabilityITPLabel“: {
-    „description“: „Das Etikett für die Personalisierung durch Freihandeingabe und Eingabe“
-  },
-  „usabilityITPDescription“: „Windows lernt, was Sie eingeben, um Vorschläge beim Schreiben zu verbessern“,
-  „@usabilityITPDescription“: {
-    „description“: „Die Beschreibung für die Freihand- und Tipp-Personalisierung“
-  },
-  „usabilityCPLLabel“: „Feststelltaste deaktivieren“,
-  „@usabilityCPLLabel“: {
-    „description“: „Die Bezeichnung zum Deaktivieren der Feststelltaste“
-  },
-  „usability11MRCLabel“: „Neues Kontextmenü“,
-  „@usability11MRCLabel“: {
-    „description“: „Die Bezeichnung für neues Kontextmenü“
-  },
-  „usability11FETLabel“: „Datei-Explorer-Registerkarten“,
-  „@usability11FETLabel“: {
-    „description“: „Die Bezeichnung für Datei-Explorer-Registerkarten“
-  },
-
-  „perfSuperfetchLabel“: „Superfetch“,
-  „@perfSuperfetchLabel“: {
-    „description“: „Das Label für Superfetch“
-  },
-  „perfSuperfetchDescription“: „Beschleunigen Sie die Startzeit und laden Sie Programme schneller, indem Sie alle erforderlichen Daten vorab in den Speicher laden. Die Aktivierung von Superfetch wird nur Festplattenbenutzern empfohlen“,
-  „@perfSuperfetchDescription“: {
-    „description“: „Die Beschreibung für Superfetch“
-  },
-  „perfMCLabel“: „Speicherkomprimierung“,
-  „@perfMCLabel“: {
-    „description“: „Die Bezeichnung für Speicherkomprimierung“
-  },
-  „perfMCDescription“: „Sparen Sie Speicher, indem Sie nicht verwendete Programme komprimieren, die im Hintergrund laufen. Kann je nach Hardware einen kleinen Einfluss auf die CPU-Auslastung haben“,
-  „@perfMCDescription“: {
-    „description“: „Die Beschreibung für die Speicherkomprimierung“
-  },
-  „perfITSXLabel“: „Intel TSX“,
-  „@perfITSXLabel“: {
-    „description“: „Das Label für Intel TSX“
-  },
-  „perfITSXDescription“: „Hardware-Transaktionsspeicherunterstützung hinzufügen, die dazu beiträgt, die Ausführung von Multithread-Software auf Kosten der Sicherheit zu beschleunigen“,
-  „@perfITSXDescription“: {
-    „description“: „Die Beschreibung für Intel TSX“
-  },
-  „perfFOLabel“: „Vollbildoptimierungen“,
-  „@perfFOLabel“: {
-    „description“: „Die Bezeichnung für Speicherkomprimierung“
-  },
-  „perfFODescription“: „Vollbildoptimierungen können zu einer besseren Spiele- und App-Leistung führen, wenn sie im Vollbildmodus ausgeführt werden“,
-  „@perfFODescription“: {
-    „description“: „Die Beschreibung für die Speicherkomprimierung“
-  },
-  „perfOWGLabel“: „Optimierungen für Fensterspiele“,
-  „@perfOWGLabel“: {
-    „description“: „Das Label für Optimierungen für Fensterspiele“
-  },
-  „perfOWGDescription“: „Verbessert die Frame-Latenz durch die Verwendung eines neuen Präsentationsmodells für DirectX 10- und 11-Spiele, die in einem Fenster oder in einem randlosen Fenster angezeigt werden“,
-  „@perfOWGDescription“: {
-    „description“: „Die Beschreibung für Optimierungen für Fensterspiele“
-  },
-  „perfCStatesLabel“: „Deaktivieren Sie die ACPI-Zustände C2 und C3“,
-  „@perfCStatesLabel“: {
-    „description“: „Das Label für Optimierungen für ACPI C-States“
-  },
-  „perfCStatesDescription“: „Das Deaktivieren von ACPI-C-States kann die Leistung und Latenz verbessern, verbraucht aber im Leerlauf mehr Strom, was möglicherweise die Batterielebensdauer verkürzt“,
-  „@perfCStatesDescription“: {
-    „description“: „Die Beschreibung für Optimierungen für Fensterspiele“
-  },
-  „perfSectionFS“: „Dateisystem“,
-  „@perfSectionFS“: {
-    „description“: „Der Untertitel für Dateisystem“
-  },
-  „perfLTALabel“: „Letzten Zugriffszeitpunkt deaktivieren“,
-  „@perfLTALabel“: {
-    „description“: „Die Bezeichnung für die letzte Zugriffszeit“
-  },
-  „perfLTADescription“: „Das Deaktivieren des letzten Zugriffs verbessert die Leistung des Datei- und Verzeichniszugriffs, reduziert die E/A-Last und Latenz der Festplatte“,
-  „@perfLTADescription“: {
-    „description“: „Die Beschreibung für die letzte Zugriffszeit“
-  },
-
-  „perfEdTLabel“: „8.3-Benennung deaktivieren“,
-  „@perfEdTLabel“: {
-    „description“: „Das Label für 8.3 Naming“
-  },
-  „perfEdTDescription“: „8.3-Benennung ist uralt und ihre Deaktivierung wird die NTFS-Leistung und -Sicherheit verbessern“,
-  „@perfEdTDescription“: {
-    „description“: „Die Beschreibung für 8.3 Benennung“
-  },
-
-  „perfMULabel“: „Grenze des ausgelagerten Poolspeichers auf NTFS erhöhen“,
-  „@perfMULabel“: {
-    „description“: „Die Bezeichnung für die Speichernutzung“
-  },
-  „perfMUDescription“: „Das Erhöhen des physischen Speichers erhöht nicht immer die Menge des für NTFS verfügbaren ausgelagerten Poolspeichers. Wenn Sie die Speichernutzung auf 2 festlegen, wird die Grenze des ausgelagerten Poolspeichers erhöht. Dies kann die Leistung verbessern, wenn Ihr System viele Dateien öffnet und schließt denselben Dateisatz verwenden und nicht bereits große Mengen an Systemspeicher für andere Apps oder für den Cache-Speicher verwenden. Wenn Ihr Computer bereits große Mengen an Systemspeicher für andere Apps oder für den Cache-Speicher verwendet, erhöhen Sie die Grenze für ausgelagertes und nicht ausgelagertes NTFS Der Poolspeicher verringert den verfügbaren Poolspeicher für andere Prozesse. Dies kann die Gesamtsystemleistung beeinträchtigen.\n\nStandardeinstellung ist „Aus“,
-  „@perfMUTDescription“: {
-    „description“: „Die Beschreibung für die Speichernutzung“
-  },
-  „wuPauseLabel“: „Windows-Updates anhalten“,
-  „@wuPauseLabel“: {
-    „description“: „Die Bezeichnung für das Ausblenden von Windows-Updates“
-  },
-  „wuPauseDescription“: „Wenn aktiviert, werden Windows-Updates bis zum 19.01.2038 angehalten“,
-  „@wuPauseDescription“: {
-    „description“: „Die Beschreibung zum Ausblenden von Windows-Updates“
-  },
-  „wuPageLabel“: „Windows-Updates-Seite ausblenden“,
-  „@wuPageLabel“: {
-    „description“: „Die Bezeichnung für das Ausblenden von Windows-Updates“
-  },
-  „wuPageDescription“: „Durch die Anzeige dieser Seite werden auch Update-Benachrichtigungen aktiviert“,
-  „@wuPageDescription“: {
-    „description“: „Die Beschreibung zum Ausblenden von Windows-Updates“
-  },
-  „wuDriversLabel“: „Treiber werden über Windows-Updates installiert“,
-  „@wuDriversLabel“: {
-    „description“: „Die Bezeichnung für automatische Treiberaktualisierungen“
-  },
-  „wuDriversDescription“: „Um Treiber in ReviOS zu installieren, müssen Sie in den Einstellungen manuell nach Updates suchen, da automatische Windows-Updates nicht unterstützt werden“,
-  „@wuDriversDescription“: {
-    „description“: „Die Beschreibung für automatische Treiberaktualisierungen“
-  },
-  „miscHibernateLabel“: „Ruhezustand“,
-  „@miscHibernateLabel“: {
-    „description“: „Das Label für Hibernate“
-  },
-  „miscHibernateDescription“: „Ein energiesparender S4-Zustand, speichert die aktuelle Sitzung im Ruhezustand und schaltet das Gerät aus. Standardmäßig deaktiviert, um Instabilität beim Dual-Booten oder System-Upgrades zu vermeiden“,
-  „@miscHibernatepDescription“: {
-    „description“: „Die Beschreibung für Hibernate“
-  },
-
-  „miscHibernateModeLabel“: „Ruhezustand“,
-  „@miscHibernateModeLabel“: {
-    „description“: „Die Bezeichnung für den Ruhezustand“
-  },
-  „miscHibernateModeDescription“: „Vollständig – Unterstützt Ruhezustand und Schnellstart. Die Ruhezustandsdatei wird 40 % des installierten physischen RAM ausmachen. Ruhezustand kann zum Energiemenü hinzugefügt werden.\n\nReduziert – Unterstützt nur Schnellstart ohne Ruhezustand. Die Ruhezustandsdatei wird 20 % des physischen RAM installiert sein und den Ruhezustand aus dem Energiemenü entfernen",
-  „@miscHibernateModeDescription“: {
-    „description“: „Die Beschreibung für den Ruhezustand“
-  },
-  „miscFastStartupLabel“: „Schnellstart“,
-  „@miscFastStartupLabel“: {
-    „description“: „Das Label für Fast Startup“
-  },
-  „miscFastStartupDescription“: „Speichern Sie die aktuelle Sitzung unter C:\\hiberfil.sys für einen schnelleren Start, wirkt sich nicht auf Neustarts aus. Standardmäßig deaktiviert, um Instabilität beim Dual-Booten oder System-Upgrades zu vermeiden“,
-  „@miscFastStartupDescription“: {
-    „description“: „Die Beschreibung für Fast Startup“
-  },
-  „miscTMMonitoringLabel“: „Netzwerk- und GPU-Überwachung“,
-  „@miscTMMonitoringLabel“: {
-    „description“: „Das Label für Netzwerk- und GPU-Überwachung“
-  },
-  „miscTMMonitoringDescription“: „Überwachungsdienste für Task-Manager aktivieren“,
-  „@miscTMMonitoringDescription“: {
-    „description“: „Die Beschreibung für die Netzwerk- und GPU-Überwachung“
-  },
-  „miscMpoLabel“: „Multiplane-Overlay (MPO)“,
-  „@miscMpoLabel“: {
-    „description“: „Die Beschreibung für das MPO-Label“
-  },
-  „miscMpoCodeSnippet“: „Empfohlen, auf Nvidia GTX 16xx-, RTX 3xxx- und AMD RX 5xxx-Karten oder neuer auszuschalten.\nWenn dies aktiviert bleibt, kann es zu schwarzen Bildschirmen, Stottern, Flackern und anderen allgemeinen Anzeigeproblemen kommen.“
-  „@miscMpoCodeSnippet“: {
-    „description“: „Das Code-Snippet für MPO“
-  },
-  „miscBHRLabel“: „Bericht zum Batteriezustand“,
-  „@miscBHRLabel“: {
-    „description“: „Das Label für Battery Health Reporting“
-  },
-  „miscBHRDescription“: „Meldet den Zustand des Akkus; durch die Aktivierung erhöht sich die Systemnutzung“,
-  „@miscBHRgDescription“: {
-    „description“: „Die Beschreibung für Battery Health Reporting“
-  },
-  „miscCertsLabel“: „Stammzertifikate aktualisieren“,
-  „@miscCertsLabel“: {
-    „description“: „Die Bezeichnung für Update-Stammzertifikate“
-  },
-  „miscCertsDescription“: „Verwenden Sie es, wenn Sie Probleme mit Zertifikaten haben“,
-  „@miscCertsgDescription“: {
-    „description“: „Die Beschreibung für Update-Stammzertifikate“
-  },
-  „miscCertsDialog“: „Die Aktualisierung der Stammzertifikate ist abgeschlossen. Probieren Sie die Software, mit der Sie Probleme hatten, erneut aus. Wenn das Problem weiterhin besteht, wenden Sie sich bitte an unseren Support.“,
-  „@miscCertsDialog“: {
-    „description“: „Der Dialoginhalt für Update Root Certificates“
-  },
-  „settingsUpdateLabel“: „Revisionstool aktualisieren“,
-  „@settingsUpdateLabel“: {
-    „description“: „Standardstatus des Update-Kartenetiketts des Revision Tools“
-  },
-  „updateButton“: „Aktualisieren“,
-  „@updateButton“: {
-    „description“: „Aktualisieren-Schaltfläche“
-  },
-  „settingsUpdateButton“: „Nach Updates suchen“,
-  „@settingsUpdateButton“: {
-    „description“: „Standardstatus der Update-Schaltfläche des Revisionstools“
-  },
-  „settingsUpdateButtonAvailable“: „Update verfügbar“,
-  „@settingsUpdateButtonAvailable“: {
-    „description“: „Aktualisierungsschaltfläche verfügbar“
-  },
-  „settingsUpdateButtonAvailablePrompt“: „Möchten Sie das Revisionstool aktualisieren auf“,
-  „@settingsUpdateButtonAvailablePrompt“: {
-    „description“: „Nach verfügbarer Update-Schaltfläche fragen“
-  },
-  „settingsUpdatingStatus“: „Aktualisierung“,
-  „@settingsUpdatingStatus“: {
-    „description“: „Aktualisierungsstatus“
-  },
-  „settingsUpdatingStatusSuccess“: „Erfolgreich aktualisiert“,
-  „@settingsUpdatingStatusSuccess“: {
-    „description“: „Erfolgreicher Aktualisierungsstatus“
-  },
-  „settingsUpdatingStatusNotFound“: „Es wurde kein Update gefunden“,
-  „@settingsUpdatingStatusNotFound“: {
-    „description“: „Kein Update-Status“
-  },
-
-  „settingsCTLabel“: „Farbthema“,
-  „@settingsCTLabel“: {
-    „description“: „Das Label für Farbthema“
-  },
-  „settingsCTDescription“: „Zwischen hellem und dunklem Modus wechseln oder das Design automatisch mit Windows ändern“,
-  „@settingsCTDescription“: {
-    „description“: „Die Beschreibung für das Farbthema“
-  },
-
-  „settingsEPTLabel“: „Experimentelle Optimierungen anzeigen“,
-  „@settingsEPTLabel“: {
-    „description“: „Das Label für experimentelle Optimierungen anzeigen“
-  },
-  „settingsEPTDescription“: „“,
-  „@settingsEPTDescription“: {
-    „description“: „Die Beschreibung für Experimentelle Optimierungen anzeigen“
-  },
-  „restartAppDialog“: „Sie müssen Ihre App neu starten, damit die Änderungen wirksam werden“,
-  „@restartAppDialog“: {
-    "Beschreibung": ""
-  },
-  „settingsLanguageLabel“: „Sprache“,
-  „@settingsLanguageLabel“: {
-    "Beschreibung": ""
-  }
+  "suggestionBoxPlaceholder": "Einstellung suchen",
+  "homeWelcome": "Willkommen bei Revision",
+  "homeDescription": "Ein Tool zur Personalisierung von ReviOS an Ihre Bedürfnisse",
+  "homeReviLink": "Revision auschecken",
+  "homeReviFAQLink": "FAQ ansehen",
+  "securityWDLabel": "Windows Defender",
+  "securityWDDescription": "Windows Defender schützt Ihren PC. Dies wirkt sich negativ auf die Leistung aus, da es ständig im Hintergrund ausgeführt wird",
+  "securityWDButton": "Schutzmaßnahmen deaktivieren",
+  "securityDialog": "Bitte deaktivieren Sie alle Schutzmaßnahmen, bevor Sie Windows Defender vollständig deaktivieren",
+  "securityUACLabel": "Benutzerkontensteuerung",
+  "securityUACDescription": "Beschränkt die Anwendung auf Standardbenutzerrechte, bis ein Administrator eine Erhöhung genehmigt",
+  "securitySMLabel": "Spectre & Meltdown Mitigation",
+  "securitySMDescription": "Patches zur Abschwächung von Spectre- und Meltdown-Schwachstellen",
+  "usabilityNotifLabel": "Windows-Benachrichtigungen",
+  "usabilityNotifDescription": "Windows-Benachrichtigungen vollständig umschalten",
+  "usabilityLBNLabel": "Legacy-Benachrichtigungsballons",
+  "usabilityLBNDescription": "Tray-Programme in der Taskleiste werden als Sprechblasen statt als Popup-Benachrichtigungen dargestellt",
+  "usabilityITPLabel": "Personalisierung von Freihand- und Schreibeingaben",
+  "usabilityITPDescription": "Windows lernt, was Sie eingeben, um Vorschläge beim Schreiben zu verbessern",
+  "usabilityCPLLabel": "Feststelltaste deaktivieren",
+  "usability11MRCLabel": "Neues Kontextmenü",
+  "usability11FETLabel": "Datei-Explorer-Registerkarten",
+  "perfSuperfetchLabel": "Superfetch",
+  "perfSuperfetchDescription": "Beschleunigen Sie die Startzeit und laden Sie Programme schneller, indem Sie alle erforderlichen Daten vorab in den Speicher laden. Die Aktivierung von Superfetch wird nur Festplattenbenutzern empfohlen",
+  "perfMCLabel": "Speicherkomprimierung",
+  "perfMCDescription": "Sparen Sie Speicher, indem Sie nicht verwendete Programme komprimieren, die im Hintergrund laufen. Kann je nach Hardware einen kleinen Einfluss auf die CPU-Auslastung haben",
+  "perfITSXLabel": "Intel TSX",
+  "perfITSXDescription": "Hardware-Transaktionsspeicherunterstützung hinzufügen, die dazu beiträgt, die Ausführung von Multithread-Software auf Kosten der Sicherheit zu beschleunigen",
+  "perfFOLabel": "Vollbildoptimierungen",
+  "perfFODescription": "Vollbildoptimierungen können zu einer besseren Spiele- und App-Leistung führen, wenn sie im Vollbildmodus ausgeführt werden",
+  "perfOWGLabel": "Optimierungen für Fensterspiele",
+  "perfOWGDescription": "Verbessert die Frame-Latenz durch die Verwendung eines neuen Präsentationsmodells für DirectX 10- und 11-Spiele, die in einem Fenster oder in einem randlosen Fenster angezeigt werden",
+  "perfCStatesLabel": "Deaktivieren Sie die ACPI-Zustände C2 und C3",
+  "perfCStatesDescription": "Das Deaktivieren von ACPI-C-States kann die Leistung und Latenz verbessern, verbraucht aber im Leerlauf mehr Strom, was möglicherweise die Batterielebensdauer verkürzt",
+  "perfSectionFS": "Dateisystem",
+  "perfLTALabel": "Letzten Zugriffszeitpunkt deaktivieren",
+  "perfLTADescription": "Das Deaktivieren des letzten Zugriffs verbessert die Leistung des Datei- und Verzeichniszugriffs, reduziert die E/A-Last und Latenz der Festplatte",
+  "perfEdTLabel": "8.3-Benennung deaktivieren",
+  "perfEdTDescription": "8.3-Benennung ist uralt und ihre Deaktivierung wird die NTFS-Leistung und -Sicherheit verbessern",
+  "perfMULabel": "Grenze des ausgelagerten Poolspeichers auf NTFS erhöhen",
+  "perfMUDescription": "Das Erhöhen des physischen Speichers erhöht nicht immer die Menge des für NTFS verfügbaren ausgelagerten Poolspeichers. Wenn Sie die Speichernutzung auf 2 festlegen, wird die Grenze des ausgelagerten Poolspeichers erhöht. Dies kann die Leistung verbessern, wenn Ihr System viele Dateien öffnet und schließt denselben Dateisatz verwenden und nicht bereits große Mengen an Systemspeicher für andere Apps oder für den Cache-Speicher verwenden. Wenn Ihr Computer bereits große Mengen an Systemspeicher für andere Apps oder für den Cache-Speicher verwendet, erhöhen Sie die Grenze für ausgelagertes und nicht ausgelagertes NTFS Der Poolspeicher verringert den verfügbaren Poolspeicher für andere Prozesse. Dies kann die Gesamtsystemleistung beeinträchtigen.\n\nStandardeinstellung ist Aus",
+  "wuPauseLabel": "Windows-Updates anhalten",
+  "wuPauseDescription": "Wenn aktiviert, werden Windows-Updates bis zum 19.01.2038 angehalten",
+  "wuPageLabel": "Windows-Updates-Seite ausblenden",
+  "wuPageDescription": "Durch die Anzeige dieser Seite werden auch Update-Benachrichtigungen aktiviert",
+  "wuDriversLabel": "Treiber werden über Windows-Updates installiert",
+  "wuDriversDescription": "Um Treiber in ReviOS zu installieren, müssen Sie in den Einstellungen manuell nach Updates suchen, da automatische Windows-Updates nicht unterstützt werden",
+  "miscHibernateLabel": "Ruhezustand",
+  "miscHibernateDescription": "Ein energiesparender S4-Zustand, speichert die aktuelle Sitzung im Ruhezustand und schaltet das Gerät aus. Standardmäßig deaktiviert, um Instabilität beim Dual-Booten oder System-Upgrades zu vermeiden",
+  "miscHibernateModeLabel": "Ruhezustand",
+  "miscHibernateModeDescription": "Vollständig – Unterstützt Ruhezustand und Schnellstart. Die Ruhezustandsdatei wird 40 % des installierten physischen RAM ausmachen. Ruhezustand kann zum Energiemenü hinzugefügt werden.\n\nReduziert – Unterstützt nur Schnellstart ohne Ruhezustand. Die Ruhezustandsdatei wird 20 % des physischen RAM installiert sein und den Ruhezustand aus dem Energiemenü entfernen",
+  "miscFastStartupLabel": "Schnellstart",
+  "miscFastStartupDescription": "Speichern Sie die aktuelle Sitzung unter C:\\hiberfil.sys für einen schnelleren Start, wirkt sich nicht auf Neustarts aus. Standardmäßig deaktiviert, um Instabilität beim Dual-Booten oder System-Upgrades zu vermeiden",
+  "miscTMMonitoringLabel": "Netzwerk- und GPU-Überwachung",
+  "miscTMMonitoringDescription": "Überwachungsdienste für Task-Manager aktivieren",
+  "miscMpoLabel": "Multiplane-Overlay (MPO)",
+  "miscMpoCodeSnippet": "Empfohlen, auf Nvidia GTX 16xx-, RTX 3xxx- und AMD RX 5xxx-Karten oder neuer auszuschalten.\nWenn dies aktiviert bleibt, kann es zu schwarzen Bildschirmen, Stottern, Flackern und anderen allgemeinen Anzeigeproblemen kommen.",
+  "miscBHRLabel": "Bericht zum Batteriezustand",
+  "miscBHRDescription": "Meldet den Zustand des Akkus; durch die Aktivierung erhöht sich die Systemnutzung",
+  "miscCertsLabel": "Stammzertifikate aktualisieren",
+  "miscCertsDescription": "Verwenden Sie es, wenn Sie Probleme mit Zertifikaten haben",
+  "miscCertsDialog": "Die Aktualisierung der Stammzertifikate ist abgeschlossen. Probieren Sie die Software, mit der Sie Probleme hatten, erneut aus. Wenn das Problem weiterhin besteht, wenden Sie sich bitte an unseren Support.",
+  "settingsUpdateLabel": "Revisionstool aktualisieren",
+  "updateButton": "Aktualisieren",
+  "settingsUpdateButton": "Nach Updates suchen",
+  "settingsUpdateButtonAvailable": "Update verfügbar",
+  "settingsUpdateButtonAvailablePrompt": "Möchten Sie das Revisionstool aktualisieren auf",
+  "settingsUpdatingStatus": "Aktualisierung",
+  "settingsUpdatingStatusSuccess": "Erfolgreich aktualisiert",
+  "settingsUpdatingStatusNotFound": "Es wurde kein Update gefunden",
+  "settingsCTLabel": "Farbthema",
+  "settingsCTDescription": "Zwischen hellem und dunklem Modus wechseln oder das Design automatisch mit Windows ändern",
+  "settingsEPTLabel": "Experimentelle Optimierungen anzeigen",
+  "settingsEPTDescription": "",
+  "restartAppDialog": "Sie müssen Ihre App neu starten, damit die Änderungen wirksam werden",
+  "settingsLanguageLabel": "Sprache"
 }
