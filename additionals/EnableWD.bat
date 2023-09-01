@@ -33,4 +33,5 @@ reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" /v "SmartScree
 reg delete "HKLM\Software\Policies\Microsoft\Windows Defender" /f >NUL 2>nul
 reg delete "HKLM\Software\Policies\Microsoft\Windows Defender\Signature Updates" /f >NUL 2>nul
 reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center" /f >NUL 2>nul
+reg delete "HKLM\SYSTEM\ControlSet001\Control\CI\Policy" /v "VerifiedAndReputablePolicyState" /f >NUL 2>nul
 goto :EOF
