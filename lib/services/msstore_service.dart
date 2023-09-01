@@ -4,10 +4,10 @@ import 'package:dio/dio.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:process_run/cmd_run.dart';
 import 'package:process_run/shell_run.dart';
-import '../models/filtered_response.dart';
+import '../models/ms_store/non_uwp_response.dart';
+import '../models/ms_store/search_response.dart';
 import '../models/ms_store/packages_info.dart';
 import 'package:xml/xml.dart' as xml;
-import '../models/products_list.dart';
 import '../utils.dart';
 import 'registry_utils_service.dart';
 
@@ -46,18 +46,16 @@ class MSStoreService {
 
   // static final _genPattern = RegExp(r'\.(\d\.\d)_');
 
-  static const _validExtensions = [
+  static const _validUWPExtensions = {
     "appx",
     "appxbundle",
     "msix",
     "msixbundle",
-    "exe",
-    "msi",
     "eappx",
     "eappxbundle",
     "emsix",
     "emsixbundle"
-  ];
+  };
   static var _cookie = "";
 
   final _dio = Dio();
@@ -71,29 +69,33 @@ class MSStoreService {
   MSStoreService._private();
 
   Future<List<PackagesInfo>> startProcess(String productId, String ring) async {
-    if (_cookie.isEmpty) {
-      _cookie = await _getCookie();
-    }
-    debugPrint("Cookie: $_cookie");
-    final String categoryID = await _getCategoryID(productId);
-    debugPrint("Category ID: $categoryID");
-    final List<PackagesInfo> packages = await _getPackages(
-        await _getFileListXML(categoryID, _cookie, ring), ring);
-
-    if (packages.isNotEmpty) {
-      // filter packages
-      final groupedPackages = _groupSamePackages(packages);
-      final filteredPackages = _getLatestPackages(groupedPackages);
-
-      if (filteredPackages.isEmpty) {
-        return packages;
+    // UWP apps mostly start with "9"
+    if (productId.startsWith("9")) {
+      if (_cookie.isEmpty) {
+        _cookie = await _getCookie();
       }
+      debugPrint("Cookie: $_cookie");
+      final String categoryID = await _getCategoryID(productId);
+      debugPrint("Category ID: $categoryID");
+      final List<PackagesInfo> packages = await _getPackages(
+          await _getFileListXML(categoryID, _cookie, ring), ring);
 
-      return filteredPackages;
-    } else {
-      throw Exception(
-          "No packages found, non-UWP apps needs to be implemented");
+      if (packages.isNotEmpty) {
+        // filter packages
+        final groupedPackages = _groupSamePackages(packages);
+        final filteredPackages = _getLatestPackages(groupedPackages);
+
+        if (filteredPackages.isEmpty) return packages;
+        return filteredPackages;
+      }
     }
+
+    // Non-UWP apps mostly start with "X"
+    if (productId.startsWith("X")) {
+      return await _getNonAppxPackage(productId);
+    }
+
+    return [];
   }
 
   Future<List<ProductsList>> searchProducts(String query) async {
@@ -103,7 +105,7 @@ class MSStoreService {
         options: _options);
 
     if (response.statusCode == 200) {
-      return FilteredResponse.fromJson(response.data).productsList ?? [];
+      return SearchResponse.fromJson(response.data).productsList ?? [];
     }
     throw Exception('Failed to search products');
   }
@@ -158,18 +160,48 @@ class MSStoreService {
     throw Exception('Failed to get file list xml');
   }
 
-// TODO: Implement this method
-  Future<List<PackagesInfo>> getNonAppxPackage(String appID) async {
-    // final response = await _dio.get(
-    //     "https://storeedgefd.dsx.mp.microsoft.com/v9.0/packageManifests/$appID",
-    //     cancelToken: _cancelToken);
-    // final packages = <PackagesInfo>[];
-    // final pi = PackagesInfo("", "", "", "", "", appID, -1, "");
-    // print(response.data);
+  Future<List<PackagesInfo>> _getNonAppxPackage(String id) async {
+    final response = await _dio.get("$_storeAPI/packageManifests/$id?Market=US",
+        cancelToken: _cancelToken);
 
-    // final nonUWPPackage = NonUWPPackageDown.fromJson(jsonDecode(response));
+    final List<PackagesInfo> packages = [];
 
-    return List.empty();
+    if (response.statusCode == 200) {
+      final responseData = NonUWPResponse.fromJson(response.data).data;
+      final versions = responseData?.versions;
+
+      final Set<String> urls = {};
+
+      for (final installer in versions!.first.installers!) {
+        final installerUrl = installer.installerUrl!;
+        final String extension = installer.installerType ??
+            installerUrl.substring(installerUrl.lastIndexOf('.') + 1);
+
+        if (extension.isEmpty || extension == "exe" || extension == "msi") {
+          final name =
+              "${versions.first.defaultLocale!.packageName}-${installer.architecture}";
+
+          if (!urls.contains(installerUrl)) {
+            packages.add(
+              PackagesInfo(
+                name,
+                extension,
+                installerUrl,
+                "",
+                "",
+                id,
+                -1,
+                "",
+                null,
+                installer.installerSwitches!.silent,
+              ),
+            );
+            urls.add(installerUrl);
+          }
+        }
+      }
+    }
+    return packages;
   }
 
   Future<List<PackagesInfo>> _getPackages(String xmlList, String ring) async {
@@ -203,7 +235,7 @@ class MSStoreService {
         final updateIdentity =
             node.parent!.parent!.getElement('UpdateIdentity')!;
 
-        if (_validExtensions.contains(extension) &&
+        if (_validUWPExtensions.contains(extension) &&
                 !name.contains("Microsoft.Advertising") &&
                 name.contains("x64") ||
             name.contains("neutral")) {
@@ -217,6 +249,7 @@ class MSStoreService {
             node.parent!.parent!.parent!.getElement('ID')!.value,
             double.parse(package.split('|')[1]),
             digest,
+            null,
             null,
           ));
         }
@@ -272,7 +305,8 @@ class MSStoreService {
             entry.value.id,
             entry.value.size,
             entry.value.digest,
-            entry.key))
+            entry.key,
+            null))
         .toList()
         .groupListsBy((item) => _namePattern.firstMatch(item.name!)?.group(0));
 
@@ -323,6 +357,16 @@ class MSStoreService {
   Future<List<ProcessResult>> installUWPPackages(String path) async {
     return await run(
       'powershell -NoP -ExecutionPolicy Bypass -NonInteractive -C "& {\$appxFiles = Get-ChildItem -Path "$path"; foreach (\$file in \$appxFiles) { Add-AppxPackage -Path \$file.FullName; echo "\$(\$file.Name)";}}"',
+    );
+  }
+
+  Future<ProcessResult> installNonUWPPackages(
+      String path, String fileName, String commandLines) async {
+    commandLines = commandLines.replaceAll('"', '');
+    return await runExecutableArguments(
+      "$path\\$fileName",
+      commandLines.split(r' '),
+      verbose: true,
     );
   }
 }

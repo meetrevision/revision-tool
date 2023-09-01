@@ -15,7 +15,8 @@ class PackagesInfo with _$PackagesInfo, Comparable<PackagesInfo> {
       String? id,
       double? size,
       String? digest,
-      int? originalIndex) = _PackagesInfo;
+      int? originalIndex,
+      String? commandLines) = _PackagesInfo;
 
   factory PackagesInfo.fromJson(Map<String, dynamic> json) =>
       _$PackagesInfoFromJson(json);

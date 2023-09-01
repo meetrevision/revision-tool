@@ -99,5 +99,6 @@
   "pageMSStore": "Microsoft Store",
   "msstoreSearchingPackages": "Searching for packages",
   "msstoreWait": "Please wait...",
-  "msstorePackagesPrompt": "Would you like to install the following packages?"
+  "msstorePackagesPrompt": "Would you like to install the following packages?",
+  "msstorePackagesNotFound": "No packages were found"
 }

@@ -10,7 +10,8 @@
     "pageMSStore",
     "msstoreSearchingPackages",
     "msstoreWait",
-    "msstorePackagesPrompt"
+    "msstorePackagesPrompt",
+    "msstorePackagesNotFound"
   ],
 
   "pt": [
@@ -26,7 +27,8 @@
     "pageMSStore",
     "msstoreSearchingPackages",
     "msstoreWait",
-    "msstorePackagesPrompt"
+    "msstorePackagesPrompt",
+    "msstorePackagesNotFound"
   ],
 
   "zh": [
@@ -42,7 +44,8 @@
     "pageMSStore",
     "msstoreSearchingPackages",
     "msstoreWait",
-    "msstorePackagesPrompt"
+    "msstorePackagesPrompt",
+    "msstorePackagesNotFound"
   ],
 
   "zh_TW": [
@@ -56,6 +59,7 @@
     "pageMSStore",
     "msstoreSearchingPackages",
     "msstoreWait",
-    "msstorePackagesPrompt"
+    "msstorePackagesPrompt",
+    "msstorePackagesNotFound"
   ]
 }

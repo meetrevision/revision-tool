@@ -1,6 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import '../../l10n/generated/localizations.dart';
-import '../../models/products_list.dart';
+import '../../models/ms_store/search_response.dart';
 import '../../widgets/card_highlight.dart';
 import '../../models/ms_store/packages_info.dart';
 import '../../services/msstore_service.dart';
@@ -19,6 +19,7 @@ class _MSStorePageState extends State<MSStorePage>
   final TextEditingController _textEditingController = TextEditingController();
   List<ProductsList> _productsList = [];
   final MSStoreService _msStoreService = MSStoreService();
+  String _selectedRing = "Retail";
 
   @override
   void dispose() {
@@ -48,11 +49,44 @@ class _MSStorePageState extends State<MSStorePage>
         ),
       ),
       children: [
-        TextBox(
-            controller: _textEditingController,
-            placeholder: ReviLocalizations.of(context).search,
-            expands: false,
-            onSubmitted: (value) => _onSearchButtonPressed()),
+        Row(
+          children: [
+            Expanded(
+              child: TextBox(
+                  controller: _textEditingController,
+                  placeholder: ReviLocalizations.of(context).search,
+                  expands: false,
+                  onSubmitted: (value) => _onSearchButtonPressed()),
+            ),
+            const SizedBox(width: 10),
+            ComboBox<String>(
+              value: _selectedRing,
+              onChanged: (value) {
+                setState(() {
+                  _selectedRing = value!;
+                });
+              },
+              items: const [
+                ComboBoxItem(
+                  value: "Retail",
+                  child: Text("Retail (Stable)"),
+                ),
+                ComboBoxItem(
+                  value: "RP",
+                  child: Text("Release Preview"),
+                ),
+                ComboBoxItem(
+                  value: "WIS",
+                  child: Text("Insider Slow"),
+                ),
+                ComboBoxItem(
+                  value: "WIF",
+                  child: Text("Insider Fast"),
+                ),
+              ],
+            ),
+          ],
+        ),
         const SizedBox(height: 10),
         for (var product in _productsList) ...[
           if (product.displayPrice == "Free") ...[
@@ -67,12 +101,15 @@ class _MSStorePageState extends State<MSStorePage>
                       ReviLocalizations.of(context).msstoreSearchingPackages);
 
                   final List<PackagesInfo> packages = await _msStoreService
-                      .startProcess(product.productId!, "Retail");
+                      .startProcess(product.productId!, _selectedRing);
 
                   if (!mounted) return;
                   Navigator.pop(context);
-
-                  showSelectPackages(product.productId!, packages);
+                  if (packages.isNotEmpty) {
+                    showSelectPackages(product.productId!, packages);
+                  } else {
+                    showNotFound(context);
+                  }
                 },
               ),
             )
@@ -88,8 +125,7 @@ class _MSStorePageState extends State<MSStorePage>
       (index) => TreeViewItem(
         value: index,
         selected: packages[index].name!.contains("neutral") ||
-            packages[index].name!.contains("x64") ||
-            packages[index].name!.contains("x86"),
+            packages[index].name!.contains("x64"),
         content: Text(packages[index].name!),
       ),
     );
@@ -113,6 +149,10 @@ class _MSStorePageState extends State<MSStorePage>
                 if (item.selected!) {
                   downloadList.add(packages[item.value]);
                 }
+              }
+              if (downloadList.isEmpty) {
+                Navigator.pop(context, 'Download list is empty');
+                return;
               }
 
               if (!mounted) return;

@@ -31,6 +31,7 @@ Future<Object?> showInstallProcess(
     BuildContext context, List<ProcessResult> processResult) {
   return showDialog(
     context: context,
+    dismissWithEsc: false,
     builder: (context) => ContentDialog(
       constraints: const BoxConstraints(maxWidth: 600, maxHeight: 600),
       title: Text(ReviLocalizations.of(context).installing),
@@ -47,6 +48,30 @@ Future<Object?> showInstallProcess(
           ),
         ),
       ),
+      actions: [
+        FilledButton(
+          child: Text(ReviLocalizations.of(context).close),
+          onPressed: () => Navigator.pop(context, 'Install process'),
+        ),
+      ],
     ),
+  );
+}
+
+Future<Object?> showNotFound(BuildContext context) {
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return ContentDialog(
+        constraints: const BoxConstraints(maxWidth: 600),
+        content: Text(ReviLocalizations.of(context).msstorePackagesNotFound),
+        actions: [
+          FilledButton(
+            child: Text(ReviLocalizations.of(context).close),
+            onPressed: () => Navigator.pop(context, 'Not found'),
+          ),
+        ],
+      );
+    },
   );
 }

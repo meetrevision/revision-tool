@@ -90,8 +90,7 @@ class _DownloadWidgetState extends State<DownloadWidget> {
                                       children: [
                                         ProgressBar(value: value),
                                         const SizedBox(width: 10),
-                                        Text(
-                                            "$value%\n$_completedDownloadsCount"),
+                                        Text("$value%"),
                                       ],
                                     );
                                   },
@@ -114,11 +113,23 @@ class _DownloadWidgetState extends State<DownloadWidget> {
                   showLoadingDialog(
                       context, ReviLocalizations.of(context).installing);
 
-                  final processResult = await _ms.installUWPPackages(
-                      '${Directory.systemTemp.path}\\Revision-Tool\\MSStore\\${widget.productId}');
+                  List<ProcessResult> processResult = [];
+                  if (widget.items.first.extension == "exe" ||
+                      widget.items.first.extension == "msi") {
+                    for (final item in widget.items) {
+                      processResult.add(await _ms.installNonUWPPackages(
+                          '${Directory.systemTemp.path}\\Revision-Tool\\MSStore\\${widget.productId}\\',
+                          "${item.name}.${item.extension}",
+                          item.commandLines!));
+                    }
+                  } else {
+                    processResult.addAll(await _ms.installUWPPackages(
+                        '${Directory.systemTemp.path}\\Revision-Tool\\MSStore\\${widget.productId}'));
+                  }
 
                   if (!mounted) return;
                   Navigator.pop(context);
+
                   await showInstallProcess(context, processResult);
                 },
               ),
