@@ -24,13 +24,14 @@ class DownloadWidget extends StatefulWidget {
 }
 
 class _DownloadWidgetState extends State<DownloadWidget> {
-  final Dio _dio = Dio();
+  final _dio = Dio();
   late final List<Stream<Response>> _streams;
   late final List<ValueNotifier<double>> _progressList;
   final _ms = MSStoreService();
-  final StreamController<int> _downloadCompletionController =
-      StreamController<int>.broadcast();
-  late int _completedDownloadsCount = 0;
+  final _downloadCompletionController = StreamController<int>.broadcast();
+
+  int _completedDownloadsCount = 0;
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +45,10 @@ class _DownloadWidgetState extends State<DownloadWidget> {
                   final index = widget.items.indexOf(item);
                   _progressList[index].value =
                       ((received / total) * 100).floorToDouble();
+                  if (received == total) {
+                    _completedDownloadsCount++;
+                    _downloadCompletionController.add(_completedDownloadsCount);
+                  }
                 }
               },
             ).asStream())
@@ -56,16 +61,16 @@ class _DownloadWidgetState extends State<DownloadWidget> {
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
       stream: _downloadCompletionController.stream,
-      builder: (context, snapshoti) {
-        _completedDownloadsCount = snapshoti.data ?? 0;
-
+      builder: (context, snapshot) {
+        _completedDownloadsCount = snapshot.data ?? 0;
+        int itemsLength = widget.items.length;
         return ContentDialog(
           constraints: const BoxConstraints(maxWidth: 600, maxHeight: 600),
           content: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (int i = 0; i < widget.items.length; i++)
+                for (int i = 0; i < itemsLength; i++)
                   Card(
                     child: InfoLabel(
                       label: widget.items[i].name!,
@@ -76,11 +81,6 @@ class _DownloadWidgetState extends State<DownloadWidget> {
                             return Text(snapshot.error.toString());
                           } else {
                             final index = widget.items.indexOf(widget.items[i]);
-
-                            if (snapshot.connectionState ==
-                                ConnectionState.done) {
-                              _downloadCompletionController.add(i++);
-                            }
                             return Column(
                               children: [
                                 ValueListenableBuilder<double>(
@@ -90,7 +90,8 @@ class _DownloadWidgetState extends State<DownloadWidget> {
                                       children: [
                                         ProgressBar(value: value),
                                         const SizedBox(width: 10),
-                                        Text("$value%"),
+                                        Text(
+                                            "$value%\n$_completedDownloadsCount"),
                                       ],
                                     );
                                   },
@@ -106,7 +107,7 @@ class _DownloadWidgetState extends State<DownloadWidget> {
             ),
           ),
           actions: [
-            if (_completedDownloadsCount + 1 == widget.items.length) ...[
+            if (_completedDownloadsCount == itemsLength) ...[
               FilledButton(
                 child: Text(ReviLocalizations.of(context).install),
                 onPressed: () async {
