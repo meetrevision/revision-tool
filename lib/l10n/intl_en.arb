@@ -39,6 +39,8 @@
   "usabilityITPLabel": "Inking And Typing Personalization",
   "usabilityITPDescription": "Windows will learn what you type to improve suggestions when writing",
   "usabilityCPLLabel": "Disable CapsLock Key",
+  "usabilitySESLabel": "Screen Edge Swipe",
+  "usabilitySESDescription": "Disabling this fixes the taskbar pop-up when in fullscreen mode",
   "usability11MRCLabel": "New Context Menu",
   "usability11FETLabel": "File Explorer Tabs",
   "perfSuperfetchLabel": "Superfetch",

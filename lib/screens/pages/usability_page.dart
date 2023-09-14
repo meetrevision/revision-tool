@@ -20,6 +20,8 @@ class _UsabilityPageState extends State<UsabilityPage> {
   late final _itpBool =
       ValueNotifier<bool>(_usabilityService.statusInputPersonalization);
   late final _dCplBool = ValueNotifier<bool>(_usabilityService.statusCapsLock);
+  late final _sesBool =
+      ValueNotifier<bool>(_usabilityService.statusScreenEdgeSwipe);
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +77,18 @@ class _UsabilityPageState extends State<UsabilityPage> {
             _dCplBool.value
                 ? _usabilityService.disableCapsLock()
                 : _usabilityService.enableCapsLock();
+          },
+        ),
+        CardHighlightSwitch(
+          icon: msicons.FluentIcons.swipe_up_20_regular,
+          label: ReviLocalizations.of(context).usabilitySESLabel,
+          description: ReviLocalizations.of(context).usabilitySESDescription,
+          switchBool: _sesBool,
+          function: (value) async {
+            _sesBool.value = value;
+            _sesBool.value
+                ? _usabilityService.enableScreenEdgeSwipe()
+                : _usabilityService.disableScreenEdgeSwipe();
           },
         ),
       ],

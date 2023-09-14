@@ -286,6 +286,23 @@ class UsabilityService implements SetupService {
         _cplValue);
   }
 
+  bool get statusScreenEdgeSwipe {
+    return _registryUtilsService.readInt(
+            RegistryHive.localMachine,
+            r'SOFTWARE\Policies\Microsoft\Windows\EdgeUI',
+            'AllowEdgeSwipe') != 0;
+  }
+
+  void enableScreenEdgeSwipe() {
+   _registryUtilsService.deleteValue(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\Windows\EdgeUI', "AllowEdgeSwipe");
+  }
+
+  void disableScreenEdgeSwipe() {
+    _registryUtilsService.writeDword(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\Windows\EdgeUI', "AllowEdgeSwipe", 0);
+  }
+
+
+
   //Windows 11
 
   bool get statusNewContextMenu {
