@@ -24,10 +24,13 @@ class _PerformancePageState extends State<PerformancePage> {
       ValueNotifier<bool>(_performanceService.statusIntelTSX);
   late final _foBool =
       ValueNotifier<bool>(_performanceService.statusFullscreenOptimization);
-
-  /// Experimental
   late final _owgBool =
       ValueNotifier<bool>(_performanceService.statusWindowedOptimization);
+  late final _baBool =
+      ValueNotifier<bool>(_performanceService.statusBackgroundApps);
+
+  /// Experimental
+
   late final _cStatesBool =
       ValueNotifier<bool>(_performanceService.statusCStates);
 
@@ -105,13 +108,24 @@ class _PerformancePageState extends State<PerformancePage> {
             switchBool: _owgBool,
             function: (value) {
               _owgBool.value = value;
-
               _owgBool.value
                   ? _performanceService.enableWindowedOptimization()
                   : _performanceService.disableWindowedOptimization();
             },
           ),
         ],
+        CardHighlightSwitch(
+          icon: msicons.FluentIcons.bezier_curve_square_20_regular,
+          label: ReviLocalizations.of(context).perfBALabel,
+          description: ReviLocalizations.of(context).perfBADescription,
+          switchBool: _baBool,
+          function: (value) {
+            _baBool.value = value;
+            _baBool.value
+                ? _performanceService.enableBackgroundApps()
+                : _performanceService.disableBackgroundApps();
+          },
+        ),
         if (expBool.value) ...[
           CardHighlightSwitch(
             icon: msicons.FluentIcons.sleep_20_regular,

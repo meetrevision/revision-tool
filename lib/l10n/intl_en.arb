@@ -53,6 +53,8 @@
   "perfFODescription": "Fullscreen Optimizations may lead to better gaming and app performance when running in fullscreen mode",
   "perfOWGLabel": "Optimizations for windowed games",
   "perfOWGDescription": "Improves frame latency by using a new presentation model for DirectX 10 and 11 games that appear in a window or in a borderless window",
+  "perfBALabel": "Background Apps",
+  "perfBADescription": "Allow apps to run in the background, even when you're not using them. This will have a performance impact due to constantly running in the background. Disabling this will also disable notifications for some apps",
   "perfCStatesLabel": "Disable the ACPI C2 and C3 states",
   "perfCStatesDescription": "Disabling ACPI C-states may improve performance and latency, but it will consume more power while idle, potentially reducing battery life",
   "perfSectionFS": "Filesystem",

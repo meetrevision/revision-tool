@@ -185,6 +185,53 @@ class PerformanceService implements SetupService {
         'DirectXUserGlobalSettings');
   }
 
+  bool get statusBackgroundApps {
+    return _registryUtilsService.readInt(
+            RegistryHive.localMachine,
+            r'Software\Policies\Microsoft\Windows\AppPrivacy',
+            'LetAppsRunInBackground') !=
+        2;
+  }
+
+  void enableBackgroundApps() {
+    _registryUtilsService.deleteValue(
+        Registry.currentUser,
+        r'Software\Microsoft\Windows\CurrentVersion\Search',
+        'BackgroundAppGlobalToggle');
+    _registryUtilsService.deleteValue(
+        Registry.localMachine,
+        r'Software\Microsoft\Windows\CurrentVersion\Search',
+        'BackgroundAppGlobalToggle');
+
+    _registryUtilsService.deleteValue(
+        Registry.currentUser,
+        r'Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications',
+        'GlobalUserDisabled');
+    _registryUtilsService.deleteValue(
+        Registry.localMachine,
+        r'Software\Policies\Microsoft\Windows\AppPrivacy',
+        'LetAppsRunInBackground');
+  }
+
+  void disableBackgroundApps() {
+    _registryUtilsService.writeDword(
+        Registry.localMachine,
+        r'Software\Microsoft\Windows\CurrentVersion\Search',
+        'BackgroundAppGlobalToggle',
+        0);
+
+    _registryUtilsService.writeDword(
+        Registry.currentUser,
+        r'Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications',
+        'GlobalUserDisabled',
+        1);
+    _registryUtilsService.writeDword(
+        Registry.localMachine,
+        r'Software\Policies\Microsoft\Windows\AppPrivacy',
+        'LetAppsRunInBackground',
+        2);
+  }
+
   bool get statusCStates {
     return _registryUtilsService.readInt(RegistryHive.localMachine,
             r'SYSTEM\ControlSet001\Control\Processor', 'Capabilities') ==
