@@ -24,6 +24,16 @@ class _UsabilityPageState extends State<UsabilityPage> {
       ValueNotifier<bool>(_usabilityService.statusScreenEdgeSwipe);
 
   @override
+  void dispose() {
+    _notifBool.dispose();
+    _lbnBool.dispose();
+    _itpBool.dispose();
+    _dCplBool.dispose();
+    _sesBool.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
       header: PageHeader(

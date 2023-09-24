@@ -9,6 +9,7 @@ class SecurityService implements SetupService {
   static final SecurityService _instance = SecurityService._private();
 
   final RegistryUtilsService _registryUtilsService = RegistryUtilsService();
+  final Shell _shell = Shell();
 
   factory SecurityService() {
     return _instance;
@@ -39,13 +40,13 @@ class SecurityService implements SetupService {
         5;
   }
 
-  void enableDefender() async {
-    await run(
+  Future<void> enableDefender() async {
+    await _shell.run(
         '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\EnableWD.bat"');
   }
 
-  void disableDefender() async {
-    await run(
+  Future<void> disableDefender() async {
+    await _shell.run(
         '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\DisableWD.bat"');
   }
 
@@ -206,8 +207,8 @@ class SecurityService implements SetupService {
         3);
   }
 
-  void updateCertificates() async {
-    await run(
+  Future<void> updateCertificates() async {
+    await _shell.run(
         'PowerShell -NonInteractive -NoLogo -NoP -C "& {\$tmp = (New-TemporaryFile).FullName; CertUtil -generateSSTFromWU -f \$tmp; if ( (Get-Item \$tmp | Measure-Object -Property Length -Sum).sum -gt 0 ) { \$SST_File = Get-ChildItem -Path \$tmp; \$SST_File | Import-Certificate -CertStoreLocation "Cert:\\LocalMachine\\Root"; \$SST_File | Import-Certificate -CertStoreLocation "Cert:\\LocalMachine\\AuthRoot" } Remove-Item -Path \$tmp}"');
   }
 }

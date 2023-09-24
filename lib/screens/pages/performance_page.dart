@@ -43,6 +43,21 @@ class _PerformancePageState extends State<PerformancePage> {
       ValueNotifier<bool>(_performanceService.statusMemoryUsageNTFS);
 
   @override
+  void dispose() {
+    _sfBool.dispose();
+    _mcBool.dispose();
+    _iTSXBool.dispose();
+    _foBool.dispose();
+    _owgBool.dispose();
+    _baBool.dispose();
+    _cStatesBool.dispose();
+    _ntfsLTABool.dispose();
+    _ntfsEdTBool.dispose();
+    _ntfsMUBool.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
       header: PageHeader(
@@ -56,34 +71,40 @@ class _PerformancePageState extends State<PerformancePage> {
           switchBool: _sfBool,
           requiresRestart: true,
           function: (value) async {
-            _mcBool.value = value;
-            _sfBool.value
-                ? _performanceService.enableSuperfetch()
-                : _performanceService.disableSuperfetch();
+            _sfBool.value = value;
+            value
+                ? await _performanceService.enableSuperfetch()
+                : await _performanceService.disableSuperfetch();
           },
         ),
-        if (_sfBool.value) ...[
-          CardHighlightSwitch(
-            icon: msicons.FluentIcons.ram_20_regular,
-            label: ReviLocalizations.of(context).perfMCLabel,
-            description: ReviLocalizations.of(context).perfMCDescription,
-            switchBool: _mcBool,
-            function: (value) {
-              _mcBool.value = value;
-              _mcBool.value
-                  ? _performanceService.enableMemoryCompression()
-                  : _performanceService.disableMemoryCompression();
-            },
-          ),
-        ],
+        ValueListenableBuilder(
+          valueListenable: _sfBool,
+          builder: (context, value, child) {
+            if (_sfBool.value) {
+              return CardHighlightSwitch(
+                icon: msicons.FluentIcons.ram_20_regular,
+                label: ReviLocalizations.of(context).perfMCLabel,
+                description: ReviLocalizations.of(context).perfMCDescription,
+                switchBool: _mcBool,
+                function: (value) async {
+                  _mcBool.value = value;
+                  value
+                      ? await _performanceService.enableMemoryCompression()
+                      : await _performanceService.disableMemoryCompression();
+                },
+              );
+            }
+            return const SizedBox();
+          },
+        ),
         CardHighlightSwitch(
           icon: msicons.FluentIcons.transmission_20_regular,
           label: ReviLocalizations.of(context).perfITSXLabel,
           description: ReviLocalizations.of(context).perfITSXDescription,
           switchBool: _iTSXBool,
-          function: (value) async {
+          function: (value) {
             _iTSXBool.value = value;
-            _iTSXBool.value
+            value
                 ? _performanceService.enableIntelTSX()
                 : _performanceService.disableIntelTSX();
           },
@@ -93,9 +114,9 @@ class _PerformancePageState extends State<PerformancePage> {
           label: ReviLocalizations.of(context).perfFOLabel,
           description: ReviLocalizations.of(context).perfFODescription,
           switchBool: _foBool,
-          function: (value) async {
+          function: (value) {
             _foBool.value = value;
-            _foBool.value
+            value
                 ? _performanceService.enableFullscreenOptimization()
                 : _performanceService.disableFullscreenOptimization();
           },
@@ -108,7 +129,7 @@ class _PerformancePageState extends State<PerformancePage> {
             switchBool: _owgBool,
             function: (value) {
               _owgBool.value = value;
-              _owgBool.value
+              value
                   ? _performanceService.enableWindowedOptimization()
                   : _performanceService.disableWindowedOptimization();
             },
@@ -121,7 +142,7 @@ class _PerformancePageState extends State<PerformancePage> {
           switchBool: _baBool,
           function: (value) {
             _baBool.value = value;
-            _baBool.value
+            value
                 ? _performanceService.enableBackgroundApps()
                 : _performanceService.disableBackgroundApps();
           },
@@ -132,9 +153,9 @@ class _PerformancePageState extends State<PerformancePage> {
             label: ReviLocalizations.of(context).perfCStatesLabel,
             description: ReviLocalizations.of(context).perfCStatesDescription,
             switchBool: _cStatesBool,
-            function: (value) async {
+            function: (value) {
               _cStatesBool.value = value;
-              _cStatesBool.value
+              value
                   ? _performanceService.disableCStates()
                   : _performanceService.enableCStates();
             },
@@ -147,10 +168,9 @@ class _PerformancePageState extends State<PerformancePage> {
             switchBool: _ntfsLTABool,
             function: (value) async {
               _ntfsLTABool.value = value;
-              print(_ntfsLTABool.value);
-              _ntfsLTABool.value
-                  ? _performanceService.disableLastTimeAccessNTFS()
-                  : _performanceService.enableLastTimeAccessNTFS();
+              value
+                  ? await _performanceService.disableLastTimeAccessNTFS()
+                  : await _performanceService.enableLastTimeAccessNTFS();
             },
           ),
           CardHighlightSwitch(
@@ -162,8 +182,8 @@ class _PerformancePageState extends State<PerformancePage> {
               _ntfsEdTBool.value = value;
 
               _ntfsEdTBool.value
-                  ? _performanceService.disable8dot3NamingNTFS()
-                  : _performanceService.enable8dot3NamingNTFS();
+                  ? await _performanceService.disable8dot3NamingNTFS()
+                  : await _performanceService.enable8dot3NamingNTFS();
             },
           ),
           CardHighlightSwitch(
@@ -173,8 +193,8 @@ class _PerformancePageState extends State<PerformancePage> {
             function: (value) async {
               _ntfsMUBool.value = value;
               _ntfsMUBool.value
-                  ? _performanceService.enableMemoryUsageNTFS()
-                  : _performanceService.disableMemoryUsageNTFS();
+                  ? await _performanceService.enableMemoryUsageNTFS()
+                  : await _performanceService.disableMemoryUsageNTFS();
             },
             codeSnippet: ReviLocalizations.of(context).perfMUDescription,
           ),

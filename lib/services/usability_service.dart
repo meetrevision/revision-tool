@@ -12,6 +12,7 @@ class UsabilityService implements SetupService {
   static final UsabilityService _instance = UsabilityService._private();
 
   final RegistryUtilsService _registryUtilsService = RegistryUtilsService();
+  final Shell _shell = Shell();
 
   static final Uint8List _cplValue = Uint8List.fromList(
       [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 58, 0, 0, 0, 0, 0]);
@@ -33,7 +34,7 @@ class UsabilityService implements SetupService {
         1;
   }
 
-  void enableNotification() async {
+  Future<void> enableNotification() async {
     _registryUtilsService.deleteValue(
         Registry.currentUser,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
@@ -83,7 +84,7 @@ class UsabilityService implements SetupService {
     await Process.run('explorer.exe', [], runInShell: true);
   }
 
-  void disableNotification() async {
+  Future<void> disableNotification() async {
     _registryUtilsService.writeDword(
         Registry.currentUser,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
@@ -140,7 +141,7 @@ class UsabilityService implements SetupService {
         0;
   }
 
-  void enableLegacyBalloon() async {
+  Future<void> enableLegacyBalloon() async {
     _registryUtilsService.writeDword(
         Registry.currentUser,
         r'Software\Policies\Microsoft\Windows\Explorer',
@@ -150,7 +151,7 @@ class UsabilityService implements SetupService {
     await Process.run('explorer.exe', [], runInShell: true);
   }
 
-  void disableLegacyBalloon() async {
+  Future<void> disableLegacyBalloon() async {
     _registryUtilsService.writeDword(
         Registry.currentUser,
         r'Software\Policies\Microsoft\Windows\Explorer',
@@ -287,21 +288,20 @@ class UsabilityService implements SetupService {
   }
 
   bool get statusScreenEdgeSwipe {
-    return _registryUtilsService.readInt(
-            RegistryHive.localMachine,
-            r'SOFTWARE\Policies\Microsoft\Windows\EdgeUI',
-            'AllowEdgeSwipe') != 0;
+    return _registryUtilsService.readInt(RegistryHive.localMachine,
+            r'SOFTWARE\Policies\Microsoft\Windows\EdgeUI', 'AllowEdgeSwipe') !=
+        0;
   }
 
   void enableScreenEdgeSwipe() {
-   _registryUtilsService.deleteValue(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\Windows\EdgeUI', "AllowEdgeSwipe");
+    _registryUtilsService.deleteValue(Registry.localMachine,
+        r'SOFTWARE\Policies\Microsoft\Windows\EdgeUI', "AllowEdgeSwipe");
   }
 
   void disableScreenEdgeSwipe() {
-    _registryUtilsService.writeDword(Registry.localMachine, r'SOFTWARE\Policies\Microsoft\Windows\EdgeUI', "AllowEdgeSwipe", 0);
+    _registryUtilsService.writeDword(Registry.localMachine,
+        r'SOFTWARE\Policies\Microsoft\Windows\EdgeUI', "AllowEdgeSwipe", 0);
   }
-
-
 
   //Windows 11
 
@@ -315,8 +315,8 @@ class UsabilityService implements SetupService {
         true;
   }
 
-  void enableNewContextMenu() async {
-    Shell().run(
+  Future<void> enableNewContextMenu() async {
+    _shell.run(
         r'reg delete "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" /f');
     // Error 0x80070005: Access is denied.
     // _registryUtilsService.deleteValueKey(Registry.currentUser,
@@ -325,7 +325,7 @@ class UsabilityService implements SetupService {
     await Process.run('explorer.exe', [], runInShell: true);
   }
 
-  void disableNewContextMenu() async {
+  Future<void> disableNewContextMenu() async {
     _registryUtilsService.createKey(Registry.currentUser,
         r'Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32');
     _registryUtilsService.writeString(

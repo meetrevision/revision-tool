@@ -13,10 +13,17 @@ class UsabilityPageTwo extends StatefulWidget {
 
 class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
   final UsabilityService _usabilityService = UsabilityService();
-  late final ValueNotifier<bool> _mrcBool =
+  late final _mrcBool =
       ValueNotifier<bool>(_usabilityService.statusNewContextMenu);
-  late final ValueNotifier<bool> _tabsUWPbool =
+  late final _tabsUWPbool =
       ValueNotifier<bool>(_usabilityService.statusTabsUWP);
+
+  @override
+  void dispose() {
+    _mrcBool.dispose();
+    _tabsUWPbool.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,15 +40,15 @@ class _UsabilityPageTwoState extends State<UsabilityPageTwo> {
           function: (value) async {
             _mrcBool.value = value;
             _mrcBool.value
-                ? _usabilityService.enableNewContextMenu()
-                : _usabilityService.disableNewContextMenu();
+                ? await _usabilityService.enableNewContextMenu()
+                : await _usabilityService.disableNewContextMenu();
           },
         ),
         CardHighlightSwitch(
           icon: msicons.FluentIcons.folder_multiple_16_regular,
           label: ReviLocalizations.of(context).usability11FETLabel,
           switchBool: _tabsUWPbool,
-          function: (value) async {
+          function: (value) {
             _tabsUWPbool.value = value;
             _tabsUWPbool.value
                 ? _usabilityService.enableTabsUWP()

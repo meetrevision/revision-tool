@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
 import 'package:revitool/widgets/card_highlight.dart';
+import 'package:revitool/widgets/dialogs/msstore_dialogs.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
@@ -18,13 +19,19 @@ class SecurityPage extends StatefulWidget {
 
 class _SecurityPageState extends State<SecurityPage> {
   final SecurityService _securityService = SecurityService();
-  late ValueNotifier<bool> _wdBool =
-      ValueNotifier<bool>(_securityService.statusDefender);
+  late final _wdBool = ValueNotifier<bool>(_securityService.statusDefender);
   bool _wdButtonCalled = false;
-  late ValueNotifier<bool> _uacBool =
-      ValueNotifier<bool>(_securityService.statusUAC);
-  late ValueNotifier<bool> _smBool =
+  late final _uacBool = ValueNotifier<bool>(_securityService.statusUAC);
+  late final _smBool =
       ValueNotifier<bool>(_securityService.statusSpectreMeltdown);
+
+  @override
+  void dispose() {
+    _wdBool.dispose();
+    _uacBool.dispose();
+    _smBool.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,9 +57,9 @@ class _SecurityPageState extends State<SecurityPage> {
             requiresRestart: true,
             function: (value) async {
               _wdBool.value = value;
-              _wdBool.value
-                  ? _securityService.enableDefender()
-                  : _securityService.disableDefender();
+              value
+                  ? await _securityService.enableDefender()
+                  : await _securityService.disableDefender();
             },
           ),
           child: CardHighlight(
@@ -69,7 +76,7 @@ class _SecurityPageState extends State<SecurityPage> {
                   );
                   await process.exitCode;
                   setState(() => _wdButtonCalled = true);
-                  // ignore: use_build_context_synchronously
+                  if (!mounted) return;
                   showDialog(
                     context: context,
                     builder: (context) => ContentDialog(
@@ -201,27 +208,26 @@ class _SecurityPageState extends State<SecurityPage> {
           description: ReviLocalizations.of(context).securityUACDescription,
           switchBool: _uacBool,
           requiresRestart: true,
-          function: (value) async {
-            _uacBool = value;
-            _uacBool.value
+          function: (value) {
+            _uacBool.value = value;
+            value
                 ? _securityService.enableUAC()
                 : _securityService.disableUAC();
           },
         ),
 
         CardHighlightSwitch(
-          icon: msicons.FluentIcons.shield_badge_20_regular,
-          label: ReviLocalizations.of(context).securitySMLabel,
-          description: ReviLocalizations.of(context).securitySMDescription,
-          switchBool: _smBool,
-          requiresRestart: true,
-          function: (value) async {
-            _smBool = value;
-            _smBool.value
-                ? _securityService.enableSpectreMeltdown()
-                : _securityService.disableSpectreMeltdown();
-          },
-        ),
+            icon: msicons.FluentIcons.shield_badge_20_regular,
+            label: ReviLocalizations.of(context).securitySMLabel,
+            description: ReviLocalizations.of(context).securitySMDescription,
+            switchBool: _smBool,
+            requiresRestart: true,
+            function: (value) {
+              _smBool.value = value;
+              value
+                  ? _securityService.enableSpectreMeltdown()
+                  : _securityService.disableSpectreMeltdown();
+            }),
 
         CardHighlight(
           icon: msicons.FluentIcons.certificate_20_regular,
@@ -231,8 +237,11 @@ class _SecurityPageState extends State<SecurityPage> {
             width: 150,
             child: Button(
               onPressed: () async {
-                _securityService.updateCertificates();
-                // ignore: use_build_context_synchronously
+                showLoadingDialog(context, "Updating Certificates");
+                await _securityService.updateCertificates();
+
+                if (!mounted) return;
+                Navigator.of(context).pop();
                 showDialog(
                   context: context,
                   builder: (context) => ContentDialog(
@@ -241,7 +250,7 @@ class _SecurityPageState extends State<SecurityPage> {
                     actions: [
                       Button(
                           child: Text(ReviLocalizations.of(context).okButton),
-                          onPressed: () => Navigator.pop(context)),
+                          onPressed: () => Navigator.of(context).pop()),
                     ],
                   ),
                 );

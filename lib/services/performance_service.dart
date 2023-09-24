@@ -9,6 +9,7 @@ class PerformanceService implements SetupService {
   static final PerformanceService _instance = PerformanceService._private();
 
   final RegistryUtilsService _registryUtilsService = RegistryUtilsService();
+  final Shell _shell = Shell();
 
   factory PerformanceService() {
     return _instance;
@@ -37,18 +38,18 @@ class PerformanceService implements SetupService {
             4);
   }
 
-  void enableSuperfetch() async {
-    await run(
+  Future<void> enableSuperfetch() async {
+    await _shell.run(
         '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\EnableSF.bat"');
   }
 
-  void disableSuperfetch() async {
+  Future<void> disableSuperfetch() async {
     _registryUtilsService.writeDword(
         Registry.localMachine,
         r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
         'isMemoryCompressionEnabled',
         0);
-    await run(
+    await _shell.run(
         '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\DisableSF.bat"');
   }
 
@@ -62,8 +63,9 @@ class PerformanceService implements SetupService {
         1;
   }
 
-  void enableMemoryCompression() {
-    run('PowerShell -NonInteractive -NoLogo -NoProfile -Command "Enable-MMAgent -mc"');
+  Future<void> enableMemoryCompression() async {
+    await _shell.run(
+        'PowerShell -NonInteractive -NoLogo -NoProfile -Command "Enable-MMAgent -mc"');
     _registryUtilsService.writeDword(
         Registry.localMachine,
         r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
@@ -71,8 +73,9 @@ class PerformanceService implements SetupService {
         1);
   }
 
-  void disableMemoryCompression() {
-    run('PowerShell -NonInteractive -NoLogo -NoProfile -Command "Disable-MMAgent -mc"');
+  Future<void> disableMemoryCompression() async {
+    await _shell.run(
+        'PowerShell -NonInteractive -NoLogo -NoProfile -Command "Disable-MMAgent -mc"');
     _registryUtilsService.writeDword(
         Registry.localMachine,
         r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
@@ -256,12 +259,12 @@ class PerformanceService implements SetupService {
         1;
   }
 
-  void enableLastTimeAccessNTFS() {
-    run('fsutil behavior set disableLastAccess 0');
+  Future<void> enableLastTimeAccessNTFS() async {
+    await _shell.run('fsutil behavior set disableLastAccess 0');
   }
 
-  void disableLastTimeAccessNTFS() {
-    run('fsutil behavior set disableLastAccess 1');
+  Future<void> disableLastTimeAccessNTFS() async {
+    await _shell.run('fsutil behavior set disableLastAccess 1');
   }
 
   bool get status8dot3NamingNTFS {
@@ -272,12 +275,12 @@ class PerformanceService implements SetupService {
         1;
   }
 
-  void enable8dot3NamingNTFS() async {
-    await run('fsutil behavior set disable8dot3 2');
+  Future<void> enable8dot3NamingNTFS() async {
+    await _shell.run('fsutil behavior set disable8dot3 2');
   }
 
-  void disable8dot3NamingNTFS() async {
-    await run('fsutil behavior set disable8dot3 1');
+  Future<void> disable8dot3NamingNTFS() async {
+    await _shell.run('fsutil behavior set disable8dot3 1');
   }
 
   bool get statusMemoryUsageNTFS {
@@ -286,11 +289,11 @@ class PerformanceService implements SetupService {
         2;
   }
 
-  void enableMemoryUsageNTFS() async {
-    await run('fsutil behavior set memoryusage 2');
+  Future<void> enableMemoryUsageNTFS() async {
+    await _shell.run('fsutil behavior set memoryusage 2');
   }
 
-  void disableMemoryUsageNTFS() async {
-    await run('fsutil behavior set memoryusage 1');
+  Future<void> disableMemoryUsageNTFS() async {
+    await _shell.run('fsutil behavior set memoryusage 1');
   }
 }

@@ -20,23 +20,21 @@ class CardHighlightSwitch extends StatelessWidget {
   const CardHighlightSwitch({
     super.key,
     this.icon,
-    this.label,
+    required this.label,
     this.description,
-    this.switchBool,
+    required this.switchBool,
     required this.function,
     this.requiresRestart,
     this.codeSnippet,
   });
 
   final IconData? icon;
-  final String? label;
+  final String label;
   final String? description;
-  final ValueNotifier<bool>? switchBool;
+  final ValueNotifier<bool> switchBool;
   final ValueChanged function;
   final bool? requiresRestart;
   final String? codeSnippet;
-
-  static bool isOpen = false;
 
   static final _key = Random().nextInt(1000);
   @override
@@ -61,7 +59,7 @@ class CardHighlightSwitch extends StatelessWidget {
                   Expanded(
                     child: SizedBox(
                       child: InfoLabel(
-                        label: label!,
+                        label: label,
                         labelStyle:
                             const TextStyle(overflow: TextOverflow.ellipsis),
                         child: description != null
@@ -77,7 +75,7 @@ class CardHighlightSwitch extends StatelessWidget {
                   ),
                   const SizedBox(width: 2.0),
                   ValueListenableBuilder<bool>(
-                      valueListenable: switchBool!,
+                      valueListenable: switchBool,
                       builder: (context, value, child) {
                         return Text(value
                             ? ReviLocalizations.of(context).onStatus
@@ -85,7 +83,7 @@ class CardHighlightSwitch extends StatelessWidget {
                       }),
                   const SizedBox(width: 10.0),
                   ValueListenableBuilder<bool>(
-                    valueListenable: switchBool!,
+                    valueListenable: switchBool,
                     builder: (context, builderValue, child) {
                       return ToggleSwitch(
                         checked: builderValue,
@@ -119,8 +117,8 @@ class CardHighlightSwitch extends StatelessWidget {
           ),
         ),
         if (codeSnippet != null) ...[
-          CardHighlightCodeSnippet(
-              pageStorageKey: _key, codeSnippet: codeSnippet),
+          _CardHighlightCodeSnippet(
+              pageStorageKey: _key, codeSnippet: codeSnippet!),
         ],
         const SizedBox(height: 5.0),
       ],
@@ -128,7 +126,7 @@ class CardHighlightSwitch extends StatelessWidget {
   }
 }
 
-const fluentHighlightTheme = {
+const _fluentHighlightTheme = {
   'root': TextStyle(
     backgroundColor: Color(0x00ffffff),
     color: Color(0xffdddddd),
@@ -239,8 +237,8 @@ class CardHighlight extends StatelessWidget {
           ),
         ),
         if (codeSnippet != null) ...[
-          CardHighlightCodeSnippet(
-              pageStorageKey: _key, codeSnippet: codeSnippet)
+          _CardHighlightCodeSnippet(
+              pageStorageKey: _key, codeSnippet: codeSnippet!)
         ],
         const SizedBox(height: 5.0),
       ],
@@ -248,16 +246,14 @@ class CardHighlight extends StatelessWidget {
   }
 }
 
-class CardHighlightCodeSnippet extends StatelessWidget {
-  const CardHighlightCodeSnippet({
-    super.key,
+class _CardHighlightCodeSnippet extends StatelessWidget {
+  const _CardHighlightCodeSnippet({
     required this.pageStorageKey,
-    this.codeSnippet,
+    required this.codeSnippet,
   });
 
   final int pageStorageKey;
-  final String? codeSnippet;
-  static bool isOpen = false;
+  final String codeSnippet;
 
   @override
   Widget build(BuildContext context) {
@@ -270,10 +266,10 @@ class CardHighlightCodeSnippet extends StatelessWidget {
           headerShape: (open) => const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(4.0))),
           onStateChanged: (state) {
-            setState(() => isOpen = state);
+            setState(() {});
           },
           header: Text(ReviLocalizations.of(context).moreInformation),
-          content: Text(codeSnippet!),
+          content: Text(codeSnippet),
         ),
       );
     });

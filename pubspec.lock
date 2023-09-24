@@ -101,10 +101,10 @@ packages:
     dependency: transitive
     description:
       name: built_value
-      sha256: ff627b645b28fb8bdb69e645f910c2458fd6b65f6585c3a53e0626024897dedf
+      sha256: a8de5955205b4d1dbbbc267daddf2178bd737e4bab8987c04a500478c9651e74
       url: "https://pub.dev"
     source: hosted
-    version: "8.6.2"
+    version: "8.6.3"
   characters:
     dependency: transitive
     description:
@@ -173,18 +173,18 @@ packages:
     dependency: transitive
     description:
       name: dart_style
-      sha256: "1efa911ca7086affd35f463ca2fc1799584fb6aa89883cf0af8e3664d6a02d55"
+      sha256: abd7625e16f51f554ea244d090292945ec4d4be7bfbaf2ec8cccea568919d334
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.2"
+    version: "2.3.3"
   dio:
     dependency: "direct main"
     description:
       name: dio
-      sha256: ce75a1b40947fea0a0e16ce73337122a86762e38b982e1ccb909daa3b9bc4197
+      sha256: "417e2a6f9d83ab396ec38ff4ea5da6c254da71e4db765ad737a42af6930140b7"
       url: "https://pub.dev"
     source: hosted
-    version: "5.3.2"
+    version: "5.3.3"
   fake_async:
     dependency: transitive
     description:
@@ -221,18 +221,18 @@ packages:
     dependency: "direct main"
     description:
       name: fluent_ui
-      sha256: "0ec5ae618b42e6b9d0449d7519dec28c201809bc1955c5effb5a211dd77fa30e"
+      sha256: b015021e7b19107ebf06277531d48fa40e450a500bad751a330ab5f94c815650
       url: "https://pub.dev"
     source: hosted
-    version: "4.7.3"
+    version: "4.7.4"
   fluentui_system_icons:
     dependency: "direct main"
     description:
       name: fluentui_system_icons
-      sha256: "7637cab80bd8d1ba762144cd85df79a7318c12ed5a66d166a9e4acbf24a4c412"
+      sha256: e69b46f716b37ffa19dc53fc1e5bb0e26f6288264e5879fab51effaa46b5fc67
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.214"
+    version: "1.1.217"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -766,18 +766,18 @@ packages:
     dependency: "direct main"
     description:
       name: win32
-      sha256: "9e82a402b7f3d518fb9c02d0e9ae45952df31b9bf34d77baf19da2de03fc2aaa"
+      sha256: c97defd418eef4ec88c0d1652cdce84b9f7b63dd7198e266d06ac1710d527067
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.7"
+    version: "5.0.8"
   win32_registry:
     dependency: "direct main"
     description:
       name: win32_registry
-      sha256: e4506d60b7244251bc59df15656a3093501c37fb5af02105a944d73eb95be4c9
+      sha256: "41fd8a189940d8696b1b810efb9abcf60827b6cbfab90b0c43e8439e3a39d85a"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.1"
+    version: "1.1.2"
   window_plus:
     dependency: "direct main"
     description:
@@ -812,5 +812,5 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.1.0-185.0.dev <4.0.0"
+  dart: ">=3.1.0 <4.0.0"
   flutter: ">=3.10.0"
