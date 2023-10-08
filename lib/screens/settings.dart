@@ -35,7 +35,7 @@ const languageList = [
     child: Text('Deutsch'),
   ),
   ComboBoxItem(
-    value: 'fr',
+    value: 'fr_FR',
     child: Text('Français'),
   ),
 ];
