@@ -34,6 +34,10 @@ const languageList = [
     value: 'de_DE',
     child: Text('Deutsch'),
   ),
+  ComboBoxItem(
+    value: 'fr_FR',
+    child: Text('Français'),
+  ),
 ];
 
 class SettingsPage extends StatefulWidget {
