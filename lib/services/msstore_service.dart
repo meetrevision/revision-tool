@@ -20,8 +20,8 @@ class MSStoreService {
   static const _fe3Delivery =
       "https://fe3.delivery.mp.microsoft.com/ClientWebService/client.asmx";
   static const _storeAPI = "https://storeedgefd.dsx.mp.microsoft.com/v9.0";
-  static const _filteredSearchAPI =
-      "https://apps.microsoft.com/store/api/Products/GetFilteredSearch";
+  // static const _filteredSearchAPI = "https://apps.microsoft.com/store/api/Products/GetFilteredSearch";
+  static const _searchAPI = "https://apps.microsoft.com/api/products/search";
   static final _optionsSoapXML = Options(
     headers: {
       "user-agent":
@@ -101,11 +101,17 @@ class MSStoreService {
   Future<List<ProductsList>> searchProducts(String query) async {
     //"$_filteredSearchAPI?&Query=$query&FilteredCategories=AllProducts&hl=en-us${systemLanguage.toLowerCase()}&
     final response = await _dio.get(
-        "$_filteredSearchAPI?&Query=$query&FilteredCategories=AllProducts&hl=en-us&gl=us",
+        "$_searchAPI?gl=US&hl=en-us&query=$query&mediaType=all&age=all&price=all&category=all&subscription=all",
+        
+// https://apps.microsoft.com/api/products/search?gl=GE&hl=en-us&query=xbox&cursor=
         options: _options);
 
     if (response.statusCode == 200) {
-      return SearchResponse.fromJson(response.data).productsList ?? [];
+      final responseData = SearchResponse.fromJson(response.data);
+      return [
+        ...(responseData.highlightedList ?? []),
+        ...(responseData.productsList ?? []),
+      ];
     }
     throw Exception('Failed to search products');
   }

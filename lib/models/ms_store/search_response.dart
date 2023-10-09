@@ -6,6 +6,7 @@ part 'search_response.g.dart';
 @freezed
 class SearchResponse with _$SearchResponse {
   const factory SearchResponse({
+    List<ProductsList>? highlightedList,
     List<ProductsList>? productsList,
   }) = _SearchResponse;
 
@@ -21,7 +22,7 @@ class ProductsList with _$ProductsList {
     String? description,
     String? publisherName,
     // double? averageRating,
-    String? ratingCount,
+    // String? ratingCount,
     // int? price,
     String? displayPrice,
     String? strikethroughPrice,
