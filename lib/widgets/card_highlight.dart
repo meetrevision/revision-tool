@@ -5,13 +5,13 @@ import 'package:revitool/l10n/generated/localizations.dart';
 
 // const cardBorderColorForDark = Color.fromARGB(255, 29, 29, 29);
 // const cardBorderColorForLight = Color.fromARGB(255, 229, 229, 229);
-const cardBorderRadius = BorderRadius.all(Radius.circular(5.0));
-const cardDescStyleForDark = TextStyle(
+const _cardBorderRadius = BorderRadius.all(Radius.circular(5.0));
+const _cardDescStyleForDark = TextStyle(
     fontSize: 11,
     color: Color.fromARGB(255, 200, 200, 200),
     overflow: TextOverflow.fade);
 
-const cardDescStyleForLight = TextStyle(
+const _cardDescStyleForLight = TextStyle(
     fontSize: 11,
     color: Color.fromARGB(255, 117, 117, 117),
     overflow: TextOverflow.fade);
@@ -42,7 +42,7 @@ class CardHighlightSwitch extends StatelessWidget {
     return Column(
       children: [
         Card(
-          borderRadius: cardBorderRadius,
+          borderRadius: _cardBorderRadius,
           child: SizedBox(
             // height: 44,
             width: double.infinity,
@@ -66,8 +66,8 @@ class CardHighlightSwitch extends StatelessWidget {
                             ? Text(
                                 description ?? "",
                                 style: FluentTheme.of(context).brightness.isDark
-                                    ? cardDescStyleForDark
-                                    : cardDescStyleForLight,
+                                    ? _cardDescStyleForDark
+                                    : _cardDescStyleForLight,
                               )
                             : const SizedBox(),
                       ),
@@ -188,7 +188,7 @@ class CardHighlight extends StatelessWidget {
       children: [
         Card(
           backgroundColor: backgroundColor,
-          borderRadius: cardBorderRadius,
+          borderRadius: _cardBorderRadius,
           borderColor: borderColor,
           child: SizedBox(
             // height: 44,
@@ -224,8 +224,8 @@ class CardHighlight extends StatelessWidget {
                       child: description != null
                           ? Text(description ?? "",
                               style: FluentTheme.of(context).brightness.isDark
-                                  ? cardDescStyleForDark
-                                  : cardDescStyleForLight,
+                                  ? _cardDescStyleForDark
+                                  : _cardDescStyleForLight,
                               overflow: TextOverflow.ellipsis)
                           : const SizedBox(),
                     ),
