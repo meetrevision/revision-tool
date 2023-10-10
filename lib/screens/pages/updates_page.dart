@@ -31,11 +31,13 @@ class _UpdatesPageState extends State<UpdatesPage> {
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
+      key: GlobalKey(),
       header: PageHeader(
         title: Text(ReviLocalizations.of(context).pageUpdates),
       ),
       children: [
         CardHighlightSwitch(
+         
           icon: msicons.FluentIcons.pause_20_regular,
           label: ReviLocalizations.of(context).wuPauseLabel,
           description: ReviLocalizations.of(context).wuPauseDescription,
@@ -60,6 +62,7 @@ class _UpdatesPageState extends State<UpdatesPage> {
           },
         ),
         CardHighlightSwitch(
+    
           icon: FluentIcons.devices4,
           label: ReviLocalizations.of(context).wuDriversLabel,
           description: ReviLocalizations.of(context).wuDriversDescription,

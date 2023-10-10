@@ -1,4 +1,5 @@
 import 'package:process_run/shell_run.dart';
+import 'package:revitool/utils.dart';
 import 'package:win32_registry/win32_registry.dart';
 
 import 'registry_utils_service.dart';
@@ -7,8 +8,8 @@ import 'setup_service.dart';
 class MiscellaneousService implements SetupService {
   static final MiscellaneousService _instance = MiscellaneousService._private();
 
-  final RegistryUtilsService _registryUtilsService = RegistryUtilsService();
-  final Shell _shell = Shell();
+  final _registryUtilsService = RegistryUtilsService();
+  final _shell = Shell();
 
   factory MiscellaneousService() {
     return _instance;
@@ -20,7 +21,7 @@ class MiscellaneousService implements SetupService {
   void recommendation() {
     disableHibernation();
     disableTMMonitoring();
-    disableBatteryHealthReporting();
+    disableUsageReporting();
   }
 
   bool get statusHibernation {
@@ -56,18 +57,18 @@ class MiscellaneousService implements SetupService {
                     ''');
   }
 
-  int? get statusHibernationMode {
-    return _registryUtilsService.readInt(RegistryHive.localMachine,
-        r'System\ControlSet001\Control\Power', 'HiberFileType');
-  }
+  // int? get statusHibernationMode {
+  //   return _registryUtilsService.readInt(RegistryHive.localMachine,
+  //       r'System\ControlSet001\Control\Power', 'HiberFileType');
+  // }
 
-  Future<void> setHibernateModeReduced() async {
-    await _shell.run('powercfg /h /type reduced');
-  }
+  // Future<void> setHibernateModeReduced() async {
+  //   await _shell.run('powercfg /h /type reduced');
+  // }
 
-  Future<void> setHibernateModeFull() async {
-    await _shell.run('powercfg /h /type full');
-  }
+  // Future<void> setHibernateModeFull() async {
+  //   await _shell.run('powercfg /h /type full');
+  // }
 
   bool get statusFastStartup {
     return _registryUtilsService.readInt(
@@ -140,41 +141,19 @@ class MiscellaneousService implements SetupService {
         r'SOFTWARE\Microsoft\Windows\Dwm', 'OverlayTestMode', 5);
   }
 
-  bool get statusBatteryHealthReporting {
+  bool get statusUsageReporting {
     return _registryUtilsService.readInt(RegistryHive.localMachine,
             r'SYSTEM\ControlSet001\Services\DPS', 'Start') !=
         4;
   }
 
-  Future<void> enableBatteryHealthReporting() async {
-    _registryUtilsService.writeDword(Registry.localMachine,
-        r'SYSTEM\ControlSet001\Services\DPS', 'Start', 2);
-    _registryUtilsService.writeDword(Registry.localMachine,
-        r'SYSTEM\ControlSet001\Services\diagsvc', 'Start', 2);
-    _registryUtilsService.writeDword(Registry.localMachine,
-        r'SYSTEM\ControlSet001\Services\WdiServiceHost', 'Start', 2);
-    _registryUtilsService.writeDword(Registry.localMachine,
-        r'SYSTEM\ControlSet001\Services\WdiSystemHost', 'Start', 2);
-    await _shell.run(r'''
-                     wevtutil sl Microsoft-Windows-SleepStudy/Diagnostic /e:true >NUL
-                     wevtutil sl Microsoft-Windows-Kernel-Processor-Power/Diagnostic /e:true >NUL
-                     wevtutil sl Microsoft-Windows-UserModePowerService/Diagnostic /e:true >NUL
-                    ''');
+  Future<void> enableUsageReporting() async {
+     await _shell.run(
+        '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\EnableUR.bat"');
   }
 
-  Future<void> disableBatteryHealthReporting() async {
-    _registryUtilsService.writeDword(Registry.localMachine,
-        r'SYSTEM\ControlSet001\Services\DPS', 'Start', 4);
-    _registryUtilsService.writeDword(Registry.localMachine,
-        r'SYSTEM\ControlSet001\Services\diagsvc', 'Start', 4);
-    _registryUtilsService.writeDword(Registry.localMachine,
-        r'SYSTEM\ControlSet001\Services\WdiServiceHost', 'Start', 4);
-    _registryUtilsService.writeDword(Registry.localMachine,
-        r'SYSTEM\ControlSet001\Services\WdiSystemHost', 'Start', 4);
-    await _shell.run(r'''
-                     wevtutil sl Microsoft-Windows-SleepStudy/Diagnostic /e:false >NUL
-                     wevtutil sl Microsoft-Windows-Kernel-Processor-Power/Diagnostic /e:false >NUL
-                     wevtutil sl Microsoft-Windows-UserModePowerService/Diagnostic /e:false >NUL
-                    ''');
+  Future<void> disableUsageReporting() async {
+    await _shell.run(
+        '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\DisableUR.bat"');
   }
 }

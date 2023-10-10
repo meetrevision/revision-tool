@@ -9,7 +9,7 @@ import 'package:system_theme/system_theme.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:window_plus/window_plus.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // createRegistryKey(Registry.localMachine, r'SOFTWARE\Revision\Revision Tool');

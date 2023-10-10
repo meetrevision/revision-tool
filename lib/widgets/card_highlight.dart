@@ -40,6 +40,7 @@ class CardHighlightSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      key: PageStorageKey(_key),
       children: [
         Card(
           borderRadius: _cardBorderRadius,

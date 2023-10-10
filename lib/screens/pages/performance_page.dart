@@ -148,7 +148,7 @@ class _PerformancePageState extends State<PerformancePage> {
           },
         ),
         if (expBool.value) ...[
-          CardHighlightSwitch(
+         CardHighlightSwitch(
             icon: msicons.FluentIcons.sleep_20_regular,
             label: ReviLocalizations.of(context).perfCStatesLabel,
             description: ReviLocalizations.of(context).perfCStatesDescription,
