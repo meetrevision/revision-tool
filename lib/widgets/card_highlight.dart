@@ -221,16 +221,17 @@ class CardHighlight extends StatelessWidget {
                     child: InfoLabel(
                       label: label!,
                       labelStyle:
-                          const TextStyle(overflow: TextOverflow.ellipsis),
+                          const TextStyle(overflow: TextOverflow.clip),
                       child: description != null
                           ? Text(description ?? "",
                               style: FluentTheme.of(context).brightness.isDark
                                   ? _cardDescStyleForDark
                                   : _cardDescStyleForLight,
-                              overflow: TextOverflow.ellipsis)
+                              overflow: TextOverflow.clip)
                           : const SizedBox(),
                     ),
                   ),
+                   const SizedBox(width: 10.0),
                   child,
                 ],
               ),

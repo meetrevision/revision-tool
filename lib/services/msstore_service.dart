@@ -102,7 +102,7 @@ class MSStoreService {
     //"$_filteredSearchAPI?&Query=$query&FilteredCategories=AllProducts&hl=en-us${systemLanguage.toLowerCase()}&
     final response = await _dio.get(
         "$_searchAPI?gl=US&hl=en-us&query=$query&mediaType=all&age=all&price=all&category=all&subscription=all",
-        
+
 // https://apps.microsoft.com/api/products/search?gl=GE&hl=en-us&query=xbox&cursor=
         options: _options);
 
@@ -325,21 +325,27 @@ class MSStoreService {
     if (groupedPackages.isEmpty) return [];
 
     final latestGenPackages = groupedPackages.values
-        .map((group) => group.fold(<PackagesInfo>[], (acc, package) {
+        .map(
+          (group) => group.fold(
+            <PackagesInfo>[],
+            (acc, package) {
               final version = _parseVersion(package.name!);
               final maxVersion = acc.fold(
-                  -1,
-                  (accVersion, PackagesInfo accPackage) =>
-                      _parseVersion(accPackage.name!) > accVersion
-                          ? _parseVersion(accPackage.name!)
-                          : accVersion);
+                -1,
+                (accVersion, accPackage) =>
+                    _parseVersion(accPackage.name!) > accVersion
+                        ? _parseVersion(accPackage.name!)
+                        : accVersion,
+              );
               if (version > maxVersion) {
                 return [package];
               } else if (version == maxVersion) {
                 acc.add(package);
               }
               return acc;
-            }))
+            },
+          ),
+        )
         .expand((i) => i)
         .toList();
 
