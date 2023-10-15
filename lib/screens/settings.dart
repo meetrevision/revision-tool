@@ -20,7 +20,7 @@ const languageList = [
   ),
   ComboBoxItem(
     value: 'pt_BR',
-    child: Text('Português (Brasileiro)'),
+    child: Text('Português (Brasil)'),
   ),
   ComboBoxItem(
     value: 'zh_CN',
