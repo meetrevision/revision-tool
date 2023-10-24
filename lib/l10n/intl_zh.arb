@@ -88,5 +88,7 @@
   "settingsEPTLabel": "显示实验性优化",
   "settingsEPTDescription": "",
   "restartAppDialog": "您必须重新启动应用程序才能使更改生效",
-  "settingsLanguageLabel": "语言"
+  "settingsLanguageLabel": "语言",
+  "wuPauseLabel": 暂停 Windows 更新",
+  "wuPauseDescription": "启用后，Windows 更新将暂停到 2038/01/19",
 }

@@ -38,6 +38,14 @@ const languageList = [
     value: 'fr_FR',
     child: Text('Français'),
   ),
+  ComboBoxItem(
+    value: 'ru-RU',
+    child: Text('Русский'),
+  ),
+  ComboBoxItem(
+    value: 'uk-UA',
+    child: Text('українська'),
+  ),
 ];
 
 class SettingsPage extends StatefulWidget {

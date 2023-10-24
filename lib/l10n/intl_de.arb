@@ -91,4 +91,20 @@
   "settingsEPTDescription": "",
   "restartAppDialog": "Sie müssen Ihre App neu starten, damit die Änderungen wirksam werden",
   "settingsLanguageLabel": "Sprache"
+  "experimental": "Experimentell",
+  "warning": "Warnung",
+  "install": "Installieren",
+  "installing": "Installiere...",
+  "close": "Schließen",
+  "search": "Suchen",
+  "usabilitySESLabel": "Bildschirmrand-Wischgeste",
+  "usabilitySESDescription": "Das Deaktivieren hiervon behebt das Popup der Taskleiste im Vollbildmodus",
+  "perfBALabel": "Hintergrund-Apps",
+  "perfBADescription": "Apps erlauben, im Hintergrund zu laufen, auch wenn Sie diese nicht verwenden. Dies wird Auswirkungen auf die Leistung haben, weil diese ständig im Hintergrund laufen. Dies zu deaktivieren wird auch für einige Apps die Benachrichtigungen deaktivieren",
+  "settingsLanguageDescription": "Sprachen sind nicht garantiert vollständig übersetzt und/oder korrekt zu sein",
+  "pageMSStore": "Microsoft Store",
+  "msstoreSearchingPackages": "Pakete werden gesucht",
+  "msstoreWait": "Bitte warten...",
+  "msstorePackagesPrompt": "Möchten Sie die folgenden Pakete installieren?",
+  "msstorePackagesNotFound": "Es wurden keine Pakete gefunden"
 }
