@@ -15,12 +15,11 @@ import 'package:window_plus/window_plus.dart';
 import 'package:path/path.dart' as p;
 
 Future<void> main() async {
-  final path = p.join(Directory.systemTemp.path, 'Revision-Tool\\Logs');
-
-  initLogger(path);
   await runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    final path = p.join(Directory.systemTemp.path, 'Revision-Tool', 'Logs');
 
+    initLogger(path);
     i('Revision Tool is starting');
 
     if (registryUtilsService.readString(RegistryHive.localMachine,
