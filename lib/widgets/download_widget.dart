@@ -14,10 +14,10 @@ class DownloadWidget extends StatefulWidget {
   final String productId;
 
   const DownloadWidget({
-    Key? key,
+    super.key,
     required this.items,
     required this.productId,
-  }) : super(key: key);
+  });
 
   @override
   State<DownloadWidget> createState() => _DownloadWidgetState();
@@ -154,6 +154,8 @@ class _DownloadWidgetState extends State<DownloadWidget> {
 
   @override
   void dispose() {
+    _streams.clear();
+
     for (var progress in _progressList) {
       progress.dispose();
     }

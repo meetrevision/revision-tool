@@ -39,12 +39,16 @@ const languageList = [
     child: Text('Français'),
   ),
   ComboBoxItem(
-    value: 'ru-RU',
+    value: 'ru_RU',
     child: Text('Русский'),
   ),
   ComboBoxItem(
-    value: 'uk-UA',
+    value: 'uk_UA',
     child: Text('українська'),
+  ),
+  ComboBoxItem(
+    value: 'hu_HU',
+    child: Text('Magyar'),
   ),
 ];
 

@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mixin_logger/mixin_logger.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
 import 'package:revitool/screens/home_page.dart';
 import 'package:provider/provider.dart';
@@ -8,45 +12,61 @@ import 'package:revitool/utils.dart';
 import 'package:system_theme/system_theme.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:window_plus/window_plus.dart';
+import 'package:path/path.dart' as p;
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final path = p.join(Directory.systemTemp.path, 'Revision-Tool\\Logs');
 
-  // createRegistryKey(Registry.localMachine, r'SOFTWARE\Revision\Revision Tool');
+  initLogger(path);
+  await runZonedGuarded<Future<void>>(() async {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  if (registryUtilsService.readString(RegistryHive.localMachine,
-          r'SOFTWARE\Revision\Revision Tool', 'ThemeMode') ==
-      null) {
-    registryUtilsService.writeString(Registry.localMachine,
-        r'SOFTWARE\Revision\Revision Tool', 'ThemeMode', ThemeMode.system.name);
-    registryUtilsService.writeDword(Registry.localMachine,
-        r'SOFTWARE\Revision\Revision Tool', 'Experimental', 0);
-    registryUtilsService.writeString(Registry.localMachine,
-        r'SOFTWARE\Revision\Revision Tool', 'Language', 'en_US');
-  }
-  final settingsController = AppTheme(SettingsService());
-  await settingsController.loadSettings();
-  await SystemTheme.accentColor.load();
+    i('Revision Tool is starting');
 
-  await WindowPlus.ensureInitialized(
-    application: 'revision-tool',
-    enableCustomFrame: true,
-    enableEventStreams: false,
-  );
-  await WindowPlus.instance.setMinimumSize(const Size(515, 330));
+    if (registryUtilsService.readString(RegistryHive.localMachine,
+            r'SOFTWARE\Revision\Revision Tool', 'ThemeMode') ==
+        null) {
+      i('Creating Revision registry keys');
+      registryUtilsService.writeString(
+          Registry.localMachine,
+          r'SOFTWARE\Revision\Revision Tool',
+          'ThemeMode',
+          ThemeMode.system.name);
+      registryUtilsService.writeDword(Registry.localMachine,
+          r'SOFTWARE\Revision\Revision Tool', 'Experimental', 0);
+      registryUtilsService.writeString(Registry.localMachine,
+          r'SOFTWARE\Revision\Revision Tool', 'Language', 'en_US');
+    }
 
-  bool isSupported = false;
+    i('Initializing settings controller');
+    final settingsController = AppTheme(SettingsService());
+    await settingsController.loadSettings();
+    await SystemTheme.accentColor.load();
 
-  if (registryUtilsService.readString(
-              RegistryHive.localMachine,
-              r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
-              'EditionSubVersion') ==
-          'ReviOS' &&
-      buildNumber > 19043) {
-    isSupported = true;
-  }
+    i('Initializing WindowPlus');
+    await WindowPlus.ensureInitialized(
+      application: 'revision-tool',
+      enableCustomFrame: true,
+      enableEventStreams: false,
+    );
+    await WindowPlus.instance.setMinimumSize(const Size(515, 330));
 
-  runApp(MyApp(isSupported: isSupported));
+    bool isSupported = false;
+
+    if (registryUtilsService.readString(
+                RegistryHive.localMachine,
+                r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
+                'EditionSubVersion') ==
+            'ReviOS' &&
+        buildNumber > 19043) {
+      i('isSupported is true');
+      isSupported = true;
+    }
+
+    runApp(MyApp(isSupported: isSupported));
+  }, (error, stackTrace) {
+    e('Error: \n$error\n$stackTrace\n\n');
+  });
 }
 
 class MyApp extends StatelessWidget {

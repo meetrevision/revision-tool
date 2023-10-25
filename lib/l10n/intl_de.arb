@@ -90,7 +90,7 @@
   "settingsEPTLabel": "Experimentelle Optimierungen anzeigen",
   "settingsEPTDescription": "",
   "restartAppDialog": "Sie müssen Ihre App neu starten, damit die Änderungen wirksam werden",
-  "settingsLanguageLabel": "Sprache"
+  "settingsLanguageLabel": "Sprache",
   "experimental": "Experimentell",
   "warning": "Warnung",
   "install": "Installieren",

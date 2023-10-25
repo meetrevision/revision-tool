@@ -246,8 +246,8 @@ class _HomePageState extends State<HomePage> {
 
 class Home extends StatelessWidget {
   const Home({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   static final _homeCardButtons = [
     CardButtonWidget(
@@ -370,12 +370,14 @@ class Home extends StatelessWidget {
                               child: e,
                             ),
                           ))
-                      .toList())
+                      .toList(),
+                )
               : Column(
                   children: _homeCardButtons
                       .map((e) => Padding(
                           padding: const EdgeInsets.only(bottom: 3), child: e))
-                      .toList()),
+                      .toList(),
+                ),
         ),
       ],
     );

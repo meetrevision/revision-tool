@@ -17,6 +17,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.2.0"
+  ansicolor:
+    dependency: transitive
+    description:
+      name: ansicolor
+      sha256: "8bf17a8ff6ea17499e40a2d2542c2f481cd7615760c6d34065cb22bfd22e6880"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
   args:
     dependency: transitive
     description:
@@ -229,10 +237,10 @@ packages:
     dependency: "direct main"
     description:
       name: fluentui_system_icons
-      sha256: e4b694fceeb7b5afd19d1970a76e2aab9b7542f97f03c3447948e0e1ab207938
+      sha256: "1e49b8628736dce4f8c594bda758b0590951d74f3cc0a136056c0ed307a3cb35"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.218"
+    version: "1.1.220"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -242,10 +250,10 @@ packages:
     dependency: "direct dev"
     description:
       name: flutter_lints
-      sha256: a25a15ebbdfc33ab1cd26c63a6ee519df92338a9c10f122adda92938253bef04
+      sha256: ad76540d21c066228ee3f9d1dad64a9f7e46530e8bb7c85011a88bc1fd874bc5
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.3"
+    version: "3.0.0"
   flutter_localizations:
     dependency: "direct main"
     description: flutter
@@ -265,10 +273,10 @@ packages:
     dependency: "direct dev"
     description:
       name: freezed
-      sha256: be7826ed5d87e98c924a839542674fc14edbcb3e4fc0adbc058d680f2b241837
+      sha256: "21bf2825311de65501d22e563e3d7605dff57fb5e6da982db785ae5372ff018a"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.3"
+    version: "2.4.5"
   freezed_annotation:
     dependency: "direct main"
     description:
@@ -369,10 +377,10 @@ packages:
     dependency: transitive
     description:
       name: lints
-      sha256: "0a217c6c989d21039f1498c3ed9f3ed71b354e69873f13a8dfc3c9fe76f1b452"
+      sha256: cbf8d4b858bb0134ef3ef87841abdf8d63bfc255c266b7bf6b39daa1085c4290
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
+    version: "3.0.0"
   logging:
     dependency: transitive
     description:
@@ -421,6 +429,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
+  mixin_logger:
+    dependency: "direct main"
+    description:
+      name: mixin_logger
+      sha256: cccc0a78ad8ed777943f40d6335c652c5eb965cb8c1e6809eb52a2b843597d3f
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   nested:
     dependency: transitive
     description:
@@ -473,10 +489,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_android
-      sha256: "6b8b19bd80da4f11ce91b2d1fb931f3006911477cec227cce23d3253d80df3f1"
+      sha256: e595b98692943b4881b219f0a9e3945118d3c16bd7e2813f98ec6e532d905f72
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
+    version: "2.2.1"
   path_provider_foundation:
     dependency: transitive
     description:
@@ -545,10 +561,10 @@ packages:
     dependency: "direct main"
     description:
       name: process_run
-      sha256: ceacfac6d566a36c895d64edc7e429efb2d6b6303b5e28d5c13bc59fe6e8974e
+      sha256: "1cb96f835ec02ba1a35af4e6f99f937618023b6d2ffba88f0c0f1041af2e9f12"
       url: "https://pub.dev"
     source: hosted
-    version: "0.13.1"
+    version: "0.13.2"
   provider:
     dependency: "direct main"
     description:

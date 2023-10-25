@@ -1,23 +1,4 @@
 {
-  "de": [
-    "experimental",
-    "warning",
-    "install",
-    "installing",
-    "close",
-    "search",
-    "usabilitySESLabel",
-    "usabilitySESDescription",
-    "perfBALabel",
-    "perfBADescription",
-    "settingsLanguageDescription",
-    "pageMSStore",
-    "msstoreSearchingPackages",
-    "msstoreWait",
-    "msstorePackagesPrompt",
-    "msstorePackagesNotFound"
-  ],
-
   "zh": [
     "experimental",
     "warning",
@@ -29,8 +10,6 @@
     "usabilitySESDescription",
     "perfBALabel",
     "perfBADescription",
-    "wuPauseLabel",
-    "wuPauseDescription",
     "settingsLanguageDescription",
     "pageMSStore",
     "msstoreSearchingPackages",

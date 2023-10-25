@@ -33,13 +33,14 @@ dependencies:
   window_plus:
     git:
       url: https://github.com/melo936/window_plus
-  fluentui_system_icons: ^1.1.218
+  fluentui_system_icons: ^1.1.220
   package_info_plus: any
   collection: any
   win32: ^5.0.9
   freezed_annotation: ^2.4.1
   json_annotation: ^4.8.1
   xml: any
+  mixin_logger: ^0.1.0
 
 dev_dependencies:
   flutter_test:
@@ -50,9 +51,9 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.0
   build_runner:
-  freezed: ^2.4.3
+  freezed: ^2.4.5
   json_serializable: ^6.7.1
   
   # msix: ^3.7.0

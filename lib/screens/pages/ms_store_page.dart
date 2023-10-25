@@ -160,6 +160,7 @@ class _MSStorePageState extends State<MSStorePage>
 
               await showDialog(
                 context: context,
+                dismissWithEsc: false,
                 builder: (context) =>
                     DownloadWidget(items: downloadList, productId: productId),
               );
