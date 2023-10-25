@@ -50,6 +50,10 @@ const languageList = [
     value: 'hu_HU',
     child: Text('Magyar'),
   ),
+  ComboBoxItem(
+    value: 'tr_TR',
+    child: Text('Türkçe'),
+  ),
 ];
 
 class SettingsPage extends StatefulWidget {
