@@ -50,8 +50,6 @@ Future<void> main() async {
     );
     await WindowPlus.instance.setMinimumSize(const Size(515, 330));
 
-    bool isSupported = false;
-
     if (registryUtilsService.readString(
                 RegistryHive.localMachine,
                 r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
@@ -59,19 +57,19 @@ Future<void> main() async {
             'ReviOS' &&
         buildNumber > 19043) {
       i('isSupported is true');
-      isSupported = true;
+      _isSupported = true;
     }
 
-    runApp(MyApp(isSupported: isSupported));
+    runApp(const MyApp());
   }, (error, stackTrace) {
     e('Error: \n$error\n$stackTrace\n\n');
   });
 }
 
-class MyApp extends StatelessWidget {
-  final bool isSupported;
+bool _isSupported = false;
 
-  const MyApp({super.key, required this.isSupported});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -114,15 +112,15 @@ class MyApp extends StatelessWidget {
               ),
               resources: const ResourceDictionary.light(
                   cardStrokeColorDefault: Color.fromARGB(255, 229, 229, 229))),
-          home: isSupported ? const HomePage() : const UnsupportedError(),
+          home: _isSupported ? const HomePage() : const _UnsupportedError(),
         );
       },
     );
   }
 }
 
-class UnsupportedError extends StatelessWidget {
-  const UnsupportedError({super.key});
+class _UnsupportedError extends StatelessWidget {
+  const _UnsupportedError();
 
   @override
   Widget build(BuildContext context) {
