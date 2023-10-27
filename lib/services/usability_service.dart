@@ -30,11 +30,15 @@ class UsabilityService implements SetupService {
     return _registryUtilsService.readInt(
             RegistryHive.currentUser,
             r'Software\Microsoft\Windows\CurrentVersion\PushNotifications',
-            'ToastEnabled') ==
+            'NoToastApplicationNotification') !=
         1;
   }
 
   Future<void> enableNotification() async {
+    _registryUtilsService.deleteKey(
+      Registry.currentUser,
+      r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications',
+    );
     _registryUtilsService.deleteValue(
         Registry.currentUser,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
@@ -85,6 +89,11 @@ class UsabilityService implements SetupService {
   }
 
   Future<void> disableNotification() async {
+    _registryUtilsService.writeDword(
+        Registry.currentUser,
+        r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications',
+        'NoToastApplicationNotification',
+        1);
     _registryUtilsService.writeDword(
         Registry.currentUser,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
