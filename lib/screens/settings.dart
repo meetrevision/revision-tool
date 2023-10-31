@@ -13,6 +13,53 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
 import '../services/network_service.dart';
 
+const languageList = [
+  ComboBoxItem(
+    value: 'en_US',
+    child: Text('English'),
+  ),
+  ComboBoxItem(
+    value: 'pt_BR',
+    child: Text('Português (Brasil)'),
+  ),
+  ComboBoxItem(
+    value: 'zh_CN',
+    child: Text('简体中文'),
+  ),
+  ComboBoxItem(
+    value: 'zh_TW',
+    child: Text('繁體中文'),
+  ),
+  ComboBoxItem(
+    value: 'de_DE',
+    child: Text('Deutsch'),
+  ),
+  ComboBoxItem(
+    value: 'fr_FR',
+    child: Text('Français'),
+  ),
+  ComboBoxItem(
+    value: 'ru_RU',
+    child: Text('Русский'),
+  ),
+  ComboBoxItem(
+    value: 'uk_UA',
+    child: Text('українська'),
+  ),
+  ComboBoxItem(
+    value: 'hu_HU',
+    child: Text('Magyar'),
+  ),
+  ComboBoxItem(
+    value: 'tr_TR',
+    child: Text('Türkçe'),
+  ),
+  ComboBoxItem(
+    value: 'ro_RO',
+    child: Text('Română'),
+  ),
+];
+
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -22,7 +69,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   late ThemeMode theme;
-  String _updateTitle = "Check for Updates";
+  final _updateTitle = ValueNotifier<String>("Check for Updates");
 
   @override
   Widget build(BuildContext context) {
@@ -62,81 +109,83 @@ class _SettingsPageState extends State<SettingsPage> {
           label: ReviLocalizations.of(context).settingsEPTLabel,
           // description: ReviLocalizations.of(context).settingsEPTDescription,
           switchBool: expBool,
-          function: (value) => setState(() {
+          function: (value) {
             registryUtilsService.writeDword(
                 Registry.localMachine,
                 r'SOFTWARE\Revision\Revision Tool',
                 'Experimental',
                 value ? 1 : 0);
-            expBool = value;
-          }),
+            expBool.value = value;
+          },
         ),
         CardHighlight(
           label: ReviLocalizations.of(context).settingsUpdateLabel,
           icon: msicons.FluentIcons.arrow_clockwise_20_regular,
-          child: FilledButton(
-            child: Text(_updateTitle),
-            onPressed: () async {
-              final Directory tempDir = await getTemporaryDirectory();
-              final PackageInfo packageInfo = await PackageInfo.fromPlatform();
-              final int currentVersion =
-                  int.parse(packageInfo.version.replaceAll(".", ""));
-              Map<String, dynamic> data = await Network.getJSON(
-                  "https://api.github.com/repos/meetrevision/revision-tool/releases/latest");
-              int latestVersion =
-                  int.parse(data["tag_name"].toString().replaceAll(".", ""));
-              if (latestVersion > currentVersion) {
-                setState(() {
-                  _updateTitle =
+          child: ValueListenableBuilder(
+            valueListenable: _updateTitle,
+            builder: (context, value, child) => FilledButton(
+              child: Text(_updateTitle.value),
+              onPressed: () async {
+                final Directory tempDir = await getTemporaryDirectory();
+                final PackageInfo packageInfo =
+                    await PackageInfo.fromPlatform();
+                final int currentVersion =
+                    int.parse(packageInfo.version.replaceAll(".", ""));
+                final Map<String, dynamic> data = await Network().getJSON(
+                    "https://api.github.com/repos/meetrevision/revision-tool/releases/latest");
+                final int latestVersion =
+                    int.parse(data["tag_name"].toString().replaceAll(".", ""));
+                if (latestVersion > currentVersion) {
+                  if (!mounted) return;
+                  _updateTitle.value =
                       ReviLocalizations.of(context).settingsUpdateButton;
-                });
-                // ignore: use_build_context_synchronously
-                showDialog(
-                  context: context,
-                  builder: (context) => ContentDialog(
-                    title: Text(ReviLocalizations.of(context)
-                        .settingsUpdateButtonAvailable),
-                    content: Text(
-                        "${ReviLocalizations.of(context).settingsUpdateButtonAvailablePrompt} ${data["tag_name"]}?"),
-                    actions: [
-                      FilledButton(
-                        child: Text(ReviLocalizations.of(context).okButton),
-                        onPressed: () async {
-                          setState(() {
-                            _updateTitle =
+
+                  if (!mounted) return;
+                  showDialog(
+                    context: context,
+                    builder: (context) => ContentDialog(
+                      title: Text(ReviLocalizations.of(context)
+                          .settingsUpdateButtonAvailable),
+                      content: Text(
+                          "${ReviLocalizations.of(context).settingsUpdateButtonAvailablePrompt} ${data["tag_name"]}?"),
+                      actions: [
+                        FilledButton(
+                          child: Text(ReviLocalizations.of(context).okButton),
+                          onPressed: () async {
+                            _updateTitle.value =
                                 "${ReviLocalizations.of(context).settingsUpdatingStatus}...";
-                          });
-                          Navigator.pop(context);
-                          await Network.downloadNewVersion(
-                              data["assets"][0]["browser_download_url"],
-                              tempDir.path);
-                          setState(() {
-                            _updateTitle = ReviLocalizations.of(context)
+
+                            Navigator.pop(context);
+                            await Network().downloadNewVersion(
+                                data["assets"][0]["browser_download_url"],
+                                tempDir.path);
+                            if (!mounted) return;
+                            _updateTitle.value = ReviLocalizations.of(context)
                                 .settingsUpdatingStatusSuccess;
-                          });
-                        },
-                      ),
-                      Button(
-                        child: Text(ReviLocalizations.of(context).notNowButton),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              } else {
-                setState(() {
-                  _updateTitle = ReviLocalizations.of(context)
+                          },
+                        ),
+                        Button(
+                          child:
+                              Text(ReviLocalizations.of(context).notNowButton),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  if (!mounted) return;
+                  _updateTitle.value = ReviLocalizations.of(context)
                       .settingsUpdatingStatusNotFound;
-                });
-              }
-            },
+                }
+              },
+            ),
           ),
         ),
         CardHighlight(
           icon: msicons.FluentIcons.local_language_20_regular,
           label: ReviLocalizations.of(context).settingsLanguageLabel,
+          description:
+              ReviLocalizations.of(context).settingsLanguageDescription,
           child: ComboBox(
             value: appLanguage,
             onChanged: (value) {
@@ -163,20 +212,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               );
             },
-            items: const [
-              ComboBoxItem(
-                value: 'en_US',
-                child: Text('English'),
-              ),
-              ComboBoxItem(
-                value: 'pt_BR',
-                child: Text('Português (Brasileiro)'),
-              ),
-              ComboBoxItem(
-                value: 'zh_CN',
-                child: Text('简体中文'),
-              )
-            ],
+            items: languageList,
           ),
         ),
       ],
