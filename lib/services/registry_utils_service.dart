@@ -1,3 +1,4 @@
+import 'package:mixin_logger/mixin_logger.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'dart:typed_data';
 
@@ -17,6 +18,7 @@ class RegistryUtilsService {
         path: path,
       ).getValueAsInt(value);
     } catch (_) {
+      w('Error reading $value from ${hive.name} $path');
       return null;
     }
   }
@@ -28,6 +30,7 @@ class RegistryUtilsService {
         path: path,
       ).getValueAsString(value);
     } catch (_) {
+      w('Error reading $value from ${hive.name} $path');
       return null;
     }
   }
@@ -39,6 +42,7 @@ class RegistryUtilsService {
         path: path,
       ).getValue(value)!.data as Uint8List;
     } catch (_) {
+      w('Error reading binary $value from $path');
       return null;
     }
   }
@@ -51,7 +55,12 @@ class RegistryUtilsService {
 
     var dword = RegistryValue(name, RegistryValueType.int32, value);
 
-    subKey.createValue(dword);
+    try {
+      subKey.createValue(dword);
+      v('Added $name with $value to $path');
+    } catch (e) {
+      w('Error writing $name - $e');
+    }
   }
 
   void writeString(RegistryKey key, String path, String name, String value) {
@@ -61,7 +70,12 @@ class RegistryUtilsService {
 
     var string = RegistryValue(name, RegistryValueType.string, value);
 
-    subKey.createValue(string);
+    try {
+      subKey.createValue(string);
+      v('Added $name with $value to $path');
+    } catch (e) {
+      w('Error writing $name - $e');
+    }
   }
 
   void writeStringMultiSZ(
@@ -72,7 +86,12 @@ class RegistryUtilsService {
 
     var string = RegistryValue(name, RegistryValueType.stringArray, value);
 
-    subKey.createValue(string);
+    try {
+      subKey.createValue(string);
+      v('Added $name with $value to $path');
+    } catch (e) {
+      w('Error writing $name - $e');
+    }
   }
 
   void writeBinary(RegistryKey key, String path, String name, List<int> value) {
@@ -81,8 +100,11 @@ class RegistryUtilsService {
     final subKey = regKey.createKey(regPath);
 
     var bin = RegistryValue(name, RegistryValueType.binary, value);
-
-    subKey.createValue(bin);
+    try {
+      subKey.createValue(bin);
+    } catch (e) {
+      w('Error writing $name - $e');
+    }
   }
 
   void deleteValue(RegistryKey key, String path, String name) {
@@ -92,7 +114,10 @@ class RegistryUtilsService {
 
     try {
       subKey.deleteValue(name);
-    } catch (_) {}
+      v('Deleted $name from $path');
+    } catch (_) {
+      w('Error deleting $name from $path');
+    }
   }
 
   void deleteKey(RegistryKey key, String path) {
@@ -100,7 +125,10 @@ class RegistryUtilsService {
     var regPath = path;
     try {
       regKey.deleteKey(regPath);
-    } catch (_) {}
+      v('Deleted $path');
+    } catch (_) {
+      w('Error deleting $path');
+    }
   }
 
   void createKey(RegistryKey key, String path) {
@@ -108,6 +136,9 @@ class RegistryUtilsService {
     var regPath = path;
     try {
       regKey.createKey(regPath);
-    } catch (_) {}
+      v('Created $path');
+    } catch (_) {
+      w('Error creating $path');
+    }
   }
 }

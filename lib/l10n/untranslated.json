@@ -1,11 +1,39 @@
 {
-  "pt": [
-    "wuPauseLabel",
-    "wuPauseDescription"
+  "zh": [
+    "experimental",
+    "warning",
+    "install",
+    "installing",
+    "close",
+    "search",
+    "usabilitySESLabel",
+    "usabilitySESDescription",
+    "perfBALabel",
+    "perfBADescription",
+    "settingsLanguageDescription",
+    "pageMSStore",
+    "msstoreSearchingPackages",
+    "msstoreWait",
+    "msstorePackagesPrompt",
+    "msstorePackagesNotFound"
   ],
 
-  "zh": [
-    "wuPauseLabel",
-    "wuPauseDescription"
+  "zh_TW": [
+    "experimental",
+    "warning",
+    "install",
+    "installing",
+    "close",
+    "search",
+    "usabilitySESLabel",
+    "usabilitySESDescription",
+    "perfBALabel",
+    "perfBADescription",
+    "settingsLanguageDescription",
+    "pageMSStore",
+    "msstoreSearchingPackages",
+    "msstoreWait",
+    "msstorePackagesPrompt",
+    "msstorePackagesNotFound"
   ]
 }

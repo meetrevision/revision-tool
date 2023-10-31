@@ -13,25 +13,38 @@ class UpdatesPage extends StatefulWidget {
 
 class _UpdatesPageState extends State<UpdatesPage> {
   final UpdatesService _updatesService = UpdatesService();
-  late bool _pausedBool = _updatesService.statusPauseUpdatesWU;
-  late bool _wuPageBool = _updatesService.statusVisibilityWU;
-  late bool _wuDriversBool = _updatesService.statusDriversWU;
+  late final _pausedBool =
+      ValueNotifier<bool>(_updatesService.statusPauseUpdatesWU);
+  late final _wuPageBool =
+      ValueNotifier<bool>(_updatesService.statusVisibilityWU);
+  late final _wuDriversBool =
+      ValueNotifier<bool>(_updatesService.statusDriversWU);
+
+  @override
+  void dispose() {
+    _pausedBool.dispose();
+    _wuPageBool.dispose();
+    _wuDriversBool.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
+      key: GlobalKey(),
       header: PageHeader(
         title: Text(ReviLocalizations.of(context).pageUpdates),
       ),
       children: [
         CardHighlightSwitch(
+         
           icon: msicons.FluentIcons.pause_20_regular,
           label: ReviLocalizations.of(context).wuPauseLabel,
           description: ReviLocalizations.of(context).wuPauseDescription,
           switchBool: _pausedBool,
-          function: (value) async {
-            setState(() => _pausedBool = value);
-            _pausedBool
+          function: (value) {
+            _pausedBool.value = value;
+            value
                 ? _updatesService.enablePauseUpdatesWU()
                 : _updatesService.disablePauseUpdatesWU();
           },
@@ -41,21 +54,22 @@ class _UpdatesPageState extends State<UpdatesPage> {
           label: ReviLocalizations.of(context).wuPageLabel,
           description: ReviLocalizations.of(context).wuPageDescription,
           switchBool: _wuPageBool,
-          function: (value) async {
-            setState(() => _wuPageBool = value);
-            _wuPageBool
+          function: (value) {
+            _wuPageBool.value = value;
+            value
                 ? _updatesService.enableVisibilityWU()
                 : _updatesService.disableVisibilityWU();
           },
         ),
         CardHighlightSwitch(
+    
           icon: FluentIcons.devices4,
           label: ReviLocalizations.of(context).wuDriversLabel,
           description: ReviLocalizations.of(context).wuDriversDescription,
           switchBool: _wuDriversBool,
-          function: (value) async {
-            setState(() => _wuDriversBool = value);
-            _wuDriversBool
+          function: (value) {
+            _wuDriversBool.value = value;
+            value
                 ? _updatesService.enableDriversWU()
                 : _updatesService.disableDriversWU();
           },

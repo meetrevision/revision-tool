@@ -32,6 +32,8 @@ migrate_working_dir/
 .pub/
 /build/
 /lib/l10n/generated/
+*.g.dart
+*.freezed.dart
 
 # Symbolication related
 app.*.symbols

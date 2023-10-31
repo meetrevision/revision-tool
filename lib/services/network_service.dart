@@ -1,11 +1,12 @@
 import 'dart:io';
-
 import 'package:dio/dio.dart';
+import 'package:mixin_logger/mixin_logger.dart';
+// ignore: depend_on_referenced_packages
 
 class Network {
   static final Network _instance = Network._private();
 
-  static final _dio = Dio();
+  final _dio = Dio();
   static final _options = Options(
     headers: {
       "user-agent":
@@ -21,7 +22,7 @@ class Network {
 
   Network._private();
 
-  static Future<Map<String, dynamic>> getJSON(String url) async {
+  Future<Map<String, dynamic>> getJSON(String url) async {
     var response = await _dio.get(url, options: _options);
 
     final responseJson = Map<String, dynamic>.from(response.data);
@@ -33,17 +34,19 @@ class Network {
     }
   }
 
-  static Future downloadNewVersion(String url, String path) async {
-    await _dio.download(
+  Future downloadNewVersion(String url, String path) async {
+    final download = await _dio.download(
       url,
       "$path\\RevisionTool-Setup.exe",
     );
+    v("New Revision Tool download status: ${download.statusMessage}");
     await openExeFile("$path\\RevisionTool-Setup.exe");
   }
 
-  static Future<void> openExeFile(String filePath) async {
+  Future<void> openExeFile(String filePath) async {
     await Process.start(filePath,
-        ['/VERYSILENT', '/RESTARTAPPLICATIONS', r'/TASKS="desktopicon"']);
+        ['/VERYSILENT', '/RESTARTAPPLICATIONS', r'/TASKS="desktopicon"'],
+        runInShell: true);
     await File(filePath).delete();
   }
 }

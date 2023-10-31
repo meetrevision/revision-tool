@@ -13,10 +13,25 @@ class UsabilityPage extends StatefulWidget {
 
 class _UsabilityPageState extends State<UsabilityPage> {
   final UsabilityService _usabilityService = UsabilityService();
-  late bool _notifBool = _usabilityService.statusNotification;
-  late bool _lbnBool = _usabilityService.statusLegacyBalloon;
-  late bool _itpBool = _usabilityService.statusInputPersonalization;
-  late bool _dCplBool = _usabilityService.statusCapsLock;
+  late final _notifBool =
+      ValueNotifier<bool>(_usabilityService.statusNotification);
+  late final _lbnBool =
+      ValueNotifier<bool>(_usabilityService.statusLegacyBalloon);
+  late final _itpBool =
+      ValueNotifier<bool>(_usabilityService.statusInputPersonalization);
+  late final _dCplBool = ValueNotifier<bool>(_usabilityService.statusCapsLock);
+  late final _sesBool =
+      ValueNotifier<bool>(_usabilityService.statusScreenEdgeSwipe);
+
+  @override
+  void dispose() {
+    _notifBool.dispose();
+    _lbnBool.dispose();
+    _itpBool.dispose();
+    _dCplBool.dispose();
+    _sesBool.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,21 +46,21 @@ class _UsabilityPageState extends State<UsabilityPage> {
           description: ReviLocalizations.of(context).usabilityNotifDescription,
           switchBool: _notifBool,
           function: (value) async {
-            setState(() => _notifBool = value);
-            _notifBool
+            _notifBool.value = value;
+            _notifBool.value
                 ? _usabilityService.enableNotification()
                 : _usabilityService.disableNotification();
           },
         ),
-        if (_notifBool) ...[
+        if (_notifBool.value) ...[
           CardHighlightSwitch(
             icon: msicons.FluentIcons.balloon_20_regular,
             label: ReviLocalizations.of(context).usabilityLBNLabel,
             description: ReviLocalizations.of(context).usabilityLBNDescription,
             switchBool: _lbnBool,
             function: (value) async {
-              setState(() => _lbnBool = value);
-              _lbnBool
+              _lbnBool.value = value;
+              _lbnBool.value
                   ? _usabilityService.enableLegacyBalloon()
                   : _usabilityService.disableLegacyBalloon();
             },
@@ -57,8 +72,8 @@ class _UsabilityPageState extends State<UsabilityPage> {
           description: ReviLocalizations.of(context).usabilityITPDescription,
           switchBool: _itpBool,
           function: (value) async {
-            setState(() => _itpBool = value);
-            _itpBool
+            _itpBool.value = value;
+            _itpBool.value
                 ? _usabilityService.enableInputPersonalization()
                 : _usabilityService.disableInputPersonalization();
           },
@@ -68,10 +83,22 @@ class _UsabilityPageState extends State<UsabilityPage> {
           label: ReviLocalizations.of(context).usabilityCPLLabel,
           switchBool: _dCplBool,
           function: (value) async {
-            setState(() => _dCplBool = value);
-            _dCplBool
+            _dCplBool.value = value;
+            _dCplBool.value
                 ? _usabilityService.disableCapsLock()
                 : _usabilityService.enableCapsLock();
+          },
+        ),
+        CardHighlightSwitch(
+          icon: msicons.FluentIcons.swipe_up_20_regular,
+          label: ReviLocalizations.of(context).usabilitySESLabel,
+          description: ReviLocalizations.of(context).usabilitySESDescription,
+          switchBool: _sesBool,
+          function: (value) async {
+            _sesBool.value = value;
+            _sesBool.value
+                ? _usabilityService.enableScreenEdgeSwipe()
+                : _usabilityService.disableScreenEdgeSwipe();
           },
         ),
       ],
