@@ -16,24 +16,5 @@
     "msstoreWait",
     "msstorePackagesPrompt",
     "msstorePackagesNotFound"
-  ],
-
-  "zh_TW": [
-    "experimental",
-    "warning",
-    "install",
-    "installing",
-    "close",
-    "search",
-    "usabilitySESLabel",
-    "usabilitySESDescription",
-    "perfBALabel",
-    "perfBADescription",
-    "settingsLanguageDescription",
-    "pageMSStore",
-    "msstoreSearchingPackages",
-    "msstoreWait",
-    "msstorePackagesPrompt",
-    "msstorePackagesNotFound"
   ]
 }
