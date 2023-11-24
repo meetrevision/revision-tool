@@ -97,7 +97,7 @@
   "settingsCTDescription": "التبديل بين وضعي النهار والليل، أو التغيير التلقائي للسمة مع نظام الويندوز.",
   "settingsEPTLabel": "إظهار إعدادت تجريبية",
   "settingsEPTDescription": "",
-  "restartAppDialog": "يجب أن تعيد تشغيل التطبيق حتى يتم تطبيق التغييرات.",
+  "restartAppDialog": "يجب أن تعيد تشغيل الأداة حتى يتم تطبيق التغييرات.",
   "settingsLanguageLabel": "اللغة",
   "settingsLanguageDescription": "لا يمكن ضمان ترجمة اللغات بشكل كامل أو صحيح",
   "pageMSStore": "متجر مايكروسوفت",
