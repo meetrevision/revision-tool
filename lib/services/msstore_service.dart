@@ -368,7 +368,7 @@ class MSStoreService {
 
   Future<List<ProcessResult>> installUWPPackages(String path) async {
     return await run(
-      'powershell -NoP -ExecutionPolicy Bypass -NonInteractive -C "& {\$appxFiles = Get-ChildItem -Path "$path"; foreach (\$file in \$appxFiles) { Add-AppxPackage -Path \$file.FullName; echo "\$(\$file.Name)";}}"',
+      'powershell -NoP -ExecutionPolicy Bypass -NonInteractive -C "& {\$appxFiles = Get-ChildItem -Path "$path"; foreach (\$file in \$appxFiles) { Add-AppxPackage -ForceApplicationShutdown -Path \$file.FullName; echo "\$(\$file.Name)";}}"',
     );
   }
 
