@@ -20,43 +20,47 @@ const languageList = [
   ),
   ComboBoxItem(
     value: 'pt_BR',
-    child: Text('Português (Brasil)'),
+    child: Text('Portuguese (Brazil)'),
   ),
   ComboBoxItem(
     value: 'zh_CN',
-    child: Text('简体中文'),
+    child: Text('Chinese (Simplified)'),
   ),
   ComboBoxItem(
     value: 'zh_TW',
-    child: Text('繁體中文'),
+    child: Text('Chinese (Traditional)'),
   ),
   ComboBoxItem(
     value: 'de_DE',
-    child: Text('Deutsch'),
+    child: Text('German'),
   ),
   ComboBoxItem(
     value: 'fr_FR',
-    child: Text('Français'),
+    child: Text('French'),
   ),
   ComboBoxItem(
     value: 'ru_RU',
-    child: Text('Русский'),
+    child: Text('Russian'),
   ),
   ComboBoxItem(
     value: 'uk_UA',
-    child: Text('українська'),
+    child: Text('Ukrainian'),
   ),
   ComboBoxItem(
     value: 'hu_HU',
-    child: Text('Magyar'),
+    child: Text('Hungarian'),
   ),
   ComboBoxItem(
     value: 'tr_TR',
-    child: Text('Türkçe'),
+    child: Text('Turkish'),
   ),
   ComboBoxItem(
-    value: 'ro_RO',
-    child: Text('Română'),
+    value: 'ar_SA',
+    child: Text('Arabic'),
+  ),
+  ComboBoxItem(
+    value: 'it_IT',
+    child: Text('Italian'),
   ),
 ];
 
