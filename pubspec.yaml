@@ -9,7 +9,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=2.19.2 <3.0.0'
+  sdk: '>=3.2.3 <4.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -23,37 +23,31 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: '>=0.18.0 <= 1.0.0'
-  fluent_ui: ^4.7.6
+  fluent_ui: ^4.8.2
   system_theme: ^2.3.1
   provider: ^6.0.5
   path_provider: ^2.1.1
-  dio: ^5.3.3
+  dio: ^5.4.0
   win32_registry: 
   process_run: ^0.13.1
   window_plus:
     git:
       url: https://github.com/melo936/window_plus
-  fluentui_system_icons: ^1.1.220
+  fluentui_system_icons: ^1.1.223
   package_info_plus: any
-  collection: any
+  collection: ^1.18.0
   win32: ^5.0.9
   freezed_annotation: ^2.4.1
   json_annotation: ^4.8.1
   xml: any
-  mixin_logger: ^0.1.0
-  path: ^1.8.2
+  mixin_logger: ^0.1.1
+  path: ^1.8.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
-  flutter_lints: ^3.0.0
-  build_runner:
+  flutter_lints: ^3.0.1
+  build_runner: ^2.4.7
   freezed: ^2.4.5
   json_serializable: ^6.7.1
   
