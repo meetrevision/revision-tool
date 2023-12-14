@@ -9,7 +9,7 @@ import '../models/ms_store/search_response.dart';
 import '../models/ms_store/packages_info.dart';
 import 'package:xml/xml.dart' as xml;
 import '../utils.dart';
-import 'registry_utils_service.dart';
+// import 'registry_utils_service.dart';
 
 class MSStoreService {
   static final MSStoreService _instance = MSStoreService._private();
@@ -41,10 +41,10 @@ class MSStoreService {
   );
 
   static final _regex = RegExp(r'"WuCategoryId":"([^"]+)"');
-  static final _namePattern = RegExp(r'^([A-Za-z]+\.)+[A-Za-z]+');
-  static final _versionPattern = RegExp(r'_(\d+\.\d+\.\d+\.\d+)_');
+  static final _namePattern = RegExp(r'^[^_]+');
 
-  // static final _genPattern = RegExp(r'\.(\d\.\d)_');
+  /// major.minor.build.revision
+  static final _versionPattern = RegExp(r'_(\d+\.\d+\.\d+\.\d+)_');
 
   static const _validUWPExtensions = {
     "appx",
@@ -60,7 +60,7 @@ class MSStoreService {
 
   final _dio = Dio();
   final _cancelToken = CancelToken();
-  final RegistryUtilsService _registryUtilsService = RegistryUtilsService();
+  // final _registryUtilsService = RegistryUtilsService();
 
   factory MSStoreService() {
     return _instance;
@@ -90,15 +90,15 @@ class MSStoreService {
       }
     }
 
-    // Non-UWP apps mostly start with "X"
-    if (productId.startsWith("X")) {
+    // Non-UWP apps mostly start with "XP"
+    if (productId.startsWith("XP")) {
       return await _getNonAppxPackage(productId);
     }
 
     return [];
   }
 
-  Future<List<ProductsList>> searchProducts(String query) async {
+  Future<List<ProductsList>> searchProducts(String query, String ring) async {
     //"$_filteredSearchAPI?&Query=$query&FilteredCategories=AllProducts&hl=en-us${systemLanguage.toLowerCase()}&
     final response = await _dio.get(
         "$_searchAPI?gl=US&hl=en-us&query=$query&mediaType=all&age=all&price=all&category=all&subscription=all",
@@ -324,46 +324,44 @@ class MSStoreService {
       Map<String?, List<PackagesInfo>> groupedPackages) {
     if (groupedPackages.isEmpty) return [];
 
-    final latestGenPackages = groupedPackages.values
-        .map(
-          (group) => group.fold(
-            <PackagesInfo>[],
-            (acc, package) {
-              final version = _parseVersion(package.name!);
-              final maxVersion = acc.fold(
-                -1,
-                (accVersion, accPackage) =>
-                    _parseVersion(accPackage.name!) > accVersion
-                        ? _parseVersion(accPackage.name!)
-                        : accVersion,
-              );
-              if (version > maxVersion) {
-                return [package];
-              } else if (version == maxVersion) {
-                acc.add(package);
+    final latestGenPackages = groupedPackages.values.map((group) {
+      Map<String, PackagesInfo> versionMap = {};
+
+      for (final package in group) {
+        final match = _versionPattern.firstMatch(package.name!);
+
+        if (match != null) {
+          final ver = match.group(1)!;
+
+          if (!versionMap.containsKey(ver)) {
+            versionMap[ver] = package;
+          } else {
+            final lastSavedVer =
+                versionMap[ver]!.name!.split('.').map(int.parse).toList();
+            final currentVer = package.name!.split('.').map(int.parse).toList();
+
+            final lastSavedVerLength = lastSavedVer.length;
+            final currentverLength = currentVer.length;
+
+            for (int i = 0; i < currentverLength; i++) {
+              if (i >= lastSavedVerLength || currentVer[i] > lastSavedVer[i]) {
+                versionMap[ver] = package;
+                break;
+              } else if (currentVer[i] < lastSavedVer[i]) {
+                break;
               }
-              return acc;
-            },
-          ),
-        )
-        .expand((i) => i)
-        .toList();
+            }
+          }
+        }
+      }
+
+      final latestVersion = versionMap.keys
+          .reduce((curr, next) => curr.compareTo(next) > 0 ? curr : next);
+
+      return versionMap[latestVersion]!;
+    }).toList();
 
     return latestGenPackages;
-  }
-
-  int _parseVersion(String name) {
-    final match = _versionPattern.firstMatch(name);
-    if (match == null) return -1;
-
-    List<String> versionParts = match.group(1)!.replaceAll('_', '').split('.');
-    if (versionParts.isNotEmpty) {
-      final lastPart = versionParts.last;
-      versionParts[versionParts.length - 1] = lastPart.characters.first == '0'
-          ? lastPart
-          : lastPart.replaceAll(RegExp(r'0+$'), '');
-    }
-    return int.parse(versionParts.join(''));
   }
 
   Future<List<ProcessResult>> installUWPPackages(String path) async {
