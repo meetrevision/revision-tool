@@ -35,10 +35,18 @@ class _DownloadWidgetState extends State<DownloadWidget> {
   @override
   void initState() {
     super.initState();
+
+    final String path =
+        '${Directory.systemTemp.path}\\Revision-Tool\\MSStore\\${widget.productId}';
+    final Directory directory = Directory(path);
+    if (directory.existsSync()) {
+      directory.deleteSync(recursive: true);
+    }
+
     _streams = widget.items
         .map((item) => _dio.download(
               item.uri!,
-              '${Directory.systemTemp.path}\\Revision-Tool\\MSStore\\${widget.productId}\\${item.name}.${item.extension}',
+              '$path\\${item.name}.${item.extension}',
               cancelToken: CancelToken(),
               onReceiveProgress: (received, total) {
                 if (total != -1) {

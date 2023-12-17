@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:mixin_logger/mixin_logger.dart';
 import 'package:process_run/cmd_run.dart';
 import 'package:process_run/shell_run.dart';
 import '../models/ms_store/non_uwp_response.dart';
@@ -41,21 +42,22 @@ class MSStoreService {
   );
 
   static final _regex = RegExp(r'"WuCategoryId":"([^"]+)"');
-  static final _namePattern = RegExp(r'^[^_]+');
+  static final _namePattern = RegExp(r'^[^_]+', multiLine: true);
 
   /// major.minor.build.revision
-  static final _versionPattern = RegExp(r'_(\d+\.\d+\.\d+\.\d+)_');
+  // static final _versionPattern = RegExp(r'_(\d+\.\d+\.\d+\.\d+)_');
 
-  static const _validUWPExtensions = {
-    "appx",
-    "appxbundle",
-    "msix",
-    "msixbundle",
-    // "eappx",
-    // "eappxbundle",
-    // "emsix",
-    // "emsixbundle"
-  };
+  // static const _validUWPExtensions = {
+  //   "appx",
+  //   "appxbundle",
+  //   "msix",
+  //   "msixbundle",
+  //   // "eappx",
+  //   // "eappxbundle",
+  //   // "emsix",
+  //   // "emsixbundle"
+  // };
+
   static var _cookie = "";
 
   final _dio = Dio();
@@ -158,10 +160,11 @@ class MSStoreService {
         data: cookie2, options: _optionsSoapXML, cancelToken: _cancelToken);
 
     if (response.statusCode == 200) {
-      return xml.XmlDocument.parse(response.data)
+      final xmlDoc = xml.XmlDocument.parse(response.data)
           .toString()
           .replaceAll("&lt;", "<")
           .replaceAll("&gt;", ">");
+      return xmlDoc;
     }
     throw Exception('Failed to get file list xml');
   }
@@ -199,6 +202,7 @@ class MSStoreService {
                 -1,
                 "",
                 null,
+                null,
                 installer.installerSwitches!.silent,
               ),
             );
@@ -217,13 +221,14 @@ class MSStoreService {
 
     for (final node in xmlDoc.findAllElements("File")) {
       if (node.getAttribute("InstallerSpecificIdentifier") != null) {
-        String name = node.getAttribute("InstallerSpecificIdentifier")!;
-        String digest = node.getAttribute("Digest")!;
+        final name = node.getAttribute("InstallerSpecificIdentifier")!;
+        final digest = node.getAttribute("Digest")!;
+        final modified = node.getAttribute("Modified")!;
 
         packageMap.putIfAbsent(
             name,
             () =>
-                '${node.getAttribute("FileName")!.substring(node.getAttribute("FileName")!.lastIndexOf('.') + 1)}|${node.getAttribute("Size")!}|$digest');
+                '${node.getAttribute("FileName")!.substring(node.getAttribute("FileName")!.lastIndexOf('.') + 1)}|${node.getAttribute("Size")!}|$digest|$modified');
       }
     }
 
@@ -236,25 +241,27 @@ class MSStoreService {
           .getAttribute("PackageMoniker");
       if (name != null) {
         final package = packageMap[name]!;
-        final extension = package.split('|')[0];
+        final ext = package.split('|')[0];
+        final size = double.parse(package.split('|')[1]);
         final digest = package.split('|')[2];
+        final lastModified = DateTime.parse(package.split('|')[3]);
+
         final updateIdentity =
             node.parent!.parent!.getElement('UpdateIdentity')!;
 
-        if (_validUWPExtensions.contains(extension) &&
-                !name.contains("Microsoft.Advertising") &&
-                name.contains("x64") ||
-            name.contains("neutral")) {
+        if (!name.contains("Microsoft.Advertising") && name.contains("x64") ||
+            name.contains("neutral") && !ext.startsWith("e")) {
           packages.add(PackagesInfo(
             name,
-            extension,
+            ext,
             await _getUri(updateIdentity.getAttribute('UpdateID')!,
                 updateIdentity.getAttribute('RevisionNumber')!, ring, digest),
             updateIdentity.getAttribute('RevisionNumber')!,
             updateIdentity.getAttribute('UpdateID')!,
             node.parent!.parent!.parent!.getElement('ID')!.value,
-            double.parse(package.split('|')[1]),
+            size,
             digest,
+            lastModified,
             null,
             null,
           ));
@@ -311,6 +318,7 @@ class MSStoreService {
             entry.value.id,
             entry.value.size,
             entry.value.digest,
+            entry.value.lastModified,
             entry.key,
             null))
         .toList()
@@ -319,50 +327,78 @@ class MSStoreService {
     return groupedItems;
   }
 
-  /// Returns a list of latest UWP packages
   List<PackagesInfo> _getLatestPackages(
       Map<String?, List<PackagesInfo>> groupedPackages) {
     if (groupedPackages.isEmpty) return [];
 
     final latestGenPackages = groupedPackages.values.map((group) {
-      Map<String, PackagesInfo> versionMap = {};
-
+      Map<PackagesInfo, DateTime> versionMap = {};
       for (final package in group) {
-        final match = _versionPattern.firstMatch(package.name!);
+        if (versionMap.isEmpty) {
+          versionMap[package] = package.lastModified!;
+        } else {
+          final lastSavedVer = versionMap.values.first;
+          final currentVer = package.lastModified!;
 
-        if (match != null) {
-          final ver = match.group(1)!;
-
-          if (!versionMap.containsKey(ver)) {
-            versionMap[ver] = package;
-          } else {
-            final lastSavedVer =
-                versionMap[ver]!.name!.split('.').map(int.parse).toList();
-            final currentVer = package.name!.split('.').map(int.parse).toList();
-
-            final lastSavedVerLength = lastSavedVer.length;
-            final currentverLength = currentVer.length;
-
-            for (int i = 0; i < currentverLength; i++) {
-              if (i >= lastSavedVerLength || currentVer[i] > lastSavedVer[i]) {
-                versionMap[ver] = package;
-                break;
-              } else if (currentVer[i] < lastSavedVer[i]) {
-                break;
-              }
-            }
+          if (currentVer.isAfter(lastSavedVer)) {
+            versionMap.clear();
+            versionMap[package] = currentVer;
           }
         }
       }
-
-      final latestVersion = versionMap.keys
-          .reduce((curr, next) => curr.compareTo(next) > 0 ? curr : next);
-
-      return versionMap[latestVersion]!;
+      return versionMap.keys.first;
     }).toList();
 
     return latestGenPackages;
   }
+
+  /// Returns a list of latest UWP packages
+  // List<PackagesInfo> _getLatestPackages(
+  //     Map<String?, List<PackagesInfo>> groupedPackages) {
+  //   if (groupedPackages.isEmpty) return [];
+
+  //   final latestGenPackages = groupedPackages.values.map((group) {
+  //     Map<String, PackagesInfo> versionMap = {};
+
+  //     for (final package in group) {
+  //       final match = _versionPattern.firstMatch(package.name!);
+
+  //       if (match != null) {
+  //         final ver = match.group(1)!;
+
+  //         if (versionMap.isEmpty) {
+  //           versionMap[ver] = package;
+  //         } else {
+  //           debugPrint("Version: $ver");
+  //           final lastSavedVer =
+  //               versionMap.keys.first.split('.').map(int.parse).toList();
+
+  //           final currentVer = ver.split('.').map(int.parse).toList();
+
+  //           final lastSavedVerLength = lastSavedVer.length;
+  //           final currentverLength = currentVer.length;
+
+  //           for (int i = 0; i < currentverLength; i++) {
+  //             if (i >= lastSavedVerLength || currentVer[i] > lastSavedVer[i]) {
+  //               versionMap.clear();
+  //               versionMap[ver] = package;
+  //               break;
+  //             } else if (currentVer[i] < lastSavedVer[i]) {
+  //               break;
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
+
+  //     final latestVersion = versionMap.keys
+  //         .reduce((curr, next) => curr.compareTo(next) > 0 ? curr : next);
+
+  //     return versionMap[latestVersion]!;
+  //   }).toList();
+
+  //   return latestGenPackages;
+  // }
 
   Future<List<ProcessResult>> installUWPPackages(String path) async {
     return await run(
