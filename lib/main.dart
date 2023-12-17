@@ -17,6 +17,7 @@ import 'package:path/path.dart' as p;
 Future<void> main() async {
   await runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
+
     final path = p.join(Directory.systemTemp.path, 'Revision-Tool', 'Logs');
 
     initLogger(path);

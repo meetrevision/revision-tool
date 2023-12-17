@@ -51,10 +51,10 @@ class MSStoreService {
     "appxbundle",
     "msix",
     "msixbundle",
-    "eappx",
-    "eappxbundle",
-    "emsix",
-    "emsixbundle"
+    // "eappx",
+    // "eappxbundle",
+    // "emsix",
+    // "emsixbundle"
   };
   static var _cookie = "";
 
