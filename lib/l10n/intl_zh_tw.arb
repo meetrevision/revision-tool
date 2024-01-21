@@ -101,7 +101,7 @@
   "settingsEPTDescription": "",
   "restartAppDialog": "您必須重新啟動應用程序才能使更改生效",
   "settingsLanguageLabel": "語言",
-  "settingsLanguageDescription": "不保證語言被完全翻譯或正確",
+  "settingsLanguageDescription": "不保證語言被完全翻譯或翻譯正確",
   "pageMSStore": "Microsoft Store",
   "msstoreSearchingPackages": "正在搜尋安裝包",
   "msstoreWait": "請稍後...",
