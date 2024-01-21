@@ -1,18 +1,19 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:win32_registry/win32_registry.dart';
 
-import '../utils.dart';
 import 'registry_utils_service.dart';
 import 'setup_service.dart';
 
 class UsabilityService implements SetupService {
-  static final UsabilityService _instance = UsabilityService._private();
+  static final _instance = UsabilityService._private();
 
-  final RegistryUtilsService _registryUtilsService = RegistryUtilsService();
-  final Shell _shell = Shell();
+  final _registryUtilsService = RegistryUtilsService();
+  final _shell = Shell();
+  final _listEquality = const ListEquality();
 
   static final Uint8List _cplValue = Uint8List.fromList(
       [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 58, 0, 0, 0, 0, 0]);
@@ -275,12 +276,15 @@ class UsabilityService implements SetupService {
   }
 
   bool get statusCapsLock {
-    return eq.equals(
-        _cplValue,
-        _registryUtilsService.readBinary(
-            RegistryHive.localMachine,
-            r'SYSTEM\CurrentControlSet\Control\Keyboard Layout',
-            'Scancode Map'));
+    Uint8List? value;
+    try {
+      value = _registryUtilsService.readBinary(RegistryHive.localMachine,
+          r'SYSTEM\CurrentControlSet\Control\Keyboard Layout', 'Scancode Map');
+    } catch (e) {
+      //
+    }
+
+    return _listEquality.equals(_cplValue, value);
   }
 
   void enableCapsLock() {

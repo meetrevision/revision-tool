@@ -1,11 +1,9 @@
 import 'dart:io';
-import 'package:collection/collection.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'services/registry_utils_service.dart';
 
-final RegistryUtilsService registryUtilsService = RegistryUtilsService();
-const ListEquality eq = ListEquality();
+final registryUtilsService = RegistryUtilsService();
 
 final int buildNumber = int.parse(registryUtilsService.readString(
     RegistryHive.localMachine,
