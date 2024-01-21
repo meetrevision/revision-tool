@@ -101,7 +101,7 @@
   "perfBADescription": "允许应用程序在后台运行，即使您没有使用它们。由于不断在后台运行，这将会对性能产生影响。禁用此选项还可能将禁用某些应用程序的通知。",
  "usabilitySESLabel": "萤幕边缘滑动",
  "usabilitySESDescription":"停用此功能可修復全萤幕模式下工作列弹出视窗的问题",
-"settingsLanguageDescription":"不保证语言被完全翻译或正确",
+"settingsLanguageDescription":"不保证语言被完全翻译或翻译正确",
 "pageMSStore":"微软商店",
 "msstoreSearchingPackages":"正在搜寻安装包",
  "msstoreWait": "请稍后...",
