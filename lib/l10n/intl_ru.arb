@@ -42,7 +42,6 @@
   "usabilitySESLabel": "Жесты края экрана",
   "usabilitySESDescription": "Отключение этой функции исправляет появление панели задач в полноэкранном режиме",
   "usability11MRCLabel": "Новое контекстное меню",
-  "usability11FETLabel": "Вкладки в Проводнике",
   "perfSuperfetchLabel": "Superfetch",
   "perfSuperfetchDescription": "Ускорьте время загрузки и запуск программ, загружая все необходимые данные в память. Включение Superfetch рекомендуется только для пользователей HDD",
   "perfMCLabel": "Сжатие памяти",

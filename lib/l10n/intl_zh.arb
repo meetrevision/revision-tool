@@ -36,7 +36,6 @@
   "usabilityITPDescription": "Windows 将了解您输入的内容，以便在撰写时改进建议",
   "usabilityCPLLabel": "禁用大写锁定键",
   "usability11MRCLabel": "新版右键菜单",
-  "usability11FETLabel": "文件资源管理器标签页",
   "perfSuperfetchLabel": "预存取（Superfetch）",
   "perfSuperfetchDescription": "通过将所有必要数据预加载到内存中，加快启动时间并更快地加载程序。仅建议硬盘用户启用 Superfetch 功能",
   "perfMCLabel": "内存压缩",

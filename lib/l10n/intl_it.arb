@@ -42,7 +42,6 @@
   "usabilitySESLabel": "Scorri dal bordo dello schermo",
   "usabilitySESDescription": "Disabilitando questa opzione si risolve il popup della barra delle applicazioni in modalità a schermo intero",
   "usability11MRCLabel": "Nuovo menu contestuale",
-  "usability11FETLabel": "Tabelle in Esplora File",
   "perfSuperfetchLabel": "Superfetch",
   "perfSuperfetchDescription": "Accelera il tempo di avvio e carica i programmi più velocemente precaricando tutti i dati necessari in memoria. L'abilitazione di Superfetch è consigliata solo agli utenti HDD",
   "perfMCLabel": "Compressione memoria",

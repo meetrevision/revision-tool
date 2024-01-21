@@ -36,7 +36,6 @@
   "usabilityITPDescription": "Windows lernt, was Sie eingeben, um Vorschläge beim Schreiben zu verbessern",
   "usabilityCPLLabel": "Feststelltaste deaktivieren",
   "usability11MRCLabel": "Neues Kontextmenü",
-  "usability11FETLabel": "Datei-Explorer-Registerkarten",
   "perfSuperfetchLabel": "Superfetch",
   "perfSuperfetchDescription": "Beschleunigen Sie die Startzeit und laden Sie Programme schneller, indem Sie alle erforderlichen Daten vorab in den Speicher laden. Die Aktivierung von Superfetch wird nur Festplattenbenutzern empfohlen",
   "perfMCLabel": "Speicherkomprimierung",

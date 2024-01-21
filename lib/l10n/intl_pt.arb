@@ -42,7 +42,6 @@
   "usabilitySESLabel": "Deslizar a borda da tela",
   "usabilitySESDescription": "Desativar isso corrige o pop-up da barra de tarefas no modo de tela cheia",
   "usability11MRCLabel": "Novo menu de contexto",
-  "usability11FETLabel": "Guias do Explorador de Arquivos",
   "perfSuperfetchLabel": "Superfetch",
   "perfSuperfetchDescription": "Acelere o tempo de inicialização e carregue programas mais rapidamente pré-carregando todos os dados necessários na memória. A ativação do Superfetch é recomendada apenas para usuários de HDD.",
   "perfMCLabel": "Compressão de memória",

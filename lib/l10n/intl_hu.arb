@@ -42,7 +42,6 @@
   "usabilitySESLabel": "Képernyő szélső csúsztatás",
   "usabilitySESDescription": "A teljes képernyős mód pop-up problémájának kiküszöbölése érdekében tiltsa le ezt",
   "usability11MRCLabel": "Új Kontext Menü",
-  "usability11FETLabel": "Fájlkezelő lapok",
   "perfSuperfetchLabel": "Superfetch",
   "perfSuperfetchDescription": "A rendszerindítási időt és a programok betöltési sebességét gyorsítja fel a szükséges adatok előzetes betöltésével a memóriába. A Superfetch engedélyezése csak az HDD-felhasználók számára ajánlott",
   "perfMCLabel": "Memória tömörítés",

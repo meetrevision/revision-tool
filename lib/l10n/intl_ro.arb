@@ -42,7 +42,6 @@
   "usabilitySESLabel": "Glisare de margine a ecranului",
   "usabilitySESDescription": "Dezactivarea acesteia rezolvă afișarea barei de activități pop-up în modul ecran complet",
   "usability11MRCLabel": "Meniu de context nou",
-  "usability11FETLabel": "File Explorer Tabs",
   "perfSuperfetchLabel": "Superfetch",
   "perfSuperfetchDescription": "Accelerarea timpului de pornire și încărcarea mai rapidă a programelor prin preîncărcarea tuturor datelor necesare în memorie. Activarea Superfetch este recomandată numai pentru utilizatorii de HDD",
   "perfMCLabel": "Comprimarea memoriei",

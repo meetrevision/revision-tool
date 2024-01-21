@@ -44,7 +44,6 @@
   "usabilitySESLabel": "螢幕邊緣滑動",
   "usabilitySESDescription": "停用此功能可修復全螢幕模式下工作列彈出視窗的問題",
   "usability11MRCLabel": "新版右鍵菜單",
-  "usability11FETLabel": "檔案總管的索引標籤",
   "perfSuperfetchLabel": "預先讀取(Superfetch)",
   "perfSuperfetchDescription": "通過將所有必要的數據預加載到內存中，加快啟動時間並更快地加載程序。 僅建議 HDD 用戶啟用 Superfetch",
   "perfMCLabel": "內存壓縮",
