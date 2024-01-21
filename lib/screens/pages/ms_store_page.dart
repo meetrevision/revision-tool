@@ -1,5 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:revitool/l10n/generated/localizations.dart';
+import 'package:revitool/extensions.dart';
 import 'package:revitool/models/ms_store/packages_info.dart';
 import 'package:revitool/models/ms_store/search_response.dart';
 import 'package:revitool/services/msstore_service.dart';
@@ -33,20 +33,14 @@ class _MSStorePageState extends State<MSStorePage>
     if (query.startsWith("9") && query.length == 12 ||
         query.startsWith("XP") && query.length == 14) {
       await showInstallDialog(
-          context,
-          ReviLocalizations.of(context).msstoreSearchingPackages,
-          query,
-          _selectedRing);
+          context, context.l10n.msstoreSearchingPackages, query, _selectedRing);
     } else if (query.startsWith('https://') &&
         query.contains('microsoft.com')) {
       final uri = Uri.parse(query);
       final productId = uri.pathSegments.last;
       debugPrint(productId);
-      await showInstallDialog(
-          context,
-          ReviLocalizations.of(context).msstoreSearchingPackages,
-          productId,
-          _selectedRing);
+      await showInstallDialog(context, context.l10n.msstoreSearchingPackages,
+          productId, _selectedRing);
     } else {
       final data = await _msStoreService.searchProducts(query, _selectedRing);
 
@@ -62,10 +56,10 @@ class _MSStorePageState extends State<MSStorePage>
     return ScaffoldPage.scrollable(
       header: PageHeader(
         title: InfoLabel(
-          labelStyle: FluentTheme.of(context).typography.title,
-          label: ReviLocalizations.of(context).pageMSStore,
-          child: Text(ReviLocalizations.of(context).experimental,
-              style: FluentTheme.of(context).typography.body),
+          labelStyle: context.theme.typography.title,
+          label: context.l10n.pageMSStore,
+          child: Text(context.l10n.experimental,
+              style: context.theme.typography.body),
         ),
       ),
       children: [
@@ -74,7 +68,7 @@ class _MSStorePageState extends State<MSStorePage>
             Expanded(
               child: TextBox(
                   controller: _textEditingController,
-                  placeholder: ReviLocalizations.of(context).search,
+                  placeholder: context.l10n.search,
                   expands: false,
                   onSubmitted: (value) async => await _onSearchButtonPressed()),
             ),
@@ -115,11 +109,11 @@ class _MSStorePageState extends State<MSStorePage>
               image: product.iconUrl!,
               description: product.description,
               child: FilledButton(
-                child: Text(ReviLocalizations.of(context).install),
+                child: Text(context.l10n.install),
                 onPressed: () async {
                   await showInstallDialog(
                       context,
-                      ReviLocalizations.of(context).msstoreSearchingPackages,
+                      context.l10n.msstoreSearchingPackages,
                       product.productId!,
                       _selectedRing);
                 },
@@ -133,8 +127,7 @@ class _MSStorePageState extends State<MSStorePage>
 
   Future<void> showInstallDialog(BuildContext context, String loadingTitle,
       String productID, String ring) async {
-    showLoadingDialog(
-        context, ReviLocalizations.of(context).msstoreSearchingPackages);
+    showLoadingDialog(context, context.l10n.msstoreSearchingPackages);
 
     final packages =
         await _msStoreService.startProcess(productID, _selectedRing);
@@ -163,7 +156,7 @@ class _MSStorePageState extends State<MSStorePage>
       context: context,
       builder: (context) => ContentDialog(
         constraints: const BoxConstraints(maxWidth: 600),
-        title: Text(ReviLocalizations.of(context).msstorePackagesPrompt),
+        title: Text(context.l10n.msstorePackagesPrompt),
         content: TreeView(
           selectionMode: TreeViewSelectionMode.multiple,
           shrinkWrap: true,
@@ -171,7 +164,7 @@ class _MSStorePageState extends State<MSStorePage>
         ),
         actions: [
           Button(
-            child: Text(ReviLocalizations.of(context).okButton),
+            child: Text(context.l10n.okButton),
             onPressed: () async {
               final List<PackagesInfo> downloadList = [];
               for (var item in items) {
@@ -200,7 +193,7 @@ class _MSStorePageState extends State<MSStorePage>
             },
           ),
           FilledButton(
-            child: Text(ReviLocalizations.of(context).close),
+            child: Text(context.l10n.close),
             onPressed: () => Navigator.pop(context, 'User canceled dialog'),
           ),
         ],

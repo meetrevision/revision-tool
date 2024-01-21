@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:revitool/l10n/generated/localizations.dart';
+import 'package:revitool/extensions.dart';
 
 // const cardBorderColorForDark = Color.fromARGB(255, 29, 29, 29);
 // const cardBorderColorForLight = Color.fromARGB(255, 229, 229, 229);
@@ -66,7 +66,7 @@ class CardHighlightSwitch extends StatelessWidget {
                         child: description != null
                             ? Text(
                                 description ?? "",
-                                style: FluentTheme.of(context).brightness.isDark
+                                style: context.theme.brightness.isDark
                                     ? _cardDescStyleForDark
                                     : _cardDescStyleForLight,
                               )
@@ -79,8 +79,8 @@ class CardHighlightSwitch extends StatelessWidget {
                       valueListenable: switchBool,
                       builder: (context, value, child) {
                         return Text(value
-                            ? ReviLocalizations.of(context).onStatus
-                            : ReviLocalizations.of(context).offStatus);
+                            ? context.l10n.onStatus
+                            : context.l10n.offStatus);
                       }),
                   const SizedBox(width: 10.0),
                   ValueListenableBuilder<bool>(
@@ -94,12 +94,10 @@ class CardHighlightSwitch extends StatelessWidget {
                             showDialog(
                               context: context,
                               builder: (context) => ContentDialog(
-                                content: Text(ReviLocalizations.of(context)
-                                    .restartDialog),
+                                content: Text(context.l10n.restartDialog),
                                 actions: [
                                   Button(
-                                    child: Text(
-                                        ReviLocalizations.of(context).okButton),
+                                    child: Text(context.l10n.okButton),
                                     onPressed: () {
                                       Navigator.pop(context);
                                     },
@@ -220,18 +218,17 @@ class CardHighlight extends StatelessWidget {
                   Expanded(
                     child: InfoLabel(
                       label: label!,
-                      labelStyle:
-                          const TextStyle(overflow: TextOverflow.clip),
+                      labelStyle: const TextStyle(overflow: TextOverflow.clip),
                       child: description != null
                           ? Text(description ?? "",
-                              style: FluentTheme.of(context).brightness.isDark
+                              style: context.theme.brightness.isDark
                                   ? _cardDescStyleForDark
                                   : _cardDescStyleForLight,
                               overflow: TextOverflow.clip)
                           : const SizedBox(),
                     ),
                   ),
-                   const SizedBox(width: 10.0),
+                  const SizedBox(width: 10.0),
                   child,
                 ],
               ),
@@ -270,7 +267,7 @@ class _CardHighlightCodeSnippet extends StatelessWidget {
           onStateChanged: (state) {
             setState(() {});
           },
-          header: Text(ReviLocalizations.of(context).moreInformation),
+          header: Text(context.l10n.moreInformation),
           content: Text(codeSnippet),
         ),
       );

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:process_run/shell_run.dart';
-import 'package:revitool/l10n/generated/localizations.dart';
+import 'package:revitool/extensions.dart';
 import 'package:revitool/screens/pages/miscellaneous_page.dart';
 import 'package:revitool/screens/pages/ms_store_page.dart';
 import 'package:revitool/screens/pages/performance_page.dart';
@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasFluentTheme(context));
-    // final theme = FluentTheme.of(context);
+    // final theme = context.theme;
 
     final List<NavigationPaneItem> items = [
       PaneItem(
@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
           msicons.FluentIcons.home_24_regular,
           size: 20,
         ),
-        title: Text(ReviLocalizations.of(context).pageHome),
+        title: Text(context.l10n.pageHome),
         body: const Home(),
       ),
       PaneItem(
@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
           msicons.FluentIcons.window_shield_24_regular,
           size: 20,
         ),
-        title: Text(ReviLocalizations.of(context).pageSecurity),
+        title: Text(context.l10n.pageSecurity),
         body: const SecurityPage(),
       ),
       w11
@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
                 msicons.FluentIcons.search_square_24_regular,
                 size: 20,
               ),
-              title: Text(ReviLocalizations.of(context).pageUsability),
+              title: Text(context.l10n.pageUsability),
               body: const UsabilityPage(),
               items: [
                 PaneItem(
@@ -93,7 +93,7 @@ class _HomePageState extends State<HomePage> {
                 msicons.FluentIcons.search_square_24_regular,
                 size: 20,
               ),
-              title: Text(ReviLocalizations.of(context).pageUsability),
+              title: Text(context.l10n.pageUsability),
               body: const UsabilityPage(),
             ),
       PaneItem(
@@ -101,7 +101,7 @@ class _HomePageState extends State<HomePage> {
           msicons.FluentIcons.top_speed_24_regular,
           size: 20,
         ),
-        title: Text(ReviLocalizations.of(context).pagePerformance),
+        title: Text(context.l10n.pagePerformance),
         body: const PerformancePage(),
       ),
       PaneItem(
@@ -109,7 +109,7 @@ class _HomePageState extends State<HomePage> {
           msicons.FluentIcons.dual_screen_update_24_regular,
           size: 20,
         ),
-        title: Text(ReviLocalizations.of(context).pageUpdates),
+        title: Text(context.l10n.pageUpdates),
         body: const UpdatesPage(),
       ),
       PaneItem(
@@ -117,7 +117,7 @@ class _HomePageState extends State<HomePage> {
           msicons.FluentIcons.toolbox_24_regular,
           size: 20,
         ),
-        title: Text(ReviLocalizations.of(context).pageMiscellaneous),
+        title: Text(context.l10n.pageMiscellaneous),
         body: const MiscellaneousPage(),
       ),
     ];
@@ -190,7 +190,7 @@ class _HomePageState extends State<HomePage> {
             ),
             focusNode: _searchFocusNode,
             controller: _searchController,
-            placeholder: ReviLocalizations.of(context).suggestionBoxPlaceholder,
+            placeholder: context.l10n.suggestionBoxPlaceholder,
             items: items.whereType<PaneItem>().map((page) {
               assert(page.title is Text);
               final text = (page.title as Text).data!;
@@ -230,7 +230,7 @@ class _HomePageState extends State<HomePage> {
                 msicons.FluentIcons.settings_24_regular,
                 size: 20,
               ),
-              title: Text(ReviLocalizations.of(context).pageSettings),
+              title: Text(context.l10n.pageSettings),
               body: const SettingsPage(),
             ),
             PaneItemSeparator(color: Colors.transparent),
@@ -287,7 +287,7 @@ class Home extends StatelessWidget {
                   maxHeight: MediaQuery.of(context).size.height * 0.72),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                gradient: FluentTheme.of(context).brightness.isDark
+                gradient: context.theme.brightness.isDark
                     ? const LinearGradient(
                         colors: [
                           Color.fromRGBO(0, 0, 0, 0.85),
@@ -309,7 +309,7 @@ class Home extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(ReviLocalizations.of(context).homeWelcome,
+                  Text(context.l10n.homeWelcome,
                       style: const TextStyle(
                           fontSize: 16, color: Color(0xB7FFFFFF))),
                   const Text(
@@ -321,7 +321,7 @@ class Home extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(ReviLocalizations.of(context).homeDescription,
+                    child: Text(context.l10n.homeDescription,
                         style: const TextStyle(
                             fontSize: 16, color: Color(0xB7FFFFFF))
                         //     : const TextStyle(
@@ -334,7 +334,7 @@ class Home extends StatelessWidget {
                     child: SizedBox(
                       width: 175,
                       child: Button(
-                        child: Text(ReviLocalizations.of(context).homeReviLink),
+                        child: Text(context.l10n.homeReviLink),
                         onPressed: () async => await run(
                             "rundll32 url.dll,FileProtocolHandler https://www.revi.cc"),
                       ),
@@ -345,8 +345,7 @@ class Home extends StatelessWidget {
                     child: SizedBox(
                       width: 175,
                       child: FilledButton(
-                        child:
-                            Text(ReviLocalizations.of(context).homeReviFAQLink),
+                        child: Text(context.l10n.homeReviFAQLink),
                         onPressed: () async => await run(
                             "rundll32 url.dll,FileProtocolHandler https://www.revi.cc/docs/faq"),
                       ),

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mixin_logger/mixin_logger.dart';
+import 'package:revitool/extensions.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
 import 'package:revitool/screens/home_page.dart';
 import 'package:provider/provider.dart';

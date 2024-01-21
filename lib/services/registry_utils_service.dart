@@ -3,13 +3,11 @@ import 'package:win32_registry/win32_registry.dart';
 import 'dart:typed_data';
 
 class RegistryUtilsService {
-  static final _instance = RegistryUtilsService._private();
-
+  static const _instance = RegistryUtilsService._private();
   factory RegistryUtilsService() {
     return _instance;
   }
-
-  RegistryUtilsService._private();
+  const RegistryUtilsService._private();
 
   int? readInt(RegistryHive hive, String path, String value) {
     try {

@@ -1,7 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
+import 'package:revitool/extensions.dart';
 
-import '../../l10n/generated/localizations.dart';
 import '../../services/performance_service.dart';
 import '../../utils.dart';
 import '../../widgets/card_highlight.dart';
@@ -61,13 +61,13 @@ class _PerformancePageState extends State<PerformancePage> {
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
       header: PageHeader(
-        title: Text(ReviLocalizations.of(context).pagePerformance),
+        title: Text(context.l10n.pagePerformance),
       ),
       children: [
         CardHighlightSwitch(
           icon: msicons.FluentIcons.top_speed_20_regular,
-          label: ReviLocalizations.of(context).perfSuperfetchLabel,
-          description: ReviLocalizations.of(context).perfSuperfetchDescription,
+          label: context.l10n.perfSuperfetchLabel,
+          description: context.l10n.perfSuperfetchDescription,
           switchBool: _sfBool,
           requiresRestart: true,
           function: (value) async {
@@ -83,8 +83,8 @@ class _PerformancePageState extends State<PerformancePage> {
             if (_sfBool.value) {
               return CardHighlightSwitch(
                 icon: msicons.FluentIcons.ram_20_regular,
-                label: ReviLocalizations.of(context).perfMCLabel,
-                description: ReviLocalizations.of(context).perfMCDescription,
+                label: context.l10n.perfMCLabel,
+                description: context.l10n.perfMCDescription,
                 switchBool: _mcBool,
                 function: (value) async {
                   _mcBool.value = value;
@@ -99,8 +99,8 @@ class _PerformancePageState extends State<PerformancePage> {
         ),
         CardHighlightSwitch(
           icon: msicons.FluentIcons.transmission_20_regular,
-          label: ReviLocalizations.of(context).perfITSXLabel,
-          description: ReviLocalizations.of(context).perfITSXDescription,
+          label: context.l10n.perfITSXLabel,
+          description: context.l10n.perfITSXDescription,
           switchBool: _iTSXBool,
           function: (value) {
             _iTSXBool.value = value;
@@ -111,8 +111,8 @@ class _PerformancePageState extends State<PerformancePage> {
         ),
         CardHighlightSwitch(
           icon: msicons.FluentIcons.desktop_20_regular,
-          label: ReviLocalizations.of(context).perfFOLabel,
-          description: ReviLocalizations.of(context).perfFODescription,
+          label: context.l10n.perfFOLabel,
+          description: context.l10n.perfFODescription,
           switchBool: _foBool,
           function: (value) {
             _foBool.value = value;
@@ -124,8 +124,8 @@ class _PerformancePageState extends State<PerformancePage> {
         if (w11) ...[
           CardHighlightSwitch(
             icon: msicons.FluentIcons.desktop_mac_20_regular,
-            label: ReviLocalizations.of(context).perfOWGLabel,
-            description: ReviLocalizations.of(context).perfOWGDescription,
+            label: context.l10n.perfOWGLabel,
+            description: context.l10n.perfOWGDescription,
             switchBool: _owgBool,
             function: (value) {
               _owgBool.value = value;
@@ -137,8 +137,8 @@ class _PerformancePageState extends State<PerformancePage> {
         ],
         CardHighlightSwitch(
           icon: msicons.FluentIcons.bezier_curve_square_20_regular,
-          label: ReviLocalizations.of(context).perfBALabel,
-          description: ReviLocalizations.of(context).perfBADescription,
+          label: context.l10n.perfBALabel,
+          description: context.l10n.perfBADescription,
           switchBool: _baBool,
           function: (value) {
             _baBool.value = value;
@@ -148,10 +148,10 @@ class _PerformancePageState extends State<PerformancePage> {
           },
         ),
         if (expBool.value) ...[
-         CardHighlightSwitch(
+          CardHighlightSwitch(
             icon: msicons.FluentIcons.sleep_20_regular,
-            label: ReviLocalizations.of(context).perfCStatesLabel,
-            description: ReviLocalizations.of(context).perfCStatesDescription,
+            label: context.l10n.perfCStatesLabel,
+            description: context.l10n.perfCStatesDescription,
             switchBool: _cStatesBool,
             function: (value) {
               _cStatesBool.value = value;
@@ -160,11 +160,11 @@ class _PerformancePageState extends State<PerformancePage> {
                   : _performanceService.enableCStates();
             },
           ),
-          Subtitle(content: Text(ReviLocalizations.of(context).perfSectionFS)),
+          Subtitle(content: Text(context.l10n.perfSectionFS)),
           CardHighlightSwitch(
             icon: msicons.FluentIcons.document_bullet_list_clock_20_regular,
-            label: ReviLocalizations.of(context).perfLTALabel,
-            description: ReviLocalizations.of(context).perfLTADescription,
+            label: context.l10n.perfLTALabel,
+            description: context.l10n.perfLTADescription,
             switchBool: _ntfsLTABool,
             function: (value) async {
               _ntfsLTABool.value = value;
@@ -175,8 +175,8 @@ class _PerformancePageState extends State<PerformancePage> {
           ),
           CardHighlightSwitch(
             icon: msicons.FluentIcons.hard_drive_20_regular,
-            label: ReviLocalizations.of(context).perfEdTLabel,
-            description: ReviLocalizations.of(context).perfEdTDescription,
+            label: context.l10n.perfEdTLabel,
+            description: context.l10n.perfEdTDescription,
             switchBool: _ntfsEdTBool,
             function: (value) async {
               _ntfsEdTBool.value = value;
@@ -188,7 +188,7 @@ class _PerformancePageState extends State<PerformancePage> {
           ),
           CardHighlightSwitch(
             icon: msicons.FluentIcons.memory_16_regular,
-            label: ReviLocalizations.of(context).perfMULabel,
+            label: context.l10n.perfMULabel,
             switchBool: _ntfsMUBool,
             function: (value) async {
               _ntfsMUBool.value = value;
@@ -196,7 +196,7 @@ class _PerformancePageState extends State<PerformancePage> {
                   ? await _performanceService.enableMemoryUsageNTFS()
                   : await _performanceService.disableMemoryUsageNTFS();
             },
-            codeSnippet: ReviLocalizations.of(context).perfMUDescription,
+            codeSnippet: context.l10n.perfMUDescription,
           ),
         ]
       ],

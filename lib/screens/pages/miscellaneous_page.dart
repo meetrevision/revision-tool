@@ -1,5 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:revitool/l10n/generated/localizations.dart';
+import 'package:revitool/extensions.dart';
 import 'package:revitool/services/miscellaneous_service.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
@@ -39,13 +39,13 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
       header: PageHeader(
-        title: Text(ReviLocalizations.of(context).pageMiscellaneous),
+        title: Text(context.l10n.pageMiscellaneous),
       ),
       children: [
         CardHighlightSwitch(
           icon: msicons.FluentIcons.sleep_20_regular,
-          label: ReviLocalizations.of(context).miscHibernateLabel,
-          description: ReviLocalizations.of(context).miscHibernateDescription,
+          label: context.l10n.miscHibernateLabel,
+          description: context.l10n.miscHibernateDescription,
           switchBool: _hibBool,
           function: (value) async {
             _hibBool.value = value;
@@ -65,9 +65,9 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
         //               builder: (context, hibValue, child) {
         //                 return CardHighlight(
         //                   icon: msicons.FluentIcons.document_save_20_regular,
-        //                   label: ReviLocalizations.of(context)
+        //                   label: context.l10n
         //                       .miscHibernateModeLabel,
-        //                   description: ReviLocalizations.of(context)
+        //                   description: context.l10n
         //                       .miscHibernateModeDescription,
         //                   child: ComboBox(
         //                     value: hibValue,
@@ -97,8 +97,8 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
         //               }),
         //           CardHighlightSwitch(
         //             icon: msicons.FluentIcons.weather_hail_night_20_regular,
-        //             label: ReviLocalizations.of(context).miscFastStartupLabel,
-        //             description: ReviLocalizations.of(context)
+        //             label: context.l10n.miscFastStartupLabel,
+        //             description: context.l10n
         //                 .miscFastStartupDescription,
         //             switchBool: _fsbBool,
         //             function: (value) {
@@ -114,12 +114,11 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
         //     return const SizedBox();
         //   },
         // ),
-       
+
         CardHighlightSwitch(
           icon: FluentIcons.task_manager,
-          label: ReviLocalizations.of(context).miscTMMonitoringLabel,
-          description:
-              ReviLocalizations.of(context).miscTMMonitoringDescription,
+          label: context.l10n.miscTMMonitoringLabel,
+          description: context.l10n.miscTMMonitoringDescription,
           switchBool: _tmmBool,
           requiresRestart: true,
           function: (value) async {
@@ -131,8 +130,8 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
         ),
         CardHighlightSwitch(
           icon: msicons.FluentIcons.window_settings_20_regular,
-          label: ReviLocalizations.of(context).miscMpoLabel,
-          codeSnippet: ReviLocalizations.of(context).miscMpoCodeSnippet,
+          label: context.l10n.miscMpoLabel,
+          codeSnippet: context.l10n.miscMpoCodeSnippet,
           switchBool: _mpoBool,
           function: (value) async {
             _mpoBool.value = value;
@@ -143,8 +142,8 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
         ),
         CardHighlightSwitch(
           icon: msicons.FluentIcons.battery_checkmark_20_regular,
-          label: ReviLocalizations.of(context).miscURLabel,
-          description: ReviLocalizations.of(context).miscURDescription,
+          label: context.l10n.miscURLabel,
+          description: context.l10n.miscURDescription,
           switchBool: _bhrBool,
           function: (value) async {
             _bhrBool.value = value;

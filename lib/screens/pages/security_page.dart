@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:revitool/l10n/generated/localizations.dart';
+import 'package:revitool/extensions.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:revitool/widgets/dialogs/msstore_dialogs.dart';
 import 'package:win32_registry/win32_registry.dart';
@@ -39,7 +39,7 @@ class _SecurityPageState extends State<SecurityPage> {
       header: PageHeader(
         title: Padding(
           padding: const EdgeInsets.only(left: 8.0),
-          child: Text(ReviLocalizations.of(context).pageSecurity),
+          child: Text(context.l10n.pageSecurity),
         ),
       ),
       children: [
@@ -51,8 +51,8 @@ class _SecurityPageState extends State<SecurityPage> {
               !_wdButtonCalled),
           replacement: CardHighlightSwitch(
             icon: msicons.FluentIcons.shield_20_regular,
-            label: ReviLocalizations.of(context).securityWDLabel,
-            description: ReviLocalizations.of(context).securityWDDescription,
+            label: context.l10n.securityWDLabel,
+            description: context.l10n.securityWDDescription,
             switchBool: _wdBool,
             requiresRestart: true,
             function: (value) async {
@@ -64,8 +64,8 @@ class _SecurityPageState extends State<SecurityPage> {
           ),
           child: CardHighlight(
             icon: msicons.FluentIcons.shield_20_regular,
-            label: ReviLocalizations.of(context).securityWDLabel,
-            description: ReviLocalizations.of(context).securityWDDescription,
+            label: context.l10n.securityWDLabel,
+            description: context.l10n.securityWDDescription,
             child: SizedBox(
               width: 150,
               child: Button(
@@ -80,11 +80,10 @@ class _SecurityPageState extends State<SecurityPage> {
                   showDialog(
                     context: context,
                     builder: (context) => ContentDialog(
-                      content:
-                          Text(ReviLocalizations.of(context).securityDialog),
+                      content: Text(context.l10n.securityDialog),
                       actions: [
                         Button(
-                          child: Text(ReviLocalizations.of(context).okButton),
+                          child: Text(context.l10n.okButton),
                           onPressed: () {
                             Navigator.pop(context);
                           },
@@ -93,7 +92,7 @@ class _SecurityPageState extends State<SecurityPage> {
                     ),
                   );
                 },
-                child: Text(ReviLocalizations.of(context).securityWDButton),
+                child: Text(context.l10n.securityWDButton),
               ),
             ),
           ),
@@ -116,10 +115,10 @@ class _SecurityPageState extends State<SecurityPage> {
         //               children: [
         //                 InfoLabel(
         //                     label:
-        //                         ReviLocalizations.of(context).securityWDLabel),
+        //                         context.l10n.securityWDLabel),
         //                 Text(
-        //                   ReviLocalizations.of(context).securityWDDescription,
-        //                   style: FluentTheme.of(context).brightness.isDark
+        //                   context.l10n.securityWDDescription,
+        //                   style: context.theme.brightness.isDark
         //                       ? const TextStyle(
         //                           fontSize: 11,
         //                           color: Color.fromARGB(255, 200, 200, 200),
@@ -146,7 +145,7 @@ class _SecurityPageState extends State<SecurityPage> {
         //               _wdButtonCalled = true;
         //               setState(() {});
         //             },
-        //             child: Text(ReviLocalizations.of(context).securityWDButton),
+        //             child: Text(context.l10n.securityWDButton),
         //           ),
         //         ),
         //       ],
@@ -155,8 +154,8 @@ class _SecurityPageState extends State<SecurityPage> {
         // ] else ...[
         //   CardHighlightSwitch(
         //     icon: msicons.FluentIcons.shield_20_regular,
-        //     label: ReviLocalizations.of(context).securityWDLabel,
-        //     description: ReviLocalizations.of(context).securityWDDescription,
+        //     label: context.l10n.securityWDLabel,
+        //     description: context.l10n.securityWDDescription,
         //     switchBool: _wdBool,
         //     function: (value) async {
         //       setState(() {
@@ -169,10 +168,10 @@ class _SecurityPageState extends State<SecurityPage> {
         //         showDialog(
         //           context: context,
         //           builder: (context) => ContentDialog(
-        //             content: Text(ReviLocalizations.of(context).securityDialog),
+        //             content: Text(context.l10n.securityDialog),
         //             actions: [
         //               Button(
-        //                 child: Text(ReviLocalizations.of(context).okButton),
+        //                 child: Text(context.l10n.okButton),
         //                 onPressed: () async {
         //                   await run(
         //                       '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\DisableWD.bat"');
@@ -181,11 +180,11 @@ class _SecurityPageState extends State<SecurityPage> {
         //                     context: context,
         //                     builder: (context) => ContentDialog(
         //                       content: Text(
-        //                           ReviLocalizations.of(context).restartDialog),
+        //                           context.l10n.restartDialog),
         //                       actions: [
         //                         Button(
         //                           child: Text(
-        //                               ReviLocalizations.of(context).okButton),
+        //                               context.l10n.okButton),
         //                           onPressed: () {
         //                             Navigator.pop(context);
         //                           },
@@ -204,8 +203,8 @@ class _SecurityPageState extends State<SecurityPage> {
         // ],
         CardHighlightSwitch(
           icon: msicons.FluentIcons.person_lock_20_regular,
-          label: ReviLocalizations.of(context).securityUACLabel,
-          description: ReviLocalizations.of(context).securityUACDescription,
+          label: context.l10n.securityUACLabel,
+          description: context.l10n.securityUACDescription,
           switchBool: _uacBool,
           requiresRestart: true,
           function: (value) {
@@ -218,8 +217,8 @@ class _SecurityPageState extends State<SecurityPage> {
 
         CardHighlightSwitch(
             icon: msicons.FluentIcons.shield_badge_20_regular,
-            label: ReviLocalizations.of(context).securitySMLabel,
-            description: ReviLocalizations.of(context).securitySMDescription,
+            label: context.l10n.securitySMLabel,
+            description: context.l10n.securitySMDescription,
             switchBool: _smBool,
             requiresRestart: true,
             function: (value) {
@@ -231,8 +230,8 @@ class _SecurityPageState extends State<SecurityPage> {
 
         CardHighlight(
           icon: msicons.FluentIcons.certificate_20_regular,
-          label: ReviLocalizations.of(context).miscCertsLabel,
-          description: ReviLocalizations.of(context).miscCertsDescription,
+          label: context.l10n.miscCertsLabel,
+          description: context.l10n.miscCertsDescription,
           child: SizedBox(
             width: 150,
             child: Button(
@@ -241,21 +240,20 @@ class _SecurityPageState extends State<SecurityPage> {
                 await _securityService.updateCertificates();
 
                 if (!mounted) return;
-                Navigator.of(context).pop();
+                context.pop();
                 showDialog(
                   context: context,
                   builder: (context) => ContentDialog(
-                    content:
-                        Text(ReviLocalizations.of(context).miscCertsDialog),
+                    content: Text(context.l10n.miscCertsDialog),
                     actions: [
                       Button(
-                          child: Text(ReviLocalizations.of(context).okButton),
-                          onPressed: () => Navigator.of(context).pop()),
+                          child: Text(context.l10n.okButton),
+                          onPressed: () => context.pop()),
                     ],
                   ),
                 );
               },
-              child: Text(ReviLocalizations.of(context).updateButton),
+              child: Text(context.l10n.updateButton),
             ),
           ),
         ),

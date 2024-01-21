@@ -9,20 +9,19 @@ import 'registry_utils_service.dart';
 import 'setup_service.dart';
 
 class UsabilityService implements SetupService {
-  static final _instance = UsabilityService._private();
+  static final _registryUtilsService = RegistryUtilsService();
+  static final _shell = Shell();
+  static const _listEquality = ListEquality();
 
-  final _registryUtilsService = RegistryUtilsService();
-  final _shell = Shell();
-  final _listEquality = const ListEquality();
+  static final _cplValue = Uint8List.fromList(
+    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 58, 0, 0, 0, 0, 0],
+  );
 
-  static final Uint8List _cplValue = Uint8List.fromList(
-      [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 58, 0, 0, 0, 0, 0]);
-
+  static const _instance = UsabilityService._private();
   factory UsabilityService() {
     return _instance;
   }
-
-  UsabilityService._private();
+  const UsabilityService._private();
 
   @override
   void recommendation() {}

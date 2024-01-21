@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:dio/dio.dart';
-import 'package:revitool/l10n/generated/localizations.dart';
+import 'package:revitool/extensions.dart';
 import 'package:revitool/models/ms_store/packages_info.dart';
 
 import '../services/msstore_service.dart';
@@ -116,10 +116,9 @@ class _DownloadWidgetState extends State<DownloadWidget> {
           actions: [
             if (_completedDownloadsCount == itemsLength) ...[
               FilledButton(
-                child: Text(ReviLocalizations.of(context).install),
+                child: Text(context.l10n.install),
                 onPressed: () async {
-                  showLoadingDialog(
-                      context, ReviLocalizations.of(context).installing);
+                  showLoadingDialog(context, context.l10n.installing);
 
                   List<ProcessResult> processResult = [];
                   if (widget.items.first.extension == "exe" ||
@@ -142,14 +141,14 @@ class _DownloadWidgetState extends State<DownloadWidget> {
                 },
               ),
               Button(
-                child: Text(ReviLocalizations.of(context).close),
+                child: Text(context.l10n.close),
                 onPressed: () => Navigator.pop(context),
               ),
             ] else ...[
               MouseRegion(
                 cursor: SystemMouseCursors.forbidden,
                 child: Button(
-                  child: Text(ReviLocalizations.of(context).install),
+                  child: Text(context.l10n.install),
                   onPressed: () {},
                 ),
               )

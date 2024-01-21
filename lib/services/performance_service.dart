@@ -6,16 +6,14 @@ import 'registry_utils_service.dart';
 import 'setup_service.dart';
 
 class PerformanceService implements SetupService {
-  static final PerformanceService _instance = PerformanceService._private();
+  static final _registryUtilsService = RegistryUtilsService();
+  static final _shell = Shell();
 
-  final RegistryUtilsService _registryUtilsService = RegistryUtilsService();
-  final Shell _shell = Shell();
-
+  static const _instance = PerformanceService._private();
   factory PerformanceService() {
     return _instance;
   }
-
-  PerformanceService._private();
+  const PerformanceService._private();
 
   @override
   void recommendation() {

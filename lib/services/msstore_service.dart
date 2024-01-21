@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:mixin_logger/mixin_logger.dart';
 import 'package:process_run/cmd_run.dart';
 import 'package:process_run/shell_run.dart';
 import '../models/ms_store/non_uwp_response.dart';
@@ -10,11 +9,8 @@ import '../models/ms_store/search_response.dart';
 import '../models/ms_store/packages_info.dart';
 import 'package:xml/xml.dart' as xml;
 import '../utils.dart';
-// import 'registry_utils_service.dart';
 
 class MSStoreService {
-  static final MSStoreService _instance = MSStoreService._private();
-
   static final _cookieFile = File('$directoryExe\\msstore\\cookie.xml');
   static final _urlFile = File('$directoryExe\\msstore\\url.xml');
   static final _wuFile = File('$directoryExe\\msstore\\wu.xml');
@@ -60,15 +56,15 @@ class MSStoreService {
 
   static var _cookie = "";
 
-  final _dio = Dio();
-  final _cancelToken = CancelToken();
+  static final _dio = Dio();
+  static final _cancelToken = CancelToken();
   // final _registryUtilsService = RegistryUtilsService();
 
+  static const _instance = MSStoreService._private();
   factory MSStoreService() {
     return _instance;
   }
-
-  MSStoreService._private();
+  const MSStoreService._private();
 
   Future<List<PackagesInfo>> startProcess(String productId, String ring) async {
     // UWP apps mostly start with "9"
