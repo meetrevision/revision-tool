@@ -15,56 +15,49 @@ import 'package:window_plus/window_plus.dart';
 import 'package:path/path.dart' as p;
 
 Future<void> main() async {
-  await runZonedGuarded<Future<void>>(() async {
-    WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
-    final path = p.join(Directory.systemTemp.path, 'Revision-Tool', 'Logs');
+  final path = p.join(Directory.systemTemp.path, 'Revision-Tool', 'Logs');
 
-    initLogger(path);
-    i('Revision Tool is starting');
+  initLogger(path);
+  i('Revision Tool is starting');
 
-    if (registryUtilsService.readString(RegistryHive.localMachine,
-            r'SOFTWARE\Revision\Revision Tool', 'ThemeMode') ==
-        null) {
-      i('Creating Revision registry keys');
-      registryUtilsService.writeString(
-          Registry.localMachine,
-          r'SOFTWARE\Revision\Revision Tool',
-          'ThemeMode',
-          ThemeMode.system.name);
-      registryUtilsService.writeDword(Registry.localMachine,
-          r'SOFTWARE\Revision\Revision Tool', 'Experimental', 0);
-      registryUtilsService.writeString(Registry.localMachine,
-          r'SOFTWARE\Revision\Revision Tool', 'Language', 'en_US');
-    }
+  if (registryUtilsService.readString(RegistryHive.localMachine,
+          r'SOFTWARE\Revision\Revision Tool', 'ThemeMode') ==
+      null) {
+    i('Creating Revision registry keys');
+    registryUtilsService.writeString(Registry.localMachine,
+        r'SOFTWARE\Revision\Revision Tool', 'ThemeMode', ThemeMode.system.name);
+    registryUtilsService.writeDword(Registry.localMachine,
+        r'SOFTWARE\Revision\Revision Tool', 'Experimental', 0);
+    registryUtilsService.writeString(Registry.localMachine,
+        r'SOFTWARE\Revision\Revision Tool', 'Language', 'en_US');
+  }
 
-    i('Initializing settings controller');
-    final settingsController = AppTheme(SettingsService());
-    await settingsController.loadSettings();
-    await SystemTheme.accentColor.load();
+  i('Initializing settings controller');
+  final settingsController = AppTheme(SettingsService());
+  await settingsController.loadSettings();
+  await SystemTheme.accentColor.load();
 
-    i('Initializing WindowPlus');
-    await WindowPlus.ensureInitialized(
-      application: 'revision-tool',
-      enableCustomFrame: true,
-      enableEventStreams: false,
-    );
-    await WindowPlus.instance.setMinimumSize(const Size(515, 330));
+  i('Initializing WindowPlus');
+  await WindowPlus.ensureInitialized(
+    application: 'revision-tool',
+    enableCustomFrame: true,
+    enableEventStreams: false,
+  );
+  await WindowPlus.instance.setMinimumSize(const Size(515, 330));
 
-    if (registryUtilsService.readString(
-                RegistryHive.localMachine,
-                r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
-                'EditionSubVersion') ==
-            'ReviOS' &&
-        buildNumber > 19043) {
-      i('isSupported is true');
-      _isSupported = true;
-    }
+  if (registryUtilsService.readString(
+              RegistryHive.localMachine,
+              r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
+              'EditionSubVersion') ==
+          'ReviOS' &&
+      buildNumber > 19043) {
+    i('isSupported is true');
+    _isSupported = true;
+  }
 
-    runApp(const MyApp());
-  }, (error, stackTrace) {
-    e('Error: \n$error\n$stackTrace\n\n');
-  });
+  runApp(const MyApp());
 }
 
 bool _isSupported = false;

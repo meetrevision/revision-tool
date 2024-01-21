@@ -120,9 +120,35 @@ Win32Window::~Win32Window() {
   Destroy();
 }
 
+// https://stackoverflow.com/a/73526467
+bool CheckOneInstance() {
+  HANDLE m_hStartEvent = CreateEventW(NULL, FALSE, FALSE, L"Global\\revitool");
+
+  if(m_hStartEvent == NULL) {
+    CloseHandle(m_hStartEvent);
+    return false;
+  }
+
+  if (GetLastError() == ERROR_ALREADY_EXISTS) {
+    CloseHandle(m_hStartEvent);
+    m_hStartEvent = NULL;
+    // already exist
+    // send message from here to existing copy of the application
+    return false;
+  }
+
+  // the only instance, start in a usual way
+  return true;
+}
+
 bool Win32Window::Create(const std::wstring& title,
                          const Point& origin,
                          const Size& size) {
+  
+  if(!CheckOneInstance()) {
+    return false;
+  }
+
   Destroy();
 
   const wchar_t* window_class =
