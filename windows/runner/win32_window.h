@@ -7,6 +7,9 @@
 #include <memory>
 #include <string>
 
+// ******* ADDED *******
+extern bool H_HIDE_WINDOW;
+
 // A class abstraction for a high DPI-aware Win32 Window. Intended to be
 // inherited from by classes that wish to specialize with custom
 // rendering and input handling
@@ -89,7 +92,7 @@ class Win32Window {
 
   // Update the window frame's theme to match the system theme.
   static void UpdateTheme(HWND const window);
-  
+
   bool quit_on_close_ = false;
 
   // window handle for top level window.

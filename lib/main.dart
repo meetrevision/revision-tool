@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:args/command_runner.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mixin_logger/mixin_logger.dart';
-import 'package:revitool/extensions.dart';
+import 'package:revitool/commands/ms_store_command.dart';
+import 'package:revitool/commands/recommendation_command.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
 import 'package:revitool/screens/home_page.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +17,30 @@ import 'package:win32_registry/win32_registry.dart';
 import 'package:window_plus/window_plus.dart';
 import 'package:path/path.dart' as p;
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
+  if (registryUtilsService.readString(
+              RegistryHive.localMachine,
+              r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
+              'EditionSubVersion') ==
+          'ReviOS' &&
+      buildNumber > 19043) {
+    i('isSupported is true');
+    _isSupported = true;
+  }
+
+  if (args.isNotEmpty) {
+    if (!_isSupported) {
+      stderr.writeln(
+        'Unsupported build detected. Please apply ReviOS on your system',
+      );
+      exit(55);
+    }
+    final runner = CommandRunner<String>("revitool", "Revision Tool CLI")
+      ..addCommand(MSStoreCommand());
+    // ..addCommand(RecommendationCommand());
+    await runner.run(args);
+  }
+
   WidgetsFlutterBinding.ensureInitialized();
 
   final path = p.join(Directory.systemTemp.path, 'Revision-Tool', 'Logs');
@@ -47,16 +72,6 @@ Future<void> main() async {
     enableEventStreams: false,
   );
   await WindowPlus.instance.setMinimumSize(const Size(515, 330));
-
-  if (registryUtilsService.readString(
-              RegistryHive.localMachine,
-              r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
-              'EditionSubVersion') ==
-          'ReviOS' &&
-      buildNumber > 19043) {
-    i('isSupported is true');
-    _isSupported = true;
-  }
 
   runApp(const MyApp());
 }

@@ -12,11 +12,13 @@ import 'dialogs/msstore_dialogs.dart';
 class DownloadWidget extends StatefulWidget {
   final List<PackagesInfo> items;
   final String productId;
+  final bool cleanUpAfterInstall;
 
   const DownloadWidget({
     super.key,
     required this.items,
     required this.productId,
+    required this.cleanUpAfterInstall,
   });
 
   @override
@@ -36,9 +38,8 @@ class _DownloadWidgetState extends State<DownloadWidget> {
   void initState() {
     super.initState();
 
-    final String path =
-        '${Directory.systemTemp.path}\\Revision-Tool\\MSStore\\${widget.productId}';
-    final Directory directory = Directory(path);
+    final path = '${_ms.storeFolder}\\${widget.productId}';
+    final directory = Directory(path);
     if (directory.existsSync()) {
       directory.deleteSync(recursive: true);
     }
@@ -120,18 +121,13 @@ class _DownloadWidgetState extends State<DownloadWidget> {
                 onPressed: () async {
                   showLoadingDialog(context, context.l10n.installing);
 
-                  List<ProcessResult> processResult = [];
-                  if (widget.items.first.extension == "exe" ||
-                      widget.items.first.extension == "msi") {
-                    for (final item in widget.items) {
-                      processResult.add(await _ms.installNonUWPPackages(
-                          '${Directory.systemTemp.path}\\Revision-Tool\\MSStore\\${widget.productId}\\',
-                          "${item.name}.${item.extension}",
-                          item.commandLines!));
-                    }
-                  } else {
-                    processResult.addAll(await _ms.installUWPPackages(
-                        '${Directory.systemTemp.path}\\Revision-Tool\\MSStore\\${widget.productId}'));
+                  final processResult = <ProcessResult>[];
+                  processResult.addAll(
+                    await _ms.installPackages(widget.productId),
+                  );
+
+                  if (widget.cleanUpAfterInstall) {
+                    await _ms.cleanUpDownloads();
                   }
 
                   if (!mounted) return;

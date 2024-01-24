@@ -38,7 +38,7 @@ class _MSStorePageState extends State<MSStorePage>
         query.contains('microsoft.com')) {
       final uri = Uri.parse(query);
       final productId = uri.pathSegments.last;
-      debugPrint(productId);
+      // debugPrint(productId);
       await showInstallDialog(context, context.l10n.msstoreSearchingPackages,
           productId, _selectedRing);
     } else {
@@ -50,16 +50,38 @@ class _MSStorePageState extends State<MSStorePage>
     }
   }
 
+  static const items2 = [
+    ComboBoxItem(
+      value: "Retail",
+      child: Text("Retail (Stable)"),
+    ),
+    ComboBoxItem(
+      value: "RP",
+      child: Text("Release Preview"),
+    ),
+    ComboBoxItem(
+      value: "WIS",
+      child: Text("Insider Slow"),
+    ),
+    ComboBoxItem(
+      value: "WIF",
+      child: Text("Insider Fast"),
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
     return ScaffoldPage.scrollable(
       header: PageHeader(
         title: InfoLabel(
           labelStyle: context.theme.typography.title,
           label: context.l10n.pageMSStore,
-          child: Text(context.l10n.experimental,
-              style: context.theme.typography.body),
+          child: Text(
+            context.l10n.experimental,
+            style: context.theme.typography.body,
+          ),
         ),
       ),
       children: [
@@ -67,37 +89,17 @@ class _MSStorePageState extends State<MSStorePage>
           children: [
             Expanded(
               child: TextBox(
-                  controller: _textEditingController,
-                  placeholder: context.l10n.search,
-                  expands: false,
-                  onSubmitted: (value) async => await _onSearchButtonPressed()),
+                controller: _textEditingController,
+                placeholder: context.l10n.search,
+                expands: false,
+                onSubmitted: (value) async => await _onSearchButtonPressed(),
+              ),
             ),
             const SizedBox(width: 10),
             ComboBox<String>(
               value: _selectedRing,
-              onChanged: (value) {
-                setState(() {
-                  _selectedRing = value!;
-                });
-              },
-              items: const [
-                ComboBoxItem(
-                  value: "Retail",
-                  child: Text("Retail (Stable)"),
-                ),
-                ComboBoxItem(
-                  value: "RP",
-                  child: Text("Release Preview"),
-                ),
-                ComboBoxItem(
-                  value: "WIS",
-                  child: Text("Insider Slow"),
-                ),
-                ComboBoxItem(
-                  value: "WIF",
-                  child: Text("Insider Fast"),
-                ),
-              ],
+              onChanged: (value) => setState(() => _selectedRing = value!),
+              items: items2,
             ),
           ],
         ),
@@ -112,10 +114,11 @@ class _MSStorePageState extends State<MSStorePage>
                 child: Text(context.l10n.install),
                 onPressed: () async {
                   await showInstallDialog(
-                      context,
-                      context.l10n.msstoreSearchingPackages,
-                      product.productId!,
-                      _selectedRing);
+                    context,
+                    context.l10n.msstoreSearchingPackages,
+                    product.productId!,
+                    _selectedRing,
+                  );
                 },
               ),
             )
@@ -129,28 +132,31 @@ class _MSStorePageState extends State<MSStorePage>
       String productID, String ring) async {
     showLoadingDialog(context, context.l10n.msstoreSearchingPackages);
 
-    final packages =
-        await _msStoreService.startProcess(productID, _selectedRing);
+    await _msStoreService.startProcess(productID, _selectedRing);
 
     if (!mounted) return;
     Navigator.pop(context);
-    if (packages.isNotEmpty) {
-      showSelectPackages(productID, packages);
-    } else {
+
+    if (_msStoreService.packages.isEmpty) {
       showNotFound(context);
     }
+    showSelectPackages(productID);
   }
 
-  void showSelectPackages(String productId, List<PackagesInfo> packages) async {
+  void showSelectPackages(String productId) async {
+    final packages = _msStoreService.packages;
     final List<TreeViewItem> items = List.generate(
       packages.length,
       (index) => TreeViewItem(
         value: index,
-        selected: packages[index].name!.contains("neutral") ||
-            packages[index].name!.contains("x64"),
-        content: Text(packages[index].name!),
+        selected: packages.elementAt(index).name!.contains("neutral") ||
+            packages.elementAt(index).name!.contains("x64"),
+        content: Text(packages.elementAt(index).name!),
       ),
     );
+
+    // TODO: Add checkbox to clean up after install
+    bool cleanUp = true;
 
     await showDialog<String>(
       context: context,
@@ -163,13 +169,13 @@ class _MSStorePageState extends State<MSStorePage>
           items: items,
         ),
         actions: [
-          Button(
+          FilledButton(
             child: Text(context.l10n.okButton),
             onPressed: () async {
-              final List<PackagesInfo> downloadList = [];
-              for (var item in items) {
+              final downloadList = <PackagesInfo>[];
+              for (final item in items) {
                 if (item.selected!) {
-                  downloadList.add(packages[item.value]);
+                  downloadList.add(packages.elementAt(item.value));
                 }
               }
               if (downloadList.isEmpty) {
@@ -183,16 +189,18 @@ class _MSStorePageState extends State<MSStorePage>
               await showDialog(
                 context: context,
                 dismissWithEsc: false,
-                builder: (context) =>
-                    DownloadWidget(items: downloadList, productId: productId),
+                builder: (context) => DownloadWidget(
+                  items: downloadList,
+                  productId: productId,
+                  cleanUpAfterInstall: cleanUp,
+                ),
               );
 
               if (!mounted) return;
               Navigator.pop(context, 'Successfully downloaded');
-              // Delete file here
             },
           ),
-          FilledButton(
+          Button(
             child: Text(context.l10n.close),
             onPressed: () => Navigator.pop(context, 'User canceled dialog'),
           ),
