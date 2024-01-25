@@ -27,6 +27,8 @@ class MSStoreCommand extends Command<String> {
     );
   }
 
+  String get tag => "[MS Store]";
+
   @override
   String get description =>
       "[$name] Downloads and installs free apps from MS Store";
@@ -36,40 +38,40 @@ class MSStoreCommand extends Command<String> {
 
   @override
   FutureOr<String>? run() async {
-    final ids = argResults?["id"];
-    final ring = argResults?["ring"];
+    final List<String> ids = argResults?["id"];
+    final String ring = argResults?["ring"];
 
     for (final id in ids) {
-      stdout.writeln('[MS Store] Starting process - $id ($ring)');
+      stdout.writeln('$tag Starting process - $id ($ring)');
       try {
         await _msStoreService.startProcess(id, ring);
       } catch (_) {
-        stderr.writeln('[MS Store] Failed to get any information for $id');
+        stderr.writeln('$tag Failed to get any information for $id');
         exit(1);
       }
 
-      if (_msStoreService.packages.isNotEmpty) {
-        stdout.writeln('[MS Store] Downloading $id...');
-        final downloadResult = await _msStoreService.downloadPackages(id);
-
-        if (downloadResult.first.statusCode != 200) {
-          stderr.writeln('[MS Store] Failed to download $id');
-          exit(1);
-        }
-
-        stdout.writeln('[MS Store] Installing $id...');
-        final installResult = await _msStoreService.installPackages(id);
-
-        if (installResult.first.exitCode != 0) {
-          stderr.writeln('[MS Store] Failed to install $id');
-          exit(1);
-        }
-
-        stdout.writeln('[MS Store] Successfully installed $id');
-        // exit(0);
+      if (_msStoreService.packages.isEmpty) {
+        stderr.writeln('$tag Failed to get any information for $id');
+        exit(1);
       }
-      stderr.writeln('[MS Store] Failed to get any information for $id');
-      exit(1);
+
+      stdout.writeln('$tag Downloading $id...');
+      final downloadResult = await _msStoreService.downloadPackages(id);
+
+      if (downloadResult.first.statusCode != 200) {
+        stderr.writeln('$tag Failed to download $id');
+        exit(1);
+      }
+
+      stdout.writeln('$tag Installing $id...');
+      final installResult = await _msStoreService.installPackages(id);
+
+      if (installResult.first.exitCode != 0) {
+        stderr.writeln('$tag Failed to install $id');
+        exit(1);
+      }
+
+      stdout.writeln('$tag Successfully installed $id');
     }
     exit(0);
   }

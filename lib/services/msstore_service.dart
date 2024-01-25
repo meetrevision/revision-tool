@@ -375,7 +375,7 @@ class MSStoreService {
     for (final item in _packages) {
       final response = await _dio.download(
         item.uri!,
-        "$path\\${item.id}.${item.extension}",
+        "$path\\${item.name}.${item.extension}",
         cancelToken: _cancelToken,
       );
       result.add(response);
@@ -391,7 +391,8 @@ class MSStoreService {
 
   Future<List<ProcessResult>> _installUWPPackages(String id) async {
     return await run(
-      'powershell -NoP -ExecutionPolicy Bypass -NonInteractive -C "& {\$appxFiles = Get-ChildItem -Path "$_storeFolder\\$id"; foreach (\$file in \$appxFiles) { Add-AppxPackage -ForceApplicationShutdown -Path \$file.FullName; echo "\$(\$file.Name)";}}"',
+      'powershell -NoP -ExecutionPolicy Bypass -NonInteractive -C "& {\$appxFiles = Get-ChildItem -Path "$_storeFolder\\$id"; foreach (\$file in \$appxFiles) { Add-AppxPackage -ForceApplicationShutdown -Path \$file.FullName;}}"',
+      verbose: false,
     );
   }
 
