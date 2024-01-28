@@ -5,6 +5,7 @@ import 'package:args/command_runner.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mixin_logger/mixin_logger.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:revitool/commands/ms_store_command.dart';
 import 'package:revitool/commands/recommendation_command.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
@@ -18,6 +19,11 @@ import 'package:window_plus/window_plus.dart';
 import 'package:path/path.dart' as p;
 
 Future<void> main(List<String> args) async {
+  final path = p.join(Directory.systemTemp.path, 'Revision-Tool', 'Logs');
+
+  initLogger(path);
+  i('Revision Tool is starting');
+
   if (registryUtilsService.readString(
               RegistryHive.localMachine,
               r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
@@ -30,23 +36,23 @@ Future<void> main(List<String> args) async {
 
   if (args.isNotEmpty) {
     if (!_isSupported) {
+      // TODO: unify messages
+      e('Unsupported build detected. Please apply ReviOS on your system');
       stderr.writeln(
         'Unsupported build detected. Please apply ReviOS on your system',
       );
       exit(55);
     }
+    final packageInfo = await PackageInfo.fromPlatform();
+    stdout.writeln("Running Revision Tool ${packageInfo.version}");
     final runner = CommandRunner<String>("revitool", "Revision Tool CLI")
       ..addCommand(MSStoreCommand());
     // ..addCommand(RecommendationCommand());
     await runner.run(args);
+    exit(0);
   }
 
   WidgetsFlutterBinding.ensureInitialized();
-
-  final path = p.join(Directory.systemTemp.path, 'Revision-Tool', 'Logs');
-
-  initLogger(path);
-  i('Revision Tool is starting');
 
   if (registryUtilsService.readString(RegistryHive.localMachine,
           r'SOFTWARE\Revision\Revision Tool', 'ThemeMode') ==

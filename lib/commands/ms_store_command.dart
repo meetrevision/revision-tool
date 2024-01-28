@@ -56,7 +56,7 @@ class MSStoreCommand extends Command<String> {
       }
 
       stdout.writeln('$tag Downloading $id...');
-      final downloadResult = await _msStoreService.downloadPackages(id);
+      final downloadResult = await _msStoreService.downloadPackages(id, ring);
 
       if (downloadResult.first.statusCode != 200) {
         stderr.writeln('$tag Failed to download $id');
@@ -64,7 +64,7 @@ class MSStoreCommand extends Command<String> {
       }
 
       stdout.writeln('$tag Installing $id...');
-      final installResult = await _msStoreService.installPackages(id);
+      final installResult = await _msStoreService.installPackages(id, ring);
 
       if (installResult.first.exitCode != 0) {
         stderr.writeln('$tag Failed to install $id');

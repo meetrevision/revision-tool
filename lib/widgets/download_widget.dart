@@ -13,12 +13,14 @@ class DownloadWidget extends StatefulWidget {
   final List<PackagesInfo> items;
   final String productId;
   final bool cleanUpAfterInstall;
+  final String ring;
 
   const DownloadWidget({
     super.key,
     required this.items,
     required this.productId,
     required this.cleanUpAfterInstall,
+    required this.ring,
   });
 
   @override
@@ -123,7 +125,7 @@ class _DownloadWidgetState extends State<DownloadWidget> {
 
                   final processResult = <ProcessResult>[];
                   processResult.addAll(
-                    await _ms.installPackages(widget.productId),
+                    await _ms.installPackages(widget.productId, widget.ring),
                   );
 
                   if (widget.cleanUpAfterInstall) {

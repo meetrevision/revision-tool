@@ -193,6 +193,7 @@ class _MSStorePageState extends State<MSStorePage>
                   items: downloadList,
                   productId: productId,
                   cleanUpAfterInstall: cleanUp,
+                  ring: _selectedRing,
                 ),
               );
 

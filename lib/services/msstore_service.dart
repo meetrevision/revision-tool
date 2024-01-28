@@ -127,7 +127,7 @@ class MSStoreService {
         ...(responseData.productsList ?? List<ProductsList>.empty()),
       ];
     }
-    throw Exception('Failed to search products');
+    throw Exception('Failed to search the product');
   }
 
   Future<String> _getCookie() async {
@@ -144,7 +144,7 @@ class MSStoreService {
           .first
           .innerText;
     }
-    return "";
+    throw Exception('Failed to get a cookie');
   }
 
   Future<String> _getCategoryID(String id) async {
@@ -155,9 +155,8 @@ class MSStoreService {
     if (response.statusCode == 200) {
       if (skus.isNotEmpty && skus.first["FulfillmentData"] != null) {
         return _regex.firstMatch(skus.first["FulfillmentData"])!.group(1)!;
-      } else {
-        throw Exception("The selected app is not UWP");
       }
+      throw Exception("The selected app is not UWP");
     }
     throw Exception('Failed to get category id');
   }
@@ -195,7 +194,7 @@ class MSStoreService {
       final responseData = NonUWPResponse.fromJson(response.data).data;
       final versions = responseData?.versions;
 
-      final Set<String> urls = {};
+      final urls = <String>{};
 
       for (final installer in versions!.first.installers!) {
         final installerUrl = installer.installerUrl!;
@@ -231,7 +230,7 @@ class MSStoreService {
 
   Future<void> _parsePackages(String xmlList, String ring) async {
     final xmlDoc = xml.XmlDocument.parse(xmlList);
-    final Map<String, String> packageMap = {};
+    final packageMap = <String, String>{};
 
     for (final node in xmlDoc.findAllElements("File")) {
       if (node.getAttribute("InstallerSpecificIdentifier") != null) {
@@ -368,8 +367,8 @@ class MSStoreService {
     _packages = latestGenPackages;
   }
 
-  Future<List<Response>> downloadPackages(String productId) async {
-    final path = "$_storeFolder\\$productId";
+  Future<List<Response>> downloadPackages(String productId, String ring) async {
+    final path = "$_storeFolder\\$productId\\$ring";
     final result = <Response>[];
 
     for (final item in _packages) {
@@ -383,21 +382,23 @@ class MSStoreService {
     return result;
   }
 
-  Future<List<ProcessResult>> installPackages(String id) async {
+  Future<List<ProcessResult>> installPackages(String id, String ring) async {
     return isUWP(id)
-        ? await _installUWPPackages(id)
-        : await _installNonUWPPackages(id);
+        ? await _installUWPPackages(id, ring)
+        : await _installNonUWPPackages(id, ring);
   }
 
-  Future<List<ProcessResult>> _installUWPPackages(String id) async {
+  Future<List<ProcessResult>> _installUWPPackages(
+      String id, String ring) async {
     return await run(
       'powershell -NoP -ExecutionPolicy Bypass -NonInteractive -C "& {\$appxFiles = Get-ChildItem -Path "$_storeFolder\\$id"; foreach (\$file in \$appxFiles) { Add-AppxPackage -ForceApplicationShutdown -Path \$file.FullName;}}"',
       verbose: false,
     );
   }
 
-  Future<List<ProcessResult>> _installNonUWPPackages(String id) async {
-    final fileList = Directory("$_storeFolder\\$id").listSync();
+  Future<List<ProcessResult>> _installNonUWPPackages(
+      String id, String ring) async {
+    final fileList = Directory("$_storeFolder\\$id\\$ring").listSync();
     final results = <ProcessResult>[];
 
     for (final file in fileList) {
