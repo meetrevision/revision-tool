@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
-import 'package:fluent_ui/fluent_ui.dart';
 import 'package:process_run/cmd_run.dart';
 import 'package:process_run/shell_run.dart';
 import '../models/ms_store/non_uwp_response.dart';
@@ -11,6 +10,10 @@ import 'package:xml/xml.dart' as xml;
 import '../utils.dart';
 
 class MSStoreService {
+  static final _storeFolder =
+      "${Directory.systemTemp.path}\\Revision-Tool\\MSStore";
+  String get storeFolder => _storeFolder;
+
   static final _cookieFile = File('$directoryExe\\msstore\\cookie.xml');
   static final _urlFile = File('$directoryExe\\msstore\\url.xml');
   static final _wuFile = File('$directoryExe\\msstore\\wu.xml');
@@ -40,7 +43,7 @@ class MSStoreService {
   static final _regex = RegExp(r'"WuCategoryId":"([^"]+)"');
   static final _namePattern = RegExp(r'^[^_]+', multiLine: true);
 
-  /// major.minor.build.revision
+  // major.minor.build.revision
   // static final _versionPattern = RegExp(r'_(\d+\.\d+\.\d+\.\d+)_');
 
   // static const _validUWPExtensions = {
@@ -66,34 +69,47 @@ class MSStoreService {
   }
   const MSStoreService._private();
 
-  Future<List<PackagesInfo>> startProcess(String productId, String ring) async {
-    // UWP apps mostly start with "9"
-    if (productId.startsWith("9")) {
+  static var _packages = List<PackagesInfo>.empty(growable: true);
+  List<PackagesInfo> get packages => List.unmodifiable(_packages);
+
+  Future<void> startProcess(String productId, String ring) async {
+    _packages = [];
+
+    if (isUWP(productId)) {
       if (_cookie.isEmpty) {
         _cookie = await _getCookie();
       }
-      debugPrint("Cookie: $_cookie");
+
       final String categoryID = await _getCategoryID(productId);
-      debugPrint("Category ID: $categoryID");
-      final List<PackagesInfo> packages = await _getPackages(
-          await _getFileListXML(categoryID, _cookie, ring), ring);
 
-      if (packages.isNotEmpty) {
-        // filter packages
-        final groupedPackages = _groupSamePackages(packages);
-        final filteredPackages = _getLatestPackages(groupedPackages);
+      await _parsePackages(
+        await _fetchFileListXML(categoryID, _cookie, ring),
+        ring,
+      );
 
-        if (filteredPackages.isEmpty) return packages;
-        return filteredPackages;
+      if (_packages.isNotEmpty) {
+        _getLatestPackages();
       }
     }
 
     // Non-UWP apps mostly start with "XP"
-    if (productId.startsWith("XP")) {
-      return await _getNonAppxPackage(productId);
+    if (isNonUWP(productId)) {
+      await _getNonAppxPackage(productId);
     }
+  }
 
-    return [];
+  /// Returns true if the product is UWP
+  bool isUWP(String productId) {
+    return productId.startsWith("9");
+  }
+
+  /*
+   in normal cases, returning inverse of isUWP is enough, but who knows what Microsoft will do in the future 
+  */
+
+  /// Returns true if the product is not UWP
+  bool isNonUWP(String productId) {
+    return productId.startsWith("XP");
   }
 
   Future<List<ProductsList>> searchProducts(String query, String ring) async {
@@ -107,18 +123,20 @@ class MSStoreService {
     if (response.statusCode == 200) {
       final responseData = SearchResponse.fromJson(response.data);
       return [
-        ...(responseData.highlightedList ?? []),
-        ...(responseData.productsList ?? []),
+        ...(responseData.highlightedList ?? List<ProductsList>.empty()),
+        ...(responseData.productsList ?? List<ProductsList>.empty()),
       ];
     }
-    throw Exception('Failed to search products');
+    throw Exception('Failed to search the product');
   }
 
   Future<String> _getCookie() async {
-    final response = await _dio.post(_fe3Delivery,
-        data: xml.XmlDocument.parse(_cookieFile.readAsStringSync()),
-        options: _optionsSoapXML,
-        cancelToken: _cancelToken);
+    final response = await _dio.post(
+      _fe3Delivery,
+      data: xml.XmlDocument.parse(_cookieFile.readAsStringSync()),
+      options: _optionsSoapXML,
+      cancelToken: _cancelToken,
+    );
 
     if (response.statusCode == 200) {
       return xml.XmlDocument.parse(response.data)
@@ -126,7 +144,7 @@ class MSStoreService {
           .first
           .innerText;
     }
-    return "";
+    throw Exception('Failed to get a cookie');
   }
 
   Future<String> _getCategoryID(String id) async {
@@ -137,14 +155,13 @@ class MSStoreService {
     if (response.statusCode == 200) {
       if (skus.isNotEmpty && skus.first["FulfillmentData"] != null) {
         return _regex.firstMatch(skus.first["FulfillmentData"])!.group(1)!;
-      } else {
-        throw Exception("The selected app is not UWP");
       }
+      throw Exception("The selected app is not UWP");
     }
     throw Exception('Failed to get category id');
   }
 
-  Future<String> _getFileListXML(
+  Future<String> _fetchFileListXML(
       String categoryID, String cookie, String ring) async {
     final cookie2 = xml.XmlDocument.parse(_wuFile.readAsStringSync())
         .toString()
@@ -152,8 +169,12 @@ class MSStoreService {
         .replaceAll("{2}", categoryID)
         .replaceAll("{3}", ring);
 
-    final response = await _dio.post(_fe3Delivery,
-        data: cookie2, options: _optionsSoapXML, cancelToken: _cancelToken);
+    final response = await _dio.post(
+      _fe3Delivery,
+      data: cookie2,
+      options: _optionsSoapXML,
+      cancelToken: _cancelToken,
+    );
 
     if (response.statusCode == 200) {
       final xmlDoc = xml.XmlDocument.parse(response.data)
@@ -169,13 +190,11 @@ class MSStoreService {
     final response = await _dio.get("$_storeAPI/packageManifests/$id?Market=US",
         cancelToken: _cancelToken);
 
-    final List<PackagesInfo> packages = [];
-
     if (response.statusCode == 200) {
       final responseData = NonUWPResponse.fromJson(response.data).data;
       final versions = responseData?.versions;
 
-      final Set<String> urls = {};
+      final urls = <String>{};
 
       for (final installer in versions!.first.installers!) {
         final installerUrl = installer.installerUrl!;
@@ -189,18 +208,17 @@ class MSStoreService {
           if (!urls.contains(installerUrl)) {
             packages.add(
               PackagesInfo(
-                name,
-                extension,
-                installerUrl,
-                "",
-                "",
-                id,
-                -1,
-                "",
-                null,
-                null,
-                installer.installerSwitches!.silent,
-              ),
+                  name,
+                  extension,
+                  installerUrl,
+                  "",
+                  "",
+                  id,
+                  -1,
+                  "",
+                  null,
+                  null,
+                  installer.installerSwitches?.silent?.replaceAll('"', '')),
             );
             urls.add(installerUrl);
           }
@@ -210,10 +228,9 @@ class MSStoreService {
     return packages;
   }
 
-  Future<List<PackagesInfo>> _getPackages(String xmlList, String ring) async {
-    final List<PackagesInfo> packages = [];
+  Future<void> _parsePackages(String xmlList, String ring) async {
     final xmlDoc = xml.XmlDocument.parse(xmlList);
-    final Map<String, String> packageMap = {};
+    final packageMap = <String, String>{};
 
     for (final node in xmlDoc.findAllElements("File")) {
       if (node.getAttribute("InstallerSpecificIdentifier") != null) {
@@ -247,25 +264,29 @@ class MSStoreService {
 
         if (!name.contains("Microsoft.Advertising") && name.contains("x64") ||
             name.contains("neutral") && !ext.startsWith("e")) {
-          packages.add(PackagesInfo(
-            name,
-            ext,
-            await _getUri(updateIdentity.getAttribute('UpdateID')!,
-                updateIdentity.getAttribute('RevisionNumber')!, ring, digest),
-            updateIdentity.getAttribute('RevisionNumber')!,
-            updateIdentity.getAttribute('UpdateID')!,
-            node.parent!.parent!.parent!.getElement('ID')!.value,
-            size,
-            digest,
-            lastModified,
-            null,
-            null,
-          ));
+          _packages.add(
+            PackagesInfo(
+              name,
+              ext,
+              await _getUri(
+                updateIdentity.getAttribute('UpdateID')!,
+                updateIdentity.getAttribute('RevisionNumber')!,
+                ring,
+                digest,
+              ),
+              updateIdentity.getAttribute('RevisionNumber')!,
+              updateIdentity.getAttribute('UpdateID')!,
+              node.parent!.parent!.parent!.getElement('ID')!.value,
+              size,
+              digest,
+              lastModified,
+              null,
+              null,
+            ),
+          );
         }
       }
     }
-
-    return packages;
   }
 
   Future<String> _getUri(
@@ -300,9 +321,8 @@ class MSStoreService {
   // filters:
 
   /// Group packages with the same name
-  Map<String?, List<PackagesInfo>> _groupSamePackages(
-      List<PackagesInfo> packages) {
-    final groupedItems = packages
+  Map<String?, List<PackagesInfo>> _groupSamePackages() {
+    final groupedItems = _packages
         .asMap()
         .entries
         .map((entry) => PackagesInfo(
@@ -323,12 +343,11 @@ class MSStoreService {
     return groupedItems;
   }
 
-  List<PackagesInfo> _getLatestPackages(
-      Map<String?, List<PackagesInfo>> groupedPackages) {
-    if (groupedPackages.isEmpty) return [];
+  void _getLatestPackages() {
+    final groupedPackages = _groupSamePackages();
 
     final latestGenPackages = groupedPackages.values.map((group) {
-      Map<PackagesInfo, DateTime> versionMap = {};
+      final versionMap = <PackagesInfo, DateTime>{};
       for (final package in group) {
         if (versionMap.isEmpty) {
           versionMap[package] = package.lastModified!;
@@ -345,70 +364,69 @@ class MSStoreService {
       return versionMap.keys.first;
     }).toList();
 
-    return latestGenPackages;
+    _packages = latestGenPackages;
   }
 
-  /// Returns a list of latest UWP packages
-  // List<PackagesInfo> _getLatestPackages(
-  //     Map<String?, List<PackagesInfo>> groupedPackages) {
-  //   if (groupedPackages.isEmpty) return [];
+  Future<List<Response>> downloadPackages(String productId, String ring) async {
+    final path = "$_storeFolder\\$productId\\$ring";
+    final result = <Response>[];
 
-  //   final latestGenPackages = groupedPackages.values.map((group) {
-  //     Map<String, PackagesInfo> versionMap = {};
+    for (final item in _packages) {
+      final response = await _dio.download(
+        item.uri!,
+        "$path\\${item.name}.${item.extension}",
+        cancelToken: _cancelToken,
+      );
+      result.add(response);
+    }
+    return result;
+  }
 
-  //     for (final package in group) {
-  //       final match = _versionPattern.firstMatch(package.name!);
+  Future<List<ProcessResult>> installPackages(String id, String ring) async {
+    return isUWP(id)
+        ? await _installUWPPackages(id, ring)
+        : await _installNonUWPPackages(id, ring);
+  }
 
-  //       if (match != null) {
-  //         final ver = match.group(1)!;
-
-  //         if (versionMap.isEmpty) {
-  //           versionMap[ver] = package;
-  //         } else {
-  //           debugPrint("Version: $ver");
-  //           final lastSavedVer =
-  //               versionMap.keys.first.split('.').map(int.parse).toList();
-
-  //           final currentVer = ver.split('.').map(int.parse).toList();
-
-  //           final lastSavedVerLength = lastSavedVer.length;
-  //           final currentverLength = currentVer.length;
-
-  //           for (int i = 0; i < currentverLength; i++) {
-  //             if (i >= lastSavedVerLength || currentVer[i] > lastSavedVer[i]) {
-  //               versionMap.clear();
-  //               versionMap[ver] = package;
-  //               break;
-  //             } else if (currentVer[i] < lastSavedVer[i]) {
-  //               break;
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }
-
-  //     final latestVersion = versionMap.keys
-  //         .reduce((curr, next) => curr.compareTo(next) > 0 ? curr : next);
-
-  //     return versionMap[latestVersion]!;
-  //   }).toList();
-
-  //   return latestGenPackages;
-  // }
-
-  Future<List<ProcessResult>> installUWPPackages(String path) async {
+  Future<List<ProcessResult>> _installUWPPackages(
+      String id, String ring) async {
     return await run(
-      'powershell -NoP -ExecutionPolicy Bypass -NonInteractive -C "& {\$appxFiles = Get-ChildItem -Path "$path"; foreach (\$file in \$appxFiles) { Add-AppxPackage -ForceApplicationShutdown -Path \$file.FullName; echo "\$(\$file.Name)";}}"',
+      'powershell -NoP -ExecutionPolicy Bypass -NonInteractive -C "& {\$appxFiles = Get-ChildItem -Path "$_storeFolder\\$id"; foreach (\$file in \$appxFiles) { Add-AppxPackage -ForceApplicationShutdown -Path \$file.FullName;}}"',
+      verbose: false,
     );
   }
 
-  Future<ProcessResult> installNonUWPPackages(
-      String path, String fileName, String commandLines) async {
-    commandLines = commandLines.replaceAll('"', '');
-    return await runExecutableArguments(
-      "$path\\$fileName",
-      commandLines.split(r' '),
-      verbose: true,
-    );
+  Future<List<ProcessResult>> _installNonUWPPackages(
+      String id, String ring) async {
+    final fileList = Directory("$_storeFolder\\$id\\$ring").listSync();
+    final results = <ProcessResult>[];
+
+    for (final file in fileList) {
+      if (file is File) {
+        final filePath = file.path;
+        final arguments = _packages
+            .firstWhereOrNull(
+                (e) => e.name == (file.path.split('\\').last).split('.').last)
+            ?.commandLines
+            ?.split(' ');
+
+        results.add(
+          await runExecutableArguments(
+            filePath,
+            arguments ?? List<String>.empty(),
+            verbose: true,
+          ),
+        );
+      }
+    }
+
+    return results;
+  }
+
+  Future<void> cleanUpDownloads() async {
+    final dir = Directory(_storeFolder);
+    if (await dir.exists()) {
+      await dir.delete(recursive: true);
+    }
   }
 }

@@ -52,14 +52,14 @@ class _HomePageState extends State<HomePage> {
     assert(debugCheckHasFluentTheme(context));
     // final theme = context.theme;
 
-    final List<NavigationPaneItem> items = [
+    final items = <NavigationPaneItem>[
       PaneItem(
         icon: const Icon(
           msicons.FluentIcons.home_24_regular,
           size: 20,
         ),
         title: Text(context.l10n.pageHome),
-        body: const Home(),
+        body: const _Home(),
       ),
       PaneItem(
         icon: const Icon(
@@ -173,7 +173,9 @@ class _HomePageState extends State<HomePage> {
                     const Text(
                       "Proud ReviOS user",
                       style: TextStyle(
-                          fontSize: 11, fontWeight: FontWeight.normal),
+                        fontSize: 11,
+                        fontWeight: FontWeight.normal,
+                      ),
                     ),
                   ],
                 )
@@ -184,9 +186,7 @@ class _HomePageState extends State<HomePage> {
             key: _searchKey,
             trailingIcon: const Padding(
               padding: EdgeInsets.only(right: 7.0, bottom: 2),
-              child: Icon(
-                msicons.FluentIcons.search_20_regular,
-              ),
+              child: Icon(msicons.FluentIcons.search_20_regular),
             ),
             focusNode: _searchFocusNode,
             controller: _searchController,
@@ -236,18 +236,14 @@ class _HomePageState extends State<HomePage> {
             PaneItemSeparator(color: Colors.transparent),
           ],
         ),
-        onOpenSearch: () {
-          _searchFocusNode.requestFocus();
-        },
+        onOpenSearch: () => _searchFocusNode.requestFocus(),
       ),
     );
   }
 }
 
-class Home extends StatelessWidget {
-  const Home({
-    super.key,
-  });
+class _Home extends StatelessWidget {
+  const _Home();
 
   static final _homeCardButtons = [
     CardButtonWidget(
@@ -363,18 +359,24 @@ class Home extends StatelessWidget {
               ? Flex(
                   direction: Axis.horizontal,
                   children: _homeCardButtons
-                      .map((e) => Flexible(
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 5),
-                              child: e,
-                            ),
-                          ))
+                      .map(
+                        (e) => Flexible(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 5),
+                            child: e,
+                          ),
+                        ),
+                      )
                       .toList(),
                 )
               : Column(
                   children: _homeCardButtons
-                      .map((e) => Padding(
-                          padding: const EdgeInsets.only(bottom: 3), child: e))
+                      .map(
+                        (e) => Padding(
+                          padding: const EdgeInsets.only(bottom: 3),
+                          child: e,
+                        ),
+                      )
                       .toList(),
                 ),
         ),

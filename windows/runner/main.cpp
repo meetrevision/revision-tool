@@ -4,18 +4,22 @@
 
 #include "flutter_window.h"
 #include "utils.h"
-#include "window_plus/window_plus_plugin_c_api.h"
 
-int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
-                      _In_ wchar_t *command_line, _In_ int show_command) {
-  
-  // ::WindowPlusPluginCApiHandleSingleInstance(NULL, NULL);
-  // Attach to console when present (e.g., 'flutter run') or create a
-  // new console when running with a debugger.
-  if (!::AttachConsole(ATTACH_PARENT_PROCESS) && ::IsDebuggerPresent()) {
-    CreateAndAttachConsole();
+// ******* ADDED *******
+#include "win32_window.h"                     // where flag to hide gui is added
+#pragma comment(linker, "/subsystem:console") // tells the linker to use console subsystem
+
+/*
+  New main, because the app is now a console app
+*/
+int main(int argc, char *argv[]) {
+
+  // if any arguments are passed run in commandline mode
+  if (argc > 1) {
+    H_HIDE_WINDOW = true;
+  } else {
+    ::ShowWindow(::GetConsoleWindow(), SW_HIDE);
   }
-
   // Initialize COM, so that it is available for use in the library and/or
   // plugins.
   ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
