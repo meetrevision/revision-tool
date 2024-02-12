@@ -9,6 +9,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:revitool/commands/ms_store_command.dart';
 import 'package:revitool/commands/recommendation_command.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
+import 'package:revitool/providers/l10n_provider.dart';
 import 'package:revitool/screens/home_page.dart';
 import 'package:provider/provider.dart';
 import 'package:revitool/theme.dart';
@@ -89,10 +90,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AppTheme(SettingsService()),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AppTheme(SettingsService())),
+        ChangeNotifierProvider(create: (_) => L10nProvider(appLanguage)),
+      ],
       builder: (context, _) {
         final appTheme = context.watch<AppTheme>();
+        final appLocale = context.watch<L10nProvider>().locale;
         return FluentApp(
           title: 'Revision Tool',
           debugShowCheckedModeBanner: false,
@@ -101,7 +106,7 @@ class MyApp extends StatelessWidget {
             ReviLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
           ],
-          locale: Locale(appLanguage.split('_')[0], appLanguage.split('_')[1]),
+          locale: appLocale,
           supportedLocales: ReviLocalizations.supportedLocales,
           themeMode: appTheme.themeMode,
           color: appTheme.color,
