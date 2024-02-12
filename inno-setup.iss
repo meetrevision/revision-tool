@@ -29,24 +29,25 @@ SolidCompression=yes
 UninstallDisplayIcon={app}\{#MyAppExeName}
 WizardStyle=modern
 PrivilegesRequired=admin
+RestartApplications=yes
 
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
-Source: "{#SourcePath}\build\windows\runner\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\windows\runner\Release\mixin_logger.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\windows\runner\Release\window_plus_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\windows\runner\Release\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\windows\runner\Release\system_theme_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\build\windows\x64\runner\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\build\windows\x64\runner\Release\mixin_logger.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\build\windows\x64\runner\Release\window_plus_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\build\windows\x64\runner\Release\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\build\windows\x64\runner\Release\system_theme_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourcePath}\dlls\msvcp140.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourcePath}\dlls\vcruntime140.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourcePath}\dlls\vcruntime140_1.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\windows\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#SourcePath}\build\windows\x64\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

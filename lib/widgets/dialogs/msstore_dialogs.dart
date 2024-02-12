@@ -2,8 +2,7 @@ import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:process_run/shell.dart';
-
-import '../../l10n/generated/localizations.dart';
+import 'package:revitool/extensions.dart';
 
 Future<Object?> showLoadingDialog(BuildContext context, String title) {
   return showDialog(
@@ -19,7 +18,7 @@ Future<Object?> showLoadingDialog(BuildContext context, String title) {
           children: [
             const ProgressRing(),
             const SizedBox(height: 10),
-            Text(ReviLocalizations.of(context).msstoreWait),
+            Text(context.l10n.msstoreWait),
           ],
         ),
       ),
@@ -34,7 +33,7 @@ Future<Object?> showInstallProcess(
     dismissWithEsc: false,
     builder: (context) => ContentDialog(
       constraints: const BoxConstraints(maxWidth: 600, maxHeight: 600),
-      title: Text(ReviLocalizations.of(context).installing),
+      title: Text(context.l10n.installing),
       content: Center(
         child: SingleChildScrollView(
           child: Column(
@@ -50,7 +49,7 @@ Future<Object?> showInstallProcess(
       ),
       actions: [
         FilledButton(
-          child: Text(ReviLocalizations.of(context).close),
+          child: Text(context.l10n.close),
           onPressed: () => Navigator.pop(context, 'Install process'),
         ),
       ],
@@ -64,10 +63,10 @@ Future<Object?> showNotFound(BuildContext context) {
     builder: (context) {
       return ContentDialog(
         constraints: const BoxConstraints(maxWidth: 600),
-        content: Text(ReviLocalizations.of(context).msstorePackagesNotFound),
+        content: Text(context.l10n.msstorePackagesNotFound),
         actions: [
           FilledButton(
-            child: Text(ReviLocalizations.of(context).close),
+            child: Text(context.l10n.close),
             onPressed: () => Navigator.pop(context, 'Not found'),
           ),
         ],

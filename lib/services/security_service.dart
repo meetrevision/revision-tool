@@ -6,16 +6,14 @@ import 'setup_service.dart';
 import 'package:process_run/shell_run.dart';
 
 class SecurityService implements SetupService {
-  static final SecurityService _instance = SecurityService._private();
+  static final _registryUtilsService = RegistryUtilsService();
+  static final Shell _shell = Shell();
 
-  final RegistryUtilsService _registryUtilsService = RegistryUtilsService();
-  final Shell _shell = Shell();
-
+  static const _instance = SecurityService._private();
   factory SecurityService() {
     return _instance;
   }
-
-  SecurityService._private();
+  const SecurityService._private();
 
   @override
   void recommendation() {

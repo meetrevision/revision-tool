@@ -1,103 +1,76 @@
 name: revitool
 description: A tool to personalize ReviOS to your needs
-
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none'
 
 # The version number defaults to 1.0.0 for easier development and is incremented by the build flags based on the tag
 version: 1.0.0+1
 
 environment:
-  sdk: '>=2.19.2 <3.0.0'
+  sdk: '>=3.2.3 <4.0.0'
 
-# Dependencies specify other packages that your package needs in order to work.
-# To automatically upgrade your package dependencies to the latest versions
-# consider running `flutter pub upgrade --major-versions`. Alternatively,
-# dependencies can be manually updated by changing the version numbers below to
-# the latest version available on pub.dev. To see which dependencies have newer
-# versions available, run `flutter pub outdated`.
 dependencies:
   flutter:
     sdk: flutter
+  
+  # Localization
   flutter_localizations:
     sdk: flutter
   intl: '>=0.18.0 <= 1.0.0'
-  fluent_ui: ^4.7.6
+
+  # UI
+  fluent_ui: ^4.8.5
   system_theme: ^2.3.1
-  provider: ^6.0.5
-  path_provider: ^2.1.1
-  dio: ^5.3.3
-  win32_registry: 
-  process_run: ^0.13.1
+  fluentui_system_icons: ^1.1.224
   window_plus:
     git:
       url: https://github.com/melo936/window_plus
-  fluentui_system_icons: ^1.1.220
+
+  # State management
+  provider: ^6.0.5
+
+  # Path
+  path_provider: ^2.1.2
+  path: ^1.8.3
+
+  # Network
+  dio: ^5.4.0
+  
+  # Shell
+  process_run: ^0.13.1
+  
+  # Used to get the version of the app
   package_info_plus: any
-  collection: any
-  win32: ^5.0.9
+  
+  # Interactivity with Windows
+  # win32: ^5.0.9
+  win32_registry: 
+
+  # Code generation
   freezed_annotation: ^2.4.1
   json_annotation: ^4.8.1
+  
+  # Logging
+  mixin_logger: ^0.1.1
+
+  # Command line
+  args: ^2.4.2
+
+  # Other
+  collection: ^1.18.0
   xml: any
-  mixin_logger: ^0.1.0
-  path: ^1.8.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
-  flutter_lints: ^3.0.0
-  build_runner:
-  freezed: ^2.4.5
+  flutter_lints: ^3.0.1
+  build_runner: ^2.4.8
+  freezed: ^2.4.6
   json_serializable: ^6.7.1
-  
-  # msix: ^3.7.0
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter packages.
 flutter:
   generate: true
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
   assets:
     - additionals/
     - additionals/msstore/
-
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware
-
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/assets-and-images/#from-packages
-
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages

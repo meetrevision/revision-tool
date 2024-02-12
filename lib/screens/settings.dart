@@ -1,17 +1,12 @@
-import 'dart:io';
-
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:revitool/l10n/generated/localizations.dart';
+import 'package:revitool/extensions.dart';
+import 'package:revitool/services/tool_update_service.dart';
 import 'package:revitool/theme.dart';
 import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
-
-import '../services/network_service.dart';
 
 const languageList = [
   ComboBoxItem(
@@ -20,44 +15,47 @@ const languageList = [
   ),
   ComboBoxItem(
     value: 'pt_BR',
-    child: Text('Português (Brasil)'),
+    child: Text('Portuguese (Brazil)'),
   ),
   ComboBoxItem(
     value: 'zh_CN',
-    child: Text('简体中文'),
+    child: Text('Chinese (Simplified)'),
   ),
   ComboBoxItem(
     value: 'zh_TW',
-    child: Text('繁體中文'),
-
+    child: Text('Chinese (Traditional)'),
   ),
   ComboBoxItem(
     value: 'de_DE',
-    child: Text('Deutsch'),
+    child: Text('German'),
   ),
   ComboBoxItem(
     value: 'fr_FR',
-    child: Text('Français'),
+    child: Text('French'),
   ),
   ComboBoxItem(
     value: 'ru_RU',
-    child: Text('Русский'),
+    child: Text('Russian'),
   ),
   ComboBoxItem(
     value: 'uk_UA',
-    child: Text('українська'),
+    child: Text('Ukrainian'),
   ),
   ComboBoxItem(
     value: 'hu_HU',
-    child: Text('Magyar'),
+    child: Text('Hungarian'),
   ),
   ComboBoxItem(
     value: 'tr_TR',
-    child: Text('Türkçe'),
+    child: Text('Turkish'),
   ),
   ComboBoxItem(
-    value: 'ro_RO',
-    child: Text('Română'),
+    value: 'ar_SA',
+    child: Text('Arabic'),
+  ),
+  ComboBoxItem(
+    value: 'it_IT',
+    child: Text('Italian'),
   ),
 ];
 
@@ -70,6 +68,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   late ThemeMode theme;
+  final _toolUpdateService = ToolUpdateService();
   final _updateTitle = ValueNotifier<String>("Check for Updates");
 
   @override
@@ -79,13 +78,13 @@ class _SettingsPageState extends State<SettingsPage> {
     return ScaffoldPage.scrollable(
       resizeToAvoidBottomInset: false,
       header: PageHeader(
-        title: Text(ReviLocalizations.of(context).pageSettings),
+        title: Text(context.l10n.pageSettings),
       ),
       children: [
         CardHighlight(
           icon: msicons.FluentIcons.paint_brush_20_regular,
-          label: ReviLocalizations.of(context).settingsCTLabel,
-          description: ReviLocalizations.of(context).settingsCTDescription,
+          label: context.l10n.settingsCTLabel,
+          description: context.l10n.settingsCTDescription,
           child: ComboBox(
             value: appTheme.themeMode,
             onChanged: appTheme.updateThemeMode,
@@ -107,8 +106,8 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         CardHighlightSwitch(
           icon: msicons.FluentIcons.warning_20_regular,
-          label: ReviLocalizations.of(context).settingsEPTLabel,
-          // description: ReviLocalizations.of(context).settingsEPTDescription,
+          label: context.l10n.settingsEPTLabel,
+          // description: context.l10n.settingsEPTDescription,
           switchBool: expBool,
           function: (value) {
             registryUtilsService.writeDword(
@@ -120,54 +119,48 @@ class _SettingsPageState extends State<SettingsPage> {
           },
         ),
         CardHighlight(
-          label: ReviLocalizations.of(context).settingsUpdateLabel,
+          label: context.l10n.settingsUpdateLabel,
           icon: msicons.FluentIcons.arrow_clockwise_20_regular,
           child: ValueListenableBuilder(
             valueListenable: _updateTitle,
             builder: (context, value, child) => FilledButton(
               child: Text(_updateTitle.value),
               onPressed: () async {
-                final Directory tempDir = await getTemporaryDirectory();
-                final PackageInfo packageInfo =
-                    await PackageInfo.fromPlatform();
-                final int currentVersion =
-                    int.parse(packageInfo.version.replaceAll(".", ""));
-                final Map<String, dynamic> data = await Network().getJSON(
-                    "https://api.github.com/repos/meetrevision/revision-tool/releases/latest");
-                final int latestVersion =
-                    int.parse(data["tag_name"].toString().replaceAll(".", ""));
+                await _toolUpdateService.fetchData();
+                final currentVersion =
+                    await _toolUpdateService.getCurrentVersion;
+                final latestVersion = _toolUpdateService.getLatestVersion;
+                final data = _toolUpdateService.data;
+
                 if (latestVersion > currentVersion) {
                   if (!mounted) return;
-                  _updateTitle.value =
-                      ReviLocalizations.of(context).settingsUpdateButton;
+                  _updateTitle.value = context.l10n.settingsUpdateButton;
 
                   if (!mounted) return;
                   showDialog(
                     context: context,
                     builder: (context) => ContentDialog(
-                      title: Text(ReviLocalizations.of(context)
-                          .settingsUpdateButtonAvailable),
+                      title: Text(context.l10n.settingsUpdateButtonAvailable),
                       content: Text(
-                          "${ReviLocalizations.of(context).settingsUpdateButtonAvailablePrompt} ${data["tag_name"]}?"),
+                          "${context.l10n.settingsUpdateButtonAvailablePrompt} ${data["tag_name"]}?"),
                       actions: [
                         FilledButton(
-                          child: Text(ReviLocalizations.of(context).okButton),
+                          child: Text(context.l10n.okButton),
                           onPressed: () async {
                             _updateTitle.value =
-                                "${ReviLocalizations.of(context).settingsUpdatingStatus}...";
+                                "${context.l10n.settingsUpdatingStatus}...";
 
-                            Navigator.pop(context);
-                            await Network().downloadNewVersion(
-                                data["assets"][0]["browser_download_url"],
-                                tempDir.path);
+                            context.pop();
+                            await _toolUpdateService.downloadNewVersion();
+                            await _toolUpdateService.installUpdate();
+
                             if (!mounted) return;
-                            _updateTitle.value = ReviLocalizations.of(context)
-                                .settingsUpdatingStatusSuccess;
+                            _updateTitle.value =
+                                context.l10n.settingsUpdatingStatusSuccess;
                           },
                         ),
                         Button(
-                          child:
-                              Text(ReviLocalizations.of(context).notNowButton),
+                          child: Text(context.l10n.notNowButton),
                           onPressed: () => Navigator.pop(context),
                         ),
                       ],
@@ -175,8 +168,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   );
                 } else {
                   if (!mounted) return;
-                  _updateTitle.value = ReviLocalizations.of(context)
-                      .settingsUpdatingStatusNotFound;
+                  _updateTitle.value =
+                      context.l10n.settingsUpdatingStatusNotFound;
                 }
               },
             ),
@@ -184,9 +177,8 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         CardHighlight(
           icon: msicons.FluentIcons.local_language_20_regular,
-          label: ReviLocalizations.of(context).settingsLanguageLabel,
-          description:
-              ReviLocalizations.of(context).settingsLanguageDescription,
+          label: context.l10n.settingsLanguageLabel,
+          description: context.l10n.settingsLanguageDescription,
           child: ComboBox(
             value: appLanguage,
             onChanged: (value) {
@@ -201,10 +193,10 @@ class _SettingsPageState extends State<SettingsPage> {
               showDialog(
                 context: context,
                 builder: (context) => ContentDialog(
-                  content: Text(ReviLocalizations.of(context).restartAppDialog),
+                  content: Text(context.l10n.restartAppDialog),
                   actions: [
                     Button(
-                      child: Text(ReviLocalizations.of(context).okButton),
+                      child: Text(context.l10n.okButton),
                       onPressed: () {
                         Navigator.pop(context);
                       },

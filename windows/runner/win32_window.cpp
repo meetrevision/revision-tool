@@ -5,6 +5,9 @@
 
 #include "resource.h"
 
+// ******* ADDED *******
+bool H_HIDE_WINDOW = false;
+
 namespace {
 
 /// Window attribute that enables dark mode window decorations.
@@ -16,7 +19,7 @@ namespace {
 #define DWMWA_USE_IMMERSIVE_DARK_MODE 20
 #endif
 
-constexpr const wchar_t kWindowClassName[] = L"FLUTTER_RUNNER_WIN32_WINDOW";
+  constexpr const wchar_t kWindowClassName[] = L"FLUTTER_RUNNER_WIN32_WINDOW";
 
 /// Registry key for app theme preference.
 ///
@@ -26,38 +29,38 @@ constexpr const wchar_t kGetPreferredBrightnessRegKey[] =
   L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
 constexpr const wchar_t kGetPreferredBrightnessRegValue[] = L"AppsUseLightTheme";
 
-// The number of Win32Window objects that currently exist.
-static int g_active_window_count = 0;
+  // The number of Win32Window objects that currently exist.
+  static int g_active_window_count = 0;
 
-using EnableNonClientDpiScaling = BOOL __stdcall(HWND hwnd);
+  using EnableNonClientDpiScaling = BOOL __stdcall(HWND hwnd);
 
-// Scale helper to convert logical scaler values to physical using passed in
-// scale factor
-int Scale(int source, double scale_factor) {
-  return static_cast<int>(source * scale_factor);
-}
-
-// Dynamically loads the |EnableNonClientDpiScaling| from the User32 module.
-// This API is only needed for PerMonitor V1 awareness mode.
-void EnableFullDpiSupportIfAvailable(HWND hwnd) {
-  HMODULE user32_module = LoadLibraryA("User32.dll");
-  if (!user32_module) {
-    return;
+  // Scale helper to convert logical scaler values to physical using passed in
+  // scale factor
+  int Scale(int source, double scale_factor) {
+    return static_cast<int>(source * scale_factor);
   }
-  auto enable_non_client_dpi_scaling =
-      reinterpret_cast<EnableNonClientDpiScaling*>(
-          GetProcAddress(user32_module, "EnableNonClientDpiScaling"));
-  if (enable_non_client_dpi_scaling != nullptr) {
-    enable_non_client_dpi_scaling(hwnd);
+
+  // Dynamically loads the |EnableNonClientDpiScaling| from the User32 module.
+  // This API is only needed for PerMonitor V1 awareness mode.
+  void EnableFullDpiSupportIfAvailable(HWND hwnd) {
+    HMODULE user32_module = LoadLibraryA("User32.dll");
+    if (!user32_module) {
+      return;
+    }
+    auto enable_non_client_dpi_scaling =
+        reinterpret_cast<EnableNonClientDpiScaling*>(
+            GetProcAddress(user32_module, "EnableNonClientDpiScaling"));
+    if (enable_non_client_dpi_scaling != nullptr) {
+      enable_non_client_dpi_scaling(hwnd);
+      FreeLibrary(user32_module);
+    }
   }
-  FreeLibrary(user32_module);
-}
 
 }  // namespace
 
 // Manages the Win32Window's window class registration.
 class WindowClassRegistrar {
- public:
+public:
   ~WindowClassRegistrar() = default;
 
   // Returns the singleton registrar instance.
@@ -76,7 +79,7 @@ class WindowClassRegistrar {
   // instances of the window.
   void UnregisterWindowClass();
 
- private:
+private:
   WindowClassRegistrar() = default;
 
   static WindowClassRegistrar* instance_;
@@ -120,9 +123,35 @@ Win32Window::~Win32Window() {
   Destroy();
 }
 
+// https://stackoverflow.com/a/73526467
+bool CheckOneInstance() {
+  HANDLE m_hStartEvent = CreateEventW(NULL, FALSE, FALSE, L"Global\\revitool");
+
+  if(m_hStartEvent == NULL) {
+    CloseHandle(m_hStartEvent);
+    return false;
+  }
+
+  if (GetLastError() == ERROR_ALREADY_EXISTS) {
+    CloseHandle(m_hStartEvent);
+    m_hStartEvent = NULL;
+    // already exist
+    // send message from here to existing copy of the application
+    return false;
+  }
+
+  // the only instance, start in a usual way
+  return true;
+}
+
 bool Win32Window::Create(const std::wstring& title,
-                         const Point& origin,
-                         const Size& size) {
+                                const Point& origin,
+                                const Size& size) {
+  
+  if(!CheckOneInstance()) {
+    return false;
+  }
+
   Destroy();
 
   const wchar_t* window_class =
@@ -134,16 +163,37 @@ bool Win32Window::Create(const std::wstring& title,
   UINT dpi = FlutterDesktopGetDpiForMonitor(monitor);
   double scale_factor = dpi / 96.0;
 
-  HWND window = CreateWindow(
-      window_class, title.c_str(), WS_OVERLAPPEDWINDOW,
-      Scale(origin.x, scale_factor), Scale(origin.y, scale_factor),
-      Scale(size.width, scale_factor), Scale(size.height, scale_factor),
-      nullptr, nullptr, GetModuleHandle(nullptr), this);
+  // ******* ADDED *******
+
+  // create gui window
+  HWND window;
+
+  // hide the gui after created if in commandline mode
+  if (H_HIDE_WINDOW){
+    // don't allow gui to get focus
+    LockSetForegroundWindow(1);
+
+    // gui with 1 pixel size in top left corner of screen
+    window = CreateWindow(
+           window_class, title.c_str(), WS_OVERLAPPEDWINDOW,
+           Scale(0, scale_factor), Scale(0, scale_factor),
+           Scale(1, scale_factor), Scale(1, scale_factor),
+           nullptr, nullptr, GetModuleHandle(nullptr), this);
+
+    ShowWindow(window, SW_HIDE);
+  } else {
+     window = CreateWindow(
+        window_class, title.c_str(), WS_OVERLAPPEDWINDOW,
+        Scale(origin.x, scale_factor), Scale(origin.y, scale_factor),
+        Scale(size.width, scale_factor), Scale(size.height, scale_factor),
+        nullptr, nullptr, GetModuleHandle(nullptr), this);
+  }
+  // ******* ADDED *******
 
   if (!window) {
     return false;
   }
-  UpdateTheme(window);
+UpdateTheme(window);
 
   return OnCreate();
 }
@@ -178,39 +228,39 @@ Win32Window::MessageHandler(HWND hwnd,
                             WPARAM const wparam,
                             LPARAM const lparam) noexcept {
   switch (message) {
-    case WM_DESTROY:
-      window_handle_ = nullptr;
-      Destroy();
-      if (quit_on_close_) {
-        PostQuitMessage(0);
-      }
-      return 0;
-
-    case WM_DPICHANGED: {
-      auto newRectSize = reinterpret_cast<RECT*>(lparam);
-      LONG newWidth = newRectSize->right - newRectSize->left;
-      LONG newHeight = newRectSize->bottom - newRectSize->top;
-
-      SetWindowPos(hwnd, nullptr, newRectSize->left, newRectSize->top, newWidth,
-                   newHeight, SWP_NOZORDER | SWP_NOACTIVATE);
-
-      return 0;
+  case WM_DESTROY:
+    window_handle_ = nullptr;
+    Destroy();
+    if (quit_on_close_) {
+      PostQuitMessage(0);
     }
-    // case WM_SIZE: {
+    return 0;
+
+  case WM_DPICHANGED: {
+    auto newRectSize = reinterpret_cast<RECT*>(lparam);
+    LONG newWidth = newRectSize->right - newRectSize->left;
+    LONG newHeight = newRectSize->bottom - newRectSize->top;
+
+    SetWindowPos(hwnd, nullptr, newRectSize->left, newRectSize->top, newWidth,
+                 newHeight, SWP_NOZORDER | SWP_NOACTIVATE);
+
+    return 0;
+  }
+  // case WM_SIZE: {
     //   RECT rect = GetClientArea();
     //   if (child_content_ != nullptr) {
     //     // Size and position the child window.
-    //     MoveWindow(child_content_, rect.left, rect.top, rect.right - rect.left,
-    //                rect.bottom - rect.top, TRUE);
+      //     MoveWindow(child_content_, rect.left, rect.top, rect.right - rect.left,
+                 //                rect.bottom - rect.top, TRUE);
     //   }
     //   return 0;
-    // }
+  // }
 
-    case WM_ACTIVATE:
-      if (child_content_ != nullptr) {
-        SetFocus(child_content_);
-      }
-      return 0;
+  case WM_ACTIVATE:
+    if (child_content_ != nullptr) {
+      SetFocus(child_content_);
+    }
+    return 0;
 
     case WM_DWMCOLORIZATIONCOLORCHANGED:
       UpdateTheme(hwnd);

@@ -42,7 +42,6 @@
   "usabilitySESLabel": "Жести краю екрану",
   "usabilitySESDescription": "Вимкнення цієї функції виправляє з'яву панелі завдань у повноекранному режимі",
   "usability11MRCLabel": "Нове контекстне меню",
-  "usability11FETLabel": "Вкладки в провіднику",
   "perfSuperfetchLabel": "Superfetch",
   "perfSuperfetchDescription": "Пришвидште час завантаження та запуску програм, завантажуючи всі необхідні дані в пам'ять. Увімкнення Superfetch рекомендується лише для користувачів HDD",
   "perfMCLabel": "Стиснення пам'яті",

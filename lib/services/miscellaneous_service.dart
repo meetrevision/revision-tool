@@ -6,16 +6,14 @@ import 'registry_utils_service.dart';
 import 'setup_service.dart';
 
 class MiscellaneousService implements SetupService {
-  static final MiscellaneousService _instance = MiscellaneousService._private();
+  static final _registryUtilsService = RegistryUtilsService();
+  static final _shell = Shell();
 
-  final _registryUtilsService = RegistryUtilsService();
-  final _shell = Shell();
-
+  static const _instance = MiscellaneousService._private();
   factory MiscellaneousService() {
     return _instance;
   }
-
-  MiscellaneousService._private();
+  const MiscellaneousService._private();
 
   @override
   void recommendation() {
@@ -148,7 +146,7 @@ class MiscellaneousService implements SetupService {
   }
 
   Future<void> enableUsageReporting() async {
-     await _shell.run(
+    await _shell.run(
         '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\EnableUR.bat"');
   }
 

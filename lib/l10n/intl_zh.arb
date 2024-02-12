@@ -36,7 +36,6 @@
   "usabilityITPDescription": "Windows 将了解您输入的内容，以便在撰写时改进建议",
   "usabilityCPLLabel": "禁用大写锁定键",
   "usability11MRCLabel": "新版右键菜单",
-  "usability11FETLabel": "文件资源管理器标签页",
   "perfSuperfetchLabel": "预存取（Superfetch）",
   "perfSuperfetchDescription": "通过将所有必要数据预加载到内存中，加快启动时间并更快地加载程序。仅建议硬盘用户启用 Superfetch 功能",
   "perfMCLabel": "内存压缩",
@@ -98,7 +97,7 @@
   "close": "关闭",
   "search": "搜索",
   "perfBALabel": "后台应用程序",
-  "perfBADescription": "允许应用程序在后台运行，即使您没有使用它们。由于不断在后台运行，这将会对性能产生影响。禁用此选项还可能将禁用某些应用程序的通知。",
+ "perfBADescription": "允许应用程序在后台运行，即使您没有使用它们。由于不断在后台运行，这将会对性能产生影响。禁用此选项还可能将禁用某些应用程序的通知。",
  "usabilitySESLabel": "萤幕边缘滑动",
  "usabilitySESDescription":"停用此功能可修復全萤幕模式下工作列弹出视窗的问题",
 "settingsLanguageDescription":"不保证语言被完全翻译或翻译正确",
@@ -107,4 +106,5 @@
  "msstoreWait": "请稍后...",
 "msstorePackagesPrompt": "您想安装以下软体包吗？",
 "msstorePackagesNotFound": "没有找到安装包"
+"perfBADescription": "允许应用程序在后台运行，即使您没有使用它们。由于不断在后台运行，这将会对性能产生影响。禁用此选项还可能将禁用某些应用程序的通知。"
 }

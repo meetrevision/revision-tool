@@ -42,7 +42,6 @@
   "usabilitySESLabel": "Glissement du bord de l'écran",
   "usabilitySESDescription": "Désactiver ceci permet d'éviter l'apparition de la barre des tâches en mode plein écran.",
   "usability11MRCLabel": "Nouveau menu contextuel",
-  "usability11FETLabel": "Onglets de l'explorateur de fichiers",
   "perfSuperfetchLabel": "Superfetch",
   "perfSuperfetchDescription": "Accélérer le temps de démarrage et le chargement des programmes en préchargeant toutes les données nécessaires dans la mémoire. Son activation est recommandée pour les utilisateurs de HDD",
   "perfMCLabel": "Compression de mémoire",

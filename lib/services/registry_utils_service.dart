@@ -3,13 +3,11 @@ import 'package:win32_registry/win32_registry.dart';
 import 'dart:typed_data';
 
 class RegistryUtilsService {
-  static final RegistryUtilsService _instance = RegistryUtilsService._private();
-
+  static const _instance = RegistryUtilsService._private();
   factory RegistryUtilsService() {
     return _instance;
   }
-
-  RegistryUtilsService._private();
+  const RegistryUtilsService._private();
 
   int? readInt(RegistryHive hive, String path, String value) {
     try {
@@ -18,7 +16,7 @@ class RegistryUtilsService {
         path: path,
       ).getValueAsInt(value);
     } catch (_) {
-      w('Error reading $value from ${hive.name} $path');
+      // w('Error reading $value from ${hive.name} $path');
       return null;
     }
   }
@@ -30,7 +28,7 @@ class RegistryUtilsService {
         path: path,
       ).getValueAsString(value);
     } catch (_) {
-      w('Error reading $value from ${hive.name} $path');
+      // w('Error reading $value from ${hive.name} $path');
       return null;
     }
   }
@@ -42,7 +40,7 @@ class RegistryUtilsService {
         path: path,
       ).getValue(value)!.data as Uint8List;
     } catch (_) {
-      w('Error reading binary $value from $path');
+      // w('Error reading binary $value from $path');
       return null;
     }
   }

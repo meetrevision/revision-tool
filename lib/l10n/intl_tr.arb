@@ -42,7 +42,6 @@
   "usabilitySESLabel": "Ekran Kenarı Kaydırma",
   "usabilitySESDescription": "Tam ekran moddayken görev çubuğu üzerindeki açılır pencere sorununu çözmek için bu seçeneği devre dışı bırakın",
   "usability11MRCLabel": "Yeni İçerik Menüsü",
-  "usability11FETLabel": "Dosya Gezgini Sekmeleri",
   "perfSuperfetchLabel": "Superfetch",
   "perfSuperfetchDescription": "Başlangıç süresini hızlandırmak ve programları daha hızlı yüklemek için önemli verileri önceden belleğe yükleyin. Superfetch sadece HDD kullanıcıları için önerilir.",
   "perfMCLabel": "Bellek Sıkıştırma",

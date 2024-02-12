@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:dio/dio.dart';
-import 'package:revitool/l10n/generated/localizations.dart';
+import 'package:revitool/extensions.dart';
 import 'package:revitool/models/ms_store/packages_info.dart';
 
 import '../services/msstore_service.dart';
@@ -12,11 +12,15 @@ import 'dialogs/msstore_dialogs.dart';
 class DownloadWidget extends StatefulWidget {
   final List<PackagesInfo> items;
   final String productId;
+  final bool cleanUpAfterInstall;
+  final String ring;
 
   const DownloadWidget({
     super.key,
     required this.items,
     required this.productId,
+    required this.cleanUpAfterInstall,
+    required this.ring,
   });
 
   @override
@@ -35,10 +39,17 @@ class _DownloadWidgetState extends State<DownloadWidget> {
   @override
   void initState() {
     super.initState();
+
+    final path = '${_ms.storeFolder}\\${widget.productId}';
+    final directory = Directory(path);
+    if (directory.existsSync()) {
+      directory.deleteSync(recursive: true);
+    }
+
     _streams = widget.items
         .map((item) => _dio.download(
               item.uri!,
-              '${Directory.systemTemp.path}\\Revision-Tool\\MSStore\\${widget.productId}\\${item.name}.${item.extension}',
+              '$path\\${item.name}.${item.extension}',
               cancelToken: CancelToken(),
               onReceiveProgress: (received, total) {
                 if (total != -1) {
@@ -108,23 +119,17 @@ class _DownloadWidgetState extends State<DownloadWidget> {
           actions: [
             if (_completedDownloadsCount == itemsLength) ...[
               FilledButton(
-                child: Text(ReviLocalizations.of(context).install),
+                child: Text(context.l10n.install),
                 onPressed: () async {
-                  showLoadingDialog(
-                      context, ReviLocalizations.of(context).installing);
+                  showLoadingDialog(context, context.l10n.installing);
 
-                  List<ProcessResult> processResult = [];
-                  if (widget.items.first.extension == "exe" ||
-                      widget.items.first.extension == "msi") {
-                    for (final item in widget.items) {
-                      processResult.add(await _ms.installNonUWPPackages(
-                          '${Directory.systemTemp.path}\\Revision-Tool\\MSStore\\${widget.productId}\\',
-                          "${item.name}.${item.extension}",
-                          item.commandLines!));
-                    }
-                  } else {
-                    processResult.addAll(await _ms.installUWPPackages(
-                        '${Directory.systemTemp.path}\\Revision-Tool\\MSStore\\${widget.productId}'));
+                  final processResult = <ProcessResult>[];
+                  processResult.addAll(
+                    await _ms.installPackages(widget.productId, widget.ring),
+                  );
+
+                  if (widget.cleanUpAfterInstall) {
+                    await _ms.cleanUpDownloads();
                   }
 
                   if (!mounted) return;
@@ -134,14 +139,14 @@ class _DownloadWidgetState extends State<DownloadWidget> {
                 },
               ),
               Button(
-                child: Text(ReviLocalizations.of(context).close),
+                child: Text(context.l10n.close),
                 onPressed: () => Navigator.pop(context),
               ),
             ] else ...[
               MouseRegion(
                 cursor: SystemMouseCursors.forbidden,
                 child: Button(
-                  child: Text(ReviLocalizations.of(context).install),
+                  child: Text(context.l10n.install),
                   onPressed: () {},
                 ),
               )

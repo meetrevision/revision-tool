@@ -1,5 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:revitool/l10n/generated/localizations.dart';
+import 'package:revitool/extensions.dart';
 import 'package:revitool/services/updates_service.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
@@ -33,14 +33,13 @@ class _UpdatesPageState extends State<UpdatesPage> {
     return ScaffoldPage.scrollable(
       key: GlobalKey(),
       header: PageHeader(
-        title: Text(ReviLocalizations.of(context).pageUpdates),
+        title: Text(context.l10n.pageUpdates),
       ),
       children: [
         CardHighlightSwitch(
-         
           icon: msicons.FluentIcons.pause_20_regular,
-          label: ReviLocalizations.of(context).wuPauseLabel,
-          description: ReviLocalizations.of(context).wuPauseDescription,
+          label: context.l10n.wuPauseLabel,
+          description: context.l10n.wuPauseDescription,
           switchBool: _pausedBool,
           function: (value) {
             _pausedBool.value = value;
@@ -51,8 +50,8 @@ class _UpdatesPageState extends State<UpdatesPage> {
         ),
         CardHighlightSwitch(
           icon: msicons.FluentIcons.arrow_sync_20_regular,
-          label: ReviLocalizations.of(context).wuPageLabel,
-          description: ReviLocalizations.of(context).wuPageDescription,
+          label: context.l10n.wuPageLabel,
+          description: context.l10n.wuPageDescription,
           switchBool: _wuPageBool,
           function: (value) {
             _wuPageBool.value = value;
@@ -62,10 +61,9 @@ class _UpdatesPageState extends State<UpdatesPage> {
           },
         ),
         CardHighlightSwitch(
-    
           icon: FluentIcons.devices4,
-          label: ReviLocalizations.of(context).wuDriversLabel,
-          description: ReviLocalizations.of(context).wuDriversDescription,
+          label: context.l10n.wuDriversLabel,
+          description: context.l10n.wuDriversDescription,
           switchBool: _wuDriversBool,
           function: (value) {
             _wuDriversBool.value = value;

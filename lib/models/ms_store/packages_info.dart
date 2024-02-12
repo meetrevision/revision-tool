@@ -3,7 +3,7 @@ part 'packages_info.freezed.dart';
 part 'packages_info.g.dart';
 
 @freezed
-class PackagesInfo with _$PackagesInfo, Comparable<PackagesInfo> {
+class PackagesInfo with _$PackagesInfo implements Comparable<PackagesInfo> {
   PackagesInfo._();
 
   factory PackagesInfo(
@@ -15,6 +15,7 @@ class PackagesInfo with _$PackagesInfo, Comparable<PackagesInfo> {
       String? id,
       double? size,
       String? digest,
+      DateTime? lastModified,
       int? originalIndex,
       String? commandLines) = _PackagesInfo;
 

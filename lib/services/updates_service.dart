@@ -4,15 +4,14 @@ import 'package:win32_registry/win32_registry.dart';
 import 'registry_utils_service.dart';
 
 class UpdatesService implements SetupService {
-  static final UpdatesService _instance = UpdatesService._private();
+  static final _registryUtilsService = RegistryUtilsService();
 
-  final RegistryUtilsService _registryUtilsService = RegistryUtilsService();
-
+  static const _instance = UpdatesService._private();
   factory UpdatesService() {
     return _instance;
   }
+  const UpdatesService._private();
 
-  UpdatesService._private();
   @override
   void recommendation() {}
 

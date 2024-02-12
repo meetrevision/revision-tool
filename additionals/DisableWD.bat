@@ -13,6 +13,7 @@ reg add "%services%\WdNisDrv" /v "Start" /t REG_DWORD /d "4" /f >NUL 2>nul
 reg add "%services%\WdNisSvc" /v "Start" /t REG_DWORD /d "4" /f >NUL 2>nul
 reg add "%services%\WinDefend" /v "Start" /t REG_DWORD /d "4" /f >NUL 2>nul
 reg add "%services%\wscsvc" /v "Start" /t REG_DWORD /d "4" /f >NUL 2>nul
+reg add "%services%\MDCoreSvc" /v "Start" /t REG_DWORD /d "4" /f >NUL 2>nul
 ::WindowsSystemTray
 reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "SecurityHealth" /f >NUL 2>nul
 ::System Guard

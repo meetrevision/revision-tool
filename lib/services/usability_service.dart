@@ -1,27 +1,27 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:win32_registry/win32_registry.dart';
 
-import '../utils.dart';
 import 'registry_utils_service.dart';
 import 'setup_service.dart';
 
 class UsabilityService implements SetupService {
-  static final UsabilityService _instance = UsabilityService._private();
+  static final _registryUtilsService = RegistryUtilsService();
+  static final _shell = Shell();
+  static const _listEquality = ListEquality();
 
-  final RegistryUtilsService _registryUtilsService = RegistryUtilsService();
-  final Shell _shell = Shell();
+  static final _cplValue = Uint8List.fromList(
+    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 58, 0, 0, 0, 0, 0],
+  );
 
-  static final Uint8List _cplValue = Uint8List.fromList(
-      [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 58, 0, 0, 0, 0, 0]);
-
+  static const _instance = UsabilityService._private();
   factory UsabilityService() {
     return _instance;
   }
-
-  UsabilityService._private();
+  const UsabilityService._private();
 
   @override
   void recommendation() {}
@@ -275,12 +275,15 @@ class UsabilityService implements SetupService {
   }
 
   bool get statusCapsLock {
-    return eq.equals(
-        _cplValue,
-        _registryUtilsService.readBinary(
-            RegistryHive.localMachine,
-            r'SYSTEM\CurrentControlSet\Control\Keyboard Layout',
-            'Scancode Map'));
+    Uint8List? value;
+    try {
+      value = _registryUtilsService.readBinary(RegistryHive.localMachine,
+          r'SYSTEM\CurrentControlSet\Control\Keyboard Layout', 'Scancode Map');
+    } catch (e) {
+      //
+    }
+
+    return _listEquality.equals(_cplValue, value);
   }
 
   void enableCapsLock() {
@@ -344,121 +347,5 @@ class UsabilityService implements SetupService {
         '');
     await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
     await Process.run('explorer.exe', [], runInShell: true);
-  }
-
-  bool get statusTabsUWP {
-    return _registryUtilsService.readInt(
-            RegistryHive.localMachine,
-            r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509',
-            'EnabledState') ==
-        2;
-  }
-
-  void enableTabsUWP() {
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509',
-        'EnabledState',
-        2);
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509',
-        'EnabledStateOptions',
-        0);
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509',
-        'Variant',
-        0);
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509',
-        'VariantPayload',
-        0);
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509',
-        'VariantPayloadKind',
-        0);
-
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908',
-        'EnabledState',
-        2);
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908',
-        'EnabledStateOptions',
-        0);
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908',
-        'Variant',
-        0);
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908',
-        'VariantPayload',
-        0);
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908',
-        'VariantPayloadKind',
-        0);
-  }
-
-  void disableTabsUWP() {
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509',
-        'EnabledState',
-        1);
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509',
-        'EnabledStateOptions',
-        0);
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509',
-        'Variant',
-        0);
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509',
-        'VariantPayload',
-        0);
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1931258509',
-        'VariantPayloadKind',
-        0);
-
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908',
-        'EnabledState',
-        1);
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908',
-        'EnabledStateOptions',
-        0);
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908',
-        'Variant',
-        0);
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908',
-        'VariantPayload',
-        0);
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\2733408908',
-        'VariantPayloadKind',
-        0);
   }
 }

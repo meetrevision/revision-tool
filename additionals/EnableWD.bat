@@ -12,6 +12,7 @@ reg add "%services%\WdNisDrv" /v "Start" /t REG_DWORD /d "3" /f >NUL 2>nul
 reg add "%services%\WdNisSvc" /v "Start" /t REG_DWORD /d "3" /f >NUL 2>nul
 reg add "%services%\WinDefend" /v "Start" /t REG_DWORD /d "2" /f >NUL 2>nul
 reg add "%services%\wscsvc" /v "Start" /t REG_DWORD /d "2" /f >NUL 2>nul
+reg add "%services%\MDCoreSvc" /v "Start" /t REG_DWORD /d "2" /f >NUL 2>nul
 ::WindowsSystemTray
 reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "SecurityHealth" /t REG_EXPAND_SZ /d "%systemroot%\system32\SecurityHealthSystray.exe" /f >NUL 2>nul
 ::SystemGuard
@@ -23,6 +24,7 @@ reg add "%services%\webthreatdefusersvc" /v "Start" /t REG_DWORD /d "2" /f >NUL 
 for /f %%i in ('reg query "%services%" /s /k "webthreatdefusersvc" /f 2^>nul ^| find /i "webthreatdefusersvc" ') do (
   reg add "%%i" /v "Start" /t REG_DWORD /d "2" /f >NUL 2>nul
 )
+
 
 ::SmartScreen
 reg delete "HKLM\Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\smartscreen.exe" /f >NUL 2>nul
