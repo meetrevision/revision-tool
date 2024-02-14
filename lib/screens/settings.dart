@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:revitool/extensions.dart';
+import 'package:revitool/providers/l10n_provider.dart';
 import 'package:revitool/services/tool_update_service.dart';
 import 'package:revitool/theme.dart';
 import 'package:revitool/utils.dart';
@@ -189,21 +190,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     r'SOFTWARE\Revision\Revision Tool',
                     'Language',
                     appLanguage);
+                context.read<L10nProvider>().changeLocale(appLanguage);
               });
-              showDialog(
-                context: context,
-                builder: (context) => ContentDialog(
-                  content: Text(context.l10n.restartAppDialog),
-                  actions: [
-                    Button(
-                      child: Text(context.l10n.okButton),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    )
-                  ],
-                ),
-              );
             },
             items: languageList,
           ),
