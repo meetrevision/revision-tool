@@ -53,32 +53,25 @@ class PerformanceService implements SetupService {
 
   // TODO: Find a batter way to detect Memory Compression
   // isMemoryCompressionEnabled is added by ReviOS, due to complexity of detecting the value without PowerShell
-  bool get statusMemoryCompression {
-    return _registryUtilsService.readInt(
-            RegistryHive.localMachine,
-            r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
-            'isMemoryCompressionEnabled') ==
-        1;
+  Future<bool> get statusMemoryCompression async {
+    final value = await _shell.run(
+        'PowerShell -NonInteractive -NoLogo -NoProfile -Command "(Get-MMAgent).MemoryCompression"', );
+        return value.outText == 'True';
+    // return _registryUtilsService.readInt(
+    //         RegistryHive.localMachine,
+    //         r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
+    //         'isMemoryCompressionEnabled') ==
+    //     1;
   }
 
   Future<void> enableMemoryCompression() async {
     await _shell.run(
         'PowerShell -NonInteractive -NoLogo -NoProfile -Command "Enable-MMAgent -mc"');
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
-        'isMemoryCompressionEnabled',
-        1);
   }
 
   Future<void> disableMemoryCompression() async {
     await _shell.run(
         'PowerShell -NonInteractive -NoLogo -NoProfile -Command "Disable-MMAgent -mc"');
-    _registryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
-        'isMemoryCompressionEnabled',
-        0);
   }
 
   bool get statusIntelTSX {

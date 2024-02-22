@@ -18,9 +18,9 @@ dependencies:
   intl: '>=0.18.0 <= 1.0.0'
 
   # UI
-  fluent_ui: ^4.8.5
+  fluent_ui: ^4.8.6
   system_theme: ^2.3.1
-  fluentui_system_icons: ^1.1.224
+  fluentui_system_icons: ^1.1.227
   window_plus:
     git:
       url: https://github.com/melo936/window_plus
@@ -33,10 +33,10 @@ dependencies:
   path: ^1.8.3
 
   # Network
-  dio: ^5.4.0
+  dio: ^5.4.1
   
   # Shell
-  process_run: ^0.13.1
+  process_run: ^0.14.2
   
   # Used to get the version of the app
   package_info_plus: any
@@ -64,7 +64,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^3.0.1
   build_runner: ^2.4.8
-  freezed: ^2.4.6
+  freezed: ^2.4.7
   json_serializable: ^6.7.1
 
 flutter:

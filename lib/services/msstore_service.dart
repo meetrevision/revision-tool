@@ -72,8 +72,9 @@ class MSStoreService {
   static var _packages = List<PackagesInfo>.empty(growable: true);
   List<PackagesInfo> get packages => List.unmodifiable(_packages);
 
-  Future<void> startProcess(String productId, String ring) async {
+  Future<void> startProcess(String id, String ring) async {
     _packages = [];
+    final productId = id.trim();
 
     if (isUWP(productId)) {
       if (_cookie.isEmpty) {
@@ -148,8 +149,12 @@ class MSStoreService {
   }
 
   Future<String> _getCategoryID(String id) async {
-    final response = await _dio.get(
-        "$_storeAPI/products/$id?market=${systemLanguage.substring(3).toUpperCase()}&locale=$systemLanguage&deviceFamily=Windows.Desktop",
+        //TODO: Implement proper way to get compatible language codes for the store API parameters
+        
+        // When Windows region is set to English (World), the language code isn't compatible with the store API
+        //"$_storeAPI/products/$id?market=US&locale=en-us&deviceFamily=Windows.Desktop",
+        final response = await _dio.get(
+        "$_storeAPI/products/$id?market=US&locale=en-us&deviceFamily=Windows.Desktop",
         cancelToken: _cancelToken);
     final skus = response.data["Payload"]["Skus"];
     if (response.statusCode == 200) {
