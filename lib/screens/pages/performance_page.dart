@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:revitool/extensions.dart';
+import 'package:revitool/services/registry_utils_service.dart';
 
 import '../../services/performance_service.dart';
 import '../../utils.dart';
@@ -45,7 +46,6 @@ class _PerformancePageState extends State<PerformancePage> {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _initMemoryCompresionStatus();
-
     });
     super.initState();
   }
@@ -133,7 +133,7 @@ class _PerformancePageState extends State<PerformancePage> {
                 : _performanceService.disableFullscreenOptimization();
           },
         ),
-        if (w11) ...[
+        if (RegistryUtilsService.isW11) ...[
           CardHighlightSwitch(
             icon: msicons.FluentIcons.desktop_mac_20_regular,
             label: context.l10n.perfOWGLabel,

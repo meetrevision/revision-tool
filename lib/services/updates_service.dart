@@ -4,7 +4,7 @@ import 'package:win32_registry/win32_registry.dart';
 import 'registry_utils_service.dart';
 
 class UpdatesService implements SetupService {
-  static final _registryUtilsService = RegistryUtilsService();
+  
 
   static const _instance = UpdatesService._private();
   factory UpdatesService() {
@@ -16,7 +16,7 @@ class UpdatesService implements SetupService {
   void recommendation() {}
 
   bool get statusPauseUpdatesWU {
-    return _registryUtilsService
+    return RegistryUtilsService
             .readString(
                 RegistryHive.localMachine,
                 r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
@@ -26,43 +26,43 @@ class UpdatesService implements SetupService {
   }
 
   void enablePauseUpdatesWU() {
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
         "FlightSettingsMaxPauseDays",
         5269);
 
-    _registryUtilsService.writeString(
+    RegistryUtilsService.writeString(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
         "PauseFeatureUpdatesStartTime",
         "2023-08-17T12:47:51Z");
 
-    _registryUtilsService.writeString(
+    RegistryUtilsService.writeString(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
         "PauseFeatureUpdatesEndTime",
         "2038-01-19T03:14:07Z");
 
-    _registryUtilsService.writeString(
+    RegistryUtilsService.writeString(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
         "PauseQualityUpdatesStartTime",
         "2023-08-17T12:47:51Z");
 
-    _registryUtilsService.writeString(
+    RegistryUtilsService.writeString(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
         "PauseQualityUpdatesEndTime",
         "2038-01-19T03:14:07Z");
 
-    _registryUtilsService.writeString(
+    RegistryUtilsService.writeString(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
         "PauseUpdatesStartTime",
         "2023-08-17T12:47:51Z");
 
-    _registryUtilsService.writeString(
+    RegistryUtilsService.writeString(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
         "PauseUpdatesExpiryTime",
@@ -70,44 +70,44 @@ class UpdatesService implements SetupService {
   }
 
   void disablePauseUpdatesWU() {
-    _registryUtilsService.deleteValue(
+    RegistryUtilsService.deleteValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
         'FlightSettingsMaxPauseDays');
 
-    _registryUtilsService.deleteValue(
+    RegistryUtilsService.deleteValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
         'PauseFeatureUpdatesStartTime');
 
-    _registryUtilsService.deleteValue(
+    RegistryUtilsService.deleteValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
         'PauseFeatureUpdatesEndTime');
 
-    _registryUtilsService.deleteValue(
+    RegistryUtilsService.deleteValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
         'PauseQualityUpdatesStartTime');
 
-    _registryUtilsService.deleteValue(
+    RegistryUtilsService.deleteValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
         'PauseQualityUpdatesEndTime');
 
-    _registryUtilsService.deleteValue(
+    RegistryUtilsService.deleteValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
         'PauseUpdatesStartTime');
 
-    _registryUtilsService.deleteValue(
+    RegistryUtilsService.deleteValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
         'PauseUpdatesExpiryTime');
   }
 
   bool get statusVisibilityWU {
-    return _registryUtilsService
+    return RegistryUtilsService
             .readString(
                 RegistryHive.localMachine,
                 r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
@@ -117,7 +117,7 @@ class UpdatesService implements SetupService {
   }
 
   void enableVisibilityWU() {
-    _registryUtilsService.writeString(
+    RegistryUtilsService.writeString(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
         'SettingsPageVisibility',
@@ -125,7 +125,7 @@ class UpdatesService implements SetupService {
   }
 
   void disableVisibilityWU() {
-    _registryUtilsService.writeString(
+    RegistryUtilsService.writeString(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
         'SettingsPageVisibility',
@@ -133,7 +133,7 @@ class UpdatesService implements SetupService {
   }
 
   bool get statusDriversWU {
-    return _registryUtilsService.readInt(
+    return RegistryUtilsService.readInt(
             RegistryHive.localMachine,
             r'SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata',
             'PreventDeviceMetadataFromNetwork') ==
@@ -141,20 +141,20 @@ class UpdatesService implements SetupService {
   }
 
   void enableDriversWU() {
-    _registryUtilsService.deleteKey(Registry.currentUser,
+    RegistryUtilsService.deleteKey(Registry.currentUser,
         r'Software\Policies\Microsoft\Windows\DriverSearching');
-    _registryUtilsService.deleteKey(Registry.localMachine,
+    RegistryUtilsService.deleteKey(Registry.localMachine,
         r'Software\Policies\Microsoft\Windows\DriverSearching');
 
-    _registryUtilsService.deleteValue(
+    RegistryUtilsService.deleteValue(
         Registry.localMachine,
         r'Software\Policies\Microsoft\Windows\WindowsUpdate',
         'ExcludeWUDriversInQualityUpdate');
-    _registryUtilsService.deleteValue(
+    RegistryUtilsService.deleteValue(
         Registry.localMachine,
         r'SOFTWARE\Policies\Microsoft\Windows\Device Metadata',
         'PreventDeviceMetadataFromNetwork');
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata',
         'PreventDeviceMetadataFromNetwork',
@@ -162,32 +162,32 @@ class UpdatesService implements SetupService {
   }
 
   void disableDriversWU() {
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.currentUser,
         r'Software\Policies\Microsoft\Windows\DriverSearching',
         'DontPromptForWindowsUpdate',
         1);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'Software\Policies\Microsoft\Windows\DriverSearching',
         'DontPromptForWindowsUpdate',
         1);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'Software\Policies\Microsoft\Windows\DriverSearching',
         'SearchOrderConfig',
         0);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'Software\Policies\Microsoft\Windows\WindowsUpdate',
         'ExcludeWUDriversInQualityUpdate',
         1);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata',
         'PreventDeviceMetadataFromNetwork',
         1);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Policies\Microsoft\Windows\Device Metadata',
         'PreventDeviceMetadataFromNetwork',

@@ -1,6 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/foundation.dart';
-import 'package:revitool/utils.dart';
 import 'package:system_theme/system_theme.dart';
 import 'package:win32_registry/win32_registry.dart';
 
@@ -81,10 +80,8 @@ AccentColor get systemAccentColor {
 }
 
 class SettingsService {
-  final RegistryUtilsService _registryUtilsService = RegistryUtilsService();
-
   Future<ThemeMode> themeMode() async {
-    switch (themeModeReg) {
+    switch (RegistryUtilsService.themeModeReg) {
       case "light":
         return ThemeMode.light;
       case "dark":
@@ -95,7 +92,7 @@ class SettingsService {
   }
 
   Future<void> updateThemeMode(ThemeMode theme) async {
-    _registryUtilsService.writeString(Registry.localMachine,
+    RegistryUtilsService.writeString(Registry.localMachine,
         r'SOFTWARE\Revision\Revision Tool', 'ThemeMode', theme.name);
   }
 }

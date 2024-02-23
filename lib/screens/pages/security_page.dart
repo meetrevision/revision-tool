@@ -2,13 +2,12 @@ import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:revitool/extensions.dart';
+import 'package:revitool/services/registry_utils_service.dart';
+import 'package:revitool/services/security_service.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:revitool/widgets/dialogs/msstore_dialogs.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
-
-import '../../services/security_service.dart';
-import '../../utils.dart';
 
 class SecurityPage extends StatefulWidget {
   const SecurityPage({super.key});
@@ -18,7 +17,7 @@ class SecurityPage extends StatefulWidget {
 }
 
 class _SecurityPageState extends State<SecurityPage> {
-  final SecurityService _securityService = SecurityService();
+  final _securityService = SecurityService();
   late final _wdBool = ValueNotifier<bool>(_securityService.statusDefender);
   bool _wdButtonCalled = false;
   late final _uacBool = ValueNotifier<bool>(_securityService.statusUAC);
@@ -44,7 +43,7 @@ class _SecurityPageState extends State<SecurityPage> {
       ),
       children: [
         Visibility(
-          visible: ((registryUtilsService.readInt(RegistryHive.localMachine,
+          visible: ((RegistryUtilsService.readInt(RegistryHive.localMachine,
                       r'SYSTEM\ControlSet001\Services\WinDefend', 'Start') !=
                   4) &&
               _securityService.statusTamperProtection &&

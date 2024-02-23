@@ -61,7 +61,7 @@ class MSStoreService {
 
   static final _dio = Dio();
   static final _cancelToken = CancelToken();
-  // final _registryUtilsService = RegistryUtilsService();
+  // final RegistryUtilsService = RegistryUtilsService();
 
   static const _instance = MSStoreService._private();
   factory MSStoreService() {

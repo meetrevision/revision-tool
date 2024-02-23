@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:revitool/extensions.dart';
 import 'package:revitool/screens/pages/miscellaneous_page.dart';
@@ -12,7 +11,7 @@ import 'package:revitool/screens/pages/updates_page.dart';
 import 'package:revitool/screens/pages/usability_page.dart';
 import 'package:revitool/screens/pages/usability_page_two.dart';
 import 'package:revitool/screens/settings.dart';
-import 'package:revitool/utils.dart';
+import 'package:revitool/services/registry_utils_service.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:window_plus/window_plus.dart';
@@ -69,7 +68,7 @@ class _HomePageState extends State<HomePage> {
         title: Text(context.l10n.pageSecurity),
         body: const SecurityPage(),
       ),
-      w11
+      RegistryUtilsService.isW11
           ? PaneItemExpander(
               icon: const Icon(
                 msicons.FluentIcons.search_square_24_regular,

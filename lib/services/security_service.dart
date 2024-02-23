@@ -6,7 +6,7 @@ import 'setup_service.dart';
 import 'package:process_run/shell_run.dart';
 
 class SecurityService implements SetupService {
-  static final _registryUtilsService = RegistryUtilsService();
+  
   static final Shell _shell = Shell();
 
   static const _instance = SecurityService._private();
@@ -24,14 +24,14 @@ class SecurityService implements SetupService {
   }
 
   bool get statusDefender {
-    return (_registryUtilsService.readInt(RegistryHive.localMachine,
+    return (RegistryUtilsService.readInt(RegistryHive.localMachine,
                 r'SYSTEM\ControlSet001\Services\WinDefend', 'Start') ??
             4) <=
         3;
   }
 
   bool get statusTamperProtection {
-    return _registryUtilsService.readInt(
+    return RegistryUtilsService.readInt(
             RegistryHive.localMachine,
             r'SOFTWARE\Microsoft\Windows Defender\Features',
             'TamperProtection') ==
@@ -49,7 +49,7 @@ class SecurityService implements SetupService {
   }
 
   bool get statusUAC {
-    return _registryUtilsService.readInt(
+    return RegistryUtilsService.readInt(
             RegistryHive.localMachine,
             r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
             'EnableLUA') ==
@@ -57,52 +57,52 @@ class SecurityService implements SetupService {
   }
 
   void enableUAC() {
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableVirtualization',
         1);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableInstallerDetection',
         1);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'PromptOnSecureDesktop',
         1);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableLUA',
         1);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableSecureUIAPaths',
         1);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'ConsentPromptBehaviorAdmin',
         5);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'ValidateAdminCodeSignatures',
         0);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableUIADesktopToggle',
         0);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'ConsentPromptBehaviorUser',
         3);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'FilterAdministratorToken',
@@ -110,52 +110,52 @@ class SecurityService implements SetupService {
   }
 
   void disableUAC() {
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableVirtualization',
         0);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableInstallerDetection',
         0);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'PromptOnSecureDesktop',
         0);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableLUA',
         0);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableSecureUIAPaths',
         0);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'ConsentPromptBehaviorAdmin',
         0);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'ValidateAdminCodeSignatures',
         0);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableUIADesktopToggle',
         0);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'ConsentPromptBehaviorUser',
         0);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'FilterAdministratorToken',
@@ -163,7 +163,7 @@ class SecurityService implements SetupService {
   }
 
   bool get statusSpectreMeltdown {
-    return _registryUtilsService.readInt(
+    return RegistryUtilsService.readInt(
             RegistryHive.localMachine,
             r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
             'FeatureSettingsOverride') ==
@@ -171,16 +171,16 @@ class SecurityService implements SetupService {
   }
 
   void enableSpectreMeltdown() {
-    _registryUtilsService.deleteValue(
+    RegistryUtilsService.deleteValue(
         Registry.localMachine,
         r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
         'FeatureSettings');
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
         'FeatureSettingsOverride',
         0);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
         'FeatureSettingsOverrideMask',
@@ -188,17 +188,17 @@ class SecurityService implements SetupService {
   }
 
   void disableSpectreMeltdown() {
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
         'FeatureSettings',
         1);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
         'FeatureSettingsOverride',
         3);
-    _registryUtilsService.writeDword(
+    RegistryUtilsService.writeDword(
         Registry.localMachine,
         r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
         'FeatureSettingsOverrideMask',

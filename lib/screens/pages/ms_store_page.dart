@@ -19,7 +19,7 @@ class _MSStorePageState extends State<MSStorePage>
   final _textEditingController = TextEditingController();
   List<ProductsList> _productsList = [];
   final _msStoreService = MSStoreService();
-  String _selectedRing = "Retail";
+  String _selectedRing = "RP";
 
   @override
   void dispose() {
@@ -53,7 +53,7 @@ class _MSStorePageState extends State<MSStorePage>
   static const items2 = [
     ComboBoxItem(
       value: "Retail",
-      child: Text("Retail (Stable)"),
+      child: Text("Retail (Base)"),
     ),
     ComboBoxItem(
       value: "RP",
@@ -97,6 +97,7 @@ class _MSStorePageState extends State<MSStorePage>
             ),
             const SizedBox(width: 10),
             ComboBox<String>(
+
               value: _selectedRing,
               onChanged: (value) => setState(() => _selectedRing = value!),
               items: items2,

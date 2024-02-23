@@ -12,6 +12,7 @@ import 'package:revitool/l10n/generated/localizations.dart';
 import 'package:revitool/providers/l10n_provider.dart';
 import 'package:revitool/screens/home_page.dart';
 import 'package:provider/provider.dart';
+import 'package:revitool/services/registry_utils_service.dart';
 import 'package:revitool/theme.dart';
 import 'package:revitool/utils.dart';
 import 'package:system_theme/system_theme.dart';
@@ -25,12 +26,7 @@ Future<void> main(List<String> args) async {
   initLogger(path);
   i('Revision Tool is starting');
 
-  if (registryUtilsService.readString(
-              RegistryHive.localMachine,
-              r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
-              'EditionSubVersion') ==
-          'ReviOS' &&
-      buildNumber > 19043) {
+  if (RegistryUtilsService.isSupported) {
     i('isSupported is true');
     _isSupported = true;
   }
@@ -55,15 +51,15 @@ Future<void> main(List<String> args) async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (registryUtilsService.readString(RegistryHive.localMachine,
+  if (RegistryUtilsService.readString(RegistryHive.localMachine,
           r'SOFTWARE\Revision\Revision Tool', 'ThemeMode') ==
       null) {
     i('Creating Revision registry keys');
-    registryUtilsService.writeString(Registry.localMachine,
+    RegistryUtilsService.writeString(Registry.localMachine,
         r'SOFTWARE\Revision\Revision Tool', 'ThemeMode', ThemeMode.system.name);
-    registryUtilsService.writeDword(Registry.localMachine,
+    RegistryUtilsService.writeDword(Registry.localMachine,
         r'SOFTWARE\Revision\Revision Tool', 'Experimental', 0);
-    registryUtilsService.writeString(Registry.localMachine,
+    RegistryUtilsService.writeString(Registry.localMachine,
         r'SOFTWARE\Revision\Revision Tool', 'Language', 'en_US');
   }
 

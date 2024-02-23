@@ -2,6 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:revitool/extensions.dart';
 import 'package:revitool/providers/l10n_provider.dart';
+import 'package:revitool/services/registry_utils_service.dart';
 import 'package:revitool/services/tool_update_service.dart';
 import 'package:revitool/theme.dart';
 import 'package:revitool/utils.dart';
@@ -111,7 +112,7 @@ class _SettingsPageState extends State<SettingsPage> {
           // description: context.l10n.settingsEPTDescription,
           switchBool: expBool,
           function: (value) {
-            registryUtilsService.writeDword(
+            RegistryUtilsService.writeDword(
                 Registry.localMachine,
                 r'SOFTWARE\Revision\Revision Tool',
                 'Experimental',
@@ -185,7 +186,7 @@ class _SettingsPageState extends State<SettingsPage> {
             onChanged: (value) {
               setState(() {
                 appLanguage = value ?? 'en_US';
-                registryUtilsService.writeString(
+                RegistryUtilsService.writeString(
                     Registry.localMachine,
                     r'SOFTWARE\Revision\Revision Tool',
                     'Language',
