@@ -132,7 +132,7 @@ class _DownloadWidgetState extends State<DownloadWidget> {
                     await _ms.cleanUpDownloads();
                   }
 
-                  if (!mounted) return;
+                  if (!context.mounted) return;
                   Navigator.pop(context);
 
                   await showInstallProcess(context, processResult);

@@ -135,10 +135,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 final data = _toolUpdateService.data;
 
                 if (latestVersion > currentVersion) {
-                  if (!mounted) return;
+                  if (!context.mounted) return;
                   _updateTitle.value = context.l10n.settingsUpdateButton;
 
-                  if (!mounted) return;
+                  if (!context.mounted) return;
                   showDialog(
                     context: context,
                     builder: (context) => ContentDialog(
@@ -156,7 +156,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             await _toolUpdateService.downloadNewVersion();
                             await _toolUpdateService.installUpdate();
 
-                            if (!mounted) return;
+                            if (!context.mounted) return;
                             _updateTitle.value =
                                 context.l10n.settingsUpdatingStatusSuccess;
                           },
@@ -169,7 +169,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   );
                 } else {
-                  if (!mounted) return;
+                  if (!context.mounted) return;
                   _updateTitle.value =
                       context.l10n.settingsUpdatingStatusNotFound;
                 }

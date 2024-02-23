@@ -75,7 +75,7 @@ class _SecurityPageState extends State<SecurityPage> {
                   );
                   await process.exitCode;
                   setState(() => _wdButtonCalled = true);
-                  if (!mounted) return;
+                  if (!context.mounted) return;
                   showDialog(
                     context: context,
                     builder: (context) => ContentDialog(
@@ -238,7 +238,7 @@ class _SecurityPageState extends State<SecurityPage> {
                 showLoadingDialog(context, "Updating Certificates");
                 await _securityService.updateCertificates();
 
-                if (!mounted) return;
+                if (!context.mounted) return;
                 context.pop();
                 showDialog(
                   context: context,

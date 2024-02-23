@@ -97,7 +97,6 @@ class _MSStorePageState extends State<MSStorePage>
             ),
             const SizedBox(width: 10),
             ComboBox<String>(
-
               value: _selectedRing,
               onChanged: (value) => setState(() => _selectedRing = value!),
               items: items2,
@@ -135,7 +134,7 @@ class _MSStorePageState extends State<MSStorePage>
 
     await _msStoreService.startProcess(productID, _selectedRing);
 
-    if (!mounted) return;
+    if (!context.mounted) return;
     Navigator.pop(context);
 
     if (_msStoreService.packages.isEmpty) {
@@ -184,7 +183,7 @@ class _MSStorePageState extends State<MSStorePage>
                 return;
               }
 
-              if (!mounted) return;
+              if (!context.mounted) return;
               Navigator.pop(context);
 
               await showDialog(
@@ -198,7 +197,7 @@ class _MSStorePageState extends State<MSStorePage>
                 ),
               );
 
-              if (!mounted) return;
+              if (!context.mounted) return;
               Navigator.pop(context, 'Successfully downloaded');
             },
           ),
