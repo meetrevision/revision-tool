@@ -13,7 +13,7 @@
 
 ## 授權
 
-修訂工具根據 GNU 通用公共授權 v3.0 授權。
+Revision Tool根據 GNU 通用公共授權 v3.0 授權。
 
 該工具還包含：
 * [NanaRun](https://github.com/M2Team/NanaRun) - 麻省理工學院
