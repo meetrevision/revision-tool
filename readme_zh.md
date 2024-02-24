@@ -1,4 +1,4 @@
-[english](https://github.com/zackzheng1121/revision-tool_zh_tw/blob/main/README.md)s
+[English](https://github.com/zackzheng1121/revision-tool_zh_tw/blob/main/README.md)
 <img  align="left" src="windows/runner/resources/revision_icon.ico" width="64" height="64" />
 
 # Revision Tool
