@@ -8,12 +8,20 @@ jobs:
     name: Build & Release
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
+    # https://github.com/subosito/flutter-action/issues/278
+    - name: Export pub environment variable
+      run: |
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          echo "PUB_CACHE=$LOCALAPPDATA\\Pub\\Cache" >> $GITHUB_ENV
+        fi
+      shell: bash
+    
       - run: echo "NEW_VERSION=${{ github.ref_name }}" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Bump MyAppVersion in Inno Setup
@@ -22,8 +30,6 @@ jobs:
         shell: pwsh
       
       - run: flutter gen-l10n
-
-      - run: flutter pub cache clean
 
       - run: dart run build_runner build --delete-conflicting-outputs
 
