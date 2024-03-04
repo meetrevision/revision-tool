@@ -14,16 +14,28 @@ class RegistryUtilsService {
   static bool get isW11 => _w11;
   static final bool _w11 = buildNumber > 19045;
 
-  static bool get isSupported => _validate();
-  static bool _validate() {
-    final key = Registry.openPath(RegistryHive.localMachine,
-        path:
-            r'SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages');
+  static bool get isSupported =>
+      readString(
+          RegistryHive.localMachine,
+          r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
+          'EditionSubVersion') ==
+      'ReviOS';
 
-    return key.subkeyNames
-        .lastWhere((element) => element.startsWith("Revision-ReviOS"))
-        .isNotEmpty;
-  }
+  // As of 04.03.2024, ReviOS playbook doesn't support removing packages for ARM devices, therefore reverting to the old method.
+  // static bool _validate() {
+  //   final key = Registry.openPath(RegistryHive.localMachine,
+  //       path:
+  //           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages');
+
+  //   try {
+  //     return key.subkeyNames
+  //         .lastWhere((element) => element.startsWith("Revision-ReviOS"))
+  //         .isNotEmpty;
+  //   } catch (e) {
+  //     w('Error validating ReviOS');
+  //     return false;
+  //   }
+  // }
 
   static String? get themeModeReg => RegistryUtilsService.readString(
       RegistryHive.localMachine,
