@@ -20,13 +20,14 @@ dependencies:
   # UI
   fluent_ui: ^4.8.6
   system_theme: ^2.3.1
-  fluentui_system_icons: ^1.1.227
+  fluentui_system_icons: ^1.1.229
   window_plus:
     git:
-      url: https://github.com/melo936/window_plus
+      # url: https://github.com/melo936/window_plus
+      url: https://github.com/alexmercerind/window_plus
 
   # State management
-  provider: ^6.0.5
+  provider: ^6.1.2
 
   # Path
   path_provider: ^2.1.2

@@ -197,10 +197,10 @@ packages:
     dependency: transitive
     description:
       name: ffi
-      sha256: "7bf0adc28a23d395f19f3f1eb21dd7cfd1dd9f8e1c50051c069122e6853bc878"
+      sha256: "493f37e7df1804778ff3a53bd691d8692ddf69702cf4c1c1096a2e41b4779e21"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.0"
+    version: "2.1.2"
   file:
     dependency: transitive
     description:
@@ -229,10 +229,10 @@ packages:
     dependency: "direct main"
     description:
       name: fluentui_system_icons
-      sha256: "5262a1e3b70822405e923ec06490e92ba66b6fd3910567b34f840af5d95c882b"
+      sha256: bb2dd7b5dc2c14c8a18cab6405a67c4697825d2662553b1b22d1f7ddc1057235
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.227"
+    version: "1.1.229"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -585,10 +585,10 @@ packages:
     dependency: "direct main"
     description:
       name: provider
-      sha256: "9a96a0a19b594dbc5bf0f1f27d2bc67d5f95957359b461cd9feb44ed6ae75096"
+      sha256: c8a055ee5ce3fd98d6fc872478b03823ffdb448699c6ebdbbc71d59b596fd48c
       url: "https://pub.dev"
     source: hosted
-    version: "6.1.1"
+    version: "6.1.2"
   pub_semver:
     dependency: transitive
     description:
@@ -823,8 +823,8 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "2a5ffabbd365a6f27b4e186ac42a36dda177bb32"
-      url: "https://github.com/melo936/window_plus"
+      resolved-ref: "66dc5caa405a29ce227996c3e8e5d9f4598f1045"
+      url: "https://github.com/alexmercerind/window_plus"
     source: git
     version: "0.0.1"
   xdg_directories:
@@ -852,5 +852,5 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.2.3 <4.0.0"
+  dart: ">=3.3.0-279.1.beta <4.0.0"
   flutter: ">=3.10.0"
