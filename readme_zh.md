@@ -1,5 +1,4 @@
-
-[中文](https://github.com/zackzheng1121/revision-tool_zh_tw/blob/main/readme_zh.md)
+[English](https://github.com/zackzheng1121/revision-tool_zh_tw/blob/main/README.md)
 <img  align="left" src="windows/runner/resources/revision_icon.ico" width="64" height="64" />
 
 # Revision Tool
@@ -8,17 +7,14 @@
 [![Made with Fluent Design](https://img.shields.io/badge/fluent-design-blue?style=flat-square&color=gray&labelColor=0078D7)](https://github.com/bdlukaa/fluent_ui)
 <a href="https://www.buymeacoffee.com/meetrevision" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" height="20px"></a>
 <br>
+一款根據您的需求個人化 ReviOS 的工具。 使用 Fluent UI 以 Dart 重寫。
 
-A tool to personalize ReviOS to your needs. Rewritten in Dart with Fluent UI.
+此程式僅適用於 [ReviOS](https://www.revi.cc/) 22.10 或更高版本。
 
-The program is meant to be only used on [ReviOS](https://www.revi.cc/) 22.10 or up.
+## 授權
 
-## License
+Revision Tool根據 GNU 通用公共授權 v3.0 授權。
 
-Revision Tool is licensed under GNU General Public License v3.0. 
-
-The tool also contains:
-* [NanaRun](https://github.com/M2Team/NanaRun) - MIT
-* [Fluent System Icons](https://github.com/microsoft/fluentui-system-icons) by Microsoft - MIT
-
-## 
+該工具還包含：
+* [NanaRun](https://github.com/M2Team/NanaRun) - 麻省理工學院
+* [Fluent 系統圖示](https://github.com/microsoft/fluentui-system-icons) 由 Microsoft - MIT
