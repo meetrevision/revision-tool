@@ -26,10 +26,9 @@ Future<void> main(List<String> args) async {
   initLogger(path);
   i('Revision Tool is starting');
 
-  if (RegistryUtilsService.isSupported) {
-    i('isSupported is true');
-    _isSupported = true;
-  }
+  i('isSupported is true');
+  _isSupported = true;
+  
 
   if (args.isNotEmpty) {
     if (!_isSupported) {
