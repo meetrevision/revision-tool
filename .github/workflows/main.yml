@@ -2,6 +2,10 @@ on:
   push:
     tags:
       - '*'
+  workflow_dispatch:
+    branches:
+      - main
+      
 name: "Build & Release"
 jobs:
   build:
