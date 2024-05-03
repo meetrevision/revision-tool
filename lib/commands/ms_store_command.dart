@@ -72,6 +72,8 @@ class MSStoreCommand extends Command<String> {
       }
 
       stdout.writeln('$tag Successfully installed $id');
+
+      await _msStoreService.cleanUpDownloads();
     }
     exit(0);
   }

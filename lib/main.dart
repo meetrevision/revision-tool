@@ -23,6 +23,10 @@ import 'package:path/path.dart' as p;
 Future<void> main(List<String> args) async {
   final path = p.join(Directory.systemTemp.path, 'Revision-Tool', 'Logs');
 
+  if (Directory(path).existsSync()) {
+    Directory(path).deleteSync(recursive: true);
+  }
+
   initLogger(path);
   i('Revision Tool is starting');
 

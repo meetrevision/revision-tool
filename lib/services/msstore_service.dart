@@ -149,11 +149,11 @@ class MSStoreService {
   }
 
   Future<String> _getCategoryID(String id) async {
-        //TODO: Implement proper way to get compatible language codes for the store API parameters
-        
-        // When Windows region is set to English (World), the language code isn't compatible with the store API
-        //"$_storeAPI/products/$id?market=US&locale=en-us&deviceFamily=Windows.Desktop",
-        final response = await _dio.get(
+    //TODO: Implement proper way to get compatible language codes for the store API parameters
+
+    // When Windows region is set to English (World), the language code isn't compatible with the store API
+    //"$_storeAPI/products/$id?market=US&locale=en-us&deviceFamily=Windows.Desktop",
+    final response = await _dio.get(
         "$_storeAPI/products/$id?market=US&locale=en-us&deviceFamily=Windows.Desktop",
         cancelToken: _cancelToken);
     final skus = response.data["Payload"]["Skus"];
@@ -396,7 +396,7 @@ class MSStoreService {
   Future<List<ProcessResult>> _installUWPPackages(
       String id, String ring) async {
     return await run(
-      'powershell -NoP -ExecutionPolicy Bypass -NonInteractive -C "& {\$appxFiles = Get-ChildItem -Path "$_storeFolder\\$id"; foreach (\$file in \$appxFiles) { Add-AppxPackage -ForceApplicationShutdown -Path \$file.FullName;}}"',
+      'powershell -NoP -Ep Bypass -NonInteractive -C "& {\$appxFiles = Get-ChildItem -Path "$_storeFolder\\$id\\$ring"; foreach (\$file in \$appxFiles) { Add-AppxPackage -ForceApplicationShutdown -Path \$file.FullName;}}"',
       verbose: false,
     );
   }
