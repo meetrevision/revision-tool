@@ -56,5 +56,8 @@ reg add "HKLM\Software\Microsoft\Windows Defender" /v "PUAProtection" /t REG_DWO
 reg delete "HKLM\SYSTEM\ControlSet001\Control\CI\Config" /v "VulnerableDriverBlocklistEnable" /f >NUL 2>nul
 reg delete "HKLM\SYSTEM\ControlSet001\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" /v "Enabled" /f >NUL 2>nul
 
+::Revert Autologgers
+reg add "%controlset%\Control\WMI\Autologger\DefenderApiLogger" /v "Start" /t REG_DWORD /d "1" /f >NUL 2>nul
+reg add "%controlset%\Control\WMI\Autologger\DefenderAuditLogger" /v "Start" /t REG_DWORD /d "1" /f >NUL 2>nul
 
 goto :EOF

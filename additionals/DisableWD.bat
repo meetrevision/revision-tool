@@ -1,5 +1,6 @@
 @echo off
-set "services=HKLM\SYSTEM\ControlSet001\Services"
+set "controlset=HKLM\SYSTEM\ControlSet001"
+set "services=%controlset%\Services"
 PowerShell -NonInteractive -NoLogo -NoProfile -C "Set-MpPreference -DisableRealtimeMonitoring 1" >NUL 2>nul
 ::Windows Defender
 reg add "%services%\MsSecCore" /v "Start" /t REG_DWORD /d "4" /f >NUL 2>nul
@@ -55,13 +56,17 @@ reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\AppHost" /v "EnableWebCo
 reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\AppHost" /v "EnableWebContentEvaluation" /t REG_DWORD /d "0" /f >NUL 2>nul
 
 ::Smart App Control - Disabling it fixes slow app loading issues on 11+
-reg add "HKLM\SYSTEM\ControlSet001\Control\CI\Policy" /v "VerifiedAndReputablePolicyState" /t REG_DWORD /d "0" /f >NUL 2>nul
+reg add "%controlset%\Control\CI\Policy" /v "VerifiedAndReputablePolicyState" /t REG_DWORD /d "0" /f >NUL 2>nul
 
 ::Configure detection for potentially unwanted applications - Disabled
 reg add "HKLM\Software\Microsoft\Windows Defender" /v "PUAProtection" /t REG_DWORD /d "0" /f >NUL 2>nul
 
 ::Device Security
-reg add "HKLM\SYSTEM\ControlSet001\Control\CI\Config" /v "VulnerableDriverBlocklistEnable" /t REG_DWORD /d "0" /f >NUL 2>nul
-reg add "HKLM\SYSTEM\ControlSet001\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" /v "Enabled" /t REG_DWORD /d "0" /f >NUL 2>nul
+reg add "%controlset%\Control\CI\Config" /v "VulnerableDriverBlocklistEnable" /t REG_DWORD /d "0" /f >NUL 2>nul
+reg add "%controlset%\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" /v "Enabled" /t REG_DWORD /d "0" /f >NUL 2>nul
+
+::Disable Autologgers (they still run even if the services are disabled)
+reg add "%controlset%\Control\WMI\Autologger\DefenderApiLogger" /v "Start" /t REG_DWORD /d "0" /f >NUL 2>nul
+reg add "%controlset%\Control\WMI\Autologger\DefenderAuditLogger" /v "Start" /t REG_DWORD /d "0" /f >NUL 2>nul
 
 goto :EOF
