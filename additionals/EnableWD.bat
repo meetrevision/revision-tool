@@ -1,4 +1,8 @@
 @echo off
+
+reg delete "HKLM\Software\Policies\Microsoft\Windows Defender" /v "DisableAntiSpyware" /f >NUL 2>nul
+"C:\Windows\System32\gpupdate.exe" /Target:Computer /Force
+
 set "services=HKLM\SYSTEM\ControlSet001\Services"
 ::Windows Defender
 reg add "%services%\MsSecCore" /v "Start" /t REG_DWORD /d "0" /f >NUL 2>nul

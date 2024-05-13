@@ -1,7 +1,10 @@
 @echo off
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiSpyware" /t REG_DWORD /d "1" /f
+"C:\Windows\System32\gpupdate.exe" /Target:Computer /Force
+
 set "controlset=HKLM\SYSTEM\ControlSet001"
 set "services=%controlset%\Services"
-PowerShell -NonInteractive -NoLogo -NoProfile -C "Set-MpPreference -DisableRealtimeMonitoring 1" >NUL 2>nul
+::PowerShell -NonInteractive -NoLogo -NoProfile -C "Set-MpPreference -DisableRealtimeMonitoring 1" >NUL 2>nul
 ::Windows Defender
 reg add "%services%\MsSecCore" /v "Start" /t REG_DWORD /d "4" /f >NUL 2>nul
 reg add "%services%\MsSecFlt" /v "Start" /t REG_DWORD /d "4" /f >NUL 2>nul
