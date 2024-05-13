@@ -24,7 +24,12 @@ Future<void> main(List<String> args) async {
   final path = p.join(Directory.systemTemp.path, 'Revision-Tool', 'Logs');
 
   if (Directory(path).existsSync()) {
-    Directory(path).deleteSync(recursive: true);
+    try {
+      Directory(path).deleteSync(recursive: true);
+    } catch (e) {
+      stderr.writeln('Failed to delete logs directory: $e');
+    }
+    
   }
 
   initLogger(path);
