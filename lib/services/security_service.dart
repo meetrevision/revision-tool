@@ -6,7 +6,6 @@ import 'setup_service.dart';
 import 'package:process_run/shell_run.dart';
 
 class SecurityService implements SetupService {
-  
   static final Shell _shell = Shell();
 
   static const _instance = SecurityService._private();
@@ -167,24 +166,23 @@ class SecurityService implements SetupService {
             RegistryHive.localMachine,
             r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
             'FeatureSettingsOverride') ==
-        0;
+        null;
   }
 
   void enableSpectreMeltdown() {
+    RegistryUtilsService.writeDword(
+        Registry.localMachine,
+        r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
+        'FeatureSettings',
+        0);
     RegistryUtilsService.deleteValue(
         Registry.localMachine,
         r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
-        'FeatureSettings');
-    RegistryUtilsService.writeDword(
+        'FeatureSettingsOverride');
+    RegistryUtilsService.deleteValue(
         Registry.localMachine,
         r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
-        'FeatureSettingsOverride',
-        0);
-    RegistryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
-        'FeatureSettingsOverrideMask',
-        3);
+        'FeatureSettingsOverrideMask');
   }
 
   void disableSpectreMeltdown() {
