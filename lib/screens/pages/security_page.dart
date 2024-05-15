@@ -19,16 +19,23 @@ class SecurityPage extends StatefulWidget {
 class _SecurityPageState extends State<SecurityPage> {
   final _securityService = SecurityService();
   late final _wdBool = ValueNotifier<bool>(_securityService.statusDefender);
-  bool _wdButtonCalled = false;
   late final _uacBool = ValueNotifier<bool>(_securityService.statusUAC);
   late final _smBool =
       ValueNotifier<bool>(_securityService.statusSpectreMeltdown);
+  late final _statusProtections =
+      ValueNotifier<bool>(_securityService.statusDefenderProtections);
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
     _wdBool.dispose();
     _uacBool.dispose();
     _smBool.dispose();
+    _statusProtections.dispose();
     super.dispose();
   }
 
@@ -42,164 +49,76 @@ class _SecurityPageState extends State<SecurityPage> {
         ),
       ),
       children: [
-        Visibility(
-          visible: ((RegistryUtilsService.readInt(RegistryHive.localMachine,
-                      r'SYSTEM\ControlSet001\Services\WinDefend', 'Start') !=
-                  4) &&
-              _securityService.statusTamperProtection &&
-              !_wdButtonCalled),
-          replacement: CardHighlightSwitch(
-            icon: msicons.FluentIcons.shield_20_regular,
-            label: context.l10n.securityWDLabel,
-            description: context.l10n.securityWDDescription,
-            switchBool: _wdBool,
-            requiresRestart: true,
-            function: (value) async {
-              _wdBool.value = value;
-              value
-                  ? await _securityService.enableDefender()
-                  : await _securityService.disableDefender();
-            },
-          ),
-          child: CardHighlight(
-            icon: msicons.FluentIcons.shield_20_regular,
-            label: context.l10n.securityWDLabel,
-            description: context.l10n.securityWDDescription,
-            child: SizedBox(
-              width: 150,
-              child: Button(
-                onPressed: () async {
-                  final process = await Process.start(
-                    'explorer.exe',
-                    ['windowsdefender://threatsettings'],
-                  );
-                  await process.exitCode;
-                  setState(() => _wdButtonCalled = true);
-                  if (!context.mounted) return;
-                  showDialog(
-                    context: context,
-                    builder: (context) => ContentDialog(
-                      content: Text(context.l10n.securityDialog),
-                      actions: [
-                        Button(
-                          child: Text(context.l10n.okButton),
-                          onPressed: () {
-                            Navigator.pop(context);
+        ValueListenableBuilder(
+          valueListenable: _statusProtections,
+          builder: (context, value, child) {
+            switch (value) {
+              case false:
+                return CardHighlightSwitch(
+                  icon: msicons.FluentIcons.shield_20_regular,
+                  label: context.l10n.securityWDLabel,
+                  description: context.l10n.securityWDDescription,
+                  switchBool: _wdBool,
+                  function: (valueWd) async {
+                    _wdBool.value = valueWd;
+                    valueWd
+                        ? await _securityService.enableDefender()
+                        : {
+                            updateStatusProtectionsValue(),
+                            if (!_statusProtections.value)
+                              await _securityService.disableDefender()
+                          };
+                  },
+                );
+              case true:
+                return CardHighlight(
+                  icon: msicons.FluentIcons.shield_20_regular,
+                  label: context.l10n.securityWDLabel,
+                  description: context.l10n.securityWDDescription,
+                  child: SizedBox(
+                    width: 150,
+                    child: Button(
+                      onPressed: () async {
+                        Future.delayed(const Duration(seconds: 2), () async {
+                          await _securityService.openDefenderThreatSettings();
+                        });
+
+                        showDialog(
+                          dismissWithEsc: false,
+                          context: context,
+                          builder: (context) {
+                            return ContentDialog(
+                              content: Text(context.l10n.securityDialog),
+                              actions: [
+                                Button(
+                                  child: Text(context.l10n.okButton),
+                                  onPressed: () async {
+                                    updateStatusProtectionsValue();
+                                    switch (_statusProtections.value) {
+                                      case true:
+                                        await _securityService
+                                            .openDefenderThreatSettings();
+                                        break;
+                                      default:
+                                        Navigator.pop(context);
+                                        break;
+                                    }
+                                  },
+                                ),
+                              ],
+                            );
                           },
-                        ),
-                      ],
+                        );
+                      },
+                      child: Text(context.l10n.securityWDButton),
                     ),
-                  );
-                },
-                child: Text(context.l10n.securityWDButton),
-              ),
-            ),
-          ),
+                  ),
+                );
+              default:
+                return const SizedBox();
+            }
+          },
         ),
-
-        // if (_wdBool && tamperProtection) ...[
-        //   CardHighlight(
-        //     child: Row(
-        //       children: [
-        //         const SizedBox(width: 5.0),
-        //         const Icon(
-        //           msicons.FluentIcons.shield_20_regular,
-        //           size: 24,
-        //         ),
-        //         const SizedBox(width: 15.0),
-        //         Expanded(
-        //           child: SizedBox(
-        //             child: Column(
-        //               crossAxisAlignment: CrossAxisAlignment.start,
-        //               children: [
-        //                 InfoLabel(
-        //                     label:
-        //                         context.l10n.securityWDLabel),
-        //                 Text(
-        //                   context.l10n.securityWDDescription,
-        //                   style: context.theme.brightness.isDark
-        //                       ? const TextStyle(
-        //                           fontSize: 11,
-        //                           color: Color.fromARGB(255, 200, 200, 200),
-        //                           overflow: TextOverflow.fade)
-        //                       : const TextStyle(
-        //                           fontSize: 11,
-        //                           color: Color.fromARGB(255, 117, 117, 117),
-        //                           overflow: TextOverflow.fade),
-        //                 )
-        //               ],
-        //             ),
-        //           ),
-        //         ),
-        //         SizedBox(
-        //           width: 150,
-        //           child: Button(
-        //             onPressed: () async {
-        //               final process = await Process.start(
-        //                 'explorer.exe',
-        //                 ['windowsdefender://threatsettings'],
-        //               );
-        //               await process.exitCode;
-
-        //               _wdButtonCalled = true;
-        //               setState(() {});
-        //             },
-        //             child: Text(context.l10n.securityWDButton),
-        //           ),
-        //         ),
-        //       ],
-        //     ),
-        //   ),
-        // ] else ...[
-        //   CardHighlightSwitch(
-        //     icon: msicons.FluentIcons.shield_20_regular,
-        //     label: context.l10n.securityWDLabel,
-        //     description: context.l10n.securityWDDescription,
-        //     switchBool: _wdBool,
-        //     function: (value) async {
-        //       setState(() {
-        //         _wdBool = value;
-        //       });
-        //       if (_wdBool) {
-        //         await run(
-        //             '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\EnableWD.bat"');
-        //       } else {
-        //         showDialog(
-        //           context: context,
-        //           builder: (context) => ContentDialog(
-        //             content: Text(context.l10n.securityDialog),
-        //             actions: [
-        //               Button(
-        //                 child: Text(context.l10n.okButton),
-        //                 onPressed: () async {
-        //                   await run(
-        //                       '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\DisableWD.bat"');
-        //                   // ignore: use_build_context_synchronously
-        //                   showDialog(
-        //                     context: context,
-        //                     builder: (context) => ContentDialog(
-        //                       content: Text(
-        //                           context.l10n.restartDialog),
-        //                       actions: [
-        //                         Button(
-        //                           child: Text(
-        //                               context.l10n.okButton),
-        //                           onPressed: () {
-        //                             Navigator.pop(context);
-        //                           },
-        //                         ),
-        //                       ],
-        //                     ),
-        //                   );
-        //                 },
-        //               ),
-        //             ],
-        //           ),
-        //         );
-        //       }
-        //     },
-        //   ),
-        // ],
         CardHighlightSwitch(
           icon: msicons.FluentIcons.person_lock_20_regular,
           label: context.l10n.securityUACLabel,
@@ -213,7 +132,6 @@ class _SecurityPageState extends State<SecurityPage> {
                 : _securityService.disableUAC();
           },
         ),
-
         CardHighlightSwitch(
             icon: msicons.FluentIcons.shield_badge_20_regular,
             label: context.l10n.securitySMLabel,
@@ -226,7 +144,6 @@ class _SecurityPageState extends State<SecurityPage> {
                   ? _securityService.enableSpectreMeltdown()
                   : _securityService.disableSpectreMeltdown();
             }),
-
         CardHighlight(
           icon: msicons.FluentIcons.certificate_20_regular,
           label: context.l10n.miscCertsLabel,
@@ -258,5 +175,10 @@ class _SecurityPageState extends State<SecurityPage> {
         ),
       ],
     );
+  }
+
+  void updateStatusProtectionsValue() {
+    // force updating .value
+    _statusProtections.value = _securityService.statusDefenderProtections;
   }
 }

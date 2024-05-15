@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:win32_registry/win32_registry.dart';
 
 import '../utils.dart';
@@ -29,12 +31,26 @@ class SecurityService implements SetupService {
         3;
   }
 
-  bool get statusTamperProtection {
-    return RegistryUtilsService.readInt(
-            RegistryHive.localMachine,
-            r'SOFTWARE\Microsoft\Windows Defender\Features',
-            'TamperProtection') ==
-        5;
+  bool get statusDefenderProtections {
+    return (RegistryUtilsService.readInt(
+                    RegistryHive.localMachine,
+                    r'SOFTWARE\Microsoft\Windows Defender\Features',
+                    'TamperProtection') ==
+                5 ||
+            RegistryUtilsService.readInt(
+                    RegistryHive.localMachine,
+                    r'SOFTWARE\Microsoft\Windows Defender\Real-Time Protection',
+                    'DisableRealtimeMonitoring') !=
+                1) &&
+        statusDefender;
+  }
+
+  Future<ProcessResult> openDefenderThreatSettings() async {
+    return await Process.run(
+      'start',
+      ['windowsdefender://threatsettings'],
+      runInShell: true,
+    );
   }
 
   Future<void> enableDefender() async {
