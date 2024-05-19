@@ -1,12 +1,8 @@
-import 'dart:io';
-
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:revitool/extensions.dart';
-import 'package:revitool/services/registry_utils_service.dart';
 import 'package:revitool/services/security_service.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:revitool/widgets/dialogs/msstore_dialogs.dart';
-import 'package:win32_registry/win32_registry.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
 class SecurityPage extends StatefulWidget {
@@ -24,11 +20,6 @@ class _SecurityPageState extends State<SecurityPage> {
       ValueNotifier<bool>(_securityService.statusSpectreMeltdown);
   late final _statusProtections =
       ValueNotifier<bool>(_securityService.statusDefenderProtections);
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -60,14 +51,50 @@ class _SecurityPageState extends State<SecurityPage> {
                   description: context.l10n.securityWDDescription,
                   switchBool: _wdBool,
                   function: (valueWd) async {
-                    _wdBool.value = valueWd;
-                    valueWd
-                        ? await _securityService.enableDefender()
-                        : {
-                            updateStatusProtectionsValue(),
-                            if (!_statusProtections.value)
-                              await _securityService.disableDefender()
-                          };
+                    showLoadingDialog(context, '');
+                    try {
+                      valueWd
+                          ? await _securityService.enableDefender()
+                          : {
+                              updateStatusProtectionsValue(),
+                              if (!_statusProtections.value)
+                                await _securityService.disableDefender()
+                            };
+                      if (!context.mounted) return;
+                      context.pop();
+                      _wdBool.value = valueWd;
+                      await showDialog(
+                        context: context,
+                        builder: (context) => ContentDialog(
+                          content: Text(context.l10n.restartDialog),
+                          actions: [
+                            Button(
+                              child: Text(context.l10n.okButton),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    } catch (e) {
+                      if (!context.mounted) return;
+                      context.pop();
+                      await showDialog(
+                        context: context,
+                        builder: (context) => ContentDialog(
+                          content: Text(e.toString()),
+                          actions: [
+                            Button(
+                              child: Text(context.l10n.okButton),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    }
                   },
                 );
               case true:
@@ -79,7 +106,7 @@ class _SecurityPageState extends State<SecurityPage> {
                     width: 150,
                     child: Button(
                       onPressed: () async {
-                        Future.delayed(const Duration(seconds: 2), () async {
+                        Future.delayed(const Duration(seconds: 1), () async {
                           await _securityService.openDefenderThreatSettings();
                         });
 

@@ -14,6 +14,12 @@ class RegistryUtilsService {
   static bool get isW11 => _w11;
   static final bool _w11 = buildNumber > 19045;
 
+  static final String cpuArch = RegistryUtilsService.readString(
+          RegistryHive.localMachine,
+          r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
+          'PROCESSOR_ARCHITECTURE')!
+      .toLowerCase();
+
   static bool get isSupported =>
       readString(
           RegistryHive.localMachine,
@@ -159,7 +165,7 @@ class RegistryUtilsService {
     try {
       regKey.deleteKey(regPath);
       v('Deleted $path');
-    } catch (_) {
+    } catch (e) {
       w('Error deleting $path');
     }
   }
