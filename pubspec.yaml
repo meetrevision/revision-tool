@@ -6,7 +6,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.2.3 <4.0.0'
+  sdk: '>=3.4.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -20,11 +20,11 @@ dependencies:
   # UI
   fluent_ui: ^4.8.7
   system_theme: ^2.3.1
-  fluentui_system_icons: ^1.1.236
+  fluentui_system_icons: ^1.1.239
   window_plus:
     git:
-      # url: https://github.com/melo936/window_plus
-      url: https://github.com/alexmercerind/window_plus
+      url: https://github.com/melo936/window_plus
+      # url: https://github.com/alexmercerind/window_plus
 
   # State management
   provider: ^6.1.2
@@ -63,8 +63,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.2
-  build_runner: ^2.4.9
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.10
   freezed: ^2.5.2
   json_serializable: ^6.8.0
 
