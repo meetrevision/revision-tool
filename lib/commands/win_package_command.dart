@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:revitool/services/security_service.dart';
 import 'package:revitool/services/win_package_service.dart';
 
 class WindowsPackageCommand extends Command<String> {
   static final _winPackageService = WinPackageService();
+  static final _securityService = SecurityService();
 
   static const tag = "[Windows Package]";
 
@@ -57,6 +59,11 @@ class WindowsPackageCommand extends Command<String> {
   Future<void> _installPackage(final String parameter) async {
     try {
       final mode = getPackageType(parameter);
+
+      if (mode == WinPackageType.defenderRemoval) {
+        await _securityService.disableDefender();
+        return;
+      }
 
       stdout.writeln('$tag Downloading package: ${mode.packageName}');
       await _winPackageService.downloadPackage(mode);
