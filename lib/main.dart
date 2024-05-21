@@ -9,6 +9,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:revitool/commands/ms_store_command.dart';
 import 'package:revitool/commands/recommendation_command.dart';
 import 'package:revitool/commands/security_command.dart';
+import 'package:revitool/commands/win_package_command.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
 import 'package:revitool/providers/l10n_provider.dart';
 import 'package:revitool/screens/home_page.dart';
@@ -55,7 +56,8 @@ Future<void> main(List<String> args) async {
     stdout.writeln("Running Revision Tool ${packageInfo.version}");
     final runner = CommandRunner<String>("revitool", "Revision Tool CLI")
       ..addCommand(MSStoreCommand())
-      ..addCommand(DefenderCommand());
+      ..addCommand(DefenderCommand())
+      ..addCommand(WindowsPackageCommand());
     // ..addCommand(RecommendationCommand());
     await runner.run(args);
     exit(0);

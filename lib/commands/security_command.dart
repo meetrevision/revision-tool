@@ -2,11 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:process_run/shell_run.dart';
 import 'package:revitool/services/security_service.dart';
 
 class DefenderCommand extends Command<String> {
   static final _securityService = SecurityService();
-
+  static final _shell = Shell();
   String get tag => "[Security - Defender]";
 
   @override
@@ -55,6 +56,12 @@ Virus and Threat Protections Status: ${_securityService.statusDefenderProtection
         '$tag Checking if Virus and Threat Protections are enabled...');
 
     while (_securityService.statusDefenderProtections) {
+      if (!_securityService.statusDefenderProtectionTamper) {
+        await _shell.run(
+            'PowerShell -EP Unrestricted -NonInteractive -NoLogo -NoP Set-MpPreference -DisableRealtimeMonitoring \$true');
+        continue;
+      }
+
       stdout.writeln('$tag Please disable Realtime and Tamper Protections');
       await _securityService.openDefenderThreatSettings();
 
