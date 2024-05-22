@@ -91,6 +91,9 @@ class SecurityService implements SetupService {
       await _shell.run(
           'start /WAIT /MIN /B "" "%systemroot%\\System32\\gpupdate.exe" /Target:Computer /Force');
 
+      await _shell.run(
+          '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg add "HKLM\\System\\ControlSet001\\Services\\MDCoreSvc" /v Start /t REG_DWORD /d 2 /f');
+
       RegistryUtilsService.writeString(
           Registry.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce',
@@ -127,6 +130,14 @@ class SecurityService implements SetupService {
         '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg add "HKLM\\SOFTWARE\\Microsoft\\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f');
     await _shell.run(
         '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg add "HKLM\\SOFTWARE\\Microsoft\\Windows Defender" /v DisableAntiVirus /t REG_DWORD /d 1 /f');
+
+    await _shell.run(
+        '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg add "HKLM\\System\\ControlSet001\\Services\\MDCoreSvc" /v Start /t REG_DWORD /d 4 /f');
+
+    RegistryUtilsService.deleteValue(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce',
+        'RevisionEnableDefenderCMD');
 
     await _winPackageService.installPackage(WinPackageType.defenderRemoval);
   }

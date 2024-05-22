@@ -40,11 +40,15 @@ class WinPackageService {
             .lastWhereOrNull(
                 (final element) => element.startsWith(packageType.packageName));
 
+    if (key == null) {
+      return false;
+    }
+
+    final int currentState = RegistryUtilsService.readInt(
+        RegistryHive.localMachine, cbsPackagesRegPath + key, 'CurrentState')!;
+
     // installation codes - https://forums.ivanti.com/s/article/Understand-Patch-installation-failure-codes?language=en_US
-    return key != null &&
-        RegistryUtilsService.readInt(RegistryHive.localMachine,
-                cbsPackagesRegPath + key, 'CurrentState') !=
-            5;
+    return currentState != 5 || currentState != 4294967264;
   }
 
   Future<void> downloadPackage(final WinPackageType packageType) async {

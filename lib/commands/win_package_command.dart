@@ -77,6 +77,9 @@ class WindowsPackageCommand extends Command<String> {
 
   Future<void> _uninstallPackage(final WinPackageType packageType) async {
     stdout.writeln('$tag Uninstalling package: ${packageType.packageName}');
+    if (packageType == WinPackageType.defenderRemoval) {
+      await _securityService.enableDefender();
+    }
     await _winPackageService.uninstallPackage(packageType);
   }
 }
