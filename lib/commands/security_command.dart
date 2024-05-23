@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:revitool/services/security_service.dart';
+import 'package:revitool/utils.dart';
 
 class DefenderCommand extends Command<String> {
   static final _securityService = SecurityService();
@@ -50,6 +51,14 @@ Virus and Threat Protections Status: ${_securityService.statusDefenderProtection
       exit(0);
     }
 
+    // TODO: Remove this whenever a new playbook gets released
+    final isAMETempAvailable = await Directory(ameTemp).exists();
+    if (isAMETempAvailable) {
+      await Process.run('explorer.exe', const []);
+      await Future.delayed(const Duration(seconds: 5));
+    }
+    //
+
     stdout.writeln('$tag Disabling Windows Defender...');
 
     stdout.writeln(
@@ -65,9 +74,13 @@ Virus and Threat Protections Status: ${_securityService.statusDefenderProtection
       stdout.writeln('$tag Please disable Realtime and Tamper Protections');
       await _securityService.openDefenderThreatSettings();
 
-      await Future.delayed(const Duration(seconds: 10));
+      await Future.delayed(const Duration(seconds: 7));
     }
     await Process.run('taskkill', ['/f', '/im', 'SecHealthUI.exe']);
+
+    if (isAMETempAvailable) {
+      await Process.run('taskkill', ['/f', '/im', 'explorer.exe']);
+    }
 
     try {
       await _securityService.disableDefender();

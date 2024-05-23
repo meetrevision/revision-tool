@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:win32_registry/win32_registry.dart';
+import 'package:path/path.dart' as p;
+
 import 'services/registry_utils_service.dart';
 
 final String mainPath = Platform.resolvedExecutable;
@@ -27,3 +29,6 @@ String appLanguage = RegistryUtilsService.readString(
       'Language',
     ) ??
     'en_US';
+
+final ameTemp =
+    p.join(Directory.systemTemp.path, 'AME', 'Playbooks', 'Revision-ReviOS');

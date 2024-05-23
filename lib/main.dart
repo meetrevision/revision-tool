@@ -42,8 +42,6 @@ Future<void> main(List<String> args) async {
   }
 
   if (args.isNotEmpty) {
-    final ameTemp = p.join(
-        Directory.systemTemp.path, 'AME', 'Playbooks', 'Revision-ReviOS');
     if (!_isSupported && !Directory(ameTemp).existsSync()) {
       // TODO: unify messages
       e('Unsupported build detected. Please apply ReviOS on your system');
