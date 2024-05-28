@@ -35,13 +35,15 @@ class NetworkService {
     }
   }
 
-  Future<void> downloadFile(String url, String downloadPath) async {
+  Future<Response<dynamic>> downloadFile(
+      String url, String downloadPath) async {
     try {
       final response = await _dio.download(
         url,
         downloadPath,
       );
       stdout.writeln('Downloaded $url - ${response.statusCode}');
+      return response;
     } catch (e) {
       throw Exception(
           'Failed to download.\n\nPlease ensure you have an active internet connection and try again.');

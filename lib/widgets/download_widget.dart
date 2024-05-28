@@ -5,6 +5,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:dio/dio.dart';
 import 'package:revitool/extensions.dart';
 import 'package:revitool/models/ms_store/packages_info.dart';
+import 'package:revitool/services/network_service.dart';
 
 import '../services/msstore_service.dart';
 import 'dialogs/msstore_dialogs.dart';
@@ -40,7 +41,7 @@ class _DownloadWidgetState extends State<DownloadWidget> {
   void initState() {
     super.initState();
 
-    final path = '${_ms.storeFolder}\\${widget.productId}';
+    final path = '${_ms.storeFolder}\\${widget.productId}\\${widget.ring}';
     final directory = Directory(path);
     if (directory.existsSync()) {
       directory.deleteSync(recursive: true);
@@ -128,14 +129,14 @@ class _DownloadWidgetState extends State<DownloadWidget> {
                     await _ms.installPackages(widget.productId, widget.ring),
                   );
 
-                  if (widget.cleanUpAfterInstall) {
-                    await _ms.cleanUpDownloads();
-                  }
-
                   if (!context.mounted) return;
                   Navigator.pop(context);
 
                   await showInstallProcess(context, processResult);
+
+                  if (widget.cleanUpAfterInstall) {
+                    await _ms.cleanUpDownloads();
+                  }
                 },
               ),
               Button(

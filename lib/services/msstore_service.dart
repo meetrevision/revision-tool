@@ -3,6 +3,7 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:process_run/cmd_run.dart';
 import 'package:process_run/shell_run.dart';
+import 'package:revitool/services/network_service.dart';
 import '../models/ms_store/non_uwp_response.dart';
 import '../models/ms_store/search_response.dart';
 import '../models/ms_store/packages_info.dart';
@@ -61,6 +62,7 @@ class MSStoreService {
 
   static final _dio = Dio();
   static final _cancelToken = CancelToken();
+  static final _networkService = NetworkService();
   // final RegistryUtilsService = RegistryUtilsService();
 
   static const _instance = MSStoreService._private();
@@ -377,11 +379,9 @@ class MSStoreService {
     final result = <Response>[];
 
     for (final item in _packages) {
-      final response = await _dio.download(
-        item.uri!,
-        "$path\\${item.name}.${item.extension}",
-        cancelToken: _cancelToken,
-      );
+      final response = await _networkService.downloadFile(
+          item.uri!, "$path\\${item.name}.${item.extension}");
+
       result.add(response);
     }
     return result;
