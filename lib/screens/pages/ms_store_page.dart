@@ -30,8 +30,7 @@ class _MSStorePageState extends State<MSStorePage>
   Future<void> _onSearchButtonPressed() async {
     final query = _textEditingController.text;
 
-    if (query.startsWith("9") && query.length == 12 ||
-        query.startsWith("XP") && query.length == 14) {
+    if (query.startsWith("9") || query.startsWith("XP")) {
       await showInstallDialog(
           context, context.l10n.msstoreSearchingPackages, query, _selectedRing);
     } else if (query.startsWith('https://') &&
@@ -139,6 +138,7 @@ class _MSStorePageState extends State<MSStorePage>
 
     if (_msStoreService.packages.isEmpty) {
       showNotFound(context);
+      return;
     }
     showSelectPackages(productID);
   }

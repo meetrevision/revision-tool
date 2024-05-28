@@ -91,7 +91,8 @@ class MSStoreService {
       );
 
       if (_packages.isNotEmpty) {
-        _getLatestPackages();
+        await _getLatestPackages();
+        return;
       }
     }
 
@@ -112,7 +113,7 @@ class MSStoreService {
 
   /// Returns true if the product is not UWP
   bool isNonUWP(String productId) {
-    return productId.startsWith("XP");
+    return productId.toLowerCase().startsWith("xp");
   }
 
   Future<List<ProductsList>> searchProducts(String query, String ring) async {
@@ -213,7 +214,7 @@ class MSStoreService {
               "${versions.first.defaultLocale!.packageName}-${installer.architecture}";
 
           if (!urls.contains(installerUrl)) {
-            packages.add(
+            _packages.add(
               PackagesInfo(
                   name,
                   extension,
@@ -313,7 +314,7 @@ class MSStoreService {
         }),
         cancelToken: _cancelToken);
 
-    if (response.statusMessage == "OK") {
+    if (response.statusCode == 200) {
       final xmlDoc = xml.XmlDocument.parse(response.data);
 
       for (final node in xmlDoc.findAllElements("FileLocation")) {
@@ -328,7 +329,7 @@ class MSStoreService {
   // filters:
 
   /// Group packages with the same name
-  Map<String?, List<PackagesInfo>> _groupSamePackages() {
+  Future<Map<String?, List<PackagesInfo>>> _groupSamePackages() async {
     final groupedItems = _packages
         .asMap()
         .entries
@@ -350,8 +351,8 @@ class MSStoreService {
     return groupedItems;
   }
 
-  void _getLatestPackages() {
-    final groupedPackages = _groupSamePackages();
+  Future<void> _getLatestPackages() async {
+    final groupedPackages = await _groupSamePackages();
 
     final latestGenPackages = groupedPackages.values.map((group) {
       final versionMap = <PackagesInfo, DateTime>{};
