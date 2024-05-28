@@ -36,12 +36,27 @@ class SecurityService implements SetupService {
   }
 
   bool get statusDefender {
-    return !_winPackageService
-        .checkPackageInstalled(WinPackageType.defenderRemoval);
+    if (_winPackageService
+        .checkPackageInstalled(WinPackageType.defenderRemoval)) return false;
+
+    if (RegistryUtilsService.readInt(RegistryHive.localMachine,
+            r'SOFTWARE\Microsoft\Windows Defender', 'DisableAntiSpyware') ==
+        1) {
+      return false;
+    }
+
+    if (RegistryUtilsService.readInt(RegistryHive.localMachine,
+            r'SYSTEM\ControlSet001\Services\WinDefend', 'Start') ==
+        4) {
+      return false;
+    }
+
+    return true;
   }
 
   bool get statusDefenderProtections {
-    return statusDefenderProtectionTamper || statusDefenderProtectionRealtime;
+    return statusDefender &&
+        (statusDefenderProtectionTamper || statusDefenderProtectionRealtime);
   }
 
   bool get statusDefenderProtectionTamper {
