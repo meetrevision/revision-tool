@@ -61,6 +61,7 @@ class MSStoreService {
   static var _cookie = "";
 
   static final _dio = Dio();
+  static final _shell = Shell();
   static final _cancelToken = CancelToken();
   static final _networkService = NetworkService();
   // final RegistryUtilsService = RegistryUtilsService();
@@ -396,9 +397,11 @@ class MSStoreService {
 
   Future<List<ProcessResult>> _installUWPPackages(
       String id, String ring) async {
+    final path = "$_storeFolder\\$id\\$ring";
     return await run(
-      'powershell -NoP -Ep Bypass -NonInteractive -C "& {\$appxFiles = Get-ChildItem -Path "$_storeFolder\\$id\\$ring"; foreach (\$file in \$appxFiles) { Add-AppxPackage -ForceApplicationShutdown -Path \$file.FullName;}}"',
-      verbose: false,
+      'start /min /high /wait powershell -NoP -Ep Unrestricted -NonInteractive -Command "@(Get-ChildItem -Path $path -File -Recurse -Force) | ForEach-Object { Add-AppxPackage -ForceApplicationShutdown -Path \$_.FullName }"',
+      verbose: true,
+      runInShell: true,
     );
   }
 
