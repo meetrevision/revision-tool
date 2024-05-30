@@ -19,22 +19,23 @@ class DefenderCommand extends Command<String> {
 
   DefenderCommand() {
     argParser.addCommand('status');
-    argParser.addCommand('enable');
-    argParser.addCommand('disable');
+    argParser.addCommand('enable').addCommand("--force");
+    argParser.addCommand('disable').addCommand("--force");
   }
 
   @override
   FutureOr<String>? run() async {
+    final bool isForce = argResults?.command?.command?.name == '--force';
     switch (argResults?.command?.name) {
       case 'enable':
-        if (_securityService.statusDefender) {
+        if (!isForce && _securityService.statusDefender) {
           stdout.writeln('$tag Windows Defender is already enabled');
           exit(0);
         }
         await _securityService.enableDefender();
         break;
       case 'disable':
-        await _disableDefender();
+        await _disableDefender(isForce);
         break;
       default:
         stdout.writeln('''
@@ -45,8 +46,8 @@ Virus and Threat Protections Status: ${_securityService.statusDefenderProtection
     exit(0);
   }
 
-  Future<void> _disableDefender() async {
-    if (!_securityService.statusDefender) {
+  Future<void> _disableDefender(bool isForce) async {
+    if (!isForce && !_securityService.statusDefender) {
       stdout.writeln('$tag Windows Defender is already disabled');
       exit(0);
     }
@@ -68,7 +69,7 @@ Virus and Threat Protections Status: ${_securityService.statusDefenderProtection
       if (!_securityService.statusDefenderProtectionTamper) {
         await _shell.run(
             'PowerShell -EP Unrestricted -NonInteractive -NoLogo -NoP Set-MpPreference -DisableRealtimeMonitoring \$true');
-        continue;
+        break;
       }
 
       stdout.writeln('$tag Please disable Realtime and Tamper Protections');
