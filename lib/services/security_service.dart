@@ -55,9 +55,9 @@ class SecurityService implements SetupService {
   }
 
   bool get statusDefenderProtections {
-    return statusDefender ||
-        statusDefenderProtectionTamper ||
-        statusDefenderProtectionRealtime;
+    return (statusDefenderProtectionTamper ||
+            statusDefenderProtectionRealtime) &&
+        statusDefender;
   }
 
   bool get statusDefenderProtectionTamper {
