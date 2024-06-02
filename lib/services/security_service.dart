@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:collection/collection.dart';
-import 'package:mixin_logger/mixin_logger.dart';
 import 'package:revitool/services/network_service.dart';
 import 'package:revitool/services/win_package_service.dart';
 import 'package:win32_registry/win32_registry.dart';
@@ -9,7 +7,7 @@ import 'package:win32_registry/win32_registry.dart';
 import '../utils.dart';
 import 'registry_utils_service.dart';
 import 'setup_service.dart';
-import 'package:process_run/shell_run.dart';
+import 'package:process_run/shell.dart';
 import 'package:path/path.dart' as p;
 
 class SecurityService implements SetupService {

@@ -5,7 +5,6 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:dio/dio.dart';
 import 'package:revitool/extensions.dart';
 import 'package:revitool/models/ms_store/packages_info.dart';
-import 'package:revitool/services/network_service.dart';
 
 import '../services/msstore_service.dart';
 import 'dialogs/msstore_dialogs.dart';

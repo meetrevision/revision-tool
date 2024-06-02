@@ -4,8 +4,6 @@ import 'package:win32_registry/win32_registry.dart';
 import 'registry_utils_service.dart';
 
 class UpdatesService implements SetupService {
-  
-
   static const _instance = UpdatesService._private();
   factory UpdatesService() {
     return _instance;
@@ -16,8 +14,7 @@ class UpdatesService implements SetupService {
   void recommendation() {}
 
   bool get statusPauseUpdatesWU {
-    return RegistryUtilsService
-            .readString(
+    return RegistryUtilsService.readString(
                 RegistryHive.localMachine,
                 r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
                 "PauseUpdatesExpiryTime")
@@ -107,8 +104,7 @@ class UpdatesService implements SetupService {
   }
 
   bool get statusVisibilityWU {
-    return RegistryUtilsService
-            .readString(
+    return RegistryUtilsService.readString(
                 RegistryHive.localMachine,
                 r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
                 'SettingsPageVisibility')
@@ -117,19 +113,44 @@ class UpdatesService implements SetupService {
   }
 
   void enableVisibilityWU() {
+    final currentValue = RegistryUtilsService.readString(
+        RegistryHive.localMachine,
+        r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
+        'SettingsPageVisibility');
+
     RegistryUtilsService.writeString(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
         'SettingsPageVisibility',
-        "hide:cortana;privacy-automaticfiledownloads;privacy-feedback;windowsinsider-optin;windowsinsider;windowsupdate");
+        currentValue!.endsWith(";")
+            ? currentValue.replaceAll("windowsupdate;", "")
+            : currentValue.replaceAll("windowsupdate", ""));
   }
 
   void disableVisibilityWU() {
-    RegistryUtilsService.writeString(
-        Registry.localMachine,
+    final currentValue = RegistryUtilsService.readString(
+        RegistryHive.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
-        'SettingsPageVisibility',
-        "hide:cortana;privacy-automaticfiledownloads;privacy-feedback;");
+        'SettingsPageVisibility');
+
+    if (currentValue == null || currentValue.isEmpty) {
+      RegistryUtilsService.writeString(
+          Registry.localMachine,
+          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
+          'SettingsPageVisibility',
+          "hide:windowsupdate");
+      return;
+    }
+    if (!currentValue.contains("windowsupdate")) {
+      RegistryUtilsService.writeString(
+          Registry.localMachine,
+          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
+          'SettingsPageVisibility',
+          currentValue.endsWith(";") || currentValue.endsWith(":")
+              ? "${currentValue}windowsupdate;"
+              : "$currentValue;windowsupdate;");
+      return;
+    }
   }
 
   bool get statusDriversWU {
