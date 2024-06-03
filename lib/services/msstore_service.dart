@@ -1,14 +1,14 @@
 import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
-import 'package:process_run/cmd_run.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:revitool/services/network_service.dart';
-import '../models/ms_store/non_uwp_response.dart';
-import '../models/ms_store/search_response.dart';
-import '../models/ms_store/packages_info.dart';
 import 'package:xml/xml.dart' as xml;
-import '../utils.dart';
+import 'package:path/path.dart' as p;
+import 'package:revitool/models/ms_store/non_uwp_response.dart';
+import 'package:revitool/models/ms_store/search_response.dart';
+import 'package:revitool/models/ms_store/packages_info.dart';
+import 'package:revitool/utils.dart';
 
 class MSStoreService {
   static final _storeFolder =
@@ -40,6 +40,15 @@ class MSStoreService {
       "accept": "application/json",
     },
   );
+
+  static const _dependencies = [
+    "Microsoft.VCLibs",
+    "Microsoft.NET",
+    "Microsoft.UI",
+    "Microsoft.WinJS",
+  ];
+  static bool isDependency(String name) =>
+      _dependencies.any((e) => name.startsWith(RegExp(e)));
 
   static final _regex = RegExp(r'"WuCategoryId":"([^"]+)"');
   static final _namePattern = RegExp(r'^[^_]+', multiLine: true);
@@ -381,8 +390,10 @@ class MSStoreService {
     final result = <Response>[];
 
     for (final item in _packages) {
+      final downloadPath =
+          isDependency(item.name!) ? "$path\\Dependencies" : path;
       final response = await _networkService.downloadFile(
-          item.uri!, "$path\\${item.name}.${item.extension}");
+          item.uri!, "$downloadPath\\${item.name}.${item.extension}");
 
       result.add(response);
     }
@@ -398,10 +409,31 @@ class MSStoreService {
   Future<List<ProcessResult>> _installUWPPackages(
       String id, String ring) async {
     final path = "$_storeFolder\\$id\\$ring";
-    return await run(
-      'start /min /high /wait powershell -NoP -Ep Unrestricted -NonInteractive -Command "@(Get-ChildItem -Path $path -File -Recurse -Force) | ForEach-Object { Add-AppxPackage -ForceApplicationShutdown -Path \$_.FullName }"',
-      verbose: true,
-      runInShell: true,
+    final dir = Directory(path).listSync();
+    final results = <ProcessResult>[];
+
+    if (dir.isNotEmpty) {
+      for (final d in dir) {
+        if (d is File) {
+          results.add(await _addAppxProcess(d.path));
+        }
+        if (d is Directory) {
+          final deps = Directory("$path\\Dependencies").listSync();
+          for (final file in deps) {
+            if (file is File) {
+              results.add(await _addAppxProcess(file.path));
+            }
+          }
+        }
+      }
+    }
+    return results;
+  }
+
+  Future<ProcessResult> _addAppxProcess(String path) async {
+    return await Process.run(
+      "powershell",
+      ["Add-AppxPackage -Path $path -ForceApplicationShutdown"],
     );
   }
 

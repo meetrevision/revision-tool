@@ -191,7 +191,7 @@ class _MSStorePageState extends State<MSStorePage>
                 dismissWithEsc: false,
                 builder: (context) => DownloadWidget(
                   items: downloadList,
-                  productId: productId,
+                  productId: productId.trim(),
                   cleanUpAfterInstall: cleanUp,
                   ring: _selectedRing,
                 ),

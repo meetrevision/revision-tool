@@ -46,24 +46,27 @@ class _DownloadWidgetState extends State<DownloadWidget> {
       directory.deleteSync(recursive: true);
     }
 
-    _streams = widget.items
-        .map((item) => _dio.download(
-              item.uri!,
-              '$path\\${item.name}.${item.extension}',
-              cancelToken: CancelToken(),
-              onReceiveProgress: (received, total) {
-                if (total != -1) {
-                  final index = widget.items.indexOf(item);
-                  _progressList[index].value =
-                      ((received / total) * 100).floorToDouble();
-                  if (received == total) {
-                    _completedDownloadsCount++;
-                    _downloadCompletionController.add(_completedDownloadsCount);
-                  }
-                }
-              },
-            ).asStream())
-        .toList();
+    _streams = widget.items.map((item) {
+      final downloadPath = MSStoreService.isDependency(item.name!)
+          ? "$path\\Dependencies"
+          : path;
+      return _dio.download(
+        item.uri!,
+        '$downloadPath\\${item.name}.${item.extension}',
+        cancelToken: CancelToken(),
+        onReceiveProgress: (received, total) {
+          if (total != -1) {
+            final index = widget.items.indexOf(item);
+            _progressList[index].value =
+                ((received / total) * 100).floorToDouble();
+            if (received == total) {
+              _completedDownloadsCount++;
+              _downloadCompletionController.add(_completedDownloadsCount);
+            }
+          }
+        },
+      ).asStream();
+    }).toList();
     _progressList =
         List.generate(widget.items.length, (_) => ValueNotifier<double>(0));
   }
@@ -133,9 +136,9 @@ class _DownloadWidgetState extends State<DownloadWidget> {
 
                   await showInstallProcess(context, processResult);
 
-                  if (widget.cleanUpAfterInstall) {
-                    await _ms.cleanUpDownloads();
-                  }
+                  // if (widget.cleanUpAfterInstall) {
+                  //   await _ms.cleanUpDownloads();
+                  // }
                 },
               ),
               Button(

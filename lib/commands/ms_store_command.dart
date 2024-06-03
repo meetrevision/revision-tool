@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:args/command_runner.dart';
+import 'package:process_run/shell_run.dart';
 import 'package:revitool/services/msstore_service.dart';
 
 class MSStoreCommand extends Command<String> {
@@ -66,7 +67,17 @@ class MSStoreCommand extends Command<String> {
       stdout.writeln('$tag Installing $id...');
       final installResult = await _msStoreService.installPackages(id, ring);
 
-      if (installResult.isEmpty || installResult.first.exitCode != 0) {
+      bool areResultsZero = true;
+      for (final e in installResult) {
+        if (e.exitCode != 0) {
+          stderr.writeln(e.errText);
+          stdout.writeln(e.outText);
+          areResultsZero = false;
+          break;
+        }
+      }
+
+      if (installResult.isEmpty || !areResultsZero) {
         stderr.writeln('$tag Failed to install $id');
         exit(1);
       }
