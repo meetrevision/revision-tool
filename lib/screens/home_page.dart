@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> {
         pane: NavigationPane(
           selected: _topIndex ?? 0,
           onChanged: (index) => setState(() => _topIndex = index),
-          displayMode: MediaQuery.of(context).size.width >= 800
+          displayMode: MediaQuery.sizeOf(context).width >= 800
               ? PaneDisplayMode.open
               : PaneDisplayMode.minimal,
           header: SizedBox(
@@ -277,9 +277,9 @@ class _Home extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: MediaQuery.of(context).size.width - 16,
+              width: MediaQuery.sizeOf(context).width - 16,
               constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.72),
+                  maxHeight: MediaQuery.sizeOf(context).height * 0.72),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 gradient: context.theme.brightness.isDark

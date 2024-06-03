@@ -41,11 +41,6 @@ class PerformanceService implements SetupService {
   }
 
   Future<void> disableSuperfetch() async {
-    RegistryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
-        'isMemoryCompressionEnabled',
-        0);
     await _shell.run(
         '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\DisableSF.bat"');
   }
@@ -56,11 +51,6 @@ class PerformanceService implements SetupService {
     final value = await _shell.run(
         'PowerShell -NonInteractive -NoLogo -NoProfile -Command "(Get-MMAgent).MemoryCompression"', );
         return value.outText == 'True';
-    // return RegistryUtilsService.readInt(
-    //         RegistryHive.localMachine,
-    //         r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
-    //         'isMemoryCompressionEnabled') ==
-    //     1;
   }
 
   Future<void> enableMemoryCompression() async {

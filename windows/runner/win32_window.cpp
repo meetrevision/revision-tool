@@ -19,7 +19,7 @@ namespace {
 #define DWMWA_USE_IMMERSIVE_DARK_MODE 20
 #endif
 
-  constexpr const wchar_t kWindowClassName[] = L"FLUTTER_RUNNER_WIN32_WINDOW";
+constexpr const wchar_t kWindowClassName[] = L"FLUTTER_RUNNER_WIN32_WINDOW";
 
 /// Registry key for app theme preference.
 ///
@@ -29,38 +29,38 @@ constexpr const wchar_t kGetPreferredBrightnessRegKey[] =
   L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
 constexpr const wchar_t kGetPreferredBrightnessRegValue[] = L"AppsUseLightTheme";
 
-  // The number of Win32Window objects that currently exist.
-  static int g_active_window_count = 0;
+// The number of Win32Window objects that currently exist.
+static int g_active_window_count = 0;
 
-  using EnableNonClientDpiScaling = BOOL __stdcall(HWND hwnd);
+using EnableNonClientDpiScaling = BOOL __stdcall(HWND hwnd);
 
-  // Scale helper to convert logical scaler values to physical using passed in
-  // scale factor
-  int Scale(int source, double scale_factor) {
-    return static_cast<int>(source * scale_factor);
+// Scale helper to convert logical scaler values to physical using passed in
+// scale factor
+int Scale(int source, double scale_factor) {
+  return static_cast<int>(source * scale_factor);
+}
+
+// Dynamically loads the |EnableNonClientDpiScaling| from the User32 module.
+// This API is only needed for PerMonitor V1 awareness mode.
+void EnableFullDpiSupportIfAvailable(HWND hwnd) {
+  HMODULE user32_module = LoadLibraryA("User32.dll");
+  if (!user32_module) {
+    return;
   }
-
-  // Dynamically loads the |EnableNonClientDpiScaling| from the User32 module.
-  // This API is only needed for PerMonitor V1 awareness mode.
-  void EnableFullDpiSupportIfAvailable(HWND hwnd) {
-    HMODULE user32_module = LoadLibraryA("User32.dll");
-    if (!user32_module) {
-      return;
-    }
-    auto enable_non_client_dpi_scaling =
-        reinterpret_cast<EnableNonClientDpiScaling*>(
-            GetProcAddress(user32_module, "EnableNonClientDpiScaling"));
-    if (enable_non_client_dpi_scaling != nullptr) {
-      enable_non_client_dpi_scaling(hwnd);
-      FreeLibrary(user32_module);
-    }
+  auto enable_non_client_dpi_scaling =
+      reinterpret_cast<EnableNonClientDpiScaling*>(
+          GetProcAddress(user32_module, "EnableNonClientDpiScaling"));
+  if (enable_non_client_dpi_scaling != nullptr) {
+    enable_non_client_dpi_scaling(hwnd);
   }
+  FreeLibrary(user32_module);
+}
 
 }  // namespace
 
 // Manages the Win32Window's window class registration.
 class WindowClassRegistrar {
-public:
+ public:
   ~WindowClassRegistrar() = default;
 
   // Returns the singleton registrar instance.
@@ -79,7 +79,7 @@ public:
   // instances of the window.
   void UnregisterWindowClass();
 
-private:
+ private:
   WindowClassRegistrar() = default;
 
   static WindowClassRegistrar* instance_;
@@ -193,7 +193,7 @@ bool Win32Window::Create(const std::wstring& title,
   if (!window) {
     return false;
   }
-UpdateTheme(window);
+  UpdateTheme(window);
 
   return OnCreate();
 }

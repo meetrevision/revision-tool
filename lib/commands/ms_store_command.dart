@@ -58,7 +58,7 @@ class MSStoreCommand extends Command<String> {
       stdout.writeln('$tag Downloading $id...');
       final downloadResult = await _msStoreService.downloadPackages(id, ring);
 
-      if (downloadResult.first.statusCode != 200) {
+      if (downloadResult.isEmpty || downloadResult.first.statusCode != 200) {
         stderr.writeln('$tag Failed to download $id');
         exit(1);
       }
@@ -66,12 +66,14 @@ class MSStoreCommand extends Command<String> {
       stdout.writeln('$tag Installing $id...');
       final installResult = await _msStoreService.installPackages(id, ring);
 
-      if (installResult.first.exitCode != 0) {
+      if (installResult.isEmpty || installResult.first.exitCode != 0) {
         stderr.writeln('$tag Failed to install $id');
         exit(1);
       }
 
       stdout.writeln('$tag Successfully installed $id');
+
+      await _msStoreService.cleanUpDownloads();
     }
     exit(0);
   }

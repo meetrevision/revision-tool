@@ -1,6 +1,6 @@
 
 
-<img  align="left" src="windows/runner/resources/revision_icon.ico" width="64" height="64" />
+<img align="left" src="windows/runner/resources/revision_icon.ico" width="64" height="64" />
 
 # Revision Tool
 [![Releases](https://img.shields.io/github/v/release/MeetRevision/revision-tool.svg)](https://github.com/MeetRevision/revision-tool/releases)
