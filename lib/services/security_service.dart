@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:revitool/services/network_service.dart';
+import 'package:collection/collection.dart';
 import 'package:revitool/services/win_package_service.dart';
 import 'package:win32_registry/win32_registry.dart';
 
@@ -8,11 +8,9 @@ import '../utils.dart';
 import 'registry_utils_service.dart';
 import 'setup_service.dart';
 import 'package:process_run/shell.dart';
-import 'package:path/path.dart' as p;
 
 class SecurityService implements SetupService {
   static final _shell = Shell();
-  static final _networkService = NetworkService();
   static final _winPackageService = WinPackageService();
 
   static const _instance = SecurityService._private();
@@ -95,10 +93,15 @@ class SecurityService implements SetupService {
           r'SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection',
           'DisableRealtimeMonitoring');
 
-      RegistryUtilsService.writeDword(Registry.localMachine,
-          r'SOFTWARE\Microsoft\Windows Defender', 'DisableAntiSpyware', 0);
-      RegistryUtilsService.writeDword(Registry.localMachine,
-          r'SOFTWARE\Microsoft\Windows Defender', 'DisableAntiVirus', 0);
+      // RegistryUtilsService.writeDword(Registry.localMachine,
+      //     r'SOFTWARE\Microsoft\Windows Defender', 'DisableAntiSpyware', 0);
+      // RegistryUtilsService.writeDword(Registry.localMachine,
+      //     r'SOFTWARE\Microsoft\Windows Defender', 'DisableAntiVirus', 0);
+
+      await _shell.run(
+          '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg delete "HKLM\\SOFTWARE\\Microsoft\\Windows Defender" /v DisableAntiSpyware /f');
+      await _shell.run(
+          '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg delete "HKLM\\SOFTWARE\\Microsoft\\Windows Defender" /v DisableAntiVirus /f');
 
       await _winPackageService.uninstallPackage(WinPackageType.defenderRemoval);
 
@@ -113,6 +116,121 @@ class SecurityService implements SetupService {
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce',
           'RevisionEnableDefenderCMD',
           '"$_mpCmdRunString" -WDEnable');
+
+      // Legacy
+      const subkeys = <String, int>{
+        'MsSecCore': 0,
+        'MsSecFlt': 0,
+        'MsSecWfp': 3,
+        'SecurityHealthService': 3,
+        'Sense': 3,
+        'WdBoot': 0,
+        'WdFilter': 0,
+        'WdNisDrv': 3,
+        'WdNisSvc': 3,
+        'WinDefend': 2,
+        'wscsvc': 2,
+        'MDCoreSvc': 2,
+        'SgrmAgent': 0,
+        'SgrmBroker': 2,
+        'webthreatdefsvc': 3,
+        'webthreatdefusersvc': 2,
+      };
+
+      for (final entry in subkeys.entries) {
+        RegistryUtilsService.writeDword(
+          Registry.localMachine,
+          r'SYSTEM\ControlSet001\Services\' + entry.key,
+          'Start',
+          entry.value,
+        );
+      }
+
+      final webthreatdefusersvc = Registry.openPath(RegistryHive.localMachine,
+              path: r'SYSTEM\ControlSet001\Services')
+          .subkeyNames
+          .firstWhereOrNull((final e) => e.startsWith("webthreatdefusersvc_"));
+      if (webthreatdefusersvc != null) {
+        RegistryUtilsService.writeDword(
+            Registry.localMachine,
+            r'SYSTEM\ControlSet001\Services\' + webthreatdefusersvc,
+            'Start',
+            2);
+      }
+
+      RegistryUtilsService.writeString(
+          Registry.localMachine,
+          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Run',
+          'SecurityHealth',
+          '%systemroot%\\system32\\SecurityHealthSystray.exe');
+
+      RegistryUtilsService.deleteKey(Registry.localMachine,
+          r'Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\smartscreen.exe');
+
+      const smartscreenPath = 'C:\\Windows\\System32\\smartscreen.exe';
+      if (!File(smartscreenPath).existsSync() &&
+          File('$smartscreenPath.revi').existsSync()) {
+        await _shell.run(
+            '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller ren "$smartscreenPath.revi" smartscreen.exe');
+      }
+
+      RegistryUtilsService.deleteKey(Registry.currentUser,
+          r'Software\Microsoft\Windows\CurrentVersion\Policies\Associations');
+      RegistryUtilsService.writeString(
+          Registry.localMachine,
+          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer',
+          'SmartScreenEnabled',
+          'On');
+      RegistryUtilsService.deleteValue(Registry.localMachine,
+          r'Software\Policies\Microsoft\System', 'EnableSmartScreen');
+
+      RegistryUtilsService.deleteValue(
+          Registry.currentUser,
+          r'Software\Microsoft\Windows\CurrentVersion\AppHost',
+          'EnableWebContentEvaluation');
+      RegistryUtilsService.deleteValue(
+          Registry.currentUser,
+          r'Software\Microsoft\Windows\CurrentVersion\AppHost',
+          'PreventOverride');
+      RegistryUtilsService.deleteValue(
+          Registry.localMachine,
+          r'Software\Microsoft\Windows\CurrentVersion\AppHost',
+          'EnableWebContentEvaluation');
+
+      RegistryUtilsService.deleteValue(
+          Registry.localMachine,
+          r'SYSTEM\ControlSet001\Control\CI\Policy',
+          'VerifiedAndReputablePolicyState');
+
+      RegistryUtilsService.deleteKey(Registry.localMachine,
+          r'Software\Policies\Microsoft\Windows Defender');
+      RegistryUtilsService.deleteKey(Registry.localMachine,
+          r'Software\Policies\Microsoft\Windows Advanced Threat Protection');
+      RegistryUtilsService.deleteKey(Registry.localMachine,
+          r'SOFTWARE\Policies\Microsoft\Windows Defender Security Center');
+
+      RegistryUtilsService.writeDword(Registry.localMachine,
+          r'SOFTWARE\Microsoft\Windows Defender', 'PUAProtection', 1);
+
+      RegistryUtilsService.deleteValue(
+          Registry.localMachine,
+          r'SYSTEM\ControlSet001\Control\CI\Config',
+          'VulnerableDriverBlocklistEnable');
+      RegistryUtilsService.deleteValue(
+          Registry.localMachine,
+          r'SYSTEM\ControlSet001\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity',
+          'Enabled');
+
+      RegistryUtilsService.writeDword(
+          Registry.localMachine,
+          r'SYSTEM\ControlSet001\Control\WMI\Autologger\DefenderApiLogger',
+          'Start',
+          1);
+      RegistryUtilsService.writeDword(
+          Registry.localMachine,
+          r'SYSTEM\ControlSet001\Control\WMI\Autologger\DefenderAuditLogger',
+          'Start',
+          1);
     } on Exception catch (e) {
       throw ('Failed to enable Windows Defender:\n\n$e');
     }

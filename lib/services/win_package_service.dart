@@ -86,6 +86,6 @@ class WinPackageService {
 
   Future<void> uninstallPackage(final WinPackageType packageType) async {
     await _shell.run(
-        'PowerShell -NonInteractive -NoLogo -NoP -C "Get-WindowsPackage -Online -PackageName \'${packageType.packageName}*\' | Remove-WindowsPackage -Online -NoRestart"');
+        'PowerShell -EP Unrestricted -NonInteractive -NoLogo -NoP -C "Get-WindowsPackage -Online -PackageName \'${packageType.packageName}*\' | Remove-WindowsPackage -Online -NoRestart"');
   }
 }
