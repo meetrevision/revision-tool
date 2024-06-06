@@ -46,6 +46,7 @@ class MSStoreService {
     "Microsoft.NET",
     "Microsoft.UI",
     "Microsoft.WinJS",
+    "Microsoft.WindowsAppRuntime",
   ];
   static bool isDependency(String name) =>
       _dependencies.any((e) => name.startsWith(RegExp(e)));

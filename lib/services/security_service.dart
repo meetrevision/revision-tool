@@ -57,11 +57,18 @@ class SecurityService implements SetupService {
   }
 
   bool get statusDefenderProtectionTamper {
-    return RegistryUtilsService.readInt(
-            RegistryHive.localMachine,
-            r'SOFTWARE\Microsoft\Windows Defender\Features',
-            'TamperProtection') !=
-        4;
+    final tp = RegistryUtilsService.readInt(RegistryHive.localMachine,
+        r'SOFTWARE\Microsoft\Windows Defender\Features', 'TamperProtection');
+    final tpSource = RegistryUtilsService.readInt(
+        RegistryHive.localMachine,
+        r'SOFTWARE\Microsoft\Windows Defender\Features',
+        'TamperProtectionSource');
+
+    if (tp == 0 && tpSource == null) {
+      return false;
+    }
+
+    return tp != 4;
   }
 
   bool get statusDefenderProtectionRealtime {
@@ -162,7 +169,7 @@ class SecurityService implements SetupService {
           Registry.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Run',
           'SecurityHealth',
-          '%systemroot%\\system32\\SecurityHealthSystray.exe');
+          r'%windir%\system32\SecurityHealthSystray.exe');
 
       RegistryUtilsService.deleteKey(Registry.localMachine,
           r'Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\smartscreen.exe');

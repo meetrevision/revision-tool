@@ -46,7 +46,8 @@ class MSStoreCommand extends Command<String> {
       stdout.writeln('$tag Starting process - $id ($ring)');
       try {
         await _msStoreService.startProcess(id, ring);
-      } catch (_) {
+      } catch (e) {
+        stderr.writeln(e.toString());
         stderr.writeln('$tag Failed to get any information for $id');
         exit(1);
       }
