@@ -4,6 +4,8 @@
 
 #include "flutter_window.h"
 #include "utils.h"
+#include "window_plus/window_plus_plugin_c_api.h"
+
 
 // ******* ADDED *******
 #include "win32_window.h"                     // where flag to hide gui is added
@@ -13,12 +15,13 @@
   New main, because the app is now a console app
 */
 int main(int argc, char *argv[]) {
-
+  
   // if any arguments are passed run in commandline mode
   if (argc > 1) {
     H_HIDE_WINDOW = true;
   } else {
     ::ShowWindow(::GetConsoleWindow(), SW_HIDE);
+    ::WindowPlusPluginCApiHandleSingleInstance(NULL, NULL);
   }
   // Initialize COM, so that it is available for use in the library and/or
   // plugins.
