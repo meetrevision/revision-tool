@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:revitool/services/network_service.dart';
 import 'package:xml/xml.dart' as xml;
-import 'package:path/path.dart' as p;
 import 'package:revitool/models/ms_store/non_uwp_response.dart';
 import 'package:revitool/models/ms_store/search_response.dart';
 import 'package:revitool/models/ms_store/packages_info.dart';
@@ -70,8 +69,6 @@ class MSStoreService {
 
   static var _cookie = "";
 
-  static final _dio = Dio();
-  static final _shell = Shell();
   static final _cancelToken = CancelToken();
   static final _networkService = NetworkService();
   // final RegistryUtilsService = RegistryUtilsService();
@@ -129,7 +126,7 @@ class MSStoreService {
 
   Future<List<ProductsList>> searchProducts(String query, String ring) async {
     //"$_filteredSearchAPI?&Query=$query&FilteredCategories=AllProducts&hl=en-us${systemLanguage.toLowerCase()}&
-    final response = await _dio.get(
+    final response = await _networkService.get(
         "$_searchAPI?gl=US&hl=en-us&query=$query&mediaType=all&age=all&price=all&category=all&subscription=all",
 
 // https://apps.microsoft.com/api/products/search?gl=GE&hl=en-us&query=xbox&cursor=
@@ -146,7 +143,7 @@ class MSStoreService {
   }
 
   Future<String> _getCookie() async {
-    final response = await _dio.post(
+    final response = await _networkService.post(
       _fe3Delivery,
       data: xml.XmlDocument.parse(_cookieFile.readAsStringSync()),
       options: _optionsSoapXML,
@@ -167,7 +164,7 @@ class MSStoreService {
 
     // When Windows region is set to English (World), the language code isn't compatible with the store API
     //"$_storeAPI/products/$id?market=US&locale=en-us&deviceFamily=Windows.Desktop",
-    final response = await _dio.get(
+    final response = await _networkService.get(
         "$_storeAPI/products/$id?market=US&locale=en-us&deviceFamily=Windows.Desktop",
         cancelToken: _cancelToken);
     final skus = response.data["Payload"]["Skus"];
@@ -188,7 +185,7 @@ class MSStoreService {
         .replaceAll("{2}", categoryID)
         .replaceAll("{3}", ring);
 
-    final response = await _dio.post(
+    final response = await _networkService.post(
       _fe3Delivery,
       data: cookie2,
       options: _optionsSoapXML,
@@ -206,7 +203,8 @@ class MSStoreService {
   }
 
   Future<List<PackagesInfo>> _getNonAppxPackage(String id) async {
-    final response = await _dio.get("$_storeAPI/packageManifests/$id?Market=US",
+    final response = await _networkService.get(
+        "$_storeAPI/packageManifests/$id?Market=US",
         cancelToken: _cancelToken);
 
     if (response.statusCode == 200) {
@@ -316,7 +314,7 @@ class MSStoreService {
         .replaceAll("{2}", revision)
         .replaceAll("{3}", ring);
 
-    final response = await _dio.post("$_fe3Delivery/secured",
+    final response = await _networkService.post("$_fe3Delivery/secured",
         data: httpContent,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/soap+xml",

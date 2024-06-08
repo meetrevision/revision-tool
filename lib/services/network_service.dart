@@ -14,13 +14,45 @@ enum ApiEndpoints {
 }
 
 class NetworkService {
-  static final _dio = Dio();
+  final _dio = Dio();
 
   NetworkService() {
     (_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () =>
         HttpClient()
           ..badCertificateCallback =
               (X509Certificate cert, String host, int port) => true;
+  }
+
+  Future<Response<T>> get<T>(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    void Function(int, int)? onReceiveProgress,
+  }) async {
+    try {
+      return await _dio.get(path, options: options, cancelToken: cancelToken);
+    } catch (e) {
+      throw Exception(
+          'Failed to connect to $path.\n\nPlease ensure you have an active internet connection and try again.\n\nError: $e');
+    }
+  }
+
+  Future<Response<T>> post<T>(
+    final String path, {
+    final Object? data,
+    final Map<String, dynamic>? queryParameters,
+    final Options? options,
+    final CancelToken? cancelToken,
+    final ProgressCallback? onReceiveProgress,
+  }) async {
+    try {
+      return await _dio.post(path, data: data, options: options);
+    } catch (e) {
+      throw Exception(
+          'Failed to connect to $path.\n\nPlease ensure you have an active internet connection and try again.\n\nError: $e');
+    }
   }
 
   Future<Map<String, dynamic>> getGHLatestRelease(ApiEndpoints endpoint) async {
@@ -31,7 +63,7 @@ class NetworkService {
       return response.data as Map<String, dynamic>;
     } catch (e) {
       throw Exception(
-          'Failed to connect to the GitHub API.\n\nPlease ensure you have an active internet connection and try again.');
+          'Failed to connect to the GitHub API.\n\nPlease ensure you have an active internet connection and try again.\n\nError: $e');
     }
   }
 
@@ -46,7 +78,7 @@ class NetworkService {
       return response;
     } catch (e) {
       throw Exception(
-          'Failed to download.\n\nPlease ensure you have an active internet connection and try again.');
+          'Failed to download.\n\nPlease ensure you have an active internet connection and try again.\n\nError: $e');
     }
   }
 }
