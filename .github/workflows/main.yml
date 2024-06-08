@@ -15,12 +15,12 @@ jobs:
           cache: true
 
       # https://github.com/subosito/flutter-action/issues/278
-      - name: Export pub environment variable
-        run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            echo "PUB_CACHE=$LOCALAPPDATA\\Pub\\Cache" >> $GITHUB_ENV
-          fi
-        shell: bash
+      # - name: Export pub environment variable
+      #   run: |
+      #     if [ "$RUNNER_OS" == "Windows" ]; then
+      #       echo "PUB_CACHE=$LOCALAPPDATA\\Pub\\Cache" >> $GITHUB_ENV
+      #     fi
+      #   shell: bash
     
       - run: echo "NEW_VERSION=${{ github.ref_name }}" | Out-File -FilePath $env:GITHUB_ENV -Append
 
