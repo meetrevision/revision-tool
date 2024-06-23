@@ -40,30 +40,33 @@ class _DownloadWidgetState extends State<DownloadWidget> {
   void initState() {
     super.initState();
 
-    final path = '${_ms.storeFolder}\\${widget.productId}';
+    final path = '${_ms.storeFolder}\\${widget.productId}\\${widget.ring}';
     final directory = Directory(path);
     if (directory.existsSync()) {
       directory.deleteSync(recursive: true);
     }
 
-    _streams = widget.items
-        .map((item) => _dio.download(
-              item.uri!,
-              '$path\\${item.name}.${item.extension}',
-              cancelToken: CancelToken(),
-              onReceiveProgress: (received, total) {
-                if (total != -1) {
-                  final index = widget.items.indexOf(item);
-                  _progressList[index].value =
-                      ((received / total) * 100).floorToDouble();
-                  if (received == total) {
-                    _completedDownloadsCount++;
-                    _downloadCompletionController.add(_completedDownloadsCount);
-                  }
-                }
-              },
-            ).asStream())
-        .toList();
+    _streams = widget.items.map((item) {
+      final downloadPath = MSStoreService.isDependency(item.name!)
+          ? "$path\\Dependencies"
+          : path;
+      return _dio.download(
+        item.uri!,
+        '$downloadPath\\${item.name}.${item.extension}',
+        cancelToken: CancelToken(),
+        onReceiveProgress: (received, total) {
+          if (total != -1) {
+            final index = widget.items.indexOf(item);
+            _progressList[index].value =
+                ((received / total) * 100).floorToDouble();
+            if (received == total) {
+              _completedDownloadsCount++;
+              _downloadCompletionController.add(_completedDownloadsCount);
+            }
+          }
+        },
+      ).asStream();
+    }).toList();
     _progressList =
         List.generate(widget.items.length, (_) => ValueNotifier<double>(0));
   }
@@ -128,14 +131,14 @@ class _DownloadWidgetState extends State<DownloadWidget> {
                     await _ms.installPackages(widget.productId, widget.ring),
                   );
 
-                  if (widget.cleanUpAfterInstall) {
-                    await _ms.cleanUpDownloads();
-                  }
-
                   if (!context.mounted) return;
                   Navigator.pop(context);
 
                   await showInstallProcess(context, processResult);
+
+                  // if (widget.cleanUpAfterInstall) {
+                  //   await _ms.cleanUpDownloads();
+                  // }
                 },
               ),
               Button(

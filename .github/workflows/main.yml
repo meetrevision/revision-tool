@@ -19,12 +19,12 @@ jobs:
           cache: true
 
       # https://github.com/subosito/flutter-action/issues/278
-      - name: Export pub environment variable
-        run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            echo "PUB_CACHE=$LOCALAPPDATA\\Pub\\Cache" >> $GITHUB_ENV
-          fi
-        shell: bash
+      # - name: Export pub environment variable
+      #   run: |
+      #     if [ "$RUNNER_OS" == "Windows" ]; then
+      #       echo "PUB_CACHE=$LOCALAPPDATA\\Pub\\Cache" >> $GITHUB_ENV
+      #     fi
+      #   shell: bash
     
       - run: echo "NEW_VERSION=${{ github.ref_name }}" | Out-File -FilePath $env:GITHUB_ENV -Append
 
@@ -37,7 +37,7 @@ jobs:
 
       - run: dart run build_runner build --delete-conflicting-outputs
 
-      - run: flutter build windows --build-name=${{ env.NEW_VERSION }} --build-number=1
+      - run: flutter build windows --build-name=${{ env.NEW_VERSION }} --build-number=1 --obfuscate --split-debug-info=/symbols
       
       - name: Build Installer
         run: |

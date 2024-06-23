@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
-import 'package:process_run/cmd_run.dart';
 import 'package:process_run/shell_run.dart';
-import '../models/ms_store/non_uwp_response.dart';
-import '../models/ms_store/search_response.dart';
-import '../models/ms_store/packages_info.dart';
+import 'package:revitool/services/network_service.dart';
 import 'package:xml/xml.dart' as xml;
-import '../utils.dart';
+import 'package:revitool/models/ms_store/non_uwp_response.dart';
+import 'package:revitool/models/ms_store/search_response.dart';
+import 'package:revitool/models/ms_store/packages_info.dart';
+import 'package:revitool/utils.dart';
 
 class MSStoreService {
   static final _storeFolder =
@@ -40,6 +40,16 @@ class MSStoreService {
     },
   );
 
+  static const _dependencies = [
+    "Microsoft.VCLibs",
+    "Microsoft.NET",
+    "Microsoft.UI",
+    "Microsoft.WinJS",
+    "Microsoft.WindowsAppRuntime",
+  ];
+  static bool isDependency(String name) =>
+      _dependencies.any((e) => name.startsWith(RegExp(e)));
+
   static final _regex = RegExp(r'"WuCategoryId":"([^"]+)"');
   static final _namePattern = RegExp(r'^[^_]+', multiLine: true);
 
@@ -59,8 +69,8 @@ class MSStoreService {
 
   static var _cookie = "";
 
-  static final _dio = Dio();
   static final _cancelToken = CancelToken();
+  static final _networkService = NetworkService();
   // final RegistryUtilsService = RegistryUtilsService();
 
   static const _instance = MSStoreService._private();
@@ -89,7 +99,8 @@ class MSStoreService {
       );
 
       if (_packages.isNotEmpty) {
-        _getLatestPackages();
+        await _getLatestPackages();
+        return;
       }
     }
 
@@ -110,12 +121,12 @@ class MSStoreService {
 
   /// Returns true if the product is not UWP
   bool isNonUWP(String productId) {
-    return productId.startsWith("XP");
+    return productId.toLowerCase().startsWith("xp");
   }
 
   Future<List<ProductsList>> searchProducts(String query, String ring) async {
     //"$_filteredSearchAPI?&Query=$query&FilteredCategories=AllProducts&hl=en-us${systemLanguage.toLowerCase()}&
-    final response = await _dio.get(
+    final response = await _networkService.get(
         "$_searchAPI?gl=US&hl=en-us&query=$query&mediaType=all&age=all&price=all&category=all&subscription=all",
 
 // https://apps.microsoft.com/api/products/search?gl=GE&hl=en-us&query=xbox&cursor=
@@ -132,7 +143,7 @@ class MSStoreService {
   }
 
   Future<String> _getCookie() async {
-    final response = await _dio.post(
+    final response = await _networkService.post(
       _fe3Delivery,
       data: xml.XmlDocument.parse(_cookieFile.readAsStringSync()),
       options: _optionsSoapXML,
@@ -149,11 +160,11 @@ class MSStoreService {
   }
 
   Future<String> _getCategoryID(String id) async {
-        //TODO: Implement proper way to get compatible language codes for the store API parameters
-        
-        // When Windows region is set to English (World), the language code isn't compatible with the store API
-        //"$_storeAPI/products/$id?market=US&locale=en-us&deviceFamily=Windows.Desktop",
-        final response = await _dio.get(
+    //TODO: Implement proper way to get compatible language codes for the store API parameters
+
+    // When Windows region is set to English (World), the language code isn't compatible with the store API
+    //"$_storeAPI/products/$id?market=US&locale=en-us&deviceFamily=Windows.Desktop",
+    final response = await _networkService.get(
         "$_storeAPI/products/$id?market=US&locale=en-us&deviceFamily=Windows.Desktop",
         cancelToken: _cancelToken);
     final skus = response.data["Payload"]["Skus"];
@@ -174,7 +185,7 @@ class MSStoreService {
         .replaceAll("{2}", categoryID)
         .replaceAll("{3}", ring);
 
-    final response = await _dio.post(
+    final response = await _networkService.post(
       _fe3Delivery,
       data: cookie2,
       options: _optionsSoapXML,
@@ -192,7 +203,8 @@ class MSStoreService {
   }
 
   Future<List<PackagesInfo>> _getNonAppxPackage(String id) async {
-    final response = await _dio.get("$_storeAPI/packageManifests/$id?Market=US",
+    final response = await _networkService.get(
+        "$_storeAPI/packageManifests/$id?Market=US",
         cancelToken: _cancelToken);
 
     if (response.statusCode == 200) {
@@ -211,7 +223,7 @@ class MSStoreService {
               "${versions.first.defaultLocale!.packageName}-${installer.architecture}";
 
           if (!urls.contains(installerUrl)) {
-            packages.add(
+            _packages.add(
               PackagesInfo(
                   name,
                   extension,
@@ -302,7 +314,7 @@ class MSStoreService {
         .replaceAll("{2}", revision)
         .replaceAll("{3}", ring);
 
-    final response = await _dio.post("$_fe3Delivery/secured",
+    final response = await _networkService.post("$_fe3Delivery/secured",
         data: httpContent,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/soap+xml",
@@ -311,7 +323,7 @@ class MSStoreService {
         }),
         cancelToken: _cancelToken);
 
-    if (response.statusMessage == "OK") {
+    if (response.statusCode == 200) {
       final xmlDoc = xml.XmlDocument.parse(response.data);
 
       for (final node in xmlDoc.findAllElements("FileLocation")) {
@@ -326,7 +338,7 @@ class MSStoreService {
   // filters:
 
   /// Group packages with the same name
-  Map<String?, List<PackagesInfo>> _groupSamePackages() {
+  Future<Map<String?, List<PackagesInfo>>> _groupSamePackages() async {
     final groupedItems = _packages
         .asMap()
         .entries
@@ -348,8 +360,8 @@ class MSStoreService {
     return groupedItems;
   }
 
-  void _getLatestPackages() {
-    final groupedPackages = _groupSamePackages();
+  Future<void> _getLatestPackages() async {
+    final groupedPackages = await _groupSamePackages();
 
     final latestGenPackages = groupedPackages.values.map((group) {
       final versionMap = <PackagesInfo, DateTime>{};
@@ -377,11 +389,11 @@ class MSStoreService {
     final result = <Response>[];
 
     for (final item in _packages) {
-      final response = await _dio.download(
-        item.uri!,
-        "$path\\${item.name}.${item.extension}",
-        cancelToken: _cancelToken,
-      );
+      final downloadPath =
+          isDependency(item.name!) ? "$path\\Dependencies" : path;
+      final response = await _networkService.downloadFile(
+          item.uri!, "$downloadPath\\${item.name}.${item.extension}");
+
       result.add(response);
     }
     return result;
@@ -395,9 +407,32 @@ class MSStoreService {
 
   Future<List<ProcessResult>> _installUWPPackages(
       String id, String ring) async {
-    return await run(
-      'powershell -NoP -ExecutionPolicy Bypass -NonInteractive -C "& {\$appxFiles = Get-ChildItem -Path "$_storeFolder\\$id"; foreach (\$file in \$appxFiles) { Add-AppxPackage -ForceApplicationShutdown -Path \$file.FullName;}}"',
-      verbose: false,
+    final path = "$_storeFolder\\$id\\$ring";
+    final dir = Directory(path).listSync();
+    final results = <ProcessResult>[];
+
+    if (dir.isNotEmpty) {
+      for (final d in dir) {
+        if (d is File) {
+          results.add(await _addAppxProcess(d.path));
+        }
+        if (d is Directory) {
+          final deps = Directory("$path\\Dependencies").listSync();
+          for (final file in deps) {
+            if (file is File) {
+              results.add(await _addAppxProcess(file.path));
+            }
+          }
+        }
+      }
+    }
+    return results;
+  }
+
+  Future<ProcessResult> _addAppxProcess(String path) async {
+    return await Process.run(
+      "powershell",
+      ["Add-AppxPackage -Path $path -ForceApplicationShutdown"],
     );
   }
 

@@ -56,8 +56,8 @@ class _UpdatesPageState extends State<UpdatesPage> {
           function: (value) {
             _wuPageBool.value = value;
             value
-                ? _updatesService.enableVisibilityWU()
-                : _updatesService.disableVisibilityWU();
+                ? _updatesService.disableVisibilityWU()
+                : _updatesService.enableVisibilityWU();
           },
         ),
         CardHighlightSwitch(
