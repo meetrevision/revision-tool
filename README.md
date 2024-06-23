@@ -11,6 +11,8 @@
 
 A tool to personalize ReviOS to your needs. Rewritten in Dart with Fluent UI.
 
+移除只能运行在ReviOS系统的限制
+
 The program is meant to be only used on [ReviOS](https://www.revi.cc/) 22.10 or up.
 
 ## License
