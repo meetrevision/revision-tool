@@ -45,12 +45,12 @@ class PerformanceService implements SetupService {
         '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\DisableSF.bat"');
   }
 
-  // TODO: Find a batter way to detect Memory Compression
-  // isMemoryCompressionEnabled is added by ReviOS, due to complexity of detecting the value without PowerShell
+  // TODO: Find a better way to detect Memory Compression
+  // Aug 16, 2023 isMemoryCompressionEnabled is added by ReviOS, due to complexity of detecting the value without PowerShell
+  // [2024-07-23] (Get-MMAgent).MemoryCompression" is slow, therefore we use tasklist via cmd to detect if 'Memory Compression' is running 
   Future<bool> get statusMemoryCompression async {
-    final value = await _shell.run(
-        'PowerShell -NonInteractive -NoLogo -NoProfile -Command "(Get-MMAgent).MemoryCompression"', );
-        return value.outText == 'True';
+    final result = await _shell.run('tasklist /FI "IMAGENAME eq Memory Compression" /FO CSV');
+    return result.outText.contains('Memory Compression');
   }
 
   Future<void> enableMemoryCompression() async {

@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
+
 import 'card_highlight.dart';
 
 class CardButtonWidget extends StatelessWidget {
@@ -27,13 +28,13 @@ class CardButtonWidget extends StatelessWidget {
       padding: const EdgeInsets.all(0.0),
       child: IconButton(
         style: ButtonStyle(
-          padding: ButtonState.all(const EdgeInsets.only(
+          padding: WidgetStateProperty.all(const EdgeInsets.only(
             left: 4.0,
             right: 4.0,
             top: 5.0,
             bottom: 0.0,
           )),
-          shape: ButtonState.all(RoundedRectangleBorder(
+          shape: WidgetStateProperty.all(RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(4.0),
           )),
         ),

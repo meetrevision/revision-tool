@@ -1,8 +1,10 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:revitool/extensions.dart';
+import 'package:revitool/services/registry_utils_service.dart';
 import 'package:revitool/services/usability_service.dart';
 import 'package:revitool/widgets/card_highlight.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
+import 'package:revitool/widgets/subtitle.dart';
 
 class UsabilityPage extends StatefulWidget {
   const UsabilityPage({super.key});
@@ -22,6 +24,8 @@ class _UsabilityPageState extends State<UsabilityPage> {
   late final _dCplBool = ValueNotifier<bool>(_usabilityService.statusCapsLock);
   late final _sesBool =
       ValueNotifier<bool>(_usabilityService.statusScreenEdgeSwipe);
+  late final _mrcBool =
+      ValueNotifier<bool>(_usabilityService.statusNewContextMenu);
 
   @override
   void dispose() {
@@ -30,6 +34,7 @@ class _UsabilityPageState extends State<UsabilityPage> {
     _itpBool.dispose();
     _dCplBool.dispose();
     _sesBool.dispose();
+    _mrcBool.dispose();
     super.dispose();
   }
 
@@ -101,6 +106,20 @@ class _UsabilityPageState extends State<UsabilityPage> {
                 : _usabilityService.disableScreenEdgeSwipe();
           },
         ),
+        if (RegistryUtilsService.isW11) ...[
+          const Subtitle(content: Text("Windows 11")),
+          CardHighlightSwitch(
+            icon: msicons.FluentIcons.document_one_page_20_regular,
+            label: context.l10n.usability11MRCLabel,
+            switchBool: _mrcBool,
+            function: (value) async {
+              _mrcBool.value = value;
+              _mrcBool.value
+                  ? await _usabilityService.enableNewContextMenu()
+                  : await _usabilityService.disableNewContextMenu();
+            },
+          ),
+        ],
       ],
     );
   }

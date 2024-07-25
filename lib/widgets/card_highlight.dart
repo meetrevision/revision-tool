@@ -125,6 +125,7 @@ class CardHighlightSwitch extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 const _fluentHighlightTheme = {
   'root': TextStyle(
     backgroundColor: Color(0x00ffffff),

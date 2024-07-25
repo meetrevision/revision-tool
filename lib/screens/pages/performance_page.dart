@@ -98,6 +98,7 @@ class _PerformancePageState extends State<PerformancePage> {
                 label: context.l10n.perfMCLabel,
                 description: context.l10n.perfMCDescription,
                 switchBool: _mcBool,
+                requiresRestart: true,
                 function: (value) async {
                   _mcBool.value = value;
                   value
