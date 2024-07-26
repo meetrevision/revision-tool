@@ -202,7 +202,7 @@ class MSStoreService {
     throw Exception('Failed to get file list xml');
   }
 
-  Future<List<PackagesInfo>> _getNonAppxPackage(String id) async {
+  Future<void> _getNonAppxPackage(String id) async {
     final response = await _networkService.get(
         "$_storeAPI/packageManifests/$id?Market=US",
         cancelToken: _cancelToken);
@@ -242,7 +242,6 @@ class MSStoreService {
         }
       }
     }
-    return packages;
   }
 
   Future<void> _parsePackages(String xmlList, String ring) async {
@@ -446,14 +445,14 @@ class MSStoreService {
         final filePath = file.path;
         final arguments = _packages
             .firstWhereOrNull(
-                (e) => e.name == (file.path.split('\\').last).split('.').last)
+                (e) => e.name == (file.path.split('\\').last).split(".").first)
             ?.commandLines
-            ?.split(' ');
+            ?.split(' ') ?? List<String>.empty();
 
         results.add(
           await runExecutableArguments(
             filePath,
-            arguments ?? List<String>.empty(),
+            arguments,
             verbose: true,
           ),
         );
