@@ -50,6 +50,13 @@ class RegistryUtilsService {
       r'SOFTWARE\Revision\Revision Tool',
       'ThemeMode');
 
+  static bool get themeTransparencyEffect =>
+      RegistryUtilsService.readInt(
+          RegistryHive.currentUser,
+          r'Software\Microsoft\Windows\CurrentVersion\Themes\Personalize',
+          'EnableTransparency') ==
+      1;
+
   static int? readInt(RegistryHive hive, String path, String value) {
     try {
       return Registry.openPath(

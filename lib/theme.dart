@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:system_theme/system_theme.dart';
 import 'package:win32_registry/win32_registry.dart';
 
@@ -45,6 +46,37 @@ class AppTheme extends ChangeNotifier {
   set indicator(NavigationIndicators indicator) {
     _indicator = indicator;
     notifyListeners();
+  }
+
+  static final _effect =
+      RegistryUtilsService.isW11 ? WindowEffect.mica : WindowEffect.acrylic;
+
+  WindowEffect _windowEffect = RegistryUtilsService.themeTransparencyEffect
+      ? _effect
+      : WindowEffect.disabled;
+  WindowEffect get windowEffect => _windowEffect;
+  set windowEffect(WindowEffect windowEffect) {
+    _windowEffect = windowEffect;
+    notifyListeners();
+  }
+
+  void setEffect(WindowEffect effect, BuildContext context) {
+    Window.setEffect(
+      effect: effect,
+      color: [_effect].contains(effect)
+          ? FluentTheme.of(context).micaBackgroundColor.withOpacity(0.05)
+          : Colors.transparent,
+      dark: FluentTheme.of(context).brightness.isDark,
+    );
+  }
+
+  Color? effectColor(Color? color,
+      {bool modifyColors = false, Color? fallbackColor}) {
+    if (_windowEffect != WindowEffect.disabled) {
+      if (modifyColors) return color?.withOpacity(0.05);
+      return Colors.transparent;
+    }
+    return color;
   }
 
   TextDirection _textDirection = TextDirection.ltr;

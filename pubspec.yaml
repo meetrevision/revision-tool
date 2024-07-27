@@ -20,6 +20,7 @@ dependencies:
   # UI
   fluent_ui: ^4.9.0
   system_theme: ^2.3.1
+  flutter_acrylic: ^1.1.4
   fluentui_system_icons: ^1.1.248
   window_plus:
     git:
