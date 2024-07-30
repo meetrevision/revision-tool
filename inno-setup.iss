@@ -44,6 +44,7 @@ Source: "{#SourcePath}\build\windows\x64\runner\Release\mixin_logger.dll"; DestD
 Source: "{#SourcePath}\build\windows\x64\runner\Release\window_plus_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourcePath}\build\windows\x64\runner\Release\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourcePath}\build\windows\x64\runner\Release\system_theme_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+rce: "{#SourcePath}\build\windows\x64\runner\Release\flutter_acrylic_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourcePath}\dlls\msvcp140.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourcePath}\dlls\vcruntime140.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourcePath}\dlls\vcruntime140_1.dll"; DestDir: "{app}"; Flags: ignoreversion
