@@ -26,74 +26,83 @@ import 'package:path/path.dart' as p;
 import 'package:flutter_acrylic/flutter_acrylic.dart' as flutter_acrylic;
 
 Future<void> main(List<String> args) async {
-  final path = p.join(Directory.systemTemp.path, 'Revision-Tool', 'Logs');
+  try {
+    final path = p.join(Directory.systemTemp.path, 'Revision-Tool', 'Logs');
 
-  if (Directory(path).existsSync()) {
-    try {
-      Directory(path).deleteSync(recursive: true);
-    } catch (e) {
-      stderr.writeln('Failed to delete logs directory: $e');
+    if (Directory(path).existsSync()) {
+      try {
+        Directory(path).deleteSync(recursive: true);
+      } catch (e) {
+        stderr.writeln('Failed to delete logs directory: $e');
+      }
     }
-  }
 
-  initLogger(path);
-  i('Revision Tool is starting');
+    initLogger(path);
+    i('Revision Tool is starting');
 
-  if (RegistryUtilsService.isSupported) {
-    i('isSupported is true');
-    _isSupported = true;
-  }
-
-  if (args.isNotEmpty) {
-    if (!_isSupported && !Directory(ameTemp).existsSync()) {
-      // TODO: unify messages
-      e('Unsupported build detected. Please apply ReviOS on your system');
-      stderr.writeln(
-        'Unsupported build detected. Please apply ReviOS on your system',
-      );
-      exit(55);
+    if (RegistryUtilsService.isSupported) {
+      i('isSupported is true');
+      _isSupported = true;
     }
-    final packageInfo = await PackageInfo.fromPlatform();
-    stdout.writeln("Running Revision Tool ${packageInfo.version}");
-    final runner = CommandRunner<String>("revitool", "Revision Tool CLI")
-      ..addCommand(MSStoreCommand())
-      ..addCommand(DefenderCommand())
-      ..addCommand(WindowsPackageCommand());
-    // ..addCommand(RecommendationCommand());
-    await runner.run(args);
-    exit(0);
+
+    if (args.isNotEmpty) {
+      if (!_isSupported && !Directory(ameTemp).existsSync()) {
+        // TODO: unify messages
+        e('Unsupported build detected. Please apply ReviOS on your system');
+        stderr.writeln(
+          'Unsupported build detected. Please apply ReviOS on your system',
+        );
+        exit(55);
+      }
+      final packageInfo = await PackageInfo.fromPlatform();
+      stdout.writeln("Running Revision Tool ${packageInfo.version}");
+      final runner = CommandRunner<String>("revitool", "Revision Tool CLI")
+        ..addCommand(MSStoreCommand())
+        ..addCommand(DefenderCommand())
+        ..addCommand(WindowsPackageCommand());
+      // ..addCommand(RecommendationCommand());
+      await runner.run(args);
+      exit(0);
+    }
+
+    WidgetsFlutterBinding.ensureInitialized();
+
+    if (RegistryUtilsService.readString(RegistryHive.localMachine,
+            r'SOFTWARE\Revision\Revision Tool', 'ThemeMode') ==
+        null) {
+      i('Creating Revision registry keys');
+      RegistryUtilsService.writeString(
+          Registry.localMachine,
+          r'SOFTWARE\Revision\Revision Tool',
+          'ThemeMode',
+          ThemeMode.system.name);
+      RegistryUtilsService.writeDword(Registry.localMachine,
+          r'SOFTWARE\Revision\Revision Tool', 'Experimental', 0);
+      RegistryUtilsService.writeString(Registry.localMachine,
+          r'SOFTWARE\Revision\Revision Tool', 'Language', 'en_US');
+    }
+
+    i('Initializing settings controller');
+    final settingsController = AppTheme(SettingsService());
+    await settingsController.loadSettings();
+    await SystemTheme.accentColor.load();
+    await Window.initialize();
+    await Window.hideWindowControls();
+
+    i('Initializing WindowPlus');
+    await WindowPlus.ensureInitialized(
+      application: 'revision-tool',
+      enableCustomFrame: true,
+      enableEventStreams: false,
+    );
+    await WindowPlus.instance.setMinimumSize(const Size(515, 330));
+
+    runApp(const MyApp());
+  } catch (err) {
+    e('error: $err');
+    stderr.writeln('error: $err');
+    exit(1);
   }
-
-  WidgetsFlutterBinding.ensureInitialized();
-
-  if (RegistryUtilsService.readString(RegistryHive.localMachine,
-          r'SOFTWARE\Revision\Revision Tool', 'ThemeMode') ==
-      null) {
-    i('Creating Revision registry keys');
-    RegistryUtilsService.writeString(Registry.localMachine,
-        r'SOFTWARE\Revision\Revision Tool', 'ThemeMode', ThemeMode.system.name);
-    RegistryUtilsService.writeDword(Registry.localMachine,
-        r'SOFTWARE\Revision\Revision Tool', 'Experimental', 0);
-    RegistryUtilsService.writeString(Registry.localMachine,
-        r'SOFTWARE\Revision\Revision Tool', 'Language', 'en_US');
-  }
-
-  i('Initializing settings controller');
-  final settingsController = AppTheme(SettingsService());
-  await settingsController.loadSettings();
-  await SystemTheme.accentColor.load();
-  await Window.initialize();
-  await Window.hideWindowControls();
-
-  i('Initializing WindowPlus');
-  await WindowPlus.ensureInitialized(
-    application: 'revision-tool',
-    enableCustomFrame: true,
-    enableEventStreams: false,
-  );
-  await WindowPlus.instance.setMinimumSize(const Size(515, 330));
-
-  runApp(const MyApp());
 }
 
 bool _isSupported = false;
