@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:process_run/shell_run.dart';
 import 'package:revitool/extensions.dart';
 import 'package:revitool/screens/pages/miscellaneous_page.dart';
@@ -9,11 +10,9 @@ import 'package:revitool/screens/pages/performance_page.dart';
 import 'package:revitool/screens/pages/security_page.dart';
 import 'package:revitool/screens/pages/updates_page.dart';
 import 'package:revitool/screens/pages/usability_page.dart';
-import 'package:revitool/screens/pages/usability_page_two.dart';
 import 'package:revitool/screens/settings.dart';
 import 'package:revitool/services/registry_utils_service.dart';
 import 'package:win32_registry/win32_registry.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:window_plus/window_plus.dart';
 
 import '../widgets/card_button.dart';
@@ -69,23 +68,13 @@ class _HomePageState extends State<HomePage> {
         body: const SecurityPage(),
       ),
       RegistryUtilsService.isW11
-          ? PaneItemExpander(
+          ? PaneItem(
               icon: const Icon(
                 msicons.FluentIcons.search_square_24_regular,
                 size: 20,
               ),
               title: Text(context.l10n.pageUsability),
               body: const UsabilityPage(),
-              items: [
-                PaneItem(
-                  icon: const Icon(
-                    msicons.FluentIcons.window_apps_24_regular,
-                    size: 20,
-                  ),
-                  title: const Text('Windows 11'),
-                  body: const UsabilityPageTwo(),
-                ),
-              ],
             )
           : PaneItem(
               icon: const Icon(
