@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:path/path.dart' as p;
 import 'package:process_run/shell.dart';
+import 'package:revitool/commands/playbook_patches_command.dart';
 
 import 'package:revitool/services/network_service.dart';
 import 'package:revitool/services/registry_utils_service.dart';
@@ -80,12 +81,9 @@ class WinPackageService {
 
   Future<void> installPackage(final WinPackageType packageType) async {
     if (packageType == WinPackageType.systemComponentsRemoval) {
-      // remove 'OneDrive' from explorer TODO: Remove this section after a new PB is released
-      RegistryUtilsService.writeDword(
-          Registry.classesRoot,
-          r'CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}',
-          'System.IsPinnedToNameSpaceTree',
-          0);
+      // TODO: Remove this section after a new PB is released
+      final pbPatches = PlaybookPatchesCommand();
+      await pbPatches.applyPatches();
     }
 
     if (!await File("$directoryExe\\cab-installer.ps1").exists()) {

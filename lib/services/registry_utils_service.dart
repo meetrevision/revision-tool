@@ -26,6 +26,11 @@ class RegistryUtilsService {
         readString(
                 RegistryHive.localMachine,
                 r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
+                'EditionSubVersion') ==
+            'ReviOS' ||
+        readString(
+                RegistryHive.localMachine,
+                r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
                 'EditionSubManufacturer') ==
             'MeetRevision';
   }

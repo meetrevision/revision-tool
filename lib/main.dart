@@ -8,6 +8,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mixin_logger/mixin_logger.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:revitool/commands/ms_store_command.dart';
+import 'package:revitool/commands/playbook_patches_command.dart';
 import 'package:revitool/commands/recommendation_command.dart';
 import 'package:revitool/commands/security_command.dart';
 import 'package:revitool/commands/win_package_command.dart';
@@ -58,7 +59,8 @@ Future<void> main(List<String> args) async {
     final runner = CommandRunner<String>("revitool", "Revision Tool CLI")
       ..addCommand(MSStoreCommand())
       ..addCommand(DefenderCommand())
-      ..addCommand(WindowsPackageCommand());
+      ..addCommand(WindowsPackageCommand())
+      ..addCommand(PlaybookPatchesCommand());
     // ..addCommand(RecommendationCommand());
     await runner.run(args);
     exit(0);
