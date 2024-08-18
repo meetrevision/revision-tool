@@ -50,8 +50,8 @@ class MiscellaneousService implements SetupService {
     RegistryUtilsService.writeDword(Registry.localMachine,
         r'SYSTEM\ControlSet001\Control\Power', 'HibernateEnabled', 0);
     await _shell.run(r'''
-                     powercfg -h off
-                    ''');
+powercfg -h off
+''');
   }
 
   // int? get statusHibernationMode {
