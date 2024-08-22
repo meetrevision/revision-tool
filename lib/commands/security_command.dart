@@ -91,8 +91,8 @@ Virus and Threat Protections Status: ${_securityService.statusDefenderProtection
 
     try {
       await _securityService.disableDefender();
-    } catch (e) {
-      stderr.writeln('$tag Error disabling Windows Defender: $e');
+    } on Exception catch (e) {
+      stderr.writeln('$tag Error disabling Windows Defender: ${e.toString()}');
       exit(1);
     }
   }

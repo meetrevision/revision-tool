@@ -244,41 +244,48 @@ class SecurityService implements SetupService {
   }
 
   Future<void> disableDefender() async {
-    await _winPackageService.downloadPackage(WinPackageType.defenderRemoval);
+    try {
+      await _winPackageService.downloadPackage(WinPackageType.defenderRemoval);
 
-    RegistryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SOFTWARE\Policies\Microsoft\Windows Defender',
-        'DisableAntiSpyware',
-        1);
-    RegistryUtilsService.writeDword(Registry.localMachine,
-        r'SOFTWARE\Policies\Microsoft\Windows Defender', 'DisableAntiVirus', 1);
-    RegistryUtilsService.writeDword(
-        Registry.localMachine,
-        r'SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection',
-        'DisableRealtimeMonitoring',
-        1);
+      RegistryUtilsService.writeDword(
+          Registry.localMachine,
+          r'SOFTWARE\Policies\Microsoft\Windows Defender',
+          'DisableAntiSpyware',
+          1);
+      RegistryUtilsService.writeDword(
+          Registry.localMachine,
+          r'SOFTWARE\Policies\Microsoft\Windows Defender',
+          'DisableAntiVirus',
+          1);
+      RegistryUtilsService.writeDword(
+          Registry.localMachine,
+          r'SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection',
+          'DisableRealtimeMonitoring',
+          1);
 
-    await _shell.run(
-        'start /WAIT /MIN /B "" "%systemroot%\\System32\\gpupdate.exe" /Target:Computer /Force');
+      await _shell.run(
+          'start /WAIT /MIN /B "" "%systemroot%\\System32\\gpupdate.exe" /Target:Computer /Force');
 
-    await _shell.run(
-        "PowerShell -EP Unrestricted -NonInteractive -NoLogo -NoP -C 'Start-Process -FilePath \"$_mpCmdRunString\" -ArgumentList \"-RemoveDefinitions -All\" -NoNewWindow -Wait'");
+      await _shell.run(
+          "PowerShell -EP Unrestricted -NonInteractive -NoLogo -NoP -C 'Start-Process -FilePath \"$_mpCmdRunString\" -ArgumentList \"-RemoveDefinitions -All\" -NoNewWindow -Wait'");
 
-    await _shell.run(
-        '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg add "HKLM\\SOFTWARE\\Microsoft\\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f');
-    await _shell.run(
-        '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg add "HKLM\\SOFTWARE\\Microsoft\\Windows Defender" /v DisableAntiVirus /t REG_DWORD /d 1 /f');
+      await _shell.run(
+          '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg add "HKLM\\SOFTWARE\\Microsoft\\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f');
+      await _shell.run(
+          '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg add "HKLM\\SOFTWARE\\Microsoft\\Windows Defender" /v DisableAntiVirus /t REG_DWORD /d 1 /f');
 
-    await _shell.run(
-        '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg add "HKLM\\System\\ControlSet001\\Services\\MDCoreSvc" /v Start /t REG_DWORD /d 4 /f');
+      await _shell.run(
+          '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg add "HKLM\\System\\ControlSet001\\Services\\MDCoreSvc" /v Start /t REG_DWORD /d 4 /f');
 
-    RegistryUtilsService.deleteValue(
-        Registry.localMachine,
-        r'SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce',
-        'RevisionEnableDefenderCMD');
+      RegistryUtilsService.deleteValue(
+          Registry.localMachine,
+          r'SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce',
+          'RevisionEnableDefenderCMD');
 
-    await _winPackageService.installPackage(WinPackageType.defenderRemoval);
+      await _winPackageService.installPackage(WinPackageType.defenderRemoval);
+    } on Exception catch (e) {
+      throw ('Failed to disable Windows Defender:\n\n$e');
+    }
   }
 
   bool get statusUAC {
