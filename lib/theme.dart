@@ -49,7 +49,7 @@ class AppTheme extends ChangeNotifier {
   }
 
   static final _effect =
-      RegistryUtilsService.isW11 ? WindowEffect.mica : WindowEffect.acrylic;
+      RegistryUtilsService.isW11 ? WindowEffect.mica : WindowEffect.disabled;
 
   WindowEffect _windowEffect = RegistryUtilsService.themeTransparencyEffect
       ? _effect

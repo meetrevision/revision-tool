@@ -9,10 +9,8 @@ import 'package:mixin_logger/mixin_logger.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:revitool/commands/ms_store_command.dart';
 import 'package:revitool/commands/playbook_patches_command.dart';
-import 'package:revitool/commands/recommendation_command.dart';
 import 'package:revitool/commands/security_command.dart';
 import 'package:revitool/commands/win_package_command.dart';
-import 'package:revitool/extensions.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
 import 'package:revitool/providers/l10n_provider.dart';
 import 'package:revitool/screens/home_page.dart';
@@ -24,7 +22,6 @@ import 'package:system_theme/system_theme.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:window_plus/window_plus.dart';
 import 'package:path/path.dart' as p;
-import 'package:flutter_acrylic/flutter_acrylic.dart' as flutter_acrylic;
 
 Future<void> main(List<String> args) async {
   final path = p.join(Directory.systemTemp.path, 'Revision-Tool', 'Logs');
