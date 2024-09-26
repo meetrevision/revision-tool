@@ -654,10 +654,10 @@ packages:
     dependency: transitive
     description:
       name: safe_local_storage
-      sha256: ede4eb6cb7d88a116b3d3bf1df70790b9e2038bc37cb19112e381217c74d9440
+      sha256: e9a21b6fec7a8aa62cc2585ff4c1b127df42f3185adbd2aca66b47abe2e80236
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.2"
+    version: "2.0.1"
   scroll_pos:
     dependency: transitive
     description:
@@ -868,8 +868,8 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "554e8db73e92a750bf131d0341e5f1f93b118e8f"
-      url: "https://github.com/melo936/window_plus"
+      resolved-ref: df07b84e8f703a7ad662b390854e839d69dce672
+      url: "https://github.com/alexmercerind/window_plus"
     source: git
     version: "0.0.1"
   xdg_directories:

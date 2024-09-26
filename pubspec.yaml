@@ -24,8 +24,8 @@ dependencies:
   fluentui_system_icons: ^1.1.252
   window_plus:
     git:
-      url: https://github.com/melo936/window_plus
-      # url: https://github.com/alexmercerind/window_plus
+      # url: https://github.com/melo936/window_plus
+      url: https://github.com/alexmercerind/window_plus
 
   # State management
   provider: ^6.1.2
