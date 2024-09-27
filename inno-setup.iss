@@ -3,9 +3,9 @@
 
 #define MyAppName "Revision Tool"
 #define MyAppVersion "1.0.0"
-#define MyAppPublisher "Revision"
+#define MyAppPublisher "MeetRevision"
 #define MyAppURL "https://www.revi.cc/"
-#define MyAppExeName "revitool.exe"
+#define MyAppExeName "revitoolw.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -21,9 +21,9 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
 DisableDirPage=yes
 DisableProgramGroupPage=yes
-OutputDir={#SourcePath}\build\
+OutputDir={#SourcePath}
 OutputBaseFilename=RevisionTool-Setup
-SetupIconFile={#SourcePath}\windows\runner\resources\revision_icon.ico
+SetupIconFile={#SourcePath}\windows\runner\resources\app_icon.ico
 Compression=zip
 SolidCompression=yes
 UninstallDisplayIcon={app}\{#MyAppExeName}
@@ -39,16 +39,16 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
-Source: "{#SourcePath}\build\windows\x64\runner\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\windows\x64\runner\Release\mixin_logger.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\windows\x64\runner\Release\window_plus_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\windows\x64\runner\Release\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\windows\x64\runner\Release\system_theme_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\windows\x64\runner\Release\flutter_acrylic_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\dlls\msvcp140.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\dlls\vcruntime140.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\dlls\vcruntime140_1.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\windows\x64\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#SourcePath}\gui\build\windows\x64\runner\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\revitool.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\gui\build\windows\x64\runner\Release\window_plus_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\gui\build\windows\x64\runner\Release\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\gui\build\windows\x64\runner\Release\system_theme_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\gui\build\windows\x64\runner\Release\flutter_acrylic_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\gui\dlls\msvcp140.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\gui\dlls\vcruntime140.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\gui\dlls\vcruntime140_1.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\gui\build\windows\x64\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

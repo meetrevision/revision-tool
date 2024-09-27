@@ -30,10 +30,14 @@ jobs:
         shell: pwsh
       
       - run: flutter gen-l10n
+        working-directory: gui
 
       - run: dart run build_runner build --delete-conflicting-outputs
+        working-directory: common
 
-      - run: flutter build windows --build-name=${{ env.NEW_VERSION }} --build-number=1 --obfuscate --split-debug-info=/symbols
+      - run: dart compile exe common/bin/main.dart -o revitool.exe
+
+      - run: flutter build windows --target=gui/lib/main.dart --build-name=${{ env.NEW_VERSION }} --build-number=1 --obfuscate --split-debug-info=/symbols --dart-define="APP_VERSION=${{ env.NEW_VERSION }}"
       
       - name: Build Installer
         run: |
