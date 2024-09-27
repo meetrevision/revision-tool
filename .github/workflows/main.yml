@@ -1,4 +1,5 @@
 on:
+  workflow_dispatch:
   push:
     tags:
       - '*'
@@ -37,7 +38,8 @@ jobs:
 
       - run: dart compile exe common/bin/main.dart -o revitool.exe
 
-      - run: flutter build windows --target=gui/lib/main.dart --build-name=${{ env.NEW_VERSION }} --build-number=1 --obfuscate --split-debug-info=/symbols --dart-define="APP_VERSION=${{ env.NEW_VERSION }}"
+      - run: flutter build windows --build-name=${{ env.NEW_VERSION }} --build-number=1 --obfuscate --split-debug-info=/symbols --dart-define="APP_VERSION=${{ env.NEW_VERSION }}"
+        working-directory: gui
       
       - name: Build Installer
         run: |
@@ -46,14 +48,14 @@ jobs:
 
       - name: Calculate SHA256 hash
         run: |
-          $hash = Get-FileHash "build/RevisionTool-Setup.exe" -Algorithm SHA256
+          $hash = Get-FileHash "RevisionTool-Setup.exe" -Algorithm SHA256
           echo "SHA256_HASH=$($hash.Hash)" | Out-File -FilePath $env:GITHUB_ENV -Append
         
       - name: Release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.TOKEN }}
-          file: build/RevisionTool-Setup.exe
+          file: RevisionTool-Setup.exe
           asset_name: RevisionTool-Setup.exe
           tag: ${{ github.ref }}
           overwrite: true
