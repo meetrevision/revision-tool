@@ -8,8 +8,6 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
-  args: ^2.4.2
-  # collection: ^1.19.0
 
   # Network
   dio: ^5.7.0
@@ -22,14 +20,16 @@ dependencies:
   logger: ^2.4.0
 
   # Other
+  args: ^2.5.0
   path: ^1.9.0
   process_run: ^1.2.0+1
   win32_registry: ^1.1.5
   xml: ^6.5.0
+  collection: ^1.18.0
 
 dev_dependencies:
   build_runner: ^2.4.12
   freezed: ^2.5.7
   json_serializable: ^6.8.0
   lints: ^4.0.0
-  test: ^1.24.0
+  # test: ^1.24.0

@@ -16,10 +16,10 @@ import 'package:system_theme/system_theme.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:window_plus/window_plus.dart';
 
-Future<void> main(List<String> args) async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  logger.i('Revision Tool is starting');
+  logger.i('Revision Tool GUI is starting');
 
   if (WinRegistryService.isSupported) {
     logger.i('isSupported is true');

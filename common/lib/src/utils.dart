@@ -13,7 +13,7 @@ final tempReviPath = p.join(Directory.systemTemp.path, 'Revision-Tool', 'Logs');
 
 final logger = Logger(
   filter: ProductionFilter(),
-  printer: PrettyPrinter(), // Use the PrettyPrinter to format and print log
+  printer: PrettyPrinter(),
   output: FileOutput(
     overrideExisting: true,
     file: File.fromUri(
