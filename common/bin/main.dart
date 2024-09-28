@@ -12,7 +12,7 @@ Future<void> main(List<String> args) async {
   if (args.isEmpty) {
     final guiPath =
         "${mainPath.substring(0, mainPath.lastIndexOf("\\"))}\\revitoolw.exe";
-    if (await Directory(guiPath).exists()) {
+    if (await File(guiPath).exists()) {
       await Process.start('revitoolw', []);
       exit(0);
     }
