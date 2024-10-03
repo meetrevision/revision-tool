@@ -1,4 +1,5 @@
 on:
+  workflow_dispatch:
   push:
     tags:
       - '*'
@@ -30,10 +31,22 @@ jobs:
         shell: pwsh
       
       - run: flutter gen-l10n
+        working-directory: gui
 
       - run: dart run build_runner build --delete-conflicting-outputs
+        working-directory: common
 
-      - run: flutter build windows --build-name=${{ env.NEW_VERSION }} --build-number=1 --obfuscate --split-debug-info=/symbols
+      - name: Build revitool CLI
+        run: dart compile exe common/bin/main.dart -o revitool.exe --define=APP_VERSION=${{ env.NEW_VERSION }} 
+
+      - name: Enable Administrator Privileges for revitool CLI app
+        shell: pwsh
+        run: |
+          & "${env:ProgramFiles(x86)}\Windows Kits\10\bin\10.0.22621.0\x64\mt.exe" -nologo -manifest common/app.manifest -outputresource:revitool.exe;1
+
+      - name: Build revitool GUI
+        run: flutter build windows --build-name=${{ env.NEW_VERSION }} --build-number=1 --obfuscate --split-debug-info=/symbols --dart-define=APP_VERSION=${{ env.NEW_VERSION }}
+        working-directory: gui
       
       - name: Build Installer
         run: |
@@ -42,14 +55,14 @@ jobs:
 
       - name: Calculate SHA256 hash
         run: |
-          $hash = Get-FileHash "build/RevisionTool-Setup.exe" -Algorithm SHA256
+          $hash = Get-FileHash "RevisionTool-Setup.exe" -Algorithm SHA256
           echo "SHA256_HASH=$($hash.Hash)" | Out-File -FilePath $env:GITHUB_ENV -Append
         
       - name: Release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.TOKEN }}
-          file: build/RevisionTool-Setup.exe
+          file: RevisionTool-Setup.exe
           asset_name: RevisionTool-Setup.exe
           tag: ${{ github.ref }}
           overwrite: true
