@@ -38,15 +38,5 @@ Something went wrong. Please try again.
     exit(0);
   }
 
-  Future<void> applyPatches() async {
-    // remove 'OneDrive' from explorer TODO: Remove this section after a new PB is released
-    WinRegistryService.writeDword(
-        Registry.classesRoot,
-        r'CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}',
-        'System.IsPinnedToNameSpaceTree',
-        0);
-
-    // After July 2024 Windows updates, modifying 'HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' seems to crash the process of applying playbook
-    _updatesService.enablePauseUpdatesWU();
-  }
+  Future<void> applyPatches() async {}
 }
