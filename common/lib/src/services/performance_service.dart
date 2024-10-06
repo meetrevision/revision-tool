@@ -145,27 +145,53 @@ class PerformanceService implements SetupService {
   }
 
   bool get statusWindowedOptimization {
-    return WinRegistryService.readString(
-                RegistryHive.currentUser,
-                r'Software\Microsoft\DirectX\UserGpuPreferences',
-                "DirectXUserGlobalSettings")
-            ?.contains("SwapEffectUpgradeEnable=1") ??
-        false;
+    final value = WinRegistryService.readString(
+        RegistryHive.currentUser,
+        r'Software\Microsoft\DirectX\UserGpuPreferences',
+        "DirectXUserGlobalSettings");
+    return value == null || !value.contains('SwapEffectUpgradeEnable=0');
   }
 
   void enableWindowedOptimization() {
+    final currentValue = WinRegistryService.readString(
+        RegistryHive.currentUser,
+        r'Software\Microsoft\DirectX\UserGpuPreferences',
+        "DirectXUserGlobalSettings");
+
+    final String newValue;
+    if (currentValue == null || currentValue.isEmpty) {
+      newValue = 'SwapEffectUpgradeEnable=1;';
+    } else {
+      newValue =
+          'SwapEffectUpgradeEnable=1;${currentValue.replaceAll('SwapEffectUpgradeEnable=0;', '').replaceAll('SwapEffectUpgradeEnable=0', '')}';
+    }
+
     WinRegistryService.writeString(
         Registry.currentUser,
         r'Software\Microsoft\DirectX\UserGpuPreferences',
         'DirectXUserGlobalSettings',
-        r'SwapEffectUpgradeEnable=1;');
+        newValue);
   }
 
   void disableWindowedOptimization() {
-    WinRegistryService.deleteValue(
+    final currentValue = WinRegistryService.readString(
+        RegistryHive.currentUser,
+        r'Software\Microsoft\DirectX\UserGpuPreferences',
+        "DirectXUserGlobalSettings");
+
+    final String newValue;
+    if (currentValue == null || currentValue.isEmpty) {
+      newValue = 'SwapEffectUpgradeEnable=0;';
+    } else {
+      newValue =
+          'SwapEffectUpgradeEnable=0;${currentValue.replaceAll('SwapEffectUpgradeEnable=1;', '').replaceAll('SwapEffectUpgradeEnable=1', '')}';
+    }
+
+    WinRegistryService.writeString(
         Registry.currentUser,
         r'Software\Microsoft\DirectX\UserGpuPreferences',
-        'DirectXUserGlobalSettings');
+        'DirectXUserGlobalSettings',
+        newValue);
   }
 
   bool get statusBackgroundApps {
