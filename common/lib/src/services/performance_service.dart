@@ -196,10 +196,20 @@ class PerformanceService implements SetupService {
 
   bool get statusBackgroundApps {
     return WinRegistryService.readInt(
-            RegistryHive.localMachine,
-            r'Software\Policies\Microsoft\Windows\AppPrivacy',
-            'LetAppsRunInBackground') !=
-        2;
+                RegistryHive.localMachine,
+                r'Software\Policies\Microsoft\Windows\AppPrivacy',
+                'LetAppsRunInBackground') !=
+            2 &&
+        WinRegistryService.readInt(
+                RegistryHive.currentUser,
+                r'Software\Microsoft\Windows\CurrentVersion\Search',
+                'BackgroundAppGlobalToggle') !=
+            0 &&
+        WinRegistryService.readInt(
+                RegistryHive.currentUser,
+                r'Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications',
+                'GlobalUserDisabled') !=
+            1;
   }
 
   void enableBackgroundApps() {
@@ -224,7 +234,7 @@ class PerformanceService implements SetupService {
 
   void disableBackgroundApps() {
     WinRegistryService.writeDword(
-        Registry.localMachine,
+        Registry.currentUser,
         r'Software\Microsoft\Windows\CurrentVersion\Search',
         'BackgroundAppGlobalToggle',
         0);

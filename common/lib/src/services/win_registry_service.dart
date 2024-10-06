@@ -100,14 +100,10 @@ class WinRegistryService {
 
   static Future<void> writeDword(
       RegistryKey key, String path, String name, int value) async {
-    final regKey = key;
-    var regPath = path;
-    final subKey = regKey.createKey(regPath);
-
-    var dword = RegistryValue(name, RegistryValueType.int32, value);
-
     try {
-      subKey.createValue(dword);
+      key
+          .createKey(path)
+          .createValue(RegistryValue(name, RegistryValueType.int32, value));
       logger.i('Added $name with $value to $path');
     } catch (e) {
       logger.w('Error writing $name - $e');
@@ -116,14 +112,10 @@ class WinRegistryService {
 
   static void writeString(
       RegistryKey key, String path, String name, String value) {
-    final regKey = key;
-    var regPath = path;
-    final subKey = regKey.createKey(regPath);
-
-    var string = RegistryValue(name, RegistryValueType.string, value);
-
     try {
-      subKey.createValue(string);
+      key
+          .createKey(path)
+          .createValue(RegistryValue(name, RegistryValueType.string, value));
       logger.i('Added $name with $value to $path');
     } catch (e) {
       logger.w('Error writing $name - $e');
@@ -132,14 +124,9 @@ class WinRegistryService {
 
   static void writeStringMultiSZ(
       RegistryKey key, String path, String name, String value) {
-    final regKey = key;
-    var regPath = path;
-    final subKey = regKey.createKey(regPath);
-
-    var string = RegistryValue(name, RegistryValueType.stringArray, value);
-
     try {
-      subKey.createValue(string);
+      key.createKey(path).createValue(
+          RegistryValue(name, RegistryValueType.stringArray, value));
       logger.i('Added $name with $value to $path');
     } catch (e) {
       logger.w('Error writing $name - $e');
@@ -148,25 +135,17 @@ class WinRegistryService {
 
   static void writeBinary(
       RegistryKey key, String path, String name, List<int> value) {
-    final regKey = key;
-    var regPath = path;
-    final subKey = regKey.createKey(regPath);
-
-    var bin = RegistryValue(name, RegistryValueType.binary, value);
     try {
-      subKey.createValue(bin);
+      key.createKey(path).createValue(RegistryValue(
+          name, RegistryValueType.binary, Uint8List.fromList(value)));
     } catch (e) {
       logger.w('Error writing $name - $e');
     }
   }
 
   static void deleteValue(RegistryKey key, String path, String name) {
-    final regKey = key;
-    var regPath = path;
-    final subKey = regKey.createKey(regPath);
-
     try {
-      subKey.deleteValue(name);
+      key.createKey(path).deleteValue(name);
       logger.i('Deleted $name from $path');
     } catch (_) {
       logger.w('Error deleting $name from $path');
@@ -174,10 +153,8 @@ class WinRegistryService {
   }
 
   static void deleteKey(RegistryKey key, String path) {
-    final regKey = key;
-    var regPath = path;
     try {
-      regKey.deleteKey(regPath);
+      key.deleteKey(path);
       logger.i('Deleted $path');
     } catch (e) {
       logger.w('Error deleting $path');
@@ -185,10 +162,8 @@ class WinRegistryService {
   }
 
   static void createKey(RegistryKey key, String path) {
-    final regKey = key;
-    var regPath = path;
     try {
-      regKey.createKey(regPath);
+      key.createKey(path);
       logger.i('Created $path');
     } catch (_) {
       logger.w('Error creating $path');
