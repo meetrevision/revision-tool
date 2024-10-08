@@ -1,12 +1,74 @@
 {
+  "ar": [
+    "miscUpdateKGL",
+    "miscUpdateKGLDescription"
+  ],
+
+  "de": [
+    "miscUpdateKGL",
+    "miscUpdateKGLDescription"
+  ],
+
+  "fr": [
+    "miscUpdateKGL",
+    "miscUpdateKGLDescription"
+  ],
+
+  "hu": [
+    "miscUpdateKGL",
+    "miscUpdateKGLDescription"
+  ],
+
+  "it": [
+    "miscUpdateKGL",
+    "miscUpdateKGLDescription"
+  ],
+
+  "pt": [
+    "miscUpdateKGL",
+    "miscUpdateKGLDescription"
+  ],
+
+  "pt_BR": [
+    "miscUpdateKGL",
+    "miscUpdateKGLDescription"
+  ],
+
+  "ro": [
+    "miscUpdateKGL",
+    "miscUpdateKGLDescription"
+  ],
+
+  "ru": [
+    "miscUpdateKGL",
+    "miscUpdateKGLDescription"
+  ],
+
+  "tr": [
+    "miscUpdateKGL",
+    "miscUpdateKGLDescription"
+  ],
+
+  "uk": [
+    "miscUpdateKGL",
+    "miscUpdateKGLDescription"
+  ],
+
   "zh": [
     "usabilitySESLabel",
     "usabilitySESDescription",
+    "miscUpdateKGL",
+    "miscUpdateKGLDescription",
     "settingsLanguageDescription",
     "pageMSStore",
     "msstoreSearchingPackages",
     "msstoreWait",
     "msstorePackagesPrompt",
     "msstorePackagesNotFound"
+  ],
+
+  "zh_TW": [
+    "miscUpdateKGL",
+    "miscUpdateKGLDescription"
   ]
 }

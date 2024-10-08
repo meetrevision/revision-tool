@@ -3,6 +3,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:revitool/extensions.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
+import 'package:revitool/widgets/dialogs/msstore_dialogs.dart';
 
 class MiscellaneousPage extends StatefulWidget {
   const MiscellaneousPage({super.key});
@@ -151,6 +152,44 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
                 ? await _miscellaneousService.enableUsageReporting()
                 : await _miscellaneousService.disableUsageReporting();
           },
+        ),
+        CardHighlight(
+          icon: msicons.FluentIcons.xbox_controller_20_regular,
+          label: context.l10n.miscUpdateKGL,
+          description: context.l10n.miscUpdateKGLDescription,
+          child: SizedBox(
+            width: 150,
+            child: FilledButton(
+              onPressed: () async {
+                String message = "";
+                try {
+                  showLoadingDialog(
+                      context, "${context.l10n.settingsUpdatingStatus} KGL");
+                  await _miscellaneousService.updateKGL();
+                  if (!context.mounted) return;
+                  message = context.l10n.restartDialog;
+                } catch (e) {
+                  message = e.toString();
+                } finally {
+                  context.pop();
+                  showDialog(
+                    context: context,
+                    builder: (context) => ContentDialog(
+                      title: Text(context.l10n.settingsUpdatingStatusSuccess),
+                      content: Text(message),
+                      actions: [
+                        Button(
+                          child: Text(context.l10n.okButton),
+                          onPressed: () => context.pop(),
+                        )
+                      ],
+                    ),
+                  );
+                }
+              },
+              child: Text(context.l10n.updateButton),
+            ),
+          ),
         ),
       ],
     );

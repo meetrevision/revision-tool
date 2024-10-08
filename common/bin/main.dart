@@ -22,7 +22,7 @@ Future<void> main(List<String> args) async {
   logger.i('Revision Tool CLI is starting');
 
   final runner = CommandRunner<String>("revitool",
-      "Revision Tool CLI v${const String.fromEnvironment('APP_VERSION')}")
+      "Revision Tool CLI v${const String.fromEnvironment('APP_VERSION', defaultValue: '1.0.0')}")
     ..addCommand(MSStoreCommand())
     ..addCommand(DefenderCommand())
     ..addCommand(WindowsPackageCommand())

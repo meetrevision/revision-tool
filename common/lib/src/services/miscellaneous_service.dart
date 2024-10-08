@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:common/src/dto/kgl_dto.dart';
+import 'package:common/src/services/network_service.dart';
 import 'package:common/src/utils.dart';
 import 'package:process_run/shell_run.dart';
 
@@ -14,6 +18,8 @@ class MiscellaneousService implements SetupService {
     return _instance;
   }
   const MiscellaneousService._private();
+
+  static final _networkService = NetworkService();
 
   @override
   void recommendation() {
@@ -153,5 +159,46 @@ powercfg -h off
   Future<void> disableUsageReporting() async {
     await _shell.run(
         '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\DisableUR.bat"');
+  }
+
+  Future<void> updateKGL() async {
+    const api =
+        'https://settings.data.microsoft.com/settings/v3.0/xbox/knowngamelist';
+    try {
+      final json = await _networkService.get(api);
+      final kgl = KGLModel.fromJson(json.data['settings']);
+
+      WinRegistryService.writeDword(
+          Registry.currentUser,
+          r'Software\Microsoft\Windows\CurrentVersion\GameDVR',
+          'KGLRevision',
+          kgl.version);
+      WinRegistryService.writeDword(
+          Registry.currentUser,
+          r'Software\Microsoft\Windows\CurrentVersion\GameDVR',
+          'KGLToGCSUpdatedRevision',
+          kgl.version);
+
+      WinRegistryService.writeDword(
+          Registry.localMachine,
+          r'SOFTWARE\Microsoft\KGL\OneSettings',
+          'ActivateOnUpdate',
+          kgl.activateOnUpdate);
+      WinRegistryService.writeString(Registry.localMachine,
+          r'SOFTWARE\Microsoft\KGL\OneSettings', 'Hash', kgl.hash);
+      WinRegistryService.writeString(Registry.localMachine,
+          r'SOFTWARE\Microsoft\KGL\OneSettings', 'URI', kgl.uri);
+      WinRegistryService.writeDword(Registry.localMachine,
+          r'SOFTWARE\Microsoft\KGL\OneSettings', 'Version', kgl.version);
+      WinRegistryService.writeDword(
+          Registry.localMachine,
+          r'SOFTWARE\Microsoft\KGL\OneSettings',
+          'VersionCheckTimeout',
+          kgl.versionCheckTimeout);
+    } catch (e) {
+      logger.e('Failed to update KGL.\n\nError: $e');
+      stdout.writeln('Failed to update KGL.\n\nError: $e');
+      rethrow;
+    }
   }
 }

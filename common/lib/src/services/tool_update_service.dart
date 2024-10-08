@@ -39,8 +39,12 @@ class ToolUpdateService {
     _data.addAll(responseJson);
   }
 
-  int get getCurrentVersion => int.parse(
-      const String.fromEnvironment("APP_VERSION").replaceAll(".", ""));
+  int get getCurrentVersion {
+    const String appVersion =
+        String.fromEnvironment("APP_VERSION", defaultValue: "1.0.0");
+
+    return int.parse(appVersion.replaceAll(".", ""));
+  }
 
   int get getLatestVersion {
     if (_data.isEmpty) {

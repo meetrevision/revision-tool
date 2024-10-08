@@ -2,12 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:common/common.dart';
-
-import 'package:win32_registry/win32_registry.dart';
+import 'package:common/src/services/miscellaneous_service.dart';
 
 class PlaybookPatchesCommand extends Command<String> {
-  static final _updatesService = UpdatesService();
+  static final _miscellaneousService = MiscellaneousService();
 
   static const tag = "[Playbook Patches]";
 
@@ -38,5 +36,7 @@ Something went wrong. Please try again.
     exit(0);
   }
 
-  Future<void> applyPatches() async {}
+  Future<void> applyPatches() async {
+    await _miscellaneousService.updateKGL();
+  }
 }
