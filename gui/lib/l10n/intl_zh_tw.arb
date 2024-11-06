@@ -35,7 +35,6 @@
   "securitySMLabel": "取消Spectre & Meltdown",
   "securitySMDescription": "可取消 Spectre 和 Meltdown 漏洞的補丁",
   "usabilityNotifLabel": "Windows 通知",
-  "usabilityNotifDescription": "完全切換 Windows 通知",
   "usabilityLBNLabel": "舊版通知氣泡",
   "usabilityLBNDescription": "任務欄上的托盤程序將呈現為氣泡而不是 Toast 通知",
   "usabilityITPLabel": "墨跡書寫和打字個性化",

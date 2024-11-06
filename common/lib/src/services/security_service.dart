@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:collection/collection.dart';
 import 'package:common/src/services/win_package_service.dart';
 import 'package:win32_registry/win32_registry.dart';
 
@@ -153,16 +152,12 @@ class SecurityService implements SetupService {
         );
       }
 
-      final webthreatdefusersvc = Registry.openPath(RegistryHive.localMachine,
-              path: r'SYSTEM\ControlSet001\Services')
-          .subkeyNames
-          .firstWhereOrNull((final e) => e.startsWith("webthreatdefusersvc_"));
-      if (webthreatdefusersvc != null) {
-        WinRegistryService.writeDword(
-            Registry.localMachine,
-            r'SYSTEM\ControlSet001\Services\' + webthreatdefusersvc,
-            'Start',
-            2);
+      final webthreatdefsvcList =
+          WinRegistryService.getUserServices('webthreatdefusersvc');
+
+      for (final webthreatdefsvc in webthreatdefsvcList) {
+        WinRegistryService.writeDword(Registry.localMachine,
+            r'SYSTEM\ControlSet001\Services\' + webthreatdefsvc, 'Start', 2);
       }
 
       WinRegistryService.writeString(

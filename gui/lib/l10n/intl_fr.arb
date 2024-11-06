@@ -33,7 +33,6 @@
   "securitySMLabel": "Atténuation Spectre & Meltdown",
   "securitySMDescription": "Patch pour activer l'atténuation des vulnérabilités Spectre & Meltdown",
   "usabilityNotifLabel": "Notifications Windows",
-  "usabilityNotifDescription": "Bascule complètement les notifications Windows",
   "usabilityLBNLabel": "Notification info-bulles classique",
   "usabilityLBNDescription": "Les applications de la zone de notification vont afficher des info-bulles au lieu des notifications toast moderne",
   "usabilityITPLabel": "Entrée manuscrite et personnalisation de la saisie",

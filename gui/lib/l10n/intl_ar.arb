@@ -33,7 +33,6 @@
   "securitySMLabel": "Spectre & Meltdown تخفيف ثغرات",
   "securitySMDescription": "تصحيحات لتمكين التخفيف من ثغرات Spectre & Meltdown",
   "usabilityNotifLabel": "إشعارات نظام الويندوز",
-  "usabilityNotifDescription": "إيقاف إشعارات نظام الويندوز بشكل كامل",
   "usabilityLBNLabel": "الإشعارات القديمة على شكل فقاعة",
   "usabilityLBNDescription": "أيقونات البرامج الصغيرة التي على شريط المهام ستتم عرض إشعارتها على شكل فقاعات بدلاً من الإشعارات على شكل توست ",
   "usabilityITPLabel": "إضفاء الطابع الشخصي عل الرسم والكتابة",

@@ -33,7 +33,6 @@
   "securitySMLabel": "Spectre & Meltdown Önlemleri",
   "securitySMDescription": "Spectre ve Meltdown güvenlik açıklarına karşı önlem sağlamak için yamalar",
   "usabilityNotifLabel": "Windows Bildirimleri",
-  "usabilityNotifDescription": "Windows bildirimlerini tamamen aç yada kapat",
   "usabilityLBNLabel": "Eski Tip Bildirim Balonları",
   "usabilityLBNDescription": "Görev çubuğundaki programları, küçük bildirimler yerine büyük olarak görüntülenecek",
   "usabilityITPLabel": "Yazma ve Yazıyı Kişiselleştirme",
@@ -105,4 +104,3 @@
   "msstorePackagesPrompt": "Aşağıdaki paketleri yüklemek ister misiniz?",
   "msstorePackagesNotFound": "Hiç paket bulunamadı"
 }
-

@@ -8,6 +8,8 @@ import 'package:win32_registry/win32_registry.dart';
 import 'win_registry_service.dart';
 import 'setup_service.dart';
 
+enum NotificationMode { on, offMinimal, offFull }
+
 class UsabilityService implements SetupService {
   static final _shell = Shell();
   static const _listEquality = ListEquality();
@@ -25,12 +27,25 @@ class UsabilityService implements SetupService {
   @override
   void recommendation() {}
 
-  bool get statusNotification {
-    return WinRegistryService.readInt(
+  NotificationMode get statusNotification {
+    final isToastEnabled = WinRegistryService.readInt(
             RegistryHive.currentUser,
             r'Software\Microsoft\Windows\CurrentVersion\PushNotifications',
             'ToastEnabled') !=
         0;
+    final isNotificationCenterEnabled = WinRegistryService.readInt(
+            RegistryHive.currentUser,
+            r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
+            'DisableNotificationCenter') !=
+        1;
+
+    if (!isNotificationCenterEnabled) {
+      return NotificationMode.offFull;
+    } else if (!isToastEnabled) {
+      return NotificationMode.offMinimal;
+    } else {
+      return NotificationMode.on;
+    }
   }
 
   Future<void> enableNotification() async {
@@ -83,11 +98,39 @@ class UsabilityService implements SetupService {
         Registry.currentUser,
         r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications',
         'NoTileApplicationNotification');
+
+    WinRegistryService.writeString(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener',
+        'Value',
+        'Allow');
+    WinRegistryService.writeString(
+        Registry.currentUser,
+        r'SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener',
+        'Value',
+        'Allow');
+
+    final wpnServices = WinRegistryService.getUserServices('Wpn');
+
+    for (final service in wpnServices) {
+      WinRegistryService.writeDword(Registry.localMachine,
+          r'SYSTEM\ControlSet001\Services\' + service, 'Start', 2);
+    }
+
     await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
     await Process.run('explorer.exe', [], runInShell: true);
   }
 
   Future<void> disableNotification() async {
+    WinRegistryService.deleteValue(
+        Registry.localMachine,
+        r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
+        'DisableNotificationCenter');
+    WinRegistryService.deleteValue(
+        Registry.currentUser,
+        r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
+        'DisableNotificationCenter');
+
     WinRegistryService.writeDword(
         Registry.currentUser,
         r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications',
@@ -113,16 +156,6 @@ class UsabilityService implements SetupService {
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
         'NOC_GLOBAL_SETTING_TOASTS_ENABLED',
         0);
-    WinRegistryService.writeDword(
-        Registry.localMachine,
-        r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
-        'DisableNotificationCenter',
-        1);
-    WinRegistryService.writeDword(
-        Registry.currentUser,
-        r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
-        'DisableNotificationCenter',
-        1);
     WinRegistryService.writeDword(Registry.localMachine,
         r'SOFTWARE\Policies\Microsoft\Windows\Explorer', 'ToastEnabled', 0);
     WinRegistryService.writeDword(Registry.currentUser,
@@ -137,8 +170,41 @@ class UsabilityService implements SetupService {
         r'Software\Microsoft\Windows\CurrentVersion\PushNotifications',
         'ToastEnabled',
         0);
+
+    WinRegistryService.writeString(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener',
+        'Value',
+        'Deny');
+    WinRegistryService.writeString(
+        Registry.currentUser,
+        r'SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener',
+        'Value',
+        'Deny');
+
+    final wpnServices = WinRegistryService.getUserServices('Wpn');
+
+    for (final service in wpnServices) {
+      WinRegistryService.writeDword(Registry.localMachine,
+          r'SYSTEM\ControlSet001\Services\' + service, 'Start', 4);
+    }
+
     await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
     await Process.run('explorer.exe', [], runInShell: true);
+  }
+
+  Future<void> disableNotificationAggressive() async {
+    await disableNotification();
+    WinRegistryService.writeDword(
+        Registry.localMachine,
+        r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
+        'DisableNotificationCenter',
+        1);
+    WinRegistryService.writeDword(
+        Registry.currentUser,
+        r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
+        'DisableNotificationCenter',
+        1);
   }
 
   bool get statusLegacyBalloon {

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:common/src/dto/kgl_dto.dart';
 import 'package:common/src/services/network_service.dart';
+import 'package:common/src/services/performance_service.dart';
 import 'package:common/src/utils.dart';
 import 'package:process_run/shell_run.dart';
 
@@ -18,6 +19,8 @@ class MiscellaneousService implements SetupService {
     return _instance;
   }
   const MiscellaneousService._private();
+
+  static final _performanceService = PerformanceService();
 
   static final _networkService = NetworkService();
 
@@ -195,6 +198,8 @@ powercfg -h off
           r'SOFTWARE\Microsoft\KGL\OneSettings',
           'VersionCheckTimeout',
           kgl.versionCheckTimeout);
+
+      _performanceService.enableBackgroundApps();
     } catch (e) {
       logger.e('Failed to update KGL.\n\nError: $e');
       stdout.writeln('Failed to update KGL.\n\nError: $e');

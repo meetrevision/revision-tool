@@ -50,6 +50,13 @@ class WinRegistryService {
     }
   }
 
+  static Iterable<String> getUserServices(String subkey) {
+    return Registry.openPath(RegistryHive.localMachine,
+            path: r'SYSTEM\ControlSet001\Services')
+        .subkeyNames
+        .where((final e) => e.startsWith(subkey));
+  }
+
   static String? get themeModeReg => WinRegistryService.readString(
       RegistryHive.localMachine,
       r'SOFTWARE\Revision\Revision Tool',

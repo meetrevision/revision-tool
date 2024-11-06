@@ -33,7 +33,6 @@
   "securitySMLabel": "Mitigação do Spectre e Meltdown",
   "securitySMDescription": "Patches para permitir a mitigação contra vulnerabilidades Spectre e Meltdown",
   "usabilityNotifLabel": "Notificações do Windows",
-  "usabilityNotifDescription": "Alternar completamente as notificações do Windows",
   "usabilityLBNLabel": "Balões de notificação antigo",
   "usabilityLBNDescription": "Os programas da bandeja na barra de tarefas serão renderizados como balões em vez de notificações do sistema",
   "usabilityITPLabel": "Personalização de escrita à tinta e digitação",

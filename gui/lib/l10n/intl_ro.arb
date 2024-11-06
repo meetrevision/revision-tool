@@ -33,7 +33,6 @@
   "securitySMLabel": "Mitigarea Spectre & Meltdown",
   "securitySMDescription": "Pregătiri pentru activarea mitigării împotriva vulnerabilităților Spectre & Meltdown",
   "usabilityNotifLabel": "Notificări Windows",
-  "usabilityNotifDescription": "Comutați complet notificările Windows",
   "usabilityLBNLabel": "Balonul notificărilor vechi",
   "usabilityLBNDescription": "Programele din tava de sistem vor fi afișate ca baloane în loc de notificări tip toast",
   "usabilityITPLabel": "Personalizarea scrierii și a tastării",
