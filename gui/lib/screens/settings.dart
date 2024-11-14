@@ -1,10 +1,9 @@
 import 'package:common/common.dart';
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:revitool/extensions.dart';
-import 'package:revitool/providers/l10n_provider.dart';
 
-import 'package:revitool/theme.dart';
+import 'package:revitool/providers/app_settings_notifier.dart';
 import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
@@ -61,21 +60,21 @@ const languageList = [
   ),
 ];
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
+  ConsumerState<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends ConsumerState<SettingsPage> {
   late ThemeMode theme;
   final _toolUpdateService = ToolUpdateService();
   final _updateTitle = ValueNotifier<String>("Check for Updates");
 
   @override
   Widget build(BuildContext context) {
-    final appTheme = context.watch<AppTheme>();
+    final appSettings = ref.watch(appSettingsNotifierProvider);
 
     return ScaffoldPage.scrollable(
       resizeToAvoidBottomInset: false,
@@ -88,8 +87,9 @@ class _SettingsPageState extends State<SettingsPage> {
           label: context.l10n.settingsCTLabel,
           description: context.l10n.settingsCTDescription,
           child: ComboBox(
-            value: appTheme.themeMode,
-            onChanged: appTheme.updateThemeMode,
+            value: appSettings.themeMode,
+            onChanged:
+                ref.read(appSettingsNotifierProvider.notifier).updateThemeMode,
             items: [
               ComboBoxItem(
                 value: ThemeMode.system,
@@ -190,7 +190,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     r'SOFTWARE\Revision\Revision Tool',
                     'Language',
                     appLanguage);
-                context.read<L10nProvider>().changeLocale(appLanguage);
+                ref
+                    .read(appSettingsNotifierProvider.notifier)
+                    .updateLocale(appLanguage);
               });
             },
             items: languageList,
