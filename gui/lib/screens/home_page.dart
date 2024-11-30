@@ -246,7 +246,7 @@ class _Home extends StatelessWidget {
       title: "Donation",
       subtitle: "Support the project",
       onPressed: () async => await run(
-          "rundll32 url.dll,FileProtocolHandler https://www.buymeacoffee.com/meetrevision"),
+          "rundll32 url.dll,FileProtocolHandler https://revi.cc/donate"),
     ),
     CardButtonWidget(
       icon: msicons.FluentIcons.chat_help_20_regular,
