@@ -50,6 +50,32 @@ class WinRegistryService {
     }
   }
 
+  static void hidePageVisibilitySettings(String pageName) {
+    final currentValue = readString(
+        RegistryHive.localMachine,
+        r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
+        'SettingsPageVisibility');
+
+    if (currentValue == null || currentValue.isEmpty) {
+      writeString(
+          Registry.localMachine,
+          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
+          'SettingsPageVisibility',
+          "hide:$pageName");
+      return;
+    }
+    if (!currentValue.contains(pageName)) {
+      writeString(
+          Registry.localMachine,
+          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
+          'SettingsPageVisibility',
+          currentValue.endsWith(";") || currentValue.endsWith(":")
+              ? "$currentValue$pageName;"
+              : "$currentValue;$pageName;");
+      return;
+    }
+  }
+
   static Iterable<String> getUserServices(String subkey) {
     return Registry.openPath(RegistryHive.localMachine,
             path: r'SYSTEM\ControlSet001\Services')

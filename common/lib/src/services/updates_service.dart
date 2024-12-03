@@ -128,29 +128,7 @@ class UpdatesService implements SetupService {
   }
 
   void disableVisibilityWU() {
-    final currentValue = WinRegistryService.readString(
-        RegistryHive.localMachine,
-        r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
-        'SettingsPageVisibility');
-
-    if (currentValue == null || currentValue.isEmpty) {
-      WinRegistryService.writeString(
-          Registry.localMachine,
-          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
-          'SettingsPageVisibility',
-          "hide:windowsupdate");
-      return;
-    }
-    if (!currentValue.contains("windowsupdate")) {
-      WinRegistryService.writeString(
-          Registry.localMachine,
-          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
-          'SettingsPageVisibility',
-          currentValue.endsWith(";") || currentValue.endsWith(":")
-              ? "${currentValue}windowsupdate;"
-              : "$currentValue;windowsupdate;");
-      return;
-    }
+    WinRegistryService.hidePageVisibilitySettings("windowsupdate");
   }
 
   bool get statusDriversWU {

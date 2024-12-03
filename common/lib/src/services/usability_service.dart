@@ -182,13 +182,6 @@ class UsabilityService implements SetupService {
         'Value',
         'Deny');
 
-    final wpnServices = WinRegistryService.getUserServices('Wpn');
-
-    for (final service in wpnServices) {
-      WinRegistryService.writeDword(Registry.localMachine,
-          r'SYSTEM\ControlSet001\Services\' + service, 'Start', 4);
-    }
-
     await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
     await Process.run('explorer.exe', [], runInShell: true);
   }
@@ -205,6 +198,16 @@ class UsabilityService implements SetupService {
         r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
         'DisableNotificationCenter',
         1);
+
+    final wpnServices = WinRegistryService.getUserServices('Wpn');
+
+    for (final service in wpnServices) {
+      WinRegistryService.writeDword(Registry.localMachine,
+          r'SYSTEM\ControlSet001\Services\' + service, 'Start', 4);
+    }
+    for (final page in ["notifications", "privacy-notifications"]) {
+      WinRegistryService.hidePageVisibilitySettings(page);
+    }
   }
 
   bool get statusLegacyBalloon {

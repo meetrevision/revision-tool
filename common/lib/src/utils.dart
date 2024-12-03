@@ -14,9 +14,10 @@ final tempReviPath = p.join(Directory.systemTemp.path, 'Revision-Tool', 'Logs');
 final logger = Logger(
   filter: ProductionFilter(),
   printer: PrettyPrinter(
-      methodCount: 0,
-      colors: false,
-      dateTimeFormat: DateTimeFormat.dateAndTime),
+    methodCount: 0,
+    colors: false,
+    dateTimeFormat: DateTimeFormat.dateAndTime,
+  ),
   output: AdvancedFileOutput(
     overrideExisting: true,
     path: tempReviPath,
