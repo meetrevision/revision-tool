@@ -56,7 +56,7 @@ dependencies:
   json_annotation: ^4.9.0
   
   # Logging
-  logger: ^2.4.0
+  #logger: ^2.4.0
 
   # Command line
   args: ^2.5.0
