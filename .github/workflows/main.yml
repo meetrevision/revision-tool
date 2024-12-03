@@ -36,6 +36,9 @@ jobs:
       - run: dart run build_runner build --delete-conflicting-outputs
         working-directory: common
 
+      - run: dart run build_runner build --delete-conflicting-outputs
+        working-directory: gui
+
       - name: Build revitool CLI
         run: dart compile exe common/bin/main.dart -o revitool.exe --define=APP_VERSION=${{ env.NEW_VERSION }} 
 
