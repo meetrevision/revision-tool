@@ -33,7 +33,7 @@
   "securitySMLabel": "Spectre & Meltdown Mitigation",
   "securitySMDescription": "Patches to enable mitigation against Spectre & Meltdown vulnerabilities",
   "usabilityNotifLabel": "Windows Notifications",
-  "usabilityNotifDescription": "Completely toggle Windows notifications",
+  "usabilityNotifDescription": "'Minimal' disables notifications, while 'Full' removes Notification Center, preventing the calendar and notifications panels from appearing",
   "usabilityLBNLabel": "Legacy Notification Balloons",
   "usabilityLBNDescription": "Tray programs on the taskbar will render as balloons instead of toast notifications",
   "usabilityITPLabel": "Inking And Typing Personalization",

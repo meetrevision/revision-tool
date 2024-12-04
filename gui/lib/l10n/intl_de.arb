@@ -29,7 +29,6 @@
   "securitySMLabel": "Spectre & Meltdown Mitigation",
   "securitySMDescription": "Patches zur Abschwächung von Spectre- und Meltdown-Schwachstellen",
   "usabilityNotifLabel": "Windows-Benachrichtigungen",
-  "usabilityNotifDescription": "Windows-Benachrichtigungen vollständig umschalten",
   "usabilityLBNLabel": "Legacy-Benachrichtigungsballons",
   "usabilityLBNDescription": "Tray-Programme in der Taskleiste werden als Sprechblasen statt als Popup-Benachrichtigungen dargestellt",
   "usabilityITPLabel": "Personalisierung von Freihand- und Schreibeingaben",

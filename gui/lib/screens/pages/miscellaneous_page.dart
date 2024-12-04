@@ -172,18 +172,10 @@ class _MiscellaneousPageState extends State<MiscellaneousPage> {
                   message = e.toString();
                 } finally {
                   context.pop();
-                  showDialog(
-                    context: context,
-                    builder: (context) => ContentDialog(
-                      title: Text(context.l10n.settingsUpdatingStatusSuccess),
-                      content: Text(message),
-                      actions: [
-                        Button(
-                          child: Text(context.l10n.okButton),
-                          onPressed: () => context.pop(),
-                        )
-                      ],
-                    ),
+                  showRestartDialog(
+                    context,
+                    title: context.l10n.settingsUpdatingStatusSuccess,
+                    content: message,
                   );
                 }
               },

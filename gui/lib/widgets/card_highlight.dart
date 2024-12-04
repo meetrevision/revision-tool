@@ -91,20 +91,7 @@ class CardHighlightSwitch extends StatelessWidget {
                         onChanged: (value) async {
                           function(value);
                           if (requiresRestart != null) {
-                            showDialog(
-                              context: context,
-                              builder: (context) => ContentDialog(
-                                content: Text(context.l10n.restartDialog),
-                                actions: [
-                                  Button(
-                                    child: Text(context.l10n.okButton),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                  )
-                                ],
-                              ),
-                            );
+                            showRestartDialog(context);
                           }
                         },
                       );
@@ -123,6 +110,25 @@ class CardHighlightSwitch extends StatelessWidget {
       ],
     );
   }
+}
+
+void showRestartDialog(final BuildContext context,
+    {String title = "", String content = ""}) {
+  showDialog(
+    context: context,
+    builder: (context) => ContentDialog(
+      title: title.isEmpty ? null : Text(title),
+      content: Text(content.isEmpty ? context.l10n.restartDialog : content),
+      actions: [
+        Button(
+          child: Text(context.l10n.okButton),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        )
+      ],
+    ),
+  );
 }
 
 // ignore: unused_element

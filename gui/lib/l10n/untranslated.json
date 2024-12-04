@@ -1,55 +1,66 @@
 {
   "ar": [
+    "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "de": [
+    "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "fr": [
+    "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "hu": [
+    "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "it": [
+    "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "pt": [
+    "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "ro": [
+    "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "ru": [
+    "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "tr": [
+    "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "uk": [
+    "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "zh": [
+    "usabilityNotifDescription",
     "usabilitySESLabel",
     "usabilitySESDescription",
     "miscUpdateKGL",
@@ -63,6 +74,7 @@
   ],
 
   "zh_TW": [
+    "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ]

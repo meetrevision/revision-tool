@@ -29,7 +29,6 @@
   "securitySMLabel": "撤销 Spectre & Meltdown",
   "securitySMDescription": "可撤销 Spectre 和 Meltdown 漏洞的修补程序 Spectre 和 Meltdown 是近年来发现的两个处理器漏洞，它们由相关芯片的严重设计缺陷引起。这些漏洞可能会导致攻击者访问内核内存中的高度敏感数据，例如密码、加密密钥、个人照片、电子邮件等（请注意，由于设计原因，计算机默认安装带修补程序的操作系统后，其处理速度会减缓。 速度减缓会导致性能下降大约 5-30%，这在很大程度上取决于芯片的类型和所执行的任务）",
   "usabilityNotifLabel": "Windows 通知",
-  "usabilityNotifDescription": "完全关闭 Windows 通知",
   "usabilityLBNLabel": "旧版本通知气泡",
   "usabilityLBNDescription": "任务栏上的托盘程序使用气泡通知，而不是弹出通知",
   "usabilityITPLabel": "墨迹书写和键入个性化",

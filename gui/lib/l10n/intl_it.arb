@@ -33,7 +33,6 @@
   "securitySMLabel": "Migrazione da Spectre & Meltdown",
   "securitySMDescription": "Patch per abilitare la mitigazione contro le vulnerabilità Spectre e Meltdown",
   "usabilityNotifLabel": "Notifiche di Windows",
-  "usabilityNotifDescription": "Attiva o disattiva completamente le notifiche di Windows",
   "usabilityLBNLabel": "Palloncini di notifica legacy",
   "usabilityLBNDescription": "I programmi della barra delle applicazioni verranno visualizzati come palloncini anziché come notifiche di avviso popup",
   "usabilityITPLabel": "Personalizzazione dell'inchiostrazione e della digitazione",

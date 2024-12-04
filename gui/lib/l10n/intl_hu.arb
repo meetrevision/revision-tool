@@ -33,7 +33,6 @@
   "securitySMLabel": "Spectre & Meltdown Védelem",
   "securitySMDescription": "Javítások a Spectre & Meltdown sebezhetőségek elleni védelem bekapcsolásához",
   "usabilityNotifLabel": "Windows Értesítések",
-  "usabilityNotifDescription": "Teljes mértékben kapcsolja ki a Windows értesítéseket",
   "usabilityLBNLabel": "Örökölt Értesítési Buborékok",
   "usabilityLBNDescription": "A tálcán elhelyezett programok buborékként fognak megjelenni a sütemény értesítések helyett",
   "usabilityITPLabel": "Írás és beírás testreszabása",

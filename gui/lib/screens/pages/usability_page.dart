@@ -15,8 +15,8 @@ class UsabilityPage extends StatefulWidget {
 
 class _UsabilityPageState extends State<UsabilityPage> {
   final UsabilityService _usabilityService = UsabilityService();
-  late final _notifBool =
-      ValueNotifier<bool>(_usabilityService.statusNotification);
+  late final _notifValue =
+      ValueNotifier<NotificationMode>(_usabilityService.statusNotification);
   late final _lbnBool =
       ValueNotifier<bool>(_usabilityService.statusLegacyBalloon);
   late final _itpBool =
@@ -29,7 +29,7 @@ class _UsabilityPageState extends State<UsabilityPage> {
 
   @override
   void dispose() {
-    _notifBool.dispose();
+    _notifValue.dispose();
     _lbnBool.dispose();
     _itpBool.dispose();
     _dCplBool.dispose();
@@ -45,32 +45,68 @@ class _UsabilityPageState extends State<UsabilityPage> {
         title: Text(context.l10n.pageUsability),
       ),
       children: [
-        CardHighlightSwitch(
+        CardHighlight(
           icon: msicons.FluentIcons.alert_20_regular,
           label: context.l10n.usabilityNotifLabel,
           description: context.l10n.usabilityNotifDescription,
-          switchBool: _notifBool,
-          function: (value) async {
-            _notifBool.value = value;
-            _notifBool.value
-                ? _usabilityService.enableNotification()
-                : _usabilityService.disableNotification();
+          child: ValueListenableBuilder<NotificationMode>(
+            valueListenable: _notifValue,
+            builder: (context, value, child) => ComboBox<NotificationMode>(
+              value: value,
+              onChanged: (value) async {
+                _notifValue.value = value!;
+                switch (value) {
+                  case NotificationMode.on:
+                    await _usabilityService.enableNotification();
+                    if (!context.mounted) return;
+                    showRestartDialog(context);
+                    break;
+                  case NotificationMode.offMinimal:
+                    await _usabilityService.disableNotification();
+                    break;
+                  case NotificationMode.offFull:
+                    await _usabilityService.disableNotificationAggressive();
+                    break;
+                }
+              },
+              items: const [
+                ComboBoxItem(
+                  value: NotificationMode.on,
+                  child: Text("On"),
+                ),
+                ComboBoxItem(
+                  value: NotificationMode.offMinimal,
+                  child: Text("Off (Minimal)"),
+                ),
+                ComboBoxItem(
+                  value: NotificationMode.offFull,
+                  child: Text("Off (Full)"),
+                ),
+              ],
+            ),
+          ),
+        ),
+        ValueListenableBuilder<NotificationMode>(
+          valueListenable: _notifValue,
+          builder: (context, value, child) {
+            if (value == NotificationMode.on) {
+              return CardHighlightSwitch(
+                icon: msicons.FluentIcons.balloon_20_regular,
+                label: context.l10n.usabilityLBNLabel,
+                description: context.l10n.usabilityLBNDescription,
+                switchBool: _lbnBool,
+                function: (value) async {
+                  _lbnBool.value = value;
+                  _lbnBool.value
+                      ? _usabilityService.enableLegacyBalloon()
+                      : _usabilityService.disableLegacyBalloon();
+                },
+              );
+            } else {
+              return const SizedBox();
+            }
           },
         ),
-        if (_notifBool.value) ...[
-          CardHighlightSwitch(
-            icon: msicons.FluentIcons.balloon_20_regular,
-            label: context.l10n.usabilityLBNLabel,
-            description: context.l10n.usabilityLBNDescription,
-            switchBool: _lbnBool,
-            function: (value) async {
-              _lbnBool.value = value;
-              _lbnBool.value
-                  ? _usabilityService.enableLegacyBalloon()
-                  : _usabilityService.disableLegacyBalloon();
-            },
-          ),
-        ],
         CardHighlightSwitch(
           icon: msicons.FluentIcons.keyboard_20_regular,
           label: context.l10n.usabilityITPLabel,

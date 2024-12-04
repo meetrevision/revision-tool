@@ -33,7 +33,6 @@
   "securitySMLabel": "Защита от Spectre & Meltdown",
   "securitySMDescription": "Патчи для активации защиты от уязвимостей Spectre & Meltdown",
   "usabilityNotifLabel": "Уведомления Windows",
-  "usabilityNotifDescription": "Полное переключение уведомлений Windows",
   "usabilityLBNLabel": "Уведомления в стиле предыдущих версий",
   "usabilityLBNDescription": "Программы в трее будут отображаться в виде всплывающих уведомлений, а не в виде уведомлений в стиле toast",
   "usabilityITPLabel": "Персонализация ввода текста и рисунков",
