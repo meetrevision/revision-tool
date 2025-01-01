@@ -104,5 +104,8 @@
   "msstoreSearchingPackages": "正在搜尋安裝包",
   "msstoreWait": "請稍後...",
   "msstorePackagesPrompt": "您想安裝以下軟體包嗎？",
-  "msstorePackagesNotFound": "沒有找到安裝包"
+  "msstorePackagesNotFound": "沒有找到安裝包",
+  "usabilityNotifDescription": "「最小」將禁用通知，而「完整」將刪除通知中心，從而阻止日曆和通知面板出現",
+  "miscUpdateKGL": "更新 KGL",
+  "miscUpdateKGLDescription": "強制更新 Xbox Game Bar 的已知遊戲清單 （KGL），以修復雙 CCD 處理器上的核心停放問題"
 }
