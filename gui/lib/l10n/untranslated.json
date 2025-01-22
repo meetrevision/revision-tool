@@ -77,11 +77,5 @@
     "msstoreWait",
     "msstorePackagesPrompt",
     "msstorePackagesNotFound"
-  ],
-
-  "zh_TW": [
-    "usabilityNotifDescription",
-    "miscUpdateKGL",
-    "miscUpdateKGLDescription"
   ]
 }
