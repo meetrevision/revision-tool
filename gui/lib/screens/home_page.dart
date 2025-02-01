@@ -253,7 +253,7 @@ class _Home extends StatelessWidget {
       title: "Discord",
       subtitle: "Join our server",
       onPressed: () async => await run(
-          "rundll32 url.dll,FileProtocolHandler https://www.revi.cc/docs/faq"),
+          "rundll32 url.dll,FileProtocolHandler https://discord.gg/962y4pU"),
     ),
   ];
 
@@ -331,7 +331,7 @@ class _Home extends StatelessWidget {
                       child: FilledButton(
                         child: Text(context.l10n.homeReviFAQLink),
                         onPressed: () async => await run(
-                            "rundll32 url.dll,FileProtocolHandler https://www.revi.cc/docs/faq"),
+                            "rundll32 url.dll,FileProtocolHandler https://www.revi.cc/docs/category/faq"),
                       ),
                     ),
                   ),
