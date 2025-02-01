@@ -38,12 +38,12 @@ class MiscellaneousService implements SetupService {
   }
 
   Future<void> enableHibernation() async {
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'Software\Policies\Microsoft\Windows\System',
         'ShowHibernateOption',
         1);
-    WinRegistryService.writeDword(Registry.localMachine,
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'SYSTEM\ControlSet001\Control\Power', 'HibernateEnabled', 1);
     await _shell.run(r'''
                      powercfg -h on
@@ -52,12 +52,12 @@ class MiscellaneousService implements SetupService {
   }
 
   Future<void> disableHibernation() async {
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'Software\Policies\Microsoft\Windows\System',
         'ShowHibernateOption',
         0);
-    WinRegistryService.writeDword(Registry.localMachine,
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'SYSTEM\ControlSet001\Control\Power', 'HibernateEnabled', 0);
     await _shell.run(r'''
 powercfg -h off
@@ -86,22 +86,22 @@ powercfg -h off
   }
 
   void enableFastStartup() {
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'System\ControlSet001\Control\Session Manager\Power',
         'HiberbootEnabled',
         1);
-    WinRegistryService.writeDword(Registry.localMachine,
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'Software\Policies\Microsoft\Windows\System', 'HiberbootEnabled', 1);
   }
 
   void disableFastStartup() {
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'System\ControlSet001\Control\Session Manager\Power',
         'HiberbootEnabled',
         0);
-    WinRegistryService.writeDword(Registry.localMachine,
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'Software\Policies\Microsoft\Windows\System', 'HiberbootEnabled', 0);
   }
 
@@ -115,9 +115,9 @@ powercfg -h off
   }
 
   Future<void> enableTMMonitoring() async {
-    WinRegistryService.writeDword(Registry.localMachine,
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start', 2);
-    WinRegistryService.writeDword(Registry.localMachine,
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'SYSTEM\ControlSet001\Services\Ndu', 'Start', 2);
     await _shell.run(r'''
                     sc start GraphicsPerfSvc
@@ -126,9 +126,9 @@ powercfg -h off
   }
 
   void disableTMMonitoring() {
-    WinRegistryService.writeDword(Registry.localMachine,
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start', 4);
-    WinRegistryService.writeDword(Registry.localMachine,
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'SYSTEM\ControlSet001\Services\Ndu', 'Start', 4);
   }
 
@@ -144,7 +144,7 @@ powercfg -h off
   }
 
   void disableMPO() {
-    WinRegistryService.writeDword(Registry.localMachine,
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\Dwm', 'OverlayTestMode', 5);
   }
 
@@ -171,29 +171,29 @@ powercfg -h off
       final json = await _networkService.get(api);
       final kgl = KGLModel.fromJson(json.data['settings']);
 
-      WinRegistryService.writeDword(
+      WinRegistryService.writeRegistryValue(
           Registry.currentUser,
           r'Software\Microsoft\Windows\CurrentVersion\GameDVR',
           'KGLRevision',
           kgl.version);
-      WinRegistryService.writeDword(
+      WinRegistryService.writeRegistryValue(
           Registry.currentUser,
           r'Software\Microsoft\Windows\CurrentVersion\GameDVR',
           'KGLToGCSUpdatedRevision',
           kgl.version);
 
-      WinRegistryService.writeDword(
+      WinRegistryService.writeRegistryValue(
           Registry.localMachine,
           r'SOFTWARE\Microsoft\KGL\OneSettings',
           'ActivateOnUpdate',
           kgl.activateOnUpdate);
-      WinRegistryService.writeString(Registry.localMachine,
+      WinRegistryService.writeRegistryValue(Registry.localMachine,
           r'SOFTWARE\Microsoft\KGL\OneSettings', 'Hash', kgl.hash);
-      WinRegistryService.writeString(Registry.localMachine,
+      WinRegistryService.writeRegistryValue(Registry.localMachine,
           r'SOFTWARE\Microsoft\KGL\OneSettings', 'URI', kgl.uri);
-      WinRegistryService.writeDword(Registry.localMachine,
+      WinRegistryService.writeRegistryValue(Registry.localMachine,
           r'SOFTWARE\Microsoft\KGL\OneSettings', 'Version', kgl.version);
-      WinRegistryService.writeDword(
+      WinRegistryService.writeRegistryValue(
           Registry.localMachine,
           r'SOFTWARE\Microsoft\KGL\OneSettings',
           'VersionCheckTimeout',

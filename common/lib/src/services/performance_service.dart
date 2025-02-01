@@ -73,7 +73,7 @@ class PerformanceService implements SetupService {
   }
 
   void enableIntelTSX() {
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SYSTEM\CurrentControlSet\Control\Session Manager\kernel',
         'DisableTsx',
@@ -81,7 +81,7 @@ class PerformanceService implements SetupService {
   }
 
   void disableIntelTSX() {
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SYSTEM\CurrentControlSet\Control\Session Manager\kernel',
         'DisableTsx',
@@ -95,7 +95,7 @@ class PerformanceService implements SetupService {
   }
 
   void enableFullscreenOptimization() {
-    WinRegistryService.writeDword(Registry.currentUser,
+    WinRegistryService.writeRegistryValue(Registry.currentUser,
         r'System\GameConfigStore', 'GameDVR_FSEBehaviorMode', 0);
     WinRegistryService.deleteValue(
         Registry.currentUser, r'System\GameConfigStore', 'GameDVR_FSEBehavior');
@@ -106,7 +106,7 @@ class PerformanceService implements SetupService {
     WinRegistryService.deleteValue(Registry.currentUser,
         r'System\GameConfigStore', 'GameDVR_EFSEFeatureFlags');
 
-    WinRegistryService.writeDword(Registry.allUsers,
+    WinRegistryService.writeRegistryValue(Registry.allUsers,
         r'.DEFAULT\System\GameConfigStore', 'GameDVR_FSEBehaviorMode', 0);
     WinRegistryService.deleteValue(Registry.allUsers,
         r'.DEFAULT\System\GameConfigStore', 'GameDVR_FSEBehavior');
@@ -121,26 +121,26 @@ class PerformanceService implements SetupService {
   }
 
   void disableFullscreenOptimization() {
-    WinRegistryService.writeDword(Registry.currentUser,
+    WinRegistryService.writeRegistryValue(Registry.currentUser,
         r'System\GameConfigStore', 'GameDVR_FSEBehaviorMode', 2);
-    WinRegistryService.writeDword(Registry.currentUser,
+    WinRegistryService.writeRegistryValue(Registry.currentUser,
         r'System\GameConfigStore', 'GameDVR_HonorUserFSEBehaviorMode', 1);
-    WinRegistryService.writeDword(Registry.currentUser,
+    WinRegistryService.writeRegistryValue(Registry.currentUser,
         r'System\GameConfigStore', 'GameDVR_DXGIHonorFSEWindowsCompatible', 1);
-    WinRegistryService.writeDword(Registry.currentUser,
+    WinRegistryService.writeRegistryValue(Registry.currentUser,
         r'System\GameConfigStore', 'GameDVR_EFSEFeatureFlags', 0);
-    WinRegistryService.writeDword(Registry.currentUser,
+    WinRegistryService.writeRegistryValue(Registry.currentUser,
         r'System\GameConfigStore', 'GameDVR_FSEBehavior', 2);
 
-    // WinRegistryService.writeDword(Registry.allUsers,
+    // WinRegistryService.writeRegistryValue(Registry.allUsers,
     //     r'System\GameConfigStore', 'GameDVR_FSEBehaviorMode', 2);
-    // WinRegistryService.writeDword(Registry.allUsers,
+    // WinRegistryService.writeRegistryValue(Registry.allUsers,
     //     r'System\GameConfigStore', 'GameDVR_HonorUserFSEBehaviorMode', 1);
-    // WinRegistryService.writeDword(Registry.allUsers,
+    // WinRegistryService.writeRegistryValue(Registry.allUsers,
     //     r'System\GameConfigStore', 'GameDVR_DXGIHonorFSEWindowsCompatible', 1);
-    // WinRegistryService.writeDword(Registry.allUsers,
+    // WinRegistryService.writeRegistryValue(Registry.allUsers,
     //     r'System\GameConfigStore', 'GameDVR_EFSEFeatureFlags', 0);
-    // WinRegistryService.writeDword(
+    // WinRegistryService.writeRegistryValue(
     //     Registry.allUsers, r'System\GameConfigStore', 'GameDVR_FSEBehavior', 2);
   }
 
@@ -166,7 +166,7 @@ class PerformanceService implements SetupService {
           'SwapEffectUpgradeEnable=1;${currentValue.replaceAll('SwapEffectUpgradeEnable=0;', '').replaceAll('SwapEffectUpgradeEnable=0', '')}';
     }
 
-    WinRegistryService.writeString(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Microsoft\DirectX\UserGpuPreferences',
         'DirectXUserGlobalSettings',
@@ -187,7 +187,7 @@ class PerformanceService implements SetupService {
           'SwapEffectUpgradeEnable=0;${currentValue.replaceAll('SwapEffectUpgradeEnable=1;', '').replaceAll('SwapEffectUpgradeEnable=1', '')}';
     }
 
-    WinRegistryService.writeString(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Microsoft\DirectX\UserGpuPreferences',
         'DirectXUserGlobalSettings',
@@ -233,18 +233,18 @@ class PerformanceService implements SetupService {
   }
 
   void disableBackgroundApps() {
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Microsoft\Windows\CurrentVersion\Search',
         'BackgroundAppGlobalToggle',
         0);
 
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications',
         'GlobalUserDisabled',
         1);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'Software\Policies\Microsoft\Windows\AppPrivacy',
         'LetAppsRunInBackground',
@@ -263,7 +263,7 @@ class PerformanceService implements SetupService {
   }
 
   void disableCStates() {
-    WinRegistryService.writeDword(Registry.localMachine,
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'SYSTEM\ControlSet001\Control\Processor', 'Capabilities', 516198);
   }
 

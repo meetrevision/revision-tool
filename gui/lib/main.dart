@@ -28,11 +28,11 @@ Future<void> main() async {
           r'SOFTWARE\Revision\Revision Tool', 'ThemeMode') ==
       null) {
     logger.i('Creating Revision registry keys');
-    WinRegistryService.writeString(Registry.localMachine,
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'SOFTWARE\Revision\Revision Tool', 'ThemeMode', ThemeMode.system.name);
-    WinRegistryService.writeDword(Registry.localMachine,
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'SOFTWARE\Revision\Revision Tool', 'Experimental', 0);
-    WinRegistryService.writeString(Registry.localMachine,
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'SOFTWARE\Revision\Revision Tool', 'Language', 'en_US');
   }
 
@@ -89,7 +89,8 @@ class MyApp extends ConsumerWidget {
           cardColor: ref
               .watch(appSettingsNotifierProvider.notifier)
               .effectColor(
-                  const Color.fromARGB(255, 255, 255, 255).withOpacity(0.05),
+                  const Color.fromARGB(255, 255, 255, 255)
+                      .withValues(alpha: 0.05),
                   modifyColors: true),
           visualDensity: VisualDensity.standard,
           focusTheme: FocusThemeData(

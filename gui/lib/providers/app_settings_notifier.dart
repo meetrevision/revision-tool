@@ -58,7 +58,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     Window.setEffect(
       effect: state.windowEffect,
       color: state.windowEffect == WindowEffect.mica
-          ? micaBackgroundColor.withOpacity(0.05)
+          ? micaBackgroundColor.withValues(alpha: 0.05)
           : Colors.transparent,
       dark: isDark,
     );
@@ -67,7 +67,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   Color? effectColor(Color? color, {bool modifyColors = false}) {
     if (state.windowEffect != WindowEffect.disabled) {
       if (modifyColors) {
-        return color?.withOpacity(0.05);
+        return color?.withValues(alpha: 0.05);
       }
       return Colors.transparent;
     }
@@ -134,7 +134,7 @@ class SettingsService {
   }
 
   static void updateThemeMode(ThemeMode theme) {
-    WinRegistryService.writeString(Registry.localMachine,
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'SOFTWARE\Revision\Revision Tool', 'ThemeMode', theme.name);
   }
 }

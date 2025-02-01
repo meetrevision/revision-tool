@@ -57,7 +57,7 @@ class WinRegistryService {
         'SettingsPageVisibility');
 
     if (currentValue == null || currentValue.isEmpty) {
-      writeString(
+      writeRegistryValue(
           Registry.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
           'SettingsPageVisibility',
@@ -65,7 +65,7 @@ class WinRegistryService {
       return;
     }
     if (!currentValue.contains(pageName)) {
-      writeString(
+      writeRegistryValue(
           Registry.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
           'SettingsPageVisibility',
@@ -100,7 +100,7 @@ class WinRegistryService {
       return Registry.openPath(
         hive,
         path: path,
-      ).getValueAsInt(value);
+      ).getIntValue(value);
     } catch (_) {
       // w('Error reading $value from ${hive.name} $path');
       return null;
@@ -112,7 +112,7 @@ class WinRegistryService {
       return Registry.openPath(
         hive,
         path: path,
-      ).getValueAsString(value);
+      ).getStringValue(value);
     } catch (_) {
       // w('Error reading $value from ${hive.name} $path');
       return null;
@@ -124,53 +124,27 @@ class WinRegistryService {
       return Registry.openPath(
         hive,
         path: path,
-      ).getValue(value)!.data as Uint8List;
+      ).getBinaryValue(value);
     } catch (_) {
       // w('Error reading binary $value from $path');
       return null;
     }
   }
 
-  static Future<void> writeDword(
-      RegistryKey key, String path, String name, int value) async {
+  static Future<void> writeRegistryValue(
+      RegistryKey key, String path, String name, dynamic value) async {
     try {
-      key
-          .createKey(path)
-          .createValue(RegistryValue(name, RegistryValueType.int32, value));
-      logger.i('Added $name with $value to $path');
-    } catch (e) {
-      logger.w('Error writing $name - $e');
-    }
-  }
-
-  static void writeString(
-      RegistryKey key, String path, String name, String value) {
-    try {
-      key
-          .createKey(path)
-          .createValue(RegistryValue(name, RegistryValueType.string, value));
-      logger.i('Added $name with $value to $path');
-    } catch (e) {
-      logger.w('Error writing $name - $e');
-    }
-  }
-
-  static void writeStringMultiSZ(
-      RegistryKey key, String path, String name, String value) {
-    try {
-      key.createKey(path).createValue(
-          RegistryValue(name, RegistryValueType.stringArray, value));
-      logger.i('Added $name with $value to $path');
-    } catch (e) {
-      logger.w('Error writing $name - $e');
-    }
-  }
-
-  static void writeBinary(
-      RegistryKey key, String path, String name, List<int> value) {
-    try {
-      key.createKey(path).createValue(RegistryValue(
-          name, RegistryValueType.binary, Uint8List.fromList(value)));
+      final registryValue = switch (value) {
+        final int v => RegistryValue.int32(name, v),
+        final String v => RegistryValue.string(name, v),
+        final List<String> v => RegistryValue.stringArray(name, v),
+        // final List<int> v => RegistryValue.binary(name, Uint8List.fromList(v)),
+        final Uint8List v => RegistryValue.binary(name, v),
+        final _ =>
+          throw ArgumentError('Unsupported type: ${value.runtimeType}'),
+      };
+      key.createKey(path).createValue(registryValue);
+      logger.i('Added $name: $value to $path');
     } catch (e) {
       logger.w('Error writing $name - $e');
     }

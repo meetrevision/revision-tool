@@ -81,7 +81,7 @@ class UsabilityService implements SetupService {
         r'Software\Policies\Microsoft\Windows\Explorer', 'ToastEnabled');
     WinRegistryService.deleteValue(Registry.localMachine,
         r'Software\Policies\Microsoft\Windows\Explorer', 'ToastEnabled');
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Microsoft\Windows\CurrentVersion\PushNotifications',
         'ToastEnabled',
@@ -99,12 +99,12 @@ class UsabilityService implements SetupService {
         r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications',
         'NoTileApplicationNotification');
 
-    WinRegistryService.writeString(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener',
         'Value',
         'Allow');
-    WinRegistryService.writeString(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener',
         'Value',
@@ -113,7 +113,7 @@ class UsabilityService implements SetupService {
     final wpnServices = WinRegistryService.getUserServices('Wpn');
 
     for (final service in wpnServices) {
-      WinRegistryService.writeDword(Registry.localMachine,
+      WinRegistryService.writeRegistryValue(Registry.localMachine,
           r'SYSTEM\ControlSet001\Services\' + service, 'Start', 2);
     }
 
@@ -131,52 +131,52 @@ class UsabilityService implements SetupService {
         r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
         'DisableNotificationCenter');
 
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications',
         'NoToastApplicationNotification',
         1);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
         'NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
         'NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
         'NOC_GLOBAL_SETTING_ALLOW_CRITICAL_TOASTS_ABOVE_LOCK',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings',
         'NOC_GLOBAL_SETTING_TOASTS_ENABLED',
         0);
-    WinRegistryService.writeDword(Registry.localMachine,
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'SOFTWARE\Policies\Microsoft\Windows\Explorer', 'ToastEnabled', 0);
-    WinRegistryService.writeDword(Registry.currentUser,
+    WinRegistryService.writeRegistryValue(Registry.currentUser,
         r'SOFTWARE\Policies\Microsoft\Windows\Explorer', 'ToastEnabled', 0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'Software\Microsoft\Windows\CurrentVersion\PushNotifications',
         'ToastEnabled',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Microsoft\Windows\CurrentVersion\PushNotifications',
         'ToastEnabled',
         0);
 
-    WinRegistryService.writeString(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener',
         'Value',
         'Deny');
-    WinRegistryService.writeString(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener',
         'Value',
@@ -188,12 +188,12 @@ class UsabilityService implements SetupService {
 
   Future<void> disableNotificationAggressive() async {
     await disableNotification();
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
         'DisableNotificationCenter',
         1);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
         'DisableNotificationCenter',
@@ -202,7 +202,7 @@ class UsabilityService implements SetupService {
     final wpnServices = WinRegistryService.getUserServices('Wpn');
 
     for (final service in wpnServices) {
-      WinRegistryService.writeDword(Registry.localMachine,
+      WinRegistryService.writeRegistryValue(Registry.localMachine,
           r'SYSTEM\ControlSet001\Services\' + service, 'Start', 4);
     }
     for (final page in ["notifications", "privacy-notifications"]) {
@@ -219,7 +219,7 @@ class UsabilityService implements SetupService {
   }
 
   Future<void> enableLegacyBalloon() async {
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Policies\Microsoft\Windows\Explorer',
         'EnableLegacyBalloonNotifications',
@@ -229,7 +229,7 @@ class UsabilityService implements SetupService {
   }
 
   Future<void> disableLegacyBalloon() async {
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Policies\Microsoft\Windows\Explorer',
         'EnableLegacyBalloonNotifications',
@@ -247,47 +247,47 @@ class UsabilityService implements SetupService {
   }
 
   void enableInputPersonalization() {
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Microsoft\InputPersonalization',
         'RestrictImplicitInkCollection',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Microsoft\InputPersonalization',
         'RestrictImplicitTextCollection',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Microsoft\InputPersonalization\TrainedDataStore',
         'HarvestContacts',
         1);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Microsoft\InputPersonalization\Settings',
         'AcceptedPrivacyPolicy',
         1);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'SOFTWARE\Policies\Microsoft\InputPersonalization',
         'RestrictImplicitInkCollection',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'SOFTWARE\Policies\Microsoft\InputPersonalization',
         'RestrictImplicitTextCollection',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Policies\Microsoft\InputPersonalization',
         'RestrictImplicitInkCollection',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Policies\Microsoft\InputPersonalization',
         'RestrictImplicitTextCollection',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Policies\Microsoft\InputPersonalization',
         'AllowInputPersonalization',
@@ -295,47 +295,47 @@ class UsabilityService implements SetupService {
   }
 
   void disableInputPersonalization() {
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Microsoft\InputPersonalization',
         'RestrictImplicitInkCollection',
         1);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Microsoft\InputPersonalization',
         'RestrictImplicitTextCollection',
         1);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Microsoft\InputPersonalization\TrainedDataStore',
         'HarvestContacts',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Microsoft\InputPersonalization\Settings',
         'AcceptedPrivacyPolicy',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'SOFTWARE\Policies\Microsoft\InputPersonalization',
         'RestrictImplicitInkCollection',
         1);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'SOFTWARE\Policies\Microsoft\InputPersonalization',
         'RestrictImplicitTextCollection',
         1);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Policies\Microsoft\InputPersonalization',
         'RestrictImplicitInkCollection',
         1);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Policies\Microsoft\InputPersonalization',
         'RestrictImplicitTextCollection',
         1);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Policies\Microsoft\InputPersonalization',
         'AllowInputPersonalization',
@@ -360,7 +360,7 @@ class UsabilityService implements SetupService {
   }
 
   void disableCapsLock() {
-    WinRegistryService.writeBinary(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r"SYSTEM\CurrentControlSet\Control\Keyboard Layout",
         "Scancode Map",
@@ -379,7 +379,7 @@ class UsabilityService implements SetupService {
   }
 
   void disableScreenEdgeSwipe() {
-    WinRegistryService.writeDword(Registry.localMachine,
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'SOFTWARE\Policies\Microsoft\Windows\EdgeUI', "AllowEdgeSwipe", 0);
   }
 
@@ -407,7 +407,7 @@ class UsabilityService implements SetupService {
   Future<void> disableNewContextMenu() async {
     WinRegistryService.createKey(Registry.currentUser,
         r'Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32');
-    WinRegistryService.writeString(
+    WinRegistryService.writeRegistryValue(
         Registry.currentUser,
         r'Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32',
         '',

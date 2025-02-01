@@ -112,7 +112,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           // description: context.l10n.settingsEPTDescription,
           switchBool: expBool,
           function: (value) {
-            WinRegistryService.writeDword(
+            WinRegistryService.writeRegistryValue(
                 Registry.localMachine,
                 r'SOFTWARE\Revision\Revision Tool',
                 'Experimental',
@@ -185,7 +185,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             onChanged: (value) {
               setState(() {
                 appLanguage = value ?? 'en_US';
-                WinRegistryService.writeString(
+                WinRegistryService.writeRegistryValue(
                     Registry.localMachine,
                     r'SOFTWARE\Revision\Revision Tool',
                     'Language',

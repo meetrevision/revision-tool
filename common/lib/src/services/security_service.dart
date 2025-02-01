@@ -32,7 +32,9 @@ class SecurityService implements SetupService {
 
   bool get statusDefender {
     if (_winPackageService
-        .checkPackageInstalled(WinPackageType.defenderRemoval)) return false;
+        .checkPackageInstalled(WinPackageType.defenderRemoval)) {
+      return false;
+    }
 
     if (WinRegistryService.readInt(RegistryHive.localMachine,
             r'SOFTWARE\Microsoft\Windows Defender', 'DisableAntiSpyware') ==
@@ -99,9 +101,9 @@ class SecurityService implements SetupService {
           r'SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection',
           'DisableRealtimeMonitoring');
 
-      // WinRegistryService.writeDword(Registry.localMachine,
+      // WinRegistryService.writeRegistryValue(Registry.localMachine,
       //     r'SOFTWARE\Microsoft\Windows Defender', 'DisableAntiSpyware', 0);
-      // WinRegistryService.writeDword(Registry.localMachine,
+      // WinRegistryService.writeRegistryValue(Registry.localMachine,
       //     r'SOFTWARE\Microsoft\Windows Defender', 'DisableAntiVirus', 0);
 
       await _shell.run(
@@ -117,7 +119,7 @@ class SecurityService implements SetupService {
       await _shell.run(
           '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg add "HKLM\\System\\ControlSet001\\Services\\MDCoreSvc" /v Start /t REG_DWORD /d 2 /f');
 
-      WinRegistryService.writeString(
+      WinRegistryService.writeRegistryValue(
           Registry.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce',
           'RevisionEnableDefenderCMD',
@@ -144,7 +146,7 @@ class SecurityService implements SetupService {
       };
 
       for (final entry in subkeys.entries) {
-        WinRegistryService.writeDword(
+        WinRegistryService.writeRegistryValue(
           Registry.localMachine,
           r'SYSTEM\ControlSet001\Services\' + entry.key,
           'Start',
@@ -156,11 +158,11 @@ class SecurityService implements SetupService {
           WinRegistryService.getUserServices('webthreatdefusersvc');
 
       for (final webthreatdefsvc in webthreatdefsvcList) {
-        WinRegistryService.writeDword(Registry.localMachine,
+        WinRegistryService.writeRegistryValue(Registry.localMachine,
             r'SYSTEM\ControlSet001\Services\' + webthreatdefsvc, 'Start', 2);
       }
 
-      WinRegistryService.writeString(
+      WinRegistryService.writeRegistryValue(
           Registry.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Run',
           'SecurityHealth',
@@ -178,7 +180,7 @@ class SecurityService implements SetupService {
 
       WinRegistryService.deleteKey(Registry.currentUser,
           r'Software\Microsoft\Windows\CurrentVersion\Policies\Associations');
-      WinRegistryService.writeString(
+      WinRegistryService.writeRegistryValue(
           Registry.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer',
           'SmartScreenEnabled',
@@ -211,7 +213,7 @@ class SecurityService implements SetupService {
       WinRegistryService.deleteKey(Registry.localMachine,
           r'SOFTWARE\Policies\Microsoft\Windows Defender Security Center');
 
-      WinRegistryService.writeDword(Registry.localMachine,
+      WinRegistryService.writeRegistryValue(Registry.localMachine,
           r'SOFTWARE\Microsoft\Windows Defender', 'PUAProtection', 1);
 
       WinRegistryService.deleteValue(
@@ -223,12 +225,12 @@ class SecurityService implements SetupService {
           r'SYSTEM\ControlSet001\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity',
           'Enabled');
 
-      WinRegistryService.writeDword(
+      WinRegistryService.writeRegistryValue(
           Registry.localMachine,
           r'SYSTEM\ControlSet001\Control\WMI\Autologger\DefenderApiLogger',
           'Start',
           1);
-      WinRegistryService.writeDword(
+      WinRegistryService.writeRegistryValue(
           Registry.localMachine,
           r'SYSTEM\ControlSet001\Control\WMI\Autologger\DefenderAuditLogger',
           'Start',
@@ -242,17 +244,17 @@ class SecurityService implements SetupService {
     try {
       await _winPackageService.downloadPackage(WinPackageType.defenderRemoval);
 
-      WinRegistryService.writeDword(
+      WinRegistryService.writeRegistryValue(
           Registry.localMachine,
           r'SOFTWARE\Policies\Microsoft\Windows Defender',
           'DisableAntiSpyware',
           1);
-      WinRegistryService.writeDword(
+      WinRegistryService.writeRegistryValue(
           Registry.localMachine,
           r'SOFTWARE\Policies\Microsoft\Windows Defender',
           'DisableAntiVirus',
           1);
-      WinRegistryService.writeDword(
+      WinRegistryService.writeRegistryValue(
           Registry.localMachine,
           r'SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection',
           'DisableRealtimeMonitoring',
@@ -294,52 +296,52 @@ class SecurityService implements SetupService {
   }
 
   void enableUAC() {
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableVirtualization',
         1);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableInstallerDetection',
         1);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'PromptOnSecureDesktop',
         1);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableLUA',
         1);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableSecureUIAPaths',
         1);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'ConsentPromptBehaviorAdmin',
         5);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'ValidateAdminCodeSignatures',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableUIADesktopToggle',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'ConsentPromptBehaviorUser',
         3);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'FilterAdministratorToken',
@@ -347,52 +349,52 @@ class SecurityService implements SetupService {
   }
 
   void disableUAC() {
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableVirtualization',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableInstallerDetection',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'PromptOnSecureDesktop',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableLUA',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableSecureUIAPaths',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'ConsentPromptBehaviorAdmin',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'ValidateAdminCodeSignatures',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'EnableUIADesktopToggle',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'ConsentPromptBehaviorUser',
         0);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
         'FilterAdministratorToken',
@@ -408,7 +410,7 @@ class SecurityService implements SetupService {
   }
 
   void enableSpectreMeltdown() {
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
         'FeatureSettings',
@@ -424,17 +426,17 @@ class SecurityService implements SetupService {
   }
 
   void disableSpectreMeltdown() {
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
         'FeatureSettings',
         1);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
         'FeatureSettingsOverride',
         3);
-    WinRegistryService.writeDword(
+    WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
         'FeatureSettingsOverrideMask',

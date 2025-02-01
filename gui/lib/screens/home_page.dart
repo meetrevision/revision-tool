@@ -154,7 +154,7 @@ class _HomePageState extends State<HomePage> {
                     Text(
                       Registry.openPath(RegistryHive.currentUser,
                               path: r'Volatile Environment')
-                          .getValueAsString("USERNAME")!,
+                          .getStringValue("USERNAME")!,
                       style: const TextStyle(
                           fontWeight: FontWeight.w500, fontSize: 14),
                     ),

@@ -141,8 +141,6 @@ class _SecurityPageState extends State<SecurityPage> {
                     ),
                   ),
                 );
-              default:
-                return const SizedBox();
             }
           },
         ),
