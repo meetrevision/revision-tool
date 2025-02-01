@@ -1,65 +1,104 @@
 {
   "ar": [
+    "securityDownfallMitLabel",
+    "securityDownfallMitDescription",
+    "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "de": [
+    "securityDownfallMitLabel",
+    "securityDownfallMitDescription",
+    "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "fr": [
+    "securityDownfallMitLabel",
+    "securityDownfallMitDescription",
+    "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "hu": [
+    "securityDownfallMitLabel",
+    "securityDownfallMitDescription",
+    "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "it": [
+    "securityDownfallMitLabel",
+    "securityDownfallMitDescription",
+    "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "pt": [
+    "securityDownfallMitLabel",
+    "securityDownfallMitDescription",
+    "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
+  "pt_BR": [
+    "securityDownfallMitLabel",
+    "securityDownfallMitDescription",
+    "securityDownfallMitCodeSnippet"
+  ],
+
   "ro": [
+    "securityDownfallMitLabel",
+    "securityDownfallMitDescription",
+    "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "ru": [
+    "securityDownfallMitLabel",
+    "securityDownfallMitDescription",
+    "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "tr": [
+    "securityDownfallMitLabel",
+    "securityDownfallMitDescription",
+    "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "uk": [
+    "securityDownfallMitLabel",
+    "securityDownfallMitDescription",
+    "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
 
   "zh": [
+    "securityDownfallMitLabel",
+    "securityDownfallMitDescription",
+    "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
     "usabilitySESLabel",
     "usabilitySESDescription",
@@ -71,5 +110,11 @@
     "msstoreWait",
     "msstorePackagesPrompt",
     "msstorePackagesNotFound"
+  ],
+
+  "zh_TW": [
+    "securityDownfallMitLabel",
+    "securityDownfallMitDescription",
+    "securityDownfallMitCodeSnippet"
   ]
 }

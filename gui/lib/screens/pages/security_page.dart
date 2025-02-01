@@ -16,10 +16,12 @@ class _SecurityPageState extends State<SecurityPage> {
   final _securityService = SecurityService();
   late final _wdBool = ValueNotifier<bool>(_securityService.statusDefender);
   late final _uacBool = ValueNotifier<bool>(_securityService.statusUAC);
-  late final _smBool =
-      ValueNotifier<bool>(_securityService.statusSpectreMeltdown);
+  late final _smBool = ValueNotifier<bool>(
+      _securityService.isMitigationEnabled(Mitigation.meltdownSpectre));
   late final _statusProtections =
       ValueNotifier<bool>(_securityService.statusDefenderProtections);
+  late final _statusDownfall = ValueNotifier<bool>(
+      _securityService.isMitigationEnabled(Mitigation.downfall));
 
   @override
   void dispose() {
@@ -27,6 +29,7 @@ class _SecurityPageState extends State<SecurityPage> {
     _uacBool.dispose();
     _smBool.dispose();
     _statusProtections.dispose();
+    _statusDownfall.dispose();
     super.dispose();
   }
 
@@ -166,8 +169,23 @@ class _SecurityPageState extends State<SecurityPage> {
             function: (value) {
               _smBool.value = value;
               value
-                  ? _securityService.enableSpectreMeltdown()
-                  : _securityService.disableSpectreMeltdown();
+                  ? _securityService
+                      .enableMitigation(Mitigation.meltdownSpectre)
+                  : _securityService
+                      .disableMitigation(Mitigation.meltdownSpectre);
+            }),
+        CardHighlightSwitch(
+            icon: msicons.FluentIcons.shield_badge_20_regular,
+            label: context.l10n.securityDownfallMitLabel,
+            description: context.l10n.securityDownfallMitDescription,
+            codeSnippet: context.l10n.securityDownfallMitCodeSnippet,
+            switchBool: _statusDownfall,
+            requiresRestart: true,
+            function: (value) {
+              _statusDownfall.value = value;
+              value
+                  ? _securityService.enableMitigation(Mitigation.downfall)
+                  : _securityService.disableMitigation(Mitigation.downfall);
             }),
         CardHighlight(
           icon: msicons.FluentIcons.certificate_20_regular,

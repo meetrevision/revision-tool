@@ -8,6 +8,22 @@ import 'win_registry_service.dart';
 import 'setup_service.dart';
 import 'package:process_run/shell.dart';
 
+enum Mitigation {
+  meltdownSpectre,
+  downfall,
+}
+
+extension MitigationBits on Mitigation {
+  int get bitmask {
+    switch (this) {
+      case Mitigation.meltdownSpectre:
+        return 0x00000003;
+      case Mitigation.downfall:
+        return 0x02000000;
+    }
+  }
+}
+
 class SecurityService implements SetupService {
   static final _shell = Shell();
   static final _winPackageService = WinPackageService();
@@ -26,7 +42,6 @@ class SecurityService implements SetupService {
   void recommendation() {
     enableDefender();
     enableUAC();
-    enableSpectreMeltdown();
     updateCertificates();
   }
 
@@ -401,50 +416,79 @@ class SecurityService implements SetupService {
         0);
   }
 
-  bool get statusSpectreMeltdown {
-    return WinRegistryService.readInt(
-            RegistryHive.localMachine,
-            r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
-            'FeatureSettingsOverride') ==
-        null;
+  bool isMitigationEnabled(Mitigation mitigation) {
+    final val = WinRegistryService.readInt(
+      RegistryHive.localMachine,
+      r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
+      'FeatureSettingsOverride',
+    );
+    if (val == null) return true;
+    return (val & mitigation.bitmask) == 0;
   }
 
-  void enableSpectreMeltdown() {
-    WinRegistryService.writeRegistryValue(
-        Registry.localMachine,
-        r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
-        'FeatureSettings',
-        0);
-    WinRegistryService.deleteValue(
-        Registry.localMachine,
-        r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
-        'FeatureSettingsOverride');
-    WinRegistryService.deleteValue(
-        Registry.localMachine,
-        r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
-        'FeatureSettingsOverrideMask');
+  void enableMitigation(Mitigation mitigation) {
+    final otherMitigation =
+        Mitigation.values[(mitigation.index + 1) % Mitigation.values.length];
+    if (isMitigationEnabled(otherMitigation)) {
+      WinRegistryService.writeRegistryValue(
+          Registry.localMachine,
+          r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
+          'FeatureSettings',
+          0);
+      WinRegistryService.deleteValue(
+          Registry.localMachine,
+          r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
+          'FeatureSettingsOverride');
+      WinRegistryService.deleteValue(
+          Registry.localMachine,
+          r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
+          'FeatureSettingsOverrideMask');
+      return;
+    }
+
+    final currentVal = _readOverride();
+    final newVal = currentVal & ~mitigation.bitmask;
+    _writeOverride(newVal);
   }
 
-  void disableSpectreMeltdown() {
+  void disableMitigation(Mitigation mitigation) {
     WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
         'FeatureSettings',
         1);
-    WinRegistryService.writeRegistryValue(
-        Registry.localMachine,
-        r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
-        'FeatureSettingsOverride',
-        3);
-    WinRegistryService.writeRegistryValue(
-        Registry.localMachine,
-        r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
-        'FeatureSettingsOverrideMask',
-        3);
+
+    final currentVal = _readOverride();
+    final newVal = currentVal | mitigation.bitmask;
+    _writeOverride(newVal);
   }
 
   Future<void> updateCertificates() async {
     await _shell.run(
         'PowerShell -NonInteractive -NoLogo -NoP -C "& {\$tmp = (New-TemporaryFile).FullName; CertUtil -generateSSTFromWU -f \$tmp; if ( (Get-Item \$tmp | Measure-Object -Property Length -Sum).sum -gt 0 ) { \$SST_File = Get-ChildItem -Path \$tmp; \$SST_File | Import-Certificate -CertStoreLocation "Cert:\\LocalMachine\\Root"; \$SST_File | Import-Certificate -CertStoreLocation "Cert:\\LocalMachine\\AuthRoot" } Remove-Item -Path \$tmp}"');
   }
+}
+
+int _readOverride() {
+  return WinRegistryService.readInt(
+        RegistryHive.localMachine,
+        r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
+        'FeatureSettingsOverride',
+      ) ??
+      0;
+}
+
+void _writeOverride(int value) {
+  WinRegistryService.writeRegistryValue(
+    Registry.localMachine,
+    r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
+    'FeatureSettingsOverride',
+    value,
+  );
+  WinRegistryService.writeRegistryValue(
+    Registry.localMachine,
+    r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
+    'FeatureSettingsOverrideMask',
+    value,
+  );
 }
