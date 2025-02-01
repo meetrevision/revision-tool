@@ -119,10 +119,13 @@ powercfg -h off
         r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start', 2);
     WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'SYSTEM\ControlSet001\Services\Ndu', 'Start', 2);
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\DPS', 'Start', 2);
     await _shell.run(r'''
-                    sc start GraphicsPerfSvc
-                    sc start Ndu
-                    ''');
+sc start GraphicsPerfSvc
+sc start Ndu
+sc start DPS
+''');
   }
 
   void disableTMMonitoring() {
@@ -130,6 +133,8 @@ powercfg -h off
         r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc', 'Start', 4);
     WinRegistryService.writeRegistryValue(Registry.localMachine,
         r'SYSTEM\ControlSet001\Services\Ndu', 'Start', 4);
+    WinRegistryService.writeRegistryValue(Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\DPS', 'Start', 4);
   }
 
   bool get statusMPO {
