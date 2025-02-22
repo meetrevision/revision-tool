@@ -95,11 +95,5 @@
     "msstoreWait",
     "msstorePackagesPrompt",
     "msstorePackagesNotFound"
-  ],
-
-  "zh_TW": [
-    "securityDownfallMitLabel",
-    "securityDownfallMitDescription",
-    "securityDownfallMitCodeSnippet"
   ]
 }
