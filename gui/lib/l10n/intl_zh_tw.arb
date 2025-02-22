@@ -107,5 +107,8 @@
   "msstorePackagesNotFound": "沒有找到安裝包",
   "usabilityNotifDescription": "「最小」將禁用通知，而「完整」將刪除通知中心，從而阻止日曆和通知面板出現",
   "miscUpdateKGL": "更新 KGL",
-  "miscUpdateKGLDescription": "強制更新 Xbox Game Bar 的已知遊戲清單 （KGL），以修復雙 CCD 處理器上的核心停放問題"
+  "miscUpdateKGLDescription": "強制更新 Xbox Game Bar 的已知遊戲清單 （KGL），以修復雙 CCD 處理器上的核心停放問題",
+  "securityDownfallMitLabel":"Downfall漏洞緩解",
+  "securityDownfallMitDescription":"用於緩解 Downfall 漏洞的補丁，禁用此功能可能會帶來更好的性能",
+  "securityDownfallMitCodeSnippet":"在啟用 Hyper-V（虛擬化）時禁用緩解措施不在此當前實現的範圍內"
 }

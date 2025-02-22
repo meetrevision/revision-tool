@@ -53,12 +53,6 @@
     "miscUpdateKGLDescription"
   ],
 
-  "pt_BR": [
-    "securityDownfallMitLabel",
-    "securityDownfallMitDescription",
-    "securityDownfallMitCodeSnippet"
-  ],
-
   "ro": [
     "securityDownfallMitLabel",
     "securityDownfallMitDescription",
@@ -69,15 +63,6 @@
   ],
 
   "ru": [
-    "securityDownfallMitLabel",
-    "securityDownfallMitDescription",
-    "securityDownfallMitCodeSnippet",
-    "usabilityNotifDescription",
-    "miscUpdateKGL",
-    "miscUpdateKGLDescription"
-  ],
-
-  "tr": [
     "securityDownfallMitLabel",
     "securityDownfallMitDescription",
     "securityDownfallMitCodeSnippet",
@@ -110,11 +95,5 @@
     "msstoreWait",
     "msstorePackagesPrompt",
     "msstorePackagesNotFound"
-  ],
-
-  "zh_TW": [
-    "securityDownfallMitLabel",
-    "securityDownfallMitDescription",
-    "securityDownfallMitCodeSnippet"
   ]
 }
