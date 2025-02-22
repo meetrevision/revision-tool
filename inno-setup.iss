@@ -49,6 +49,8 @@ Source: "{#SourcePath}\gui\dlls\msvcp140.dll"; DestDir: "{app}"; Flags: ignoreve
 Source: "{#SourcePath}\gui\dlls\vcruntime140.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourcePath}\gui\dlls\vcruntime140_1.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourcePath}\gui\build\windows\x64\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
+; FFI
+Source: "{#SourcePath}\native_utils\process_checker.dll"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

@@ -51,18 +51,16 @@ Virus and Threat Protections Status: ${_securityService.statusDefenderProtection
       exit(0);
     }
 
-    // TODO: Remove this whenever a new playbook gets released
-    final isAMETempAvailable = await Directory(ameTemp).exists();
-    if (isAMETempAvailable) {
+    if (!isProcessRunning('explorer.exe')) {
       await Process.run('explorer.exe', const []);
       await Future.delayed(const Duration(seconds: 5));
     }
-    //
 
     stdout.writeln('$tag Disabling Windows Defender...');
 
     stdout.writeln(
-        '$tag Checking if Virus and Threat Protections are enabled...');
+      '$tag Checking if Virus and Threat Protections are enabled...',
+    );
     int count = 0;
     while (_securityService.statusDefenderProtections) {
       if (count > 10) {
@@ -72,7 +70,8 @@ Virus and Threat Protections Status: ${_securityService.statusDefenderProtection
 
       if (!_securityService.statusDefenderProtectionTamper) {
         await _shell.run(
-            'PowerShell -EP Unrestricted -NonInteractive -NoLogo -NoP Set-MpPreference -DisableRealtimeMonitoring \$true');
+          'PowerShell -EP Unrestricted -NonInteractive -NoLogo -NoP Set-MpPreference -DisableRealtimeMonitoring \$true',
+        );
         break;
       }
 
@@ -83,10 +82,6 @@ Virus and Threat Protections Status: ${_securityService.statusDefenderProtection
       count++;
     }
     await Process.run('taskkill', ['/f', '/im', 'SecHealthUI.exe']);
-
-    if (isAMETempAvailable) {
-      await Process.run('taskkill', ['/f', '/im', 'explorer.exe']);
-    }
 
     try {
       await _securityService.disableDefender();

@@ -30,6 +30,10 @@ jobs:
           (Get-Content -Path "inno-setup.iss") -replace '#define MyAppVersion "[\d\.]+"', "#define MyAppVersion `"${{ env.NEW_VERSION }}`"" | Set-Content -Path "inno-setup.iss"
         shell: pwsh
       
+      - name: Compile C code
+        run: gcc -shared -o process_checker.dll process_checker.c -lpsapi -O3
+        working-directory: native_utils
+
       - run: flutter gen-l10n
         working-directory: gui
 
