@@ -3,7 +3,7 @@ description: A Dart package that contains common Revision Tool code shared betwe
 version: 0.0.1
 
 environment:
-  sdk: ^3.6.1
+  sdk: ^3.7.0
 
 dependencies:
 
@@ -20,14 +20,14 @@ dependencies:
   # Other
   args: ^2.6.0
   path: ^1.9.1
-  process_run: ^1.2.2+1
+  process_run: ^1.2.3
   win32_registry: ^2.0.1
   xml: ^6.5.0
   collection: ^1.18.0
 
 dev_dependencies:
-  build_runner: ^2.4.14
+  build_runner: ^2.4.15
   freezed: ^2.5.8
-  json_serializable: ^6.9.3
+  json_serializable: ^6.9.4
   lints: ^5.1.1
   # test: ^1.24.0
