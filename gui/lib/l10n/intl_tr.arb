@@ -34,9 +34,9 @@
   "securitySMDescription": "Spectre ve Meltdown güvenlik açıklarına karşı önlem sağlamak için yamalar",
   "securityDownfallMitLabel": "Downfall Zafiyet Azaltma",
   "securityDownfallMitDescription": "Downfall güvenlik açıklarına karşı koruma sağlayan yamalar, bunu devre dışı bırakmak performans artışı sağlayabilir",
-  "securityDownfallMitCodeSnippet": "Hyper-V (Sanallaştırma) etkin olduğunda zafiyet azaltmanın devre dışı bırakılması, mevcut uygulamanın kapsamı dışındadır"
+  "securityDownfallMitCodeSnippet": "Hyper-V (Sanallaştırma) etkin olduğunda zafiyet azaltmanın devre dışı bırakılması, mevcut uygulamanın kapsamı dışındadır",
   "usabilityNotifLabel": "Windows Bildirimleri",
-  "usabilityNotifDescription": "'Minimal' bildirimleri devre dışı bırakır, 'Full' ise Bildirim Merkezini kaldırarak takvim ve bildirim panellerinin görünmesini engeller"
+  "usabilityNotifDescription": "'Minimal' bildirimleri devre dışı bırakır, 'Full' ise Bildirim Merkezini kaldırarak takvim ve bildirim panellerinin görünmesini engeller",
   "usabilityLBNLabel": "Eski Tip Bildirim Balonları",
   "usabilityLBNDescription": "Görev çubuğundaki programları, küçük bildirimler yerine büyük olarak görüntülenecek",
   "usabilityITPLabel": "Yazma ve Yazıyı Kişiselleştirme",
@@ -83,7 +83,7 @@
   "miscMpoLabel": "Çok Katmanlı Örtü (MPO)",
   "miscMpoCodeSnippet": "Nvidia GTX 16xx, RTX 3xxx ve AMD RX 5xxx veya daha yeni kartlarda kapatılması önerilir. Bu seçeneği açık bırakmak, siyah ekranlar, takılmalar, titremeler ve diğer genel ekran sorunlarına neden olabilir",
   "miscUpdateKGL": "KGL Güncelle",
-  "miscUpdateKGLDescription": "Çift CCD işlemcilerde çekirdek park etme sorunlarını gidermek için Xbox Game Bar'ın Bilinen Oyun Listesi (KGL) güncellemeye zorla"
+  "miscUpdateKGLDescription": "Çift CCD işlemcilerde çekirdek park etme sorunlarını gidermek için Xbox Game Bar'ın Bilinen Oyun Listesi (KGL) güncellemeye zorla",
   "miscURLabel": "Kullanım Raporlama",
   "miscURDescription": "Pil sağlığını ve veri kullanımını raporlar; Etkinleştirilmesi durumunda sisteminizi yavaşlatabilir",
   "miscCertsLabel": "Kök Sertifikalarını Güncelle",
