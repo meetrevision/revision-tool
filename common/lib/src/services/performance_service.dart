@@ -53,7 +53,7 @@ class PerformanceService implements SetupService {
     );
   }
 
-  Future<bool> get statusMemoryCompression async {
+  bool get statusMemoryCompression {
     return isProcessRunning('Memory Compression');
   }
 

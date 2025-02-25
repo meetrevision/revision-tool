@@ -1,6 +1,7 @@
 import 'package:common/common.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:revitool/extensions.dart';
+import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
@@ -13,12 +14,15 @@ class UpdatesPage extends StatefulWidget {
 
 class _UpdatesPageState extends State<UpdatesPage> {
   final UpdatesService _updatesService = UpdatesService();
-  late final _pausedBool =
-      ValueNotifier<bool>(_updatesService.statusPauseUpdatesWU);
-  late final _wuPageBool =
-      ValueNotifier<bool>(_updatesService.statusVisibilityWU);
-  late final _wuDriversBool =
-      ValueNotifier<bool>(_updatesService.statusDriversWU);
+  late final _pausedBool = ValueNotifier<bool>(
+    _updatesService.statusPauseUpdatesWU,
+  );
+  late final _wuPageBool = ValueNotifier<bool>(
+    _updatesService.statusVisibilityWU,
+  );
+  late final _wuDriversBool = ValueNotifier<bool>(
+    _updatesService.statusDriversWU,
+  );
 
   @override
   void dispose() {
@@ -31,10 +35,8 @@ class _UpdatesPageState extends State<UpdatesPage> {
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
-      key: GlobalKey(),
-      header: PageHeader(
-        title: Text(context.l10n.pageUpdates),
-      ),
+      padding: kScaffoldPagePadding,
+      header: PageHeader(title: Text(context.l10n.pageUpdates)),
       children: [
         CardHighlightSwitch(
           icon: msicons.FluentIcons.pause_20_regular,

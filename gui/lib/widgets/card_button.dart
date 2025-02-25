@@ -28,15 +28,12 @@ class CardButtonWidget extends StatelessWidget {
       padding: const EdgeInsets.all(0.0),
       child: IconButton(
         style: ButtonStyle(
-          padding: WidgetStateProperty.all(const EdgeInsets.only(
-            left: 4.0,
-            right: 4.0,
-            top: 5.0,
-            bottom: 0.0,
-          )),
-          shape: WidgetStateProperty.all(RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4.0),
-          )),
+          padding: WidgetStateProperty.all(
+            const EdgeInsets.only(left: 4.0, right: 4.0, top: 5.0, bottom: 0.0),
+          ),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
+          ),
         ),
         onPressed: onPressed,
         icon: CardHighlight(

@@ -1,6 +1,7 @@
 import 'package:common/common.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:revitool/extensions.dart';
+import 'package:revitool/utils.dart';
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:revitool/widgets/dialogs/msstore_dialogs.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
@@ -17,11 +18,14 @@ class _SecurityPageState extends State<SecurityPage> {
   late final _wdBool = ValueNotifier<bool>(_securityService.statusDefender);
   late final _uacBool = ValueNotifier<bool>(_securityService.statusUAC);
   late final _smBool = ValueNotifier<bool>(
-      _securityService.isMitigationEnabled(Mitigation.meltdownSpectre));
-  late final _statusProtections =
-      ValueNotifier<bool>(_securityService.statusDefenderProtections);
+    _securityService.isMitigationEnabled(Mitigation.meltdownSpectre),
+  );
+  late final _statusProtections = ValueNotifier<bool>(
+    _securityService.statusDefenderProtections,
+  );
   late final _statusDownfall = ValueNotifier<bool>(
-      _securityService.isMitigationEnabled(Mitigation.downfall));
+    _securityService.isMitigationEnabled(Mitigation.downfall),
+  );
 
   @override
   void dispose() {
@@ -36,6 +40,7 @@ class _SecurityPageState extends State<SecurityPage> {
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
+      padding: kScaffoldPagePadding,
       header: PageHeader(
         title: Padding(
           padding: const EdgeInsets.only(left: 8.0),
@@ -59,43 +64,45 @@ class _SecurityPageState extends State<SecurityPage> {
                       valueWd
                           ? await _securityService.enableDefender()
                           : {
-                              updateStatusProtectionsValue(),
-                              if (!_statusProtections.value)
-                                await _securityService.disableDefender()
-                            };
+                            updateStatusProtectionsValue(),
+                            if (!_statusProtections.value)
+                              await _securityService.disableDefender(),
+                          };
                       if (!context.mounted) return;
                       context.pop();
                       _wdBool.value = valueWd;
                       await showDialog(
                         context: context,
-                        builder: (context) => ContentDialog(
-                          content: Text(context.l10n.restartDialog),
-                          actions: [
-                            Button(
-                              child: Text(context.l10n.okButton),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
+                        builder:
+                            (context) => ContentDialog(
+                              content: Text(context.l10n.restartDialog),
+                              actions: [
+                                Button(
+                                  child: Text(context.l10n.okButton),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
                       );
                     } catch (e) {
                       if (!context.mounted) return;
                       context.pop();
                       await showDialog(
                         context: context,
-                        builder: (context) => ContentDialog(
-                          content: Text(e.toString()),
-                          actions: [
-                            Button(
-                              child: Text(context.l10n.okButton),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
+                        builder:
+                            (context) => ContentDialog(
+                              content: Text(e.toString()),
+                              actions: [
+                                Button(
+                                  child: Text(context.l10n.okButton),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
                       );
                     }
                   },
@@ -161,32 +168,34 @@ class _SecurityPageState extends State<SecurityPage> {
           },
         ),
         CardHighlightSwitch(
-            icon: msicons.FluentIcons.shield_badge_20_regular,
-            label: context.l10n.securitySMLabel,
-            description: context.l10n.securitySMDescription,
-            switchBool: _smBool,
-            requiresRestart: true,
-            function: (value) {
-              _smBool.value = value;
-              value
-                  ? _securityService
-                      .enableMitigation(Mitigation.meltdownSpectre)
-                  : _securityService
-                      .disableMitigation(Mitigation.meltdownSpectre);
-            }),
+          icon: msicons.FluentIcons.shield_badge_20_regular,
+          label: context.l10n.securitySMLabel,
+          description: context.l10n.securitySMDescription,
+          switchBool: _smBool,
+          requiresRestart: true,
+          function: (value) {
+            _smBool.value = value;
+            value
+                ? _securityService.enableMitigation(Mitigation.meltdownSpectre)
+                : _securityService.disableMitigation(
+                  Mitigation.meltdownSpectre,
+                );
+          },
+        ),
         CardHighlightSwitch(
-            icon: msicons.FluentIcons.shield_badge_20_regular,
-            label: context.l10n.securityDownfallMitLabel,
-            description: context.l10n.securityDownfallMitDescription,
-            codeSnippet: context.l10n.securityDownfallMitCodeSnippet,
-            switchBool: _statusDownfall,
-            requiresRestart: true,
-            function: (value) {
-              _statusDownfall.value = value;
-              value
-                  ? _securityService.enableMitigation(Mitigation.downfall)
-                  : _securityService.disableMitigation(Mitigation.downfall);
-            }),
+          icon: msicons.FluentIcons.shield_badge_20_regular,
+          label: context.l10n.securityDownfallMitLabel,
+          description: context.l10n.securityDownfallMitDescription,
+          codeSnippet: context.l10n.securityDownfallMitCodeSnippet,
+          switchBool: _statusDownfall,
+          requiresRestart: true,
+          function: (value) {
+            _statusDownfall.value = value;
+            value
+                ? _securityService.enableMitigation(Mitigation.downfall)
+                : _securityService.disableMitigation(Mitigation.downfall);
+          },
+        ),
         CardHighlight(
           icon: msicons.FluentIcons.certificate_20_regular,
           label: context.l10n.miscCertsLabel,
@@ -202,14 +211,16 @@ class _SecurityPageState extends State<SecurityPage> {
                 context.pop();
                 showDialog(
                   context: context,
-                  builder: (context) => ContentDialog(
-                    content: Text(context.l10n.miscCertsDialog),
-                    actions: [
-                      Button(
-                          child: Text(context.l10n.okButton),
-                          onPressed: () => context.pop()),
-                    ],
-                  ),
+                  builder:
+                      (context) => ContentDialog(
+                        content: Text(context.l10n.miscCertsDialog),
+                        actions: [
+                          Button(
+                            child: Text(context.l10n.okButton),
+                            onPressed: () => context.pop(),
+                          ),
+                        ],
+                      ),
                 );
               },
               child: Text(context.l10n.updateButton),

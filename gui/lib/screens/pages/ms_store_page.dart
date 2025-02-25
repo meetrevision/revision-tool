@@ -1,6 +1,7 @@
 import 'package:common/common.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:revitool/extensions.dart';
+import 'package:revitool/utils.dart';
 
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:revitool/widgets/dialogs/msstore_dialogs.dart';
@@ -31,14 +32,22 @@ class _MSStorePageState extends State<MSStorePage>
 
     if (query.startsWith("9") || query.startsWith("XP")) {
       await showInstallDialog(
-          context, context.l10n.msstoreSearchingPackages, query, _selectedRing);
+        context,
+        context.l10n.msstoreSearchingPackages,
+        query,
+        _selectedRing,
+      );
     } else if (query.startsWith('https://') &&
         query.contains('microsoft.com')) {
       final uri = Uri.parse(query);
       final productId = uri.pathSegments.last;
       // debugPrint(productId);
-      await showInstallDialog(context, context.l10n.msstoreSearchingPackages,
-          productId, _selectedRing);
+      await showInstallDialog(
+        context,
+        context.l10n.msstoreSearchingPackages,
+        productId,
+        _selectedRing,
+      );
     } else {
       final data = await _msStoreService.searchProducts(query, _selectedRing);
 
@@ -49,22 +58,10 @@ class _MSStorePageState extends State<MSStorePage>
   }
 
   static const items2 = [
-    ComboBoxItem(
-      value: "Retail",
-      child: Text("Retail (Base)"),
-    ),
-    ComboBoxItem(
-      value: "RP",
-      child: Text("Release Preview"),
-    ),
-    ComboBoxItem(
-      value: "WIS",
-      child: Text("Insider Slow"),
-    ),
-    ComboBoxItem(
-      value: "WIF",
-      child: Text("Insider Fast"),
-    ),
+    ComboBoxItem(value: "Retail", child: Text("Retail (Base)")),
+    ComboBoxItem(value: "RP", child: Text("Release Preview")),
+    ComboBoxItem(value: "WIS", child: Text("Insider Slow")),
+    ComboBoxItem(value: "WIF", child: Text("Insider Fast")),
   ];
 
   @override
@@ -72,6 +69,8 @@ class _MSStorePageState extends State<MSStorePage>
     super.build(context);
 
     return ScaffoldPage.scrollable(
+      padding: kScaffoldPagePadding,
+
       header: PageHeader(
         title: InfoLabel(
           labelStyle: context.theme.typography.title,
@@ -119,15 +118,19 @@ class _MSStorePageState extends State<MSStorePage>
                   );
                 },
               ),
-            )
+            ),
           ],
-        ]
+        ],
       ],
     );
   }
 
-  Future<void> showInstallDialog(BuildContext context, String loadingTitle,
-      String productID, String ring) async {
+  Future<void> showInstallDialog(
+    BuildContext context,
+    String loadingTitle,
+    String productID,
+    String ring,
+  ) async {
     showLoadingDialog(context, context.l10n.msstoreSearchingPackages);
 
     await _msStoreService.startProcess(productID, _selectedRing);
@@ -148,7 +151,8 @@ class _MSStorePageState extends State<MSStorePage>
       packages.length,
       (index) => TreeViewItem(
         value: index,
-        selected: packages.elementAt(index).name!.contains("neutral") ||
+        selected:
+            packages.elementAt(index).name!.contains("neutral") ||
             packages.elementAt(index).name!.contains("x64"),
         content: Text(packages.elementAt(index).name!),
       ),
@@ -159,53 +163,55 @@ class _MSStorePageState extends State<MSStorePage>
 
     await showDialog<String>(
       context: context,
-      builder: (context) => ContentDialog(
-        constraints: const BoxConstraints(maxWidth: 600),
-        title: Text(context.l10n.msstorePackagesPrompt),
-        content: TreeView(
-          selectionMode: TreeViewSelectionMode.multiple,
-          shrinkWrap: true,
-          items: items,
-        ),
-        actions: [
-          FilledButton(
-            child: Text(context.l10n.okButton),
-            onPressed: () async {
-              final downloadList = <MSStorePackagesInfoDTO>[];
-              for (final item in items) {
-                if (item.selected!) {
-                  downloadList.add(packages.elementAt(item.value));
-                }
-              }
-              if (downloadList.isEmpty) {
-                Navigator.pop(context, 'Download list is empty');
-                return;
-              }
+      builder:
+          (context) => ContentDialog(
+            constraints: const BoxConstraints(maxWidth: 600),
+            title: Text(context.l10n.msstorePackagesPrompt),
+            content: TreeView(
+              selectionMode: TreeViewSelectionMode.multiple,
+              shrinkWrap: true,
+              items: items,
+            ),
+            actions: [
+              FilledButton(
+                child: Text(context.l10n.okButton),
+                onPressed: () async {
+                  final downloadList = <MSStorePackagesInfoDTO>[];
+                  for (final item in items) {
+                    if (item.selected!) {
+                      downloadList.add(packages.elementAt(item.value));
+                    }
+                  }
+                  if (downloadList.isEmpty) {
+                    Navigator.pop(context, 'Download list is empty');
+                    return;
+                  }
 
-              if (!context.mounted) return;
-              Navigator.pop(context);
+                  if (!context.mounted) return;
+                  Navigator.pop(context);
 
-              await showDialog(
-                context: context,
-                dismissWithEsc: false,
-                builder: (context) => DownloadWidget(
-                  items: downloadList,
-                  productId: productId.trim(),
-                  cleanUpAfterInstall: cleanUp,
-                  ring: _selectedRing,
-                ),
-              );
+                  await showDialog(
+                    context: context,
+                    dismissWithEsc: false,
+                    builder:
+                        (context) => DownloadWidget(
+                          items: downloadList,
+                          productId: productId.trim(),
+                          cleanUpAfterInstall: cleanUp,
+                          ring: _selectedRing,
+                        ),
+                  );
 
-              if (!context.mounted) return;
-              Navigator.pop(context, 'Successfully downloaded');
-            },
+                  if (!context.mounted) return;
+                  Navigator.pop(context, 'Successfully downloaded');
+                },
+              ),
+              Button(
+                child: Text(context.l10n.close),
+                onPressed: () => Navigator.pop(context, 'User canceled dialog'),
+              ),
+            ],
           ),
-          Button(
-            child: Text(context.l10n.close),
-            onPressed: () => Navigator.pop(context, 'User canceled dialog'),
-          ),
-        ],
-      ),
     );
     setState(() {});
   }

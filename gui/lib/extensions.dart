@@ -6,6 +6,8 @@ extension BuildContextExtensions on BuildContext {
 
   MediaQueryData get mediaQuery => MediaQuery.of(this);
 
+  Size get mqSize => MediaQuery.sizeOf(this);
+
   FluentThemeData get theme => FluentTheme.of(this);
 
   void pop<T extends Object?>([T? result]) {

@@ -7,14 +7,16 @@ import 'package:revitool/extensions.dart';
 // const cardBorderColorForLight = Color.fromARGB(255, 229, 229, 229);
 const _cardBorderRadius = BorderRadius.all(Radius.circular(5.0));
 const _cardDescStyleForDark = TextStyle(
-    fontSize: 11,
-    color: Color.fromARGB(255, 200, 200, 200),
-    overflow: TextOverflow.fade);
+  fontSize: 11,
+  color: Color.fromARGB(255, 200, 200, 200),
+  overflow: TextOverflow.fade,
+);
 
 const _cardDescStyleForLight = TextStyle(
-    fontSize: 11,
-    color: Color.fromARGB(255, 117, 117, 117),
-    overflow: TextOverflow.fade);
+  fontSize: 11,
+  color: Color.fromARGB(255, 117, 117, 117),
+  overflow: TextOverflow.fade,
+);
 
 class CardHighlightSwitch extends StatelessWidget {
   const CardHighlightSwitch({
@@ -61,27 +63,31 @@ class CardHighlightSwitch extends StatelessWidget {
                     child: SizedBox(
                       child: InfoLabel(
                         label: label,
-                        labelStyle:
-                            const TextStyle(overflow: TextOverflow.ellipsis),
-                        child: description != null
-                            ? Text(
-                                description ?? "",
-                                style: context.theme.brightness.isDark
-                                    ? _cardDescStyleForDark
-                                    : _cardDescStyleForLight,
-                              )
-                            : const SizedBox(),
+                        labelStyle: const TextStyle(
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        child:
+                            description != null
+                                ? Text(
+                                  description ?? "",
+                                  style:
+                                      context.theme.brightness.isDark
+                                          ? _cardDescStyleForDark
+                                          : _cardDescStyleForLight,
+                                )
+                                : const SizedBox(),
                       ),
                     ),
                   ),
                   const SizedBox(width: 2.0),
                   ValueListenableBuilder<bool>(
-                      valueListenable: switchBool,
-                      builder: (context, value, child) {
-                        return Text(value
-                            ? context.l10n.onStatus
-                            : context.l10n.offStatus);
-                      }),
+                    valueListenable: switchBool,
+                    builder: (context, value, child) {
+                      return Text(
+                        value ? context.l10n.onStatus : context.l10n.offStatus,
+                      );
+                    },
+                  ),
                   const SizedBox(width: 10.0),
                   ValueListenableBuilder<bool>(
                     valueListenable: switchBool,
@@ -104,7 +110,9 @@ class CardHighlightSwitch extends StatelessWidget {
         ),
         if (codeSnippet != null) ...[
           _CardHighlightCodeSnippet(
-              pageStorageKey: _key, codeSnippet: codeSnippet!),
+            pageStorageKey: _key,
+            codeSnippet: codeSnippet!,
+          ),
         ],
         const SizedBox(height: 5.0),
       ],
@@ -112,22 +120,26 @@ class CardHighlightSwitch extends StatelessWidget {
   }
 }
 
-void showRestartDialog(final BuildContext context,
-    {String title = "", String content = ""}) {
+void showRestartDialog(
+  final BuildContext context, {
+  String title = "",
+  String content = "",
+}) {
   showDialog(
     context: context,
-    builder: (context) => ContentDialog(
-      title: title.isEmpty ? null : Text(title),
-      content: Text(content.isEmpty ? context.l10n.restartDialog : content),
-      actions: [
-        Button(
-          child: Text(context.l10n.okButton),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        )
-      ],
-    ),
+    builder:
+        (context) => ContentDialog(
+          title: title.isEmpty ? null : Text(title),
+          content: Text(content.isEmpty ? context.l10n.restartDialog : content),
+          actions: [
+            Button(
+              child: Text(context.l10n.okButton),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
   );
 }
 
@@ -138,9 +150,13 @@ const _fluentHighlightTheme = {
     color: Color(0xffdddddd),
   ),
   'keyword': TextStyle(
-      color: Color.fromARGB(255, 255, 255, 255), fontWeight: FontWeight.bold),
-  'selector-tag':
-      TextStyle(color: Color(0xffffffff), fontWeight: FontWeight.bold),
+    color: Color.fromARGB(255, 255, 255, 255),
+    fontWeight: FontWeight.bold,
+  ),
+  'selector-tag': TextStyle(
+    color: Color(0xffffffff),
+    fontWeight: FontWeight.bold,
+  ),
   'literal': TextStyle(color: Color(0xffffffff), fontWeight: FontWeight.bold),
   'section': TextStyle(color: Color(0xffffffff), fontWeight: FontWeight.bold),
   'link': TextStyle(color: Color(0xffffffff)),
@@ -167,16 +183,17 @@ const _fluentHighlightTheme = {
 };
 
 class CardHighlight extends StatelessWidget {
-  const CardHighlight(
-      {super.key,
-      required this.child,
-      this.codeSnippet,
-      this.backgroundColor,
-      this.icon,
-      this.label,
-      this.description,
-      this.image,
-      this.borderColor});
+  const CardHighlight({
+    super.key,
+    required this.child,
+    this.codeSnippet,
+    this.backgroundColor,
+    this.icon,
+    this.label,
+    this.description,
+    this.image,
+    this.borderColor,
+  });
   final Widget child;
   final String? codeSnippet;
   final Color? backgroundColor;
@@ -226,13 +243,17 @@ class CardHighlight extends StatelessWidget {
                     child: InfoLabel(
                       label: label!,
                       labelStyle: const TextStyle(overflow: TextOverflow.clip),
-                      child: description != null
-                          ? Text(description ?? "",
-                              style: context.theme.brightness.isDark
-                                  ? _cardDescStyleForDark
-                                  : _cardDescStyleForLight,
-                              overflow: TextOverflow.clip)
-                          : const SizedBox(),
+                      child:
+                          description != null
+                              ? Text(
+                                description ?? "",
+                                style:
+                                    context.theme.brightness.isDark
+                                        ? _cardDescStyleForDark
+                                        : _cardDescStyleForLight,
+                                overflow: TextOverflow.clip,
+                              )
+                              : const SizedBox(),
                     ),
                   ),
                   const SizedBox(width: 10.0),
@@ -244,7 +265,9 @@ class CardHighlight extends StatelessWidget {
         ),
         if (codeSnippet != null) ...[
           _CardHighlightCodeSnippet(
-              pageStorageKey: _key, codeSnippet: codeSnippet!)
+            pageStorageKey: _key,
+            codeSnippet: codeSnippet!,
+          ),
         ],
         const SizedBox(height: 5.0),
       ],
@@ -263,21 +286,25 @@ class _CardHighlightCodeSnippet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StatefulBuilder(builder: (context, setState) {
-      return Card(
-        padding: const EdgeInsets.all(0),
-        backgroundColor: Colors.transparent,
-        child: Expander(
-          key: PageStorageKey(pageStorageKey),
-          headerShape: (open) => const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(4.0))),
-          onStateChanged: (state) {
-            setState(() {});
-          },
-          header: Text(context.l10n.moreInformation),
-          content: Text(codeSnippet),
-        ),
-      );
-    });
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Card(
+          padding: const EdgeInsets.all(0),
+          backgroundColor: Colors.transparent,
+          child: Expander(
+            key: PageStorageKey(pageStorageKey),
+            headerShape:
+                (open) => const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                ),
+            onStateChanged: (state) {
+              setState(() {});
+            },
+            header: Text(context.l10n.moreInformation),
+            content: Text(codeSnippet),
+          ),
+        );
+      },
+    );
   }
 }

@@ -2,6 +2,7 @@ import 'package:common/common.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:revitool/extensions.dart';
+import 'package:revitool/utils.dart';
 
 import 'package:revitool/widgets/card_highlight.dart';
 import 'package:revitool/widgets/subtitle.dart';
@@ -15,17 +16,22 @@ class UsabilityPage extends StatefulWidget {
 
 class _UsabilityPageState extends State<UsabilityPage> {
   final UsabilityService _usabilityService = UsabilityService();
-  late final _notifValue =
-      ValueNotifier<NotificationMode>(_usabilityService.statusNotification);
-  late final _lbnBool =
-      ValueNotifier<bool>(_usabilityService.statusLegacyBalloon);
-  late final _itpBool =
-      ValueNotifier<bool>(_usabilityService.statusInputPersonalization);
+  late final _notifValue = ValueNotifier<NotificationMode>(
+    _usabilityService.statusNotification,
+  );
+  late final _lbnBool = ValueNotifier<bool>(
+    _usabilityService.statusLegacyBalloon,
+  );
+  late final _itpBool = ValueNotifier<bool>(
+    _usabilityService.statusInputPersonalization,
+  );
   late final _dCplBool = ValueNotifier<bool>(_usabilityService.statusCapsLock);
-  late final _sesBool =
-      ValueNotifier<bool>(_usabilityService.statusScreenEdgeSwipe);
-  late final _mrcBool =
-      ValueNotifier<bool>(_usabilityService.statusNewContextMenu);
+  late final _sesBool = ValueNotifier<bool>(
+    _usabilityService.statusScreenEdgeSwipe,
+  );
+  late final _mrcBool = ValueNotifier<bool>(
+    _usabilityService.statusNewContextMenu,
+  );
 
   @override
   void dispose() {
@@ -41,9 +47,8 @@ class _UsabilityPageState extends State<UsabilityPage> {
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
-      header: PageHeader(
-        title: Text(context.l10n.pageUsability),
-      ),
+      padding: kScaffoldPagePadding,
+      header: PageHeader(title: Text(context.l10n.pageUsability)),
       children: [
         CardHighlight(
           icon: msicons.FluentIcons.alert_20_regular,
@@ -51,39 +56,37 @@ class _UsabilityPageState extends State<UsabilityPage> {
           description: context.l10n.usabilityNotifDescription,
           child: ValueListenableBuilder<NotificationMode>(
             valueListenable: _notifValue,
-            builder: (context, value, child) => ComboBox<NotificationMode>(
-              value: value,
-              onChanged: (value) async {
-                _notifValue.value = value!;
-                switch (value) {
-                  case NotificationMode.on:
-                    await _usabilityService.enableNotification();
-                    if (!context.mounted) return;
-                    showRestartDialog(context);
-                    break;
-                  case NotificationMode.offMinimal:
-                    await _usabilityService.disableNotification();
-                    break;
-                  case NotificationMode.offFull:
-                    await _usabilityService.disableNotificationAggressive();
-                    break;
-                }
-              },
-              items: const [
-                ComboBoxItem(
-                  value: NotificationMode.on,
-                  child: Text("On"),
+            builder:
+                (context, value, child) => ComboBox<NotificationMode>(
+                  value: value,
+                  onChanged: (value) async {
+                    _notifValue.value = value!;
+                    switch (value) {
+                      case NotificationMode.on:
+                        await _usabilityService.enableNotification();
+                        if (!context.mounted) return;
+                        showRestartDialog(context);
+                        break;
+                      case NotificationMode.offMinimal:
+                        await _usabilityService.disableNotification();
+                        break;
+                      case NotificationMode.offFull:
+                        await _usabilityService.disableNotificationAggressive();
+                        break;
+                    }
+                  },
+                  items: const [
+                    ComboBoxItem(value: NotificationMode.on, child: Text("On")),
+                    ComboBoxItem(
+                      value: NotificationMode.offMinimal,
+                      child: Text("Off (Minimal)"),
+                    ),
+                    ComboBoxItem(
+                      value: NotificationMode.offFull,
+                      child: Text("Off (Full)"),
+                    ),
+                  ],
                 ),
-                ComboBoxItem(
-                  value: NotificationMode.offMinimal,
-                  child: Text("Off (Minimal)"),
-                ),
-                ComboBoxItem(
-                  value: NotificationMode.offFull,
-                  child: Text("Off (Full)"),
-                ),
-              ],
-            ),
           ),
         ),
         ValueListenableBuilder<NotificationMode>(

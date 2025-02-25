@@ -16,42 +16,42 @@ class PerformancePage extends StatefulWidget {
 
 class _PerformancePageState extends State<PerformancePage> {
   final PerformanceService _performanceService = PerformanceService();
-  late final _sfBool =
-      ValueNotifier<bool>(_performanceService.statusSuperfetch);
-  late final _mcBool = ValueNotifier<bool>(false);
-  late final _iTSXBool =
-      ValueNotifier<bool>(_performanceService.statusIntelTSX);
-  late final _foBool =
-      ValueNotifier<bool>(_performanceService.statusFullscreenOptimization);
-  late final _owgBool =
-      ValueNotifier<bool>(_performanceService.statusWindowedOptimization);
-  late final _baBool =
-      ValueNotifier<bool>(_performanceService.statusBackgroundApps);
+  late final _sfBool = ValueNotifier<bool>(
+    _performanceService.statusSuperfetch,
+  );
+  late final _mcBool =
+      _performanceService.statusSuperfetch
+          ? ValueNotifier<bool>(_performanceService.statusMemoryCompression)
+          : ValueNotifier<bool>(false);
+  late final _iTSXBool = ValueNotifier<bool>(
+    _performanceService.statusIntelTSX,
+  );
+  late final _foBool = ValueNotifier<bool>(
+    _performanceService.statusFullscreenOptimization,
+  );
+  late final _owgBool = ValueNotifier<bool>(
+    _performanceService.statusWindowedOptimization,
+  );
+  late final _baBool = ValueNotifier<bool>(
+    _performanceService.statusBackgroundApps,
+  );
 
   /// Experimental
 
-  late final _cStatesBool =
-      ValueNotifier<bool>(_performanceService.statusCStates);
+  late final _cStatesBool = ValueNotifier<bool>(
+    _performanceService.statusCStates,
+  );
 
   //NTFS
-  late final _ntfsLTABool =
-      ValueNotifier<bool>(_performanceService.statusLastTimeAccessNTFS);
-  late final _ntfsEdTBool =
-      ValueNotifier<bool>(_performanceService.status8dot3NamingNTFS);
-  late final _ntfsMUBool =
-      ValueNotifier<bool>(_performanceService.statusMemoryUsageNTFS);
-
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _initMemoryCompresionStatus();
-    });
-    super.initState();
-  }
-
-  Future<void> _initMemoryCompresionStatus() async {
-    _mcBool.value = await _performanceService.statusMemoryCompression;
-  }
+  late final _ntfsLTABool = ValueNotifier<bool>(
+    _performanceService.statusLastTimeAccessNTFS,
+  );
+  late final _ntfsEdTBool = ValueNotifier<bool>(
+    _performanceService.status8dot3NamingNTFS,
+  );
+  late final _ntfsMUBool = ValueNotifier<bool>(
+    _performanceService.statusMemoryUsageNTFS,
+  );
 
   @override
   void dispose() {
@@ -71,9 +71,9 @@ class _PerformancePageState extends State<PerformancePage> {
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
-      header: PageHeader(
-        title: Text(context.l10n.pagePerformance),
-      ),
+      padding: kScaffoldPagePadding,
+
+      header: PageHeader(title: Text(context.l10n.pagePerformance)),
       children: [
         CardHighlightSwitch(
           icon: msicons.FluentIcons.top_speed_20_regular,
@@ -210,7 +210,7 @@ class _PerformancePageState extends State<PerformancePage> {
             },
             codeSnippet: context.l10n.perfMUDescription,
           ),
-        ]
+        ],
       ],
     );
   }

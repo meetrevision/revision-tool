@@ -10,54 +10,18 @@ import 'package:win32_registry/win32_registry.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
 const languageList = [
-  ComboBoxItem(
-    value: 'en_US',
-    child: Text('English'),
-  ),
-  ComboBoxItem(
-    value: 'pt_BR',
-    child: Text('Portuguese (Brazil)'),
-  ),
-  ComboBoxItem(
-    value: 'zh_CN',
-    child: Text('Chinese (Simplified)'),
-  ),
-  ComboBoxItem(
-    value: 'zh_TW',
-    child: Text('Chinese (Traditional)'),
-  ),
-  ComboBoxItem(
-    value: 'de_DE',
-    child: Text('German'),
-  ),
-  ComboBoxItem(
-    value: 'fr_FR',
-    child: Text('French'),
-  ),
-  ComboBoxItem(
-    value: 'ru_RU',
-    child: Text('Russian'),
-  ),
-  ComboBoxItem(
-    value: 'uk_UA',
-    child: Text('Ukrainian'),
-  ),
-  ComboBoxItem(
-    value: 'hu_HU',
-    child: Text('Hungarian'),
-  ),
-  ComboBoxItem(
-    value: 'tr_TR',
-    child: Text('Turkish'),
-  ),
-  ComboBoxItem(
-    value: 'ar_SA',
-    child: Text('Arabic'),
-  ),
-  ComboBoxItem(
-    value: 'it_IT',
-    child: Text('Italian'),
-  ),
+  ComboBoxItem(value: 'en_US', child: Text('English')),
+  ComboBoxItem(value: 'pt_BR', child: Text('Portuguese (Brazil)')),
+  ComboBoxItem(value: 'zh_CN', child: Text('Chinese (Simplified)')),
+  ComboBoxItem(value: 'zh_TW', child: Text('Chinese (Traditional)')),
+  ComboBoxItem(value: 'de_DE', child: Text('German')),
+  ComboBoxItem(value: 'fr_FR', child: Text('French')),
+  ComboBoxItem(value: 'ru_RU', child: Text('Russian')),
+  ComboBoxItem(value: 'uk_UA', child: Text('Ukrainian')),
+  ComboBoxItem(value: 'hu_HU', child: Text('Hungarian')),
+  ComboBoxItem(value: 'tr_TR', child: Text('Turkish')),
+  ComboBoxItem(value: 'ar_SA', child: Text('Arabic')),
+  ComboBoxItem(value: 'it_IT', child: Text('Italian')),
 ];
 
 class SettingsPage extends ConsumerStatefulWidget {
@@ -77,10 +41,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final appSettings = ref.watch(appSettingsNotifierProvider);
 
     return ScaffoldPage.scrollable(
-      resizeToAvoidBottomInset: false,
-      header: PageHeader(
-        title: Text(context.l10n.pageSettings),
-      ),
+      padding: kScaffoldPagePadding,
+      header: PageHeader(title: Text(context.l10n.pageSettings)),
       children: [
         CardHighlight(
           icon: msicons.FluentIcons.paint_brush_20_regular,
@@ -113,10 +75,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           switchBool: expBool,
           function: (value) {
             WinRegistryService.writeRegistryValue(
-                Registry.localMachine,
-                r'SOFTWARE\Revision\Revision Tool',
-                'Experimental',
-                value ? 1 : 0);
+              Registry.localMachine,
+              r'SOFTWARE\Revision\Revision Tool',
+              'Experimental',
+              value ? 1 : 0,
+            );
             expBool.value = value;
           },
         ),
@@ -125,55 +88,63 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           icon: msicons.FluentIcons.arrow_clockwise_20_regular,
           child: ValueListenableBuilder(
             valueListenable: _updateTitle,
-            builder: (context, value, child) => FilledButton(
-              child: Text(_updateTitle.value),
-              onPressed: () async {
-                await _toolUpdateService.fetchData();
-                final currentVersion = _toolUpdateService.getCurrentVersion;
-                final latestVersion = _toolUpdateService.getLatestVersion;
-                final data = _toolUpdateService.data;
+            builder:
+                (context, value, child) => FilledButton(
+                  child: Text(_updateTitle.value),
+                  onPressed: () async {
+                    await _toolUpdateService.fetchData();
+                    final currentVersion = _toolUpdateService.getCurrentVersion;
+                    final latestVersion = _toolUpdateService.getLatestVersion;
+                    final data = _toolUpdateService.data;
 
-                if (latestVersion > currentVersion) {
-                  if (!context.mounted) return;
-                  _updateTitle.value = context.l10n.settingsUpdateButton;
+                    if (latestVersion > currentVersion) {
+                      if (!context.mounted) return;
+                      _updateTitle.value = context.l10n.settingsUpdateButton;
 
-                  if (!context.mounted) return;
-                  showDialog(
-                    context: context,
-                    builder: (context) => ContentDialog(
-                      title: Text(context.l10n.settingsUpdateButtonAvailable),
-                      content: Text(
-                          "${context.l10n.settingsUpdateButtonAvailablePrompt} ${data["tag_name"]}?"),
-                      actions: [
-                        FilledButton(
-                          child: Text(context.l10n.okButton),
-                          onPressed: () async {
-                            _updateTitle.value =
-                                "${context.l10n.settingsUpdatingStatus}...";
+                      if (!context.mounted) return;
+                      showDialog(
+                        context: context,
+                        builder:
+                            (context) => ContentDialog(
+                              title: Text(
+                                context.l10n.settingsUpdateButtonAvailable,
+                              ),
+                              content: Text(
+                                "${context.l10n.settingsUpdateButtonAvailablePrompt} ${data["tag_name"]}?",
+                              ),
+                              actions: [
+                                FilledButton(
+                                  child: Text(context.l10n.okButton),
+                                  onPressed: () async {
+                                    _updateTitle.value =
+                                        "${context.l10n.settingsUpdatingStatus}...";
 
-                            context.pop();
-                            await _toolUpdateService.downloadNewVersion();
-                            await _toolUpdateService.installUpdate();
+                                    context.pop();
+                                    await _toolUpdateService
+                                        .downloadNewVersion();
+                                    await _toolUpdateService.installUpdate();
 
-                            if (!context.mounted) return;
-                            _updateTitle.value =
-                                context.l10n.settingsUpdatingStatusSuccess;
-                          },
-                        ),
-                        Button(
-                          child: Text(context.l10n.notNowButton),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
-                    ),
-                  );
-                } else {
-                  if (!context.mounted) return;
-                  _updateTitle.value =
-                      context.l10n.settingsUpdatingStatusNotFound;
-                }
-              },
-            ),
+                                    if (!context.mounted) return;
+                                    _updateTitle.value =
+                                        context
+                                            .l10n
+                                            .settingsUpdatingStatusSuccess;
+                                  },
+                                ),
+                                Button(
+                                  child: Text(context.l10n.notNowButton),
+                                  onPressed: () => Navigator.pop(context),
+                                ),
+                              ],
+                            ),
+                      );
+                    } else {
+                      if (!context.mounted) return;
+                      _updateTitle.value =
+                          context.l10n.settingsUpdatingStatusNotFound;
+                    }
+                  },
+                ),
           ),
         ),
         CardHighlight(
@@ -186,10 +157,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               setState(() {
                 appLanguage = value ?? 'en_US';
                 WinRegistryService.writeRegistryValue(
-                    Registry.localMachine,
-                    r'SOFTWARE\Revision\Revision Tool',
-                    'Language',
-                    appLanguage);
+                  Registry.localMachine,
+                  r'SOFTWARE\Revision\Revision Tool',
+                  'Language',
+                  appLanguage,
+                );
                 ref
                     .read(appSettingsNotifierProvider.notifier)
                     .updateLocale(appLanguage);

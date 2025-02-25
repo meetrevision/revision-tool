@@ -43,7 +43,6 @@ bool isProcessRunning(String name) {
             path.current.substring(0, path.current.lastIndexOf('\\')),
             'native_utils\\process_checker.dll',
           ); // for dev purposes
-  print(dllPath);
   final dylib = DynamicLibrary.open(dllPath);
 
   final isRunningC = dylib.lookupFunction<IsRunningCFunc, IsRunningCDart>(

@@ -12,6 +12,7 @@ import 'package:revitool/screens/pages/security_page.dart';
 import 'package:revitool/screens/pages/updates_page.dart';
 import 'package:revitool/screens/pages/usability_page.dart';
 import 'package:revitool/screens/settings.dart';
+import 'package:revitool/utils.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:window_plus/window_plus.dart';
 
@@ -52,10 +53,7 @@ class _HomePageState extends State<HomePage> {
 
     final items = <NavigationPaneItem>[
       PaneItem(
-        icon: const Icon(
-          msicons.FluentIcons.home_24_regular,
-          size: 20,
-        ),
+        icon: const Icon(msicons.FluentIcons.home_24_regular, size: 20),
         title: Text(context.l10n.pageHome),
         body: const _Home(),
       ),
@@ -69,26 +67,23 @@ class _HomePageState extends State<HomePage> {
       ),
       WinRegistryService.isW11
           ? PaneItem(
-              icon: const Icon(
-                msicons.FluentIcons.search_square_24_regular,
-                size: 20,
-              ),
-              title: Text(context.l10n.pageUsability),
-              body: const UsabilityPage(),
-            )
-          : PaneItem(
-              icon: const Icon(
-                msicons.FluentIcons.search_square_24_regular,
-                size: 20,
-              ),
-              title: Text(context.l10n.pageUsability),
-              body: const UsabilityPage(),
+            icon: const Icon(
+              msicons.FluentIcons.search_square_24_regular,
+              size: 20,
             ),
+            title: Text(context.l10n.pageUsability),
+            body: const UsabilityPage(),
+          )
+          : PaneItem(
+            icon: const Icon(
+              msicons.FluentIcons.search_square_24_regular,
+              size: 20,
+            ),
+            title: Text(context.l10n.pageUsability),
+            body: const UsabilityPage(),
+          ),
       PaneItem(
-        icon: const Icon(
-          msicons.FluentIcons.top_speed_24_regular,
-          size: 20,
-        ),
+        icon: const Icon(msicons.FluentIcons.top_speed_24_regular, size: 20),
         title: Text(context.l10n.pagePerformance),
         body: const PerformancePage(),
       ),
@@ -101,10 +96,7 @@ class _HomePageState extends State<HomePage> {
         body: const UpdatesPage(),
       ),
       PaneItem(
-        icon: const Icon(
-          msicons.FluentIcons.toolbox_24_regular,
-          size: 20,
-        ),
+        icon: const Icon(msicons.FluentIcons.toolbox_24_regular, size: 20),
         title: Text(context.l10n.pageMiscellaneous),
         body: const MiscellaneousPage(),
       ),
@@ -115,9 +107,7 @@ class _HomePageState extends State<HomePage> {
         key: _viewKey,
         contentShape: const RoundedRectangleBorder(
           side: BorderSide(width: 0, color: Colors.transparent),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(8.0),
-          ),
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(8.0)),
         ),
         appBar: NavigationAppBar(
           automaticallyImplyLeading: false,
@@ -125,11 +115,13 @@ class _HomePageState extends State<HomePage> {
           actions: WindowCaption(),
         ),
         pane: NavigationPane(
+          size: NavigationPaneSize(openWidth: 300),
           selected: _topIndex ?? 0,
           onChanged: (index) => setState(() => _topIndex = index),
-          displayMode: MediaQuery.sizeOf(context).width >= 800
-              ? PaneDisplayMode.open
-              : PaneDisplayMode.minimal,
+          displayMode:
+              context.mqSize.width >= 800
+                  ? PaneDisplayMode.open
+                  : PaneDisplayMode.minimal,
           header: SizedBox(
             height: 90,
             // height: kOneLineTileHeight,
@@ -143,7 +135,8 @@ class _HomePageState extends State<HomePage> {
                     width: 60,
                     height: 60,
                     File(
-                        'C:\\ProgramData\\Microsoft\\User Account Pictures\\user-192.png'),
+                      'C:\\ProgramData\\Microsoft\\User Account Pictures\\user-192.png',
+                    ),
                   ),
                 ),
                 const SizedBox(width: 13.0),
@@ -152,11 +145,14 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      Registry.openPath(RegistryHive.currentUser,
-                              path: r'Volatile Environment')
-                          .getStringValue("USERNAME")!,
+                      Registry.openPath(
+                        RegistryHive.currentUser,
+                        path: r'Volatile Environment',
+                      ).getStringValue("USERNAME")!,
                       style: const TextStyle(
-                          fontWeight: FontWeight.w500, fontSize: 14),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
                     ),
                     const Text(
                       "Proud ReviOS user",
@@ -166,42 +162,48 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),
-          autoSuggestBox: AutoSuggestBox(
-            key: _searchKey,
-            trailingIcon: const Padding(
-              padding: EdgeInsets.only(right: 7.0, bottom: 2),
-              child: Icon(msicons.FluentIcons.search_20_regular),
-            ),
-            focusNode: _searchFocusNode,
-            controller: _searchController,
-            placeholder: context.l10n.suggestionBoxPlaceholder,
-            items: items.whereType<PaneItem>().map((page) {
-              assert(page.title is Text);
-              final text = (page.title as Text).data!;
-              return AutoSuggestBoxItem(
-                value: text,
-                label: text,
-                onSelected: () async {
-                  final itemIndex = NavigationPane(
-                    items: items,
-                  ).effectiveIndexOf(page);
+          autoSuggestBox: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: AutoSuggestBox(
+              key: _searchKey,
 
-                  setState(() => _topIndex = itemIndex);
-                  await Future.delayed(const Duration(milliseconds: 17));
-                  _searchController.clear();
-                },
-              );
-            }).toList(),
-            onSelected: (item) {
-              setState(() => selectedPage = item);
-            },
+              trailingIcon: const Padding(
+                padding: EdgeInsets.only(right: 7.0, bottom: 2),
+                child: Icon(msicons.FluentIcons.search_20_regular),
+              ),
+              focusNode: _searchFocusNode,
+              controller: _searchController,
+              placeholder: context.l10n.suggestionBoxPlaceholder,
+              items:
+                  items.whereType<PaneItem>().map((page) {
+                    assert(page.title is Text);
+                    final text = (page.title as Text).data!;
+                    return AutoSuggestBoxItem(
+                      value: text,
+                      label: text,
+                      onSelected: () async {
+                        final itemIndex = NavigationPane(
+                          items: items,
+                        ).effectiveIndexOf(page);
+
+                        setState(() => _topIndex = itemIndex);
+                        await Future.delayed(const Duration(milliseconds: 17));
+                        _searchController.clear();
+                      },
+                    );
+                  }).toList(),
+              onSelected: (item) {
+                setState(() => selectedPage = item);
+              },
+            ),
           ),
 
           autoSuggestBoxReplacement: const Icon(FluentIcons.search),
+
           // footerItems: searchValue.isNotEmpty ? [] : footerItems,
           items: items,
           footerItems: [
@@ -230,145 +232,150 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+final _homeCardButtons = [
+  CardButtonWidget(
+    icon: FluentIcons.git_graph,
+    title: "GitHub",
+    subtitle: "Source Code",
+    onPressed:
+        () async => await run(
+          "rundll32 url.dll,FileProtocolHandler https://github.com/meetrevision",
+        ),
+  ),
+  CardButtonWidget(
+    icon: msicons.FluentIcons.drink_coffee_20_regular,
+    title: "Donation",
+    subtitle: "Support the project",
+    onPressed:
+        () async => await run(
+          "rundll32 url.dll,FileProtocolHandler https://revi.cc/donate",
+        ),
+  ),
+  CardButtonWidget(
+    icon: msicons.FluentIcons.chat_help_20_regular,
+    title: "Discord",
+    subtitle: "Join our server",
+    onPressed:
+        () async => await run(
+          "rundll32 url.dll,FileProtocolHandler https://discord.gg/962y4pU",
+        ),
+  ),
+];
+
 class _Home extends StatelessWidget {
   const _Home();
 
-  static final _homeCardButtons = [
-    CardButtonWidget(
-      icon: FluentIcons.git_graph,
-      title: "GitHub",
-      subtitle: "Source Code",
-      onPressed: () async => await run(
-          "rundll32 url.dll,FileProtocolHandler https://github.com/meetrevision"),
-    ),
-    CardButtonWidget(
-      icon: msicons.FluentIcons.drink_coffee_20_regular,
-      title: "Donation",
-      subtitle: "Support the project",
-      onPressed: () async => await run(
-          "rundll32 url.dll,FileProtocolHandler https://revi.cc/donate"),
-    ),
-    CardButtonWidget(
-      icon: msicons.FluentIcons.chat_help_20_regular,
-      title: "Discord",
-      subtitle: "Join our server",
-      onPressed: () async => await run(
-          "rundll32 url.dll,FileProtocolHandler https://discord.gg/962y4pU"),
-    ),
-  ];
+  @override
+  Widget build(BuildContext context) {
+    return context.mqSize.width >= 800 && context.mqSize.height >= 400
+        ? Padding(
+          padding: kScaffoldPagePadding,
+          child: ScaffoldPage(
+            content: _HomePageContent(),
+            bottomBar: Padding(
+              padding: const EdgeInsets.only(top: 5.0),
+              child: Flex(
+                direction: Axis.horizontal,
+                spacing: 5,
+                children:
+                    _homeCardButtons.map((e) => Expanded(child: e)).toList(),
+              ),
+            ),
+          ),
+        )
+        : ScaffoldPage.scrollable(
+          padding: kScaffoldPagePadding,
+          children: [
+            const _HomePageContent(),
+            const SizedBox(height: 10),
+            Wrap(
+              runSpacing: 5,
+              children: _homeCardButtons.map((e) => e).toList(),
+            ),
+          ],
+        );
+  }
+}
+
+class _HomePageContent extends StatelessWidget {
+  const _HomePageContent();
 
   @override
   Widget build(BuildContext context) {
-    return ScaffoldPage.scrollable(
-      resizeToAvoidBottomInset: false,
-      children: [
-        Column(
+    return Container(
+      height: 250,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        gradient:
+            context.theme.brightness.isDark
+                ? const LinearGradient(
+                  colors: [
+                    Color.fromRGBO(0, 0, 0, 0.85),
+                    Color.fromRGBO(0, 0, 0, 0.43),
+                    Color.fromRGBO(0, 0, 0, 0),
+                  ],
+                  stops: [0.0, 0.4, 1.0],
+                )
+                : const LinearGradient(
+                  colors: [
+                    Color.fromRGBO(16, 16, 16, 0.8),
+                    Color.fromRGBO(155, 155, 155, 0.5),
+                    Color.fromRGBO(255, 255, 255, 0),
+                  ],
+                  stops: [0.0, 0.6, 1.0],
+                ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 50),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: MediaQuery.sizeOf(context).width - 16,
-              constraints: BoxConstraints(
-                  maxHeight: MediaQuery.sizeOf(context).height * 0.72),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                gradient: context.theme.brightness.isDark
-                    ? const LinearGradient(
-                        colors: [
-                          Color.fromRGBO(0, 0, 0, 0.85),
-                          Color.fromRGBO(0, 0, 0, 0.43),
-                          Color.fromRGBO(0, 0, 0, 0)
-                        ],
-                        stops: [0.0, 0.4, 1.0],
-                      )
-                    : const LinearGradient(
-                        colors: [
-                          Color.fromRGBO(16, 16, 16, 0.8),
-                          Color.fromRGBO(155, 155, 155, 0.5),
-                          Color.fromRGBO(255, 255, 255, 0)
-                        ],
-                        stops: [0.0, 0.6, 1.0],
-                      ),
+            Text(
+              context.l10n.homeWelcome,
+              style: const TextStyle(fontSize: 16, color: Color(0xB7FFFFFF)),
+            ),
+            const Text(
+              "Revision Tool",
+              style: TextStyle(fontSize: 28, color: Color(0xFFffffff)),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                context.l10n.homeDescription,
+                style: const TextStyle(fontSize: 16, color: Color(0xB7FFFFFF)),
               ),
-              padding: const EdgeInsets.only(left: 50, top: 150),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(context.l10n.homeWelcome,
-                      style: const TextStyle(
-                          fontSize: 16, color: Color(0xB7FFFFFF))),
-                  const Text(
-                    "Revision Tool",
-                    style: TextStyle(
-                      fontSize: 28,
-                      color: Color(0xFFffffff),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(context.l10n.homeDescription,
-                        style: const TextStyle(
-                            fontSize: 16, color: Color(0xB7FFFFFF))
-                        //     : const TextStyle(
-                        //         fontSize: 16,
-                        //         color: Color.fromARGB(255, 117, 117, 117)),
-                        ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 5, bottom: 5),
-                    child: SizedBox(
-                      width: 175,
-                      child: Button(
-                        child: Text(context.l10n.homeReviLink),
-                        onPressed: () async => await run(
-                            "rundll32 url.dll,FileProtocolHandler https://www.revi.cc"),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 5, bottom: 5),
+              child: SizedBox(
+                width: 175,
+                child: Button(
+                  child: Text(context.l10n.homeReviLink),
+                  onPressed:
+                      () async => await run(
+                        "rundll32 url.dll,FileProtocolHandler https://www.revi.cc",
                       ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 5),
-                    child: SizedBox(
-                      width: 175,
-                      child: FilledButton(
-                        child: Text(context.l10n.homeReviFAQLink),
-                        onPressed: () async => await run(
-                            "rundll32 url.dll,FileProtocolHandler https://www.revi.cc/docs/category/faq"),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 5),
+              child: SizedBox(
+                width: 175,
+                child: FilledButton(
+                  child: Text(context.l10n.homeReviFAQLink),
+                  onPressed:
+                      () async => await run(
+                        "rundll32 url.dll,FileProtocolHandler https://www.revi.cc/docs/category/faq",
                       ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ],
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 0, left: 3),
-          child: MediaQuery.of(context).size.width >= 800
-              // spacing: 5, runSpacing: 5
-              ? Flex(
-                  direction: Axis.horizontal,
-                  children: _homeCardButtons
-                      .map(
-                        (e) => Flexible(
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 5),
-                            child: e,
-                          ),
-                        ),
-                      )
-                      .toList(),
-                )
-              : Column(
-                  children: _homeCardButtons
-                      .map(
-                        (e) => Padding(
-                          padding: const EdgeInsets.only(bottom: 3),
-                          child: e,
-                        ),
-                      )
-                      .toList(),
-                ),
-        ),
-      ],
+      ),
     );
   }
 }
