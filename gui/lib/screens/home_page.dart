@@ -278,7 +278,13 @@ class _Home extends StatelessWidget {
                 direction: Axis.horizontal,
                 spacing: 5,
                 children:
-                    _homeCardButtons.map((e) => Expanded(child: e)).toList(),
+                    _homeCardButtons
+                        .map(
+                          (e) => Expanded(
+                            child: LimitedBox(maxHeight: 90, child: e),
+                          ),
+                        )
+                        .toList(),
               ),
             ),
           ),
@@ -287,7 +293,7 @@ class _Home extends StatelessWidget {
           padding: kScaffoldPagePadding,
           children: [
             const _HomePageContent(),
-            const SizedBox(height: 10),
+            const SizedBox(height: 5),
             Wrap(
               runSpacing: 5,
               children: _homeCardButtons.map((e) => e).toList(),

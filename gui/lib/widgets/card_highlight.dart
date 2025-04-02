@@ -242,7 +242,7 @@ class CardHighlight extends StatelessWidget {
                   Expanded(
                     child: InfoLabel(
                       label: label!,
-                      labelStyle: const TextStyle(overflow: TextOverflow.clip),
+                      labelStyle: const TextStyle(overflow: TextOverflow.fade),
                       child:
                           description != null
                               ? Text(
@@ -251,7 +251,7 @@ class CardHighlight extends StatelessWidget {
                                     context.theme.brightness.isDark
                                         ? _cardDescStyleForDark
                                         : _cardDescStyleForLight,
-                                overflow: TextOverflow.clip,
+                                overflow: TextOverflow.ellipsis,
                               )
                               : const SizedBox(),
                     ),

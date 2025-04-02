@@ -93,6 +93,7 @@ class MyApp extends ConsumerWidget {
             darkTheme: FluentThemeData(
               brightness: Brightness.dark,
               accentColor: getSystemAccentColor(accent),
+
               navigationPaneTheme: NavigationPaneThemeData(
                 backgroundColor: ref
                     .watch(appSettingsNotifierProvider.notifier)
