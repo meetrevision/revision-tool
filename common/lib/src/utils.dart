@@ -38,11 +38,20 @@ typedef IsRunningCDart = int Function(Pointer<Utf16>);
 bool isProcessRunning(String name) {
   final dllPath =
       const bool.fromEnvironment("dart.vm.product")
-          ? path.join(path.current, 'process_checker.dll')
+          ? path.join(
+            mainPath.substring(0, mainPath.lastIndexOf("\\")),
+            'process_checker.dll',
+          )
           : path.join(
             path.current.substring(0, path.current.lastIndexOf('\\')),
             'native_utils\\process_checker.dll',
           ); // for dev purposes
+
+  if (!File(dllPath).existsSync()) {
+    logger.e('DLL not found: $dllPath');
+    return false;
+  }
+
   final dylib = DynamicLibrary.open(dllPath);
 
   final isRunningC = dylib.lookupFunction<IsRunningCFunc, IsRunningCDart>(
