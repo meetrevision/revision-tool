@@ -4,6 +4,9 @@
     "securityDownfallMitDescription",
     "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
+    "perfSGMLabel",
+    "perfSGMDescription",
+    "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
@@ -13,6 +16,9 @@
     "securityDownfallMitDescription",
     "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
+    "perfSGMLabel",
+    "perfSGMDescription",
+    "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
@@ -22,6 +28,9 @@
     "securityDownfallMitDescription",
     "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
+    "perfSGMLabel",
+    "perfSGMDescription",
+    "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
@@ -31,6 +40,9 @@
     "securityDownfallMitDescription",
     "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
+    "perfSGMLabel",
+    "perfSGMDescription",
+    "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
@@ -40,6 +52,9 @@
     "securityDownfallMitDescription",
     "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
+    "perfSGMLabel",
+    "perfSGMDescription",
+    "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
@@ -49,8 +64,17 @@
     "securityDownfallMitDescription",
     "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
+    "perfSGMLabel",
+    "perfSGMDescription",
+    "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
+  ],
+
+  "pt_BR": [
+    "perfSGMLabel",
+    "perfSGMDescription",
+    "perfSGMDialog"
   ],
 
   "ro": [
@@ -58,6 +82,9 @@
     "securityDownfallMitDescription",
     "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
+    "perfSGMLabel",
+    "perfSGMDescription",
+    "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
@@ -67,8 +94,17 @@
     "securityDownfallMitDescription",
     "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
+    "perfSGMLabel",
+    "perfSGMDescription",
+    "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
+  ],
+
+  "tr": [
+    "perfSGMLabel",
+    "perfSGMDescription",
+    "perfSGMDialog"
   ],
 
   "uk": [
@@ -76,6 +112,9 @@
     "securityDownfallMitDescription",
     "securityDownfallMitCodeSnippet",
     "usabilityNotifDescription",
+    "perfSGMLabel",
+    "perfSGMDescription",
+    "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
   ],
@@ -87,6 +126,9 @@
     "usabilityNotifDescription",
     "usabilitySESLabel",
     "usabilitySESDescription",
+    "perfSGMLabel",
+    "perfSGMDescription",
+    "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription",
     "settingsLanguageDescription",
@@ -95,5 +137,11 @@
     "msstoreWait",
     "msstorePackagesPrompt",
     "msstorePackagesNotFound"
+  ],
+
+  "zh_TW": [
+    "perfSGMLabel",
+    "perfSGMDescription",
+    "perfSGMDialog"
   ]
 }

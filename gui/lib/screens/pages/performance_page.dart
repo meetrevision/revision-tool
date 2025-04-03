@@ -2,10 +2,9 @@ import 'package:common/common.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:revitool/extensions.dart';
-
-import '../../utils.dart';
-import '../../widgets/card_highlight.dart';
-import '../../widgets/subtitle.dart';
+import 'package:revitool/utils.dart';
+import 'package:revitool/widgets/card_highlight.dart';
+import 'package:revitool/widgets/subtitle.dart';
 
 class PerformancePage extends StatefulWidget {
   const PerformancePage({super.key});
@@ -34,6 +33,9 @@ class _PerformancePageState extends State<PerformancePage> {
   );
   late final _baBool = ValueNotifier<bool>(
     _performanceService.statusBackgroundApps,
+  );
+  late final statusServicesGrouping = ValueNotifier<ServiceGrouping>(
+    _performanceService.statusServicesGrouping,
   );
 
   /// Experimental
@@ -158,6 +160,64 @@ class _PerformancePageState extends State<PerformancePage> {
                 ? _performanceService.enableBackgroundApps()
                 : _performanceService.disableBackgroundApps();
           },
+        ),
+        CardHighlight(
+          icon: msicons.FluentIcons.group_20_regular,
+          label: context.l10n.perfSGMLabel,
+          description: context.l10n.perfSGMDescription,
+          child: ValueListenableBuilder<ServiceGrouping>(
+            valueListenable: statusServicesGrouping,
+            builder:
+                (_, value, _) => ComboBox<ServiceGrouping>(
+                  value: value,
+                  onChanged: (value) {
+                    statusServicesGrouping.value = value!;
+                    switch (value) {
+                      case ServiceGrouping.forced:
+                        showDialog(
+                          context: context,
+                          builder:
+                              (context) => ContentDialog(
+                                constraints: const BoxConstraints(
+                                  maxWidth: 500,
+                                  maxHeight: 300,
+                                ),
+                                title: Text(context.l10n.warning),
+                                content: Text(context.l10n.perfSGMDialog),
+                                actions: [
+                                  FilledButton(
+                                    child: Text(context.l10n.close),
+                                    onPressed: () => context.pop(),
+                                  ),
+                                ],
+                              ),
+                        );
+                        _performanceService.forcedServicesGrouping();
+                        break;
+                      case ServiceGrouping.recommended:
+                        _performanceService.recommendedServicesGrouping();
+                        break;
+                      case ServiceGrouping.disabled:
+                        _performanceService.disableServicesGrouping();
+                        break;
+                    }
+                  },
+                  items: const [
+                    ComboBoxItem(
+                      value: ServiceGrouping.forced,
+                      child: Text("Forced"),
+                    ),
+                    ComboBoxItem(
+                      value: ServiceGrouping.recommended,
+                      child: Text("Recommended"),
+                    ),
+                    ComboBoxItem(
+                      value: ServiceGrouping.disabled,
+                      child: Text("Disabled"),
+                    ),
+                  ],
+                ),
+          ),
         ),
         if (expBool.value) ...[
           CardHighlightSwitch(

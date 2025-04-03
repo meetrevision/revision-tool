@@ -5,6 +5,86 @@ import '../utils.dart';
 import 'win_registry_service.dart';
 import 'setup_service.dart';
 
+enum ServiceGrouping { forced, recommended, disabled }
+
+const _userSvcSplitDisabled = {"CDPUserSvc_", "OneSyncSvc_", "WpnUserService_"};
+
+final _recommendedSplitDisabled = {
+  "DisplayEnhancementService",
+  "PcaSvc",
+  "WdiSystemHost",
+  "AudioEndpointBuilder",
+  "DeviceAssociationService",
+  "NcbService",
+  "StorSvc",
+  "SysMain",
+  "TextInputManagementService",
+  "TrkWks",
+  "hidserv",
+
+  "Appinfo",
+  "BITS",
+  "LanmanServer",
+  "SENS",
+  "Schedule",
+  "ShellHWDetection",
+  "Themes",
+  "TokenBroker",
+  "UserManager",
+  "UsoSvc",
+  "Winmgmt",
+  "WpnService",
+  "gpsvc",
+  "iphlpsvc",
+  "wuauserv",
+
+  "WinHttpAutoProxySvc",
+  "EventLog",
+  "TimeBrokerSvc",
+  "lmhosts",
+  "Dhcp",
+
+  "FontCache",
+  "nsi",
+  "SstpSvc",
+  "DispBrokerDesktopSvc",
+  "CDPSvc",
+  "EventSystem",
+  "LicenseManager",
+
+  "SystemEventsBroker",
+  "Power",
+  "LSM",
+  "DcomLaunch",
+  "BrokerInfrastructure",
+
+  "CoreMessagingRegistrar",
+  "DPS",
+
+  "AppXSvc",
+  "ClipSVC",
+};
+
+const _defaultSplitDisabled = {
+  "BFE",
+  "BrokerInfrastructure",
+  "DcomLaunch",
+  "DisplayEnhancementService\\Parameters",
+  "mpssvc",
+  "OneSyncSvc",
+  "PimIndexMaintenanceSvc",
+  "PlugPlay",
+  "Power",
+  "RasMan",
+  "RemoteAccess",
+  "RpcEptMapper",
+  "RpcSs",
+  "SensorService\\Parameters",
+  "SystemEventsBroker",
+  "UnistoreSvc",
+  "UserDataSvc",
+};
+
 class PerformanceService implements SetupService {
   static final _shell = Shell();
 
@@ -394,6 +474,80 @@ class PerformanceService implements SetupService {
           "NtfsMemoryUsage",
         ) ==
         2;
+  }
+
+  ServiceGrouping get statusServicesGrouping {
+    final value = WinRegistryService.readInt(
+      RegistryHive.localMachine,
+      r'SYSTEM\ControlSet001\Control',
+      'SvcHostSplitThresholdInKB',
+    );
+
+    if (value == 0xFFFFFFFF) {
+      return ServiceGrouping.forced;
+    } else if (WinRegistryService.readInt(
+          RegistryHive.localMachine,
+          r'SYSTEM\ControlSet001\Services\AudioEndpointBuilder',
+          'SvcHostSplitDisable',
+        ) ==
+        1) {
+      for (final service in _userSvcSplitDisabled) {
+        final finalService = WinRegistryService.getUserServices(service);
+        for (final userService in finalService) {
+          _recommendedSplitDisabled.add(userService);
+        }
+      }
+      return ServiceGrouping.recommended;
+    }
+    return ServiceGrouping.disabled;
+  }
+
+  void forcedServicesGrouping() {
+    WinRegistryService.writeRegistryValue(
+      Registry.localMachine,
+      r'SYSTEM\CurrentControlSet\Control',
+      'SvcHostSplitThresholdInKB',
+      0xFFFFFFFF,
+    );
+  }
+
+  void recommendedServicesGrouping() {
+    WinRegistryService.writeRegistryValue(
+      Registry.localMachine,
+      r'SYSTEM\CurrentControlSet\Control',
+      'SvcHostSplitThresholdInKB',
+      0x380000, // default value
+    );
+    for (final service in {
+      ..._defaultSplitDisabled,
+      ..._recommendedSplitDisabled,
+    }) {
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\' + service,
+        'SvcHostSplitDisable',
+        1,
+      );
+    }
+  }
+
+  void disableServicesGrouping() {
+    final servicesToDelete = _recommendedSplitDisabled.difference(
+      _defaultSplitDisabled,
+    );
+    for (final service in servicesToDelete) {
+      WinRegistryService.deleteValue(
+        Registry.localMachine,
+        'SYSTEM\\ControlSet001\\Services\\$service',
+        'SvcHostSplitDisable',
+      );
+    }
+    WinRegistryService.writeRegistryValue(
+      Registry.localMachine,
+      r'SYSTEM\CurrentControlSet\Control',
+      'SvcHostSplitThresholdInKB',
+      0x380000, // default value
+    );
   }
 
   Future<void> enableMemoryUsageNTFS() async {
