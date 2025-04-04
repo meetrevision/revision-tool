@@ -71,12 +71,6 @@
     "miscUpdateKGLDescription"
   ],
 
-  "pt_BR": [
-    "perfSGMLabel",
-    "perfSGMDescription",
-    "perfSGMDialog"
-  ],
-
   "ro": [
     "securityDownfallMitLabel",
     "securityDownfallMitDescription",
