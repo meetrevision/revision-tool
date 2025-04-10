@@ -131,18 +131,37 @@ class _MSStorePageState extends State<MSStorePage>
     String productID,
     String ring,
   ) async {
-    showLoadingDialog(context, context.l10n.msstoreSearchingPackages);
+    try {
+      showLoadingDialog(context, context.l10n.msstoreSearchingPackages);
 
-    await _msStoreService.startProcess(productID, _selectedRing);
+      await _msStoreService.startProcess(productID, _selectedRing);
 
-    if (!context.mounted) return;
-    Navigator.pop(context);
+      if (!context.mounted) return;
+      Navigator.pop(context);
 
-    if (_msStoreService.packages.isEmpty) {
-      showNotFound(context);
-      return;
+      if (_msStoreService.packages.isEmpty) {
+        showNotFound(context);
+        return;
+      }
+      showSelectPackages(productID);
+    } catch (e, _) {
+      if (!context.mounted) return;
+      Navigator.pop(context);
+      showDialog(
+        context: context,
+        builder: (context) {
+          return ContentDialog(
+            content: Text("$e"),
+            actions: [
+              Button(
+                child: Text(context.l10n.close),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          );
+        },
+      );
     }
-    showSelectPackages(productID);
   }
 
   void showSelectPackages(String productId) async {
@@ -152,9 +171,19 @@ class _MSStorePageState extends State<MSStorePage>
       (index) => TreeViewItem(
         value: index,
         selected:
-            packages.elementAt(index).name!.contains("neutral") ||
-            packages.elementAt(index).name!.contains("x64"),
-        content: Text(packages.elementAt(index).name!),
+            packages
+                .elementAt(index)
+                .fileModel!
+                .fileName!
+                .contains("neutral") ||
+            packages
+                .elementAt(index)
+                .fileModel!
+                .fileName!
+                .contains(
+                  WinRegistryService.cpuArch == "amd64" ? "x64" : "arm64",
+                ),
+        content: Text(packages.elementAt(index).fileModel!.fileName!),
       ),
     );
 

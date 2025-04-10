@@ -2,7 +2,9 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:common/src/dto/ms_store/non_uwp_response_dto.dart';
 import 'package:common/src/dto/ms_store/packages_info_dto.dart';
+import 'package:common/src/dto/ms_store/product.dart';
 import 'package:common/src/dto/ms_store/search_response_dto.dart';
+import 'package:common/src/dto/ms_store/update_response.dart';
 import 'package:common/src/services/network_service.dart';
 import 'package:common/src/utils.dart';
 import 'package:dio/dio.dart';
@@ -10,14 +12,26 @@ import 'package:process_run/shell_run.dart';
 
 import 'package:xml/xml.dart' as xml;
 
+class _PackageCacheEntry {
+  final Set<MSStorePackagesInfoDTO> packages;
+  final DateTime expiryDate;
+
+  const _PackageCacheEntry({required this.packages, required this.expiryDate});
+
+  bool get isExpired => DateTime.now().isAfter(expiryDate);
+}
+
 class MSStoreService {
   static final _storeFolder =
       "${Directory.systemTemp.path}\\Revision-Tool\\MSStore";
   String get storeFolder => _storeFolder;
 
-  static final _cookieFile = File('$directoryExe\\msstore\\cookie.xml');
-  static final _urlFile = File('$directoryExe\\msstore\\url.xml');
-  static final _wuFile = File('$directoryExe\\msstore\\wu.xml');
+  static final _cookieFile =
+      File('$directoryExe\\msstore\\cookie.xml').readAsStringSync();
+  static final _urlFile =
+      File('$directoryExe\\msstore\\url.xml').readAsStringSync();
+  static final _wuFile =
+      File('$directoryExe\\msstore\\wu.xml').readAsStringSync();
   static const _fe3Delivery =
       "https://fe3.delivery.mp.microsoft.com/ClientWebService/client.asmx";
   static const _storeAPI = "https://storeedgefd.dsx.mp.microsoft.com/v9.0";
@@ -28,7 +42,7 @@ class MSStoreService {
       "user-agent":
           "Mozilla/5.0 (Windows NT 10.0; rv:107.0) Gecko/20100101 Firefox/107.0",
       "Accept": "*/*",
-      "Content-Type": "application/soap+xml"
+      "Content-Type": "application/soap+xml",
     },
   );
 
@@ -41,73 +55,59 @@ class MSStoreService {
     },
   );
 
-  static const _dependencies = [
-    "Microsoft.VCLibs",
-    "Microsoft.NET",
-    "Microsoft.UI",
-    "Microsoft.WinJS",
-    "Microsoft.WindowsAppRuntime",
-  ];
-  static bool isDependency(String name) =>
-      _dependencies.any((e) => name.startsWith(RegExp(e)));
+  static String _cookie = "";
 
-  static final _regex = RegExp(r'"WuCategoryId":"([^"]+)"');
-  static final _namePattern = RegExp(r'^[^_]+', multiLine: true);
-
-  // major.minor.build.revision
-  // static final _versionPattern = RegExp(r'_(\d+\.\d+\.\d+\.\d+)_');
-
-  // static const _validUWPExtensions = {
-  //   "appx",
-  //   "appxbundle",
-  //   "msix",
-  //   "msixbundle",
-  //   // "eappx",
-  //   // "eappxbundle",
-  //   // "emsix",
-  //   // "emsixbundle"
-  // };
-
-  static var _cookie = "";
+  static const _knownPackageArch = {'x86', 'x64', 'arm64', 'arm', 'neutral'};
 
   static final _cancelToken = CancelToken();
   static final _networkService = NetworkService();
-  // final WinRegistryService = WinRegistryService();
 
   static const _instance = MSStoreService._private();
-  factory MSStoreService() {
-    return _instance;
-  }
+  factory MSStoreService() => _instance;
   const MSStoreService._private();
 
-  static var _packages = List<MSStorePackagesInfoDTO>.empty(growable: true);
-  List<MSStorePackagesInfoDTO> get packages => List.unmodifiable(_packages);
+  static final _packagesCache = <String, _PackageCacheEntry>{};
+  static String _currentProductId = "";
+  Set<MSStorePackagesInfoDTO> get packages {
+    if (_currentProductId.isNotEmpty &&
+        _packagesCache.containsKey(_currentProductId) &&
+        !_packagesCache[_currentProductId]!.isExpired) {
+      return Set.unmodifiable(_packagesCache[_currentProductId]!.packages);
+    }
+    return Set.unmodifiable([]);
+  }
 
   Future<void> startProcess(String id, String ring) async {
-    _packages = [];
     final productId = id.trim();
+    _currentProductId = productId;
 
-    if (isUWP(productId)) {
-      if (_cookie.isEmpty) {
-        _cookie = await _getCookie();
-      }
-
-      final String categoryID = await _getCategoryID(productId);
-
-      await _parsePackages(
-        await _fetchFileListXML(categoryID, _cookie, ring),
-        ring,
-      );
-
-      if (_packages.isNotEmpty) {
-        await _getLatestPackages();
-        return;
-      }
+    if (_packagesCache.containsKey(productId) &&
+        !_packagesCache[productId]!.isExpired) {
+      return;
     }
 
-    // Non-UWP apps mostly start with "XP"
-    if (isNonUWP(productId)) {
-      await _getNonAppxPackage(productId);
+    try {
+      if (isUWP(productId)) {
+        if (_cookie.isEmpty) {
+          _cookie = await _getCookie();
+        }
+
+        final String categoryID = await _getCategoryID(productId);
+
+        await _parsePackages(
+          await _fetchFileListXML(categoryID, _cookie, ring),
+          ring,
+        );
+      }
+
+      // Non-UWP apps mostly start with "XP"
+      if (isNonUWP(productId)) {
+        await _getNonAppxPackage(productId);
+      }
+    } catch (e) {
+      _packagesCache.remove(productId);
+      _currentProductId = "";
+      throw Exception('Failed to retrieve packages: ${e.toString()}');
     }
   }
 
@@ -115,10 +115,6 @@ class MSStoreService {
   bool isUWP(String productId) {
     return productId.startsWith("9");
   }
-
-  /*
-   in normal cases, returning inverse of isUWP is enough, but who knows what Microsoft will do in the future 
-  */
 
   /// Returns true if the product is not UWP
   bool isNonUWP(String productId) {
@@ -128,10 +124,11 @@ class MSStoreService {
   Future<List<ProductsList>> searchProducts(String query, String ring) async {
     //"$_filteredSearchAPI?&Query=$query&FilteredCategories=AllProducts&hl=en-us${systemLanguage.toLowerCase()}&
     final response = await _networkService.get(
-        "$_searchAPI?gl=US&hl=en-us&query=$query&mediaType=all&age=all&price=all&category=all&subscription=all",
+      "$_searchAPI?gl=US&hl=en-us&query=$query&mediaType=all&age=all&price=all&category=all&subscription=all",
 
-// https://apps.microsoft.com/api/products/search?gl=GE&hl=en-us&query=xbox&cursor=
-        options: _options);
+      // https://apps.microsoft.com/api/products/search?gl=GE&hl=en-us&query=xbox&cursor=
+      options: _options,
+    );
 
     if (response.statusCode == 200) {
       final responseData = MSStoreSearchResponseDTO.fromJson(response.data);
@@ -146,32 +143,41 @@ class MSStoreService {
   Future<String> _getCookie() async {
     final response = await _networkService.post(
       _fe3Delivery,
-      data: xml.XmlDocument.parse(_cookieFile.readAsStringSync()),
+      data: xml.XmlDocument.parse(_cookieFile),
       options: _optionsSoapXML,
       cancelToken: _cancelToken,
     );
 
     if (response.statusCode == 200) {
-      return xml.XmlDocument.parse(response.data)
-          .findAllElements("EncryptedData")
-          .first
-          .innerText;
+      return xml.XmlDocument.parse(
+        response.data,
+      ).findAllElements("EncryptedData").first.innerText;
     }
     throw Exception('Failed to get a cookie');
   }
 
   Future<String> _getCategoryID(String id) async {
-    //TODO: Implement proper way to get compatible language codes for the store API parameters
-
-    // When Windows region is set to English (World), the language code isn't compatible with the store API
-    //"$_storeAPI/products/$id?market=US&locale=en-us&deviceFamily=Windows.Desktop",
+    // When Windows region is set to English (World), the language code isn't compatible with the store API, therefore use US en-US
     final response = await _networkService.get(
-        "$_storeAPI/products/$id?market=US&locale=en-us&deviceFamily=Windows.Desktop",
-        cancelToken: _cancelToken);
-    final skus = response.data["Payload"]["Skus"];
+      "$_storeAPI/products/$id?market=US&locale=en-us&deviceFamily=Windows.Desktop",
+      cancelToken: _cancelToken,
+    );
+
     if (response.statusCode == 200) {
-      if (skus.isNotEmpty && skus.first["FulfillmentData"] != null) {
-        return _regex.firstMatch(skus.first["FulfillmentData"])!.group(1)!;
+      final product = Product.fromJson(response.data);
+
+      final skus = product.payload!.skus!;
+
+      if (skus.isNotEmpty) {
+        for (final sku in skus) {
+          if (sku.skuType!.value == SkuType.full.value) {
+            _packagesCache[_currentProductId] = _PackageCacheEntry(
+              packages: {},
+              expiryDate: product.expiryUtc!,
+            );
+            return sku.fulfillmentData!.wuCategoryId!;
+          }
+        }
       }
       throw Exception("The selected app is not UWP");
     }
@@ -179,9 +185,11 @@ class MSStoreService {
   }
 
   Future<String> _fetchFileListXML(
-      String categoryID, String cookie, String ring) async {
-    final cookie2 = xml.XmlDocument.parse(_wuFile.readAsStringSync())
-        .toString()
+    String categoryID,
+    String cookie,
+    String ring,
+  ) async {
+    final cookie2 = _wuFile
         .replaceAll("{1}", cookie)
         .replaceAll("{2}", categoryID)
         .replaceAll("{3}", ring);
@@ -194,135 +202,273 @@ class MSStoreService {
     );
 
     if (response.statusCode == 200) {
-      final xmlDoc = xml.XmlDocument.parse(response.data)
+      return response.data
           .toString()
           .replaceAll("&lt;", "<")
           .replaceAll("&gt;", ">");
-      return xmlDoc;
     }
     throw Exception('Failed to get file list xml');
   }
 
   Future<void> _getNonAppxPackage(String id) async {
     final response = await _networkService.get(
-        "$_storeAPI/packageManifests/$id?Market=US",
-        cancelToken: _cancelToken);
+      "$_storeAPI/packageManifests/$id?Market=US",
+      cancelToken: _cancelToken,
+    );
 
-    if (response.statusCode == 200) {
-      final responseData =
-          MSStoreNonUWPResponseDTO.fromJson(response.data).data;
-      final versions = responseData?.versions;
+    if (response.statusCode != 200) return;
 
-      final urls = <String>{};
+    final data = MSStoreNonUWPResponseDTO.fromJson(response.data).data;
+    final versions = data?.versions;
+    if (versions == null || versions.isEmpty) return;
 
-      for (final installer in versions!.first.installers!) {
-        final installerUrl = installer.installerUrl!;
-        final String extension = installer.installerType ??
-            installerUrl.substring(installerUrl.lastIndexOf('.') + 1);
+    final urls = <String>{};
+    final pkgs = <MSStorePackagesInfoDTO>{};
 
-        if (extension.isEmpty || extension == "exe" || extension == "msi") {
-          final name =
-              "${versions.first.defaultLocale!.packageName}-${installer.architecture}";
+    for (final version in versions) {
+      for (final installer in version.installers!) {
+        final url = installer.installerUrl;
+        if (url == null || urls.contains(url)) continue;
 
-          if (!urls.contains(installerUrl)) {
-            _packages.add(
-              MSStorePackagesInfoDTO(
-                  name,
-                  extension,
-                  installerUrl,
-                  "",
-                  "",
-                  id,
-                  -1,
-                  "",
-                  null,
-                  null,
-                  installer.installerSwitches?.silent?.replaceAll('"', '')),
-            );
-            urls.add(installerUrl);
-          }
+        final String fileType =
+            installer.installerType ?? url.substring(url.lastIndexOf('.') + 1);
+
+        if (!["exe", "msi"].contains(fileType)) continue;
+        pkgs.add(
+          MSStorePackagesInfoDTO(
+            id: id,
+
+            isDependency: false,
+            uri: url,
+            arch: extractArchitecture(installer.installerUrl!),
+            fileModel: FileModel(
+              fileName:
+                  "${version.defaultLocale?.packageName}-${installer.architecture}",
+              fileType: fileType,
+            ),
+            commandLines: installer.installerSwitches?.silent?.replaceAll(
+              '"',
+              '',
+            ),
+          ),
+        );
+        urls.add(url);
+      }
+    }
+
+    if (pkgs.isNotEmpty) {
+      _packagesCache[_currentProductId] = _PackageCacheEntry(
+        packages: pkgs,
+        expiryDate: DateTime.now().add(const Duration(minutes: 2)),
+      );
+    }
+  }
+
+  String extractArchitecture(String package) {
+    package = package.toLowerCase();
+    for (final arch in _knownPackageArch) {
+      if (package.contains(arch)) {
+        return arch;
+      }
+    }
+    return _knownPackageArch.last;
+  }
+
+  UpdateResponse xmlToUpdateResponse(xml.XmlDocument document) {
+    final updatesMap = <String, UpdateModel>{};
+
+    final doc = document.findAllElements('SyncUpdatesResult').first;
+
+    for (final updateElement in doc
+        .getElement('ExtendedUpdateInfo')!
+        .getElement('Updates')!
+        .findElements('Update')) {
+      final id = updateElement.getElement('ID')!.innerText;
+
+      final xmlElement = updateElement.getElement('Xml');
+      if (xmlElement == null) continue;
+
+      final filesElement = xmlElement.getElement('Files');
+      if (filesElement == null || filesElement.children.isEmpty) continue;
+      final files = <FileModel>{};
+      for (final fileElement in filesElement.findElements('File')) {
+        final packageFullName = fileElement.getAttribute(
+          'InstallerSpecificIdentifier',
+        );
+        if (packageFullName == null) continue;
+
+        final fileName = fileElement.getAttribute('FileName');
+        final fileType = fileName!.split('.').last;
+
+        if (fileType.startsWith("e")) {
+          continue; // encrypted files installation is not supported
+        }
+
+        files.add(
+          FileModel(
+            fileName: fileElement.getAttribute('FileName'),
+            fileType: fileType,
+            packageFullName: packageFullName,
+            digest: fileElement.getAttribute('Digest'),
+            digestAlgorithm: fileElement.getAttribute('DigestAlgorithm'),
+            size:
+                fileElement.getAttribute('Size') != null
+                    ? int.tryParse(fileElement.getAttribute('Size')!)
+                    : null,
+            modifiedDate:
+                fileElement.getAttribute('Modified') != null
+                    ? DateTime.parse(fileElement.getAttribute('Modified')!)
+                    : null,
+          ),
+        );
+      }
+
+      if (files.isEmpty) continue;
+
+      final propsElement = xmlElement.getElement('ExtendedProperties');
+      if (propsElement != null) {
+        final extendedProperties = ExtendedProperties(
+          contentType: propsElement.getAttribute('ContentType'),
+          isAppxFramework:
+              propsElement.getAttribute('IsAppxFramework') == 'true',
+          creationDate:
+              propsElement.getAttribute('CreationDate') != null
+                  ? DateTime.parse(propsElement.getAttribute('CreationDate')!)
+                  : null,
+          packageIdentityName: propsElement.getAttribute('PackageIdentityName'),
+        );
+
+        updatesMap[id] = UpdateModel(
+          id: id,
+          xml: ElementXml(
+            fileModel: files,
+            extendedProperties: extendedProperties,
+          ),
+        );
+      }
+    }
+
+    for (final updateInfoElement in doc
+        .getElement('NewUpdates')!
+        .findElements('UpdateInfo')) {
+      final id = updateInfoElement.getElement('ID')?.innerText ?? '';
+
+      if (id.isEmpty) continue;
+      if (!updatesMap.containsKey(id)) continue;
+
+      final xmlElement = updateInfoElement.getElement('Xml');
+      if (xmlElement == null) continue;
+
+      final identityElement = xmlElement.getElement('UpdateIdentity');
+      UpdateIdentity? updateIdentity;
+      if (identityElement == null) continue;
+
+      updateIdentity = UpdateIdentity(
+        id: identityElement.getAttribute('UpdateID')!,
+        revisionNumber: identityElement.getAttribute('RevisionNumber')!,
+      );
+
+      String? packageMoniker;
+      final appRules = xmlElement.getElement('ApplicabilityRules');
+      if (appRules == null) continue;
+      final appxMetadata = appRules
+          .getElement('Metadata')!
+          .getElement('AppxPackageMetadata')!
+          .getElement('AppxMetadata');
+      if (appxMetadata != null) {
+        packageMoniker = appxMetadata.getAttribute('PackageMoniker')!;
+
+        if (packageMoniker.startsWith("Microsoft.Advertising")) {
+          // skip ads
+          updatesMap.remove(id);
+          continue;
+        }
+      }
+
+      updatesMap[id] = updatesMap[id]!.copyWith(
+        arch: extractArchitecture(packageMoniker!),
+        xml: updatesMap[id]!.xml.copyWith(
+          updateIdentity: updateIdentity,
+          packageMoniker: packageMoniker,
+        ),
+      );
+    }
+
+    // Filter to keep only latest packages by comparing modified dates
+    final latestPackages = <String, UpdateModel>{};
+    for (final update in updatesMap.values) {
+      final id =
+          "${update.xml.extendedProperties!.packageIdentityName!}-${update.arch!}";
+
+      if (!latestPackages.containsKey(id)) {
+        latestPackages[id] = update;
+      } else {
+        final existing = latestPackages[id]!;
+        final existingDate = existing.xml.fileModel.first.modifiedDate;
+        final currentDate = update.xml.fileModel.first.modifiedDate;
+
+        if (currentDate != null &&
+            (existingDate == null || currentDate.isAfter(existingDate))) {
+          latestPackages[id] = update;
         }
       }
     }
+
+    return UpdateResponse(updates: latestPackages.values.toSet());
   }
 
   Future<void> _parsePackages(String xmlList, String ring) async {
     final xmlDoc = xml.XmlDocument.parse(xmlList);
-    final packageMap = <String, String>{};
+    final updatesResponse = xmlToUpdateResponse(xmlDoc);
 
-    for (final node in xmlDoc.findAllElements("File")) {
-      if (node.getAttribute("InstallerSpecificIdentifier") != null) {
-        final name = node.getAttribute("InstallerSpecificIdentifier")!;
-        final digest = node.getAttribute("Digest")!;
-        final modified = node.getAttribute("Modified")!;
+    for (final update in updatesResponse.updates) {
+      final id = update.id;
+      final xml = update.xml;
 
-        packageMap.putIfAbsent(
-            name,
-            () =>
-                '${node.getAttribute("FileName")!.substring(node.getAttribute("FileName")!.lastIndexOf('.') + 1)}|${node.getAttribute("Size")!}|$digest|$modified');
-      }
-    }
+      final files = update.xml.fileModel;
+      if (files.isEmpty) return;
 
-    for (final node in xmlDoc.findAllElements("SecuredFragment")) {
-      final name = node.parent!.parent!
-          .getElement("ApplicabilityRules")!
-          .getElement("Metadata")!
-          .getElement("AppxPackageMetadata")!
-          .getElement("AppxMetadata")!
-          .getAttribute("PackageMoniker");
-      if (name != null) {
-        final package = packageMap[name]!;
-        final ext = package.split('|')[0];
-        final size = double.parse(package.split('|')[1]);
-        final digest = package.split('|')[2];
-        final lastModified = DateTime.parse(package.split('|')[3]);
-
-        final updateIdentity =
-            node.parent!.parent!.getElement('UpdateIdentity')!;
-
-        if (!name.contains("Microsoft.Advertising") && name.contains("x64") ||
-            name.contains("neutral") && !ext.startsWith("e")) {
-          _packages.add(
-            MSStorePackagesInfoDTO(
-              name,
-              ext,
-              await _getUri(
-                updateIdentity.getAttribute('UpdateID')!,
-                updateIdentity.getAttribute('RevisionNumber')!,
-                ring,
-                digest,
-              ),
-              updateIdentity.getAttribute('RevisionNumber')!,
-              updateIdentity.getAttribute('UpdateID')!,
-              node.parent!.parent!.parent!.getElement('ID')!.value,
-              size,
-              digest,
-              lastModified,
-              null,
-              null,
-            ),
-          );
-        }
-      }
+      _packagesCache[_currentProductId]!.packages.add(
+        MSStorePackagesInfoDTO(
+          id: id,
+          arch: update.arch!,
+          isDependency: xml.extendedProperties!.isAppxFramework!,
+          fileModel: files.first.copyWith(fileName: xml.packageMoniker),
+          uri: await _getUri(
+            updateID: xml.updateIdentity!.id,
+            revision: xml.updateIdentity!.revisionNumber,
+            ring: ring,
+            digets: files.first.digest!,
+          ),
+          updateIdentity: xml.updateIdentity,
+        ),
+      );
     }
   }
 
-  Future<String> _getUri(
-      String updateID, String revision, String ring, String digets) async {
-    final httpContent = xml.XmlDocument.parse(_urlFile.readAsStringSync())
-        .toString()
+  Future<String> _getUri({
+    required String updateID,
+    required String revision,
+    required String ring,
+    required String digets,
+  }) async {
+    final httpContent = _urlFile
         .replaceAll("{1}", updateID)
         .replaceAll("{2}", revision)
         .replaceAll("{3}", ring);
 
-    final response = await _networkService.post("$_fe3Delivery/secured",
-        data: httpContent,
-        options: Options(headers: {
+    final response = await _networkService.post(
+      "$_fe3Delivery/secured",
+      data: httpContent,
+      options: Options(
+        headers: {
           HttpHeaders.contentTypeHeader: "application/soap+xml",
           "user-agent":
               "Mozilla/5.0 (Windows NT 10.0; rv:107.0) Gecko/20100101 Firefox/107.0",
-        }),
-        cancelToken: _cancelToken);
+        },
+      ),
+      cancelToken: _cancelToken,
+    );
 
     if (response.statusCode == 200) {
       final xmlDoc = xml.XmlDocument.parse(response.data);
@@ -336,69 +482,21 @@ class MSStoreService {
     return "";
   }
 
-  // filters:
-
-  /// Group packages with the same name
-  Future<Map<String?, List<MSStorePackagesInfoDTO>>>
-      _groupSamePackages() async {
-    final groupedItems = _packages
-        .asMap()
-        .entries
-        .map((entry) => MSStorePackagesInfoDTO(
-            entry.value.name,
-            entry.value.extension,
-            entry.value.uri,
-            entry.value.revisionNumber,
-            entry.value.updateID,
-            entry.value.id,
-            entry.value.size,
-            entry.value.digest,
-            entry.value.lastModified,
-            entry.key,
-            null))
-        .toList()
-        .groupListsBy((item) => _namePattern.firstMatch(item.name!)?.group(0));
-
-    return groupedItems;
-  }
-
-  Future<void> _getLatestPackages() async {
-    final groupedPackages = await _groupSamePackages();
-
-    final latestGenPackages = groupedPackages.values.map((group) {
-      final versionMap = <MSStorePackagesInfoDTO, DateTime>{};
-      for (final package in group) {
-        if (versionMap.isEmpty) {
-          versionMap[package] = package.lastModified!;
-        } else {
-          final lastSavedVer = versionMap.values.first;
-          final currentVer = package.lastModified!;
-
-          if (currentVer.isAfter(lastSavedVer)) {
-            versionMap.clear();
-            versionMap[package] = currentVer;
-          }
-        }
-      }
-      return versionMap.keys.first;
-    }).toList();
-
-    _packages = latestGenPackages;
-  }
-
   Future<List<Response>> downloadPackages(String productId, String ring) async {
     final path = "$_storeFolder\\$productId\\$ring";
-    final result = <Response>[];
+    final downloadFutures = <Future<Response>>[];
 
-    for (final item in _packages) {
-      final downloadPath =
-          isDependency(item.name!) ? "$path\\Dependencies" : path;
-      final response = await _networkService.downloadFile(
-          item.uri!, "$downloadPath\\${item.name}.${item.extension}");
-
-      result.add(response);
+    for (final item in _packagesCache[productId]!.packages) {
+      final downloadPath = item.isDependency ? "$path\\Dependencies" : path;
+      downloadFutures.add(
+        _networkService.downloadFile(
+          item.uri,
+          "$downloadPath\\${item.fileModel!.fileName}.${item.fileModel!.fileType}",
+        ),
+      );
     }
-    return result;
+
+    return Future.wait(downloadFutures);
   }
 
   Future<List<ProcessResult>> installPackages(String id, String ring) async {
@@ -408,57 +506,60 @@ class MSStoreService {
   }
 
   Future<List<ProcessResult>> _installUWPPackages(
-      String id, String ring) async {
+    String id,
+    String ring,
+  ) async {
     final path = "$_storeFolder\\$id\\$ring";
-    final dir = Directory(path).listSync();
-    final results = <ProcessResult>[];
+    final entities = Directory(path).listSync();
 
-    if (dir.isNotEmpty) {
-      for (final d in dir) {
-        if (d is File) {
-          results.add(await _addAppxProcess(d.path));
-        }
-        if (d is Directory) {
-          final deps = Directory("$path\\Dependencies").listSync();
-          for (final file in deps) {
-            if (file is File) {
-              results.add(await _addAppxProcess(file.path));
-            }
-          }
+    if (entities.isEmpty) return [];
+
+    final results = <Future<ProcessResult>>[];
+
+    for (final entity in entities) {
+      if (entity is File) {
+        results.add(_addAppxProcess(entity.path));
+      }
+      if (entity is Directory && entity.path.endsWith('Dependencies')) {
+        final deps = entity.listSync().whereType<File>();
+        for (final file in deps) {
+          results.add(_addAppxProcess(file.path));
         }
       }
     }
-    return results;
+
+    return Future.wait(results);
   }
 
   Future<ProcessResult> _addAppxProcess(String path) async {
-    return await Process.run(
-      "powershell",
-      ["Add-AppxPackage -Path $path -ForceApplicationShutdown"],
-    );
+    return await Process.run("powershell", [
+      "Add-AppxPackage -Path $path -ForceApplicationShutdown",
+    ]);
   }
 
   Future<List<ProcessResult>> _installNonUWPPackages(
-      String id, String ring) async {
+    String id,
+    String ring,
+  ) async {
     final fileList = Directory("$_storeFolder\\$id\\$ring").listSync();
     final results = <ProcessResult>[];
 
     for (final file in fileList) {
       if (file is File) {
         final filePath = file.path;
-        final arguments = _packages
-                .firstWhereOrNull((e) =>
-                    e.name == (file.path.split('\\').last).split(".").first)
+        final arguments =
+            _packagesCache[_currentProductId]!.packages
+                .firstWhereOrNull(
+                  (e) =>
+                      e.fileModel!.fileName ==
+                      (file.path.split('\\').last).split(".").first,
+                )
                 ?.commandLines
                 ?.split(' ') ??
             List<String>.empty();
 
         results.add(
-          await runExecutableArguments(
-            filePath,
-            arguments,
-            verbose: true,
-          ),
+          await runExecutableArguments(filePath, arguments, verbose: true),
         );
       }
     }
