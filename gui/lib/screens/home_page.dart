@@ -65,23 +65,14 @@ class _HomePageState extends State<HomePage> {
         title: Text(context.l10n.pageSecurity),
         body: const SecurityPage(),
       ),
-      WinRegistryService.isW11
-          ? PaneItem(
-            icon: const Icon(
-              msicons.FluentIcons.search_square_24_regular,
-              size: 20,
-            ),
-            title: Text(context.l10n.pageUsability),
-            body: const UsabilityPage(),
-          )
-          : PaneItem(
-            icon: const Icon(
-              msicons.FluentIcons.search_square_24_regular,
-              size: 20,
-            ),
-            title: Text(context.l10n.pageUsability),
-            body: const UsabilityPage(),
-          ),
+      PaneItem(
+        icon: const Icon(
+          msicons.FluentIcons.search_square_24_regular,
+          size: 20,
+        ),
+        title: Text(context.l10n.pageUsability),
+        body: const UsabilityPage(),
+      ),
       PaneItem(
         icon: const Icon(msicons.FluentIcons.top_speed_24_regular, size: 20),
         title: Text(context.l10n.pagePerformance),
