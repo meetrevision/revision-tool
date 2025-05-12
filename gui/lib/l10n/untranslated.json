@@ -113,26 +113,6 @@
     "miscUpdateKGLDescription"
   ],
 
-  "zh": [
-    "securityDownfallMitLabel",
-    "securityDownfallMitDescription",
-    "securityDownfallMitCodeSnippet",
-    "usabilityNotifDescription",
-    "usabilitySESLabel",
-    "usabilitySESDescription",
-    "perfSGMLabel",
-    "perfSGMDescription",
-    "perfSGMDialog",
-    "miscUpdateKGL",
-    "miscUpdateKGLDescription",
-    "settingsLanguageDescription",
-    "pageMSStore",
-    "msstoreSearchingPackages",
-    "msstoreWait",
-    "msstorePackagesPrompt",
-    "msstorePackagesNotFound"
-  ],
-
   "zh_TW": [
     "perfSGMLabel",
     "perfSGMDescription",
