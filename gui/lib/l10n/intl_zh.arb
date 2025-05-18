@@ -103,7 +103,7 @@
   "close": "关闭",
   "search": "搜索",
   "perfBALabel": "后台应用程序",
-  "perfBADescription": "允许应用程序在后台运行，即使您没有使用它们。由于不断在后台运行，这将会对性能产生影响。禁用此选项还可能将禁用某些应用程序的通知",
+  "perfBADescription": "允许应用程序在后台运行，即使您没有使用它们。由于不断在后台运行，这将会对性能产生影响。禁用此选项还可能将禁用某些应用程序的通知。",
   "perfSGMLabel": "服务组模式",
   "perfSGMDescription": "‘Recommended’ 是 ReviOS 中的默认选项，建议大多数用户使用。\n‘Forced’ 会显著减少内存使用，但会导致某些服务（例如 Xbox）无法正常工作",
   "perfSGMDialog": "此选项可能会导致某些服务（例如 Xbox）无法正常工作，请自行承担其风险。可将其更改回 ‘Recommended’ 以恢复默认设置",
