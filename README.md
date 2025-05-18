@@ -1,6 +1,6 @@
 
 
-<img align="left" src="gui/windows/runner/resources/app_icon.ico" width="64" height="64" />
+<img align="left" src="src/windows/runner/resources/app_icon.ico" width="64" height="64" />
 
 # Revision Tool
 [![Releases](https://img.shields.io/github/v/release/MeetRevision/revision-tool.svg)](https://github.com/MeetRevision/revision-tool/releases)
@@ -19,5 +19,3 @@ Revision Tool is licensed under GNU General Public License v3.0.
 The tool also contains:
 * [NanaRun](https://github.com/M2Team/NanaRun) - MIT
 * [Fluent System Icons](https://github.com/microsoft/fluentui-system-icons) by Microsoft - MIT
-
-## 

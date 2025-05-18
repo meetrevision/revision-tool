@@ -35,25 +35,22 @@ jobs:
         working-directory: native_utils
 
       - run: flutter gen-l10n
-        working-directory: gui
+        working-directory: src
 
       - run: dart run build_runner build --delete-conflicting-outputs
-        working-directory: common
-
-      - run: dart run build_runner build --delete-conflicting-outputs
-        working-directory: gui
+        working-directory: src
 
       - name: Build revitool CLI
-        run: dart compile exe common/bin/main.dart -o revitool.exe --define=APP_VERSION=${{ env.NEW_VERSION }} 
+        run: dart compile exe src/lib/main_cli.dart -o revitool.exe --define=APP_VERSION=${{ env.NEW_VERSION }} 
 
       - name: Enable Administrator Privileges for revitool CLI app
         shell: pwsh
         run: |
-          & "${env:ProgramFiles(x86)}\Windows Kits\10\bin\10.0.22621.0\x64\mt.exe" -nologo -manifest common/app.manifest -outputresource:revitool.exe;1
+          & "${env:ProgramFiles(x86)}\Windows Kits\10\bin\10.0.22621.0\x64\mt.exe" -nologo -manifest src/windows/app.manifest -outputresource:revitool.exe;1
 
       - name: Build revitool GUI
         run: flutter build windows --build-name=${{ env.NEW_VERSION }} --build-number=1 --obfuscate --split-debug-info=/symbols --dart-define=APP_VERSION=${{ env.NEW_VERSION }}
-        working-directory: gui
+        working-directory: src
       
       - name: Build Installer
         run: |

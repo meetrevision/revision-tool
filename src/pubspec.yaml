@@ -1,0 +1,87 @@
+name: revitool
+description: A tool to personalize ReviOS to your needs
+publish_to: 'none'
+
+# The version number defaults to 1.0.0 for easier development and is incremented by the build flags based on the tag
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Localization
+  flutter_localizations:
+    sdk: flutter
+  intl: '>=0.18.0 <= 1.0.0'
+
+  # UI
+  fluent_ui: ^4.11.2
+  system_theme: ^3.1.2
+  flutter_acrylic: ^1.1.4
+  fluentui_system_icons: ^1.1.273
+  window_plus:
+    git:
+      # url: https://github.com/melo936/window_plus
+      url: https://github.com/alexmercerind/window_plus
+
+  # State management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Path
+  path_provider: ^2.1.5
+  path: ^1.9.1
+
+  # Network
+  dio: ^5.8.0+1
+  
+  # Shell
+  process_run: ^1.2.4
+  
+  # Used to get the version of the app
+  package_info_plus: ^8.2.1
+  
+  # Interactivity with Windows
+  win32: ^5.13.0
+  win32_registry: ^2.1.0
+
+  # Code generation
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+  
+  # Logging
+  logger: ^2.5.0
+
+  # Command line
+  args: ^2.6.0
+
+  # Other
+  collection: ^1.18.0
+  xml: ^6.5.0
+  ffi: ^2.1.4
+  
+
+dev_dependencies:
+  # flutter_test:
+  #   sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.15
+  freezed: ^2.5.8
+  json_serializable: ^6.9.4
+  riverpod_generator: ^2.6.2
+  custom_lint: ^0.7.3
+  riverpod_lint: ^2.6.4
+
+# dependency_overrides:
+#   meta: ^1.16.0
+
+flutter:
+  generate: true
+  uses-material-design: true
+
+  assets:
+    - additionals/
+    - additionals/msstore/
