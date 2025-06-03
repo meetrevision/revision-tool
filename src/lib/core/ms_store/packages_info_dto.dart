@@ -4,7 +4,7 @@ part 'packages_info_dto.freezed.dart';
 part 'packages_info_dto.g.dart';
 
 @freezed
-class MSStorePackagesInfoDTO
+sealed class MSStorePackagesInfoDTO
     with _$MSStorePackagesInfoDTO
     implements Comparable<MSStorePackagesInfoDTO> {
   MSStorePackagesInfoDTO._();

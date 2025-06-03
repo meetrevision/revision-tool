@@ -4,7 +4,7 @@ part 'update_response.freezed.dart';
 part 'update_response.g.dart';
 
 @freezed
-class UpdateResponse with _$UpdateResponse {
+sealed class UpdateResponse with _$UpdateResponse {
   const factory UpdateResponse({required Set<UpdateModel> updates}) =
       _UpdateResponse;
 
@@ -13,7 +13,7 @@ class UpdateResponse with _$UpdateResponse {
 }
 
 @freezed
-class UpdateModel with _$UpdateModel {
+sealed class UpdateModel with _$UpdateModel {
   const factory UpdateModel({
     required final String id,
     required final ElementXml xml,
@@ -25,7 +25,7 @@ class UpdateModel with _$UpdateModel {
 }
 
 @freezed
-class ElementXml with _$ElementXml {
+sealed class ElementXml with _$ElementXml {
   const factory ElementXml({
     UpdateIdentity? updateIdentity,
     String? packageMoniker,
@@ -38,7 +38,7 @@ class ElementXml with _$ElementXml {
 }
 
 @freezed
-class UpdateIdentity with _$UpdateIdentity {
+sealed class UpdateIdentity with _$UpdateIdentity {
   const factory UpdateIdentity({
     required String id,
     required String revisionNumber,
@@ -49,7 +49,7 @@ class UpdateIdentity with _$UpdateIdentity {
 }
 
 @freezed
-class ExtendedProperties with _$ExtendedProperties {
+sealed class ExtendedProperties with _$ExtendedProperties {
   const factory ExtendedProperties({
     String? contentType,
     bool? isAppxFramework,
@@ -62,7 +62,7 @@ class ExtendedProperties with _$ExtendedProperties {
 }
 
 @freezed
-class FileModel with _$FileModel {
+sealed class FileModel with _$FileModel {
   const factory FileModel({
     String? fileName,
     String? fileType, // custom
