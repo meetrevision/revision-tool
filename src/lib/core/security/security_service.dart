@@ -346,7 +346,10 @@ class SecurityService {
         'RevisionEnableDefenderCMD',
       );
 
-      await _winPackageService.installPackage(WinPackageType.defenderRemoval);
+      final packagePath = await _winPackageService.downloadPackage(
+        WinPackageType.defenderRemoval,
+      );
+      await _winPackageService.installPackage(packagePath);
     } on Exception catch (e) {
       throw ('Failed to disable Windows Defender:\n\n$e');
     }

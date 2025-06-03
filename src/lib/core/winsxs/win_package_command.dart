@@ -2,12 +2,17 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:process_run/shell_run.dart';
+import 'package:revitool/core/ms_store/ms_store_command.dart';
 import 'package:revitool/core/security/security_service.dart';
 import 'package:revitool/core/winsxs/win_package_service.dart';
+import 'package:revitool/shared/win_registry_service.dart';
 
 class WindowsPackageCommand extends Command<String> {
   static final _winPackageService = WinPackageService();
+  static final _msStoreCommand = MSStoreCommand();
   static final _securityService = SecurityService();
+  static final _shell = Shell();
 
   static const tag = "[Windows Package]";
 
@@ -21,12 +26,20 @@ class WindowsPackageCommand extends Command<String> {
     argParser.addOption(
       'install',
       help: 'Install a package',
-      allowed: const ['system-components-removal', 'defender-removal'],
+      allowed: const [
+        'system-components-removal',
+        'defender-removal',
+        'ai-removal',
+      ],
     );
     argParser.addOption(
       'uninstall',
       help: 'Uninstall a package',
-      allowed: const ['system-components-removal', 'defender-removal'],
+      allowed: const [
+        'system-components-removal',
+        'defender-removal',
+        'ai-removal',
+      ],
     );
   }
 
@@ -51,6 +64,8 @@ class WindowsPackageCommand extends Command<String> {
         return WinPackageType.systemComponentsRemoval;
       case 'defender-removal':
         return WinPackageType.defenderRemoval;
+      case 'ai-removal':
+        return WinPackageType.aiRemoval;
       default:
         throw Exception('Invalid package: $package');
     }
@@ -66,10 +81,21 @@ class WindowsPackageCommand extends Command<String> {
       }
 
       stdout.writeln('$tag Downloading package: ${mode.packageName}');
-      await _winPackageService.downloadPackage(mode);
+      final packagePath = await _winPackageService.downloadPackage(mode);
 
       stdout.writeln('$tag Installing package: ${mode.packageName}');
-      await _winPackageService.installPackage(mode);
+      await _winPackageService.installPackage(packagePath);
+
+      if (mode == WinPackageType.aiRemoval) {
+        WinRegistryService.hidePageVisibilitySettings("aicomponents");
+        WinRegistryService.hidePageVisibilitySettings("privacy-systemaimodels");
+        await _shell.run(
+          'PowerShell -EP Unrestricted -NonInteractive -NoLogo -NoP -C "Disable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart"',
+        );
+        await _shell.run(
+          'PowerShell -EP Unrestricted -NonInteractive -NoLogo -NoP -C "Get-AppxPackage -AllUsers Microsoft.Copilot* | Remove-AppxPackage"',
+        );
+      }
     } catch (e) {
       stderr.writeln('$tag $e');
     }
@@ -77,8 +103,19 @@ class WindowsPackageCommand extends Command<String> {
 
   Future<void> _uninstallPackage(final WinPackageType packageType) async {
     stdout.writeln('$tag Uninstalling package: ${packageType.packageName}');
-    if (packageType == WinPackageType.defenderRemoval) {
-      await _securityService.enableDefender();
+
+    if (packageType == WinPackageType.aiRemoval) {
+      WinRegistryService.unhidePageVisibilitySettings("aicomponents");
+      WinRegistryService.unhidePageVisibilitySettings("privacy-systemaimodels");
+      await _shell.run(
+        'PowerShell -EP Unrestricted -NonInteractive -NoLogo -NoP -C "Enable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart"',
+      );
+      await _msStoreCommand.installPackage(
+        id: "9nht9rb2f4hd",
+        ring: "Retail",
+        arch: "auto",
+        downloadOnly: false,
+      );
     }
     await _winPackageService.uninstallPackage(packageType);
   }

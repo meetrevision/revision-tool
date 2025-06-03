@@ -64,62 +64,76 @@ class MSStoreCommand extends Command<String> {
     final bool downloadOnly = argResults?["download-only"] ?? false;
 
     for (final id in ids) {
-      stdout.writeln('$tag Starting process - $id ($ring)');
-      try {
-        await _msStoreService.startProcess(id, ring);
-      } catch (e) {
-        stderr.writeln(e.toString());
-        stderr.writeln('$tag Failed to get any information for $id');
-        exit(1);
-      }
-
-      if (_msStoreService.packages.isEmpty) {
-        stderr.writeln('$tag Failed to get any information for $id');
-        exit(1);
-      }
-
-      stdout.writeln('$tag Downloading $id...');
-      final downloadResult = await _msStoreService.downloadPackages(
-        id,
-        ring,
-        arch,
+      await installPackage(
+        id: id,
+        ring: ring,
+        arch: arch,
+        downloadOnly: downloadOnly,
       );
-
-      if (downloadResult.isEmpty || downloadResult.first.statusCode != 200) {
-        stderr.writeln('$tag Failed to download $id');
-        exit(1);
-      }
-
-      if (downloadOnly) {
-        final downloadPath = "${_msStoreService.storeFolder}\\$id\\$ring";
-        stdout.writeln('$tag Downloaded $id successfully');
-        stdout.writeln(downloadPath);
-        continue;
-      }
-
-      stdout.writeln('$tag Installing $id...');
-      final installResult = await _msStoreService.installPackages(id, ring);
-
-      bool areResultsZero = true;
-      for (final e in installResult) {
-        if (e.exitCode != 0) {
-          stderr.writeln(e.errText);
-          stdout.writeln(e.outText);
-          areResultsZero = false;
-          break;
-        }
-      }
-
-      if (installResult.isEmpty || !areResultsZero) {
-        stderr.writeln('$tag Failed to install $id');
-        exit(1);
-      }
-      stdout.writeln('$tag Successfully installed $id');
-
-      if (!downloadOnly) {
-        await _msStoreService.cleanUpDownloads();
-      }
     }
     exit(0);
+  }
+
+  Future<void> installPackage({
+    required String id,
+    required String ring,
+    required String arch,
+    required bool downloadOnly,
+  }) async {
+    stdout.writeln('$tag Starting process - $id ($ring)');
+    try {
+      await _msStoreService.startProcess(id, ring);
+    } catch (e) {
+      stderr.writeln(e.toString());
+      stderr.writeln('$tag Failed to get any information for $id');
+      exit(1);
+    }
+
+    if (_msStoreService.packages.isEmpty) {
+      stderr.writeln('$tag Failed to get any information for $id');
+      exit(1);
+    }
+
+    stdout.writeln('$tag Downloading $id...');
+    final downloadResult = await _msStoreService.downloadPackages(
+      id,
+      ring,
+      arch,
+    );
+
+    if (downloadResult.isEmpty || downloadResult.first.statusCode != 200) {
+      stderr.writeln('$tag Failed to download $id');
+      exit(1);
+    }
+
+    if (downloadOnly) {
+      final downloadPath = "${_msStoreService.storeFolder}\\$id\\$ring";
+      stdout.writeln('$tag Downloaded $id successfully');
+      stdout.writeln(downloadPath);
+      return;
+    }
+
+    stdout.writeln('$tag Installing $id...');
+    final installResult = await _msStoreService.installPackages(id, ring);
+
+    bool areResultsZero = true;
+    for (final e in installResult) {
+      if (e.exitCode != 0) {
+        stderr.writeln(e.errText);
+        stdout.writeln(e.outText);
+        areResultsZero = false;
+        break;
+      }
+    }
+
+    if (installResult.isEmpty || !areResultsZero) {
+      stderr.writeln('$tag Failed to install $id');
+      exit(1);
+    }
+    stdout.writeln('$tag Successfully installed $id');
+
+    if (!downloadOnly) {
+      await _msStoreService.cleanUpDownloads();
+    }
   }
 }
