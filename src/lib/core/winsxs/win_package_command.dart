@@ -104,6 +104,10 @@ class WindowsPackageCommand extends Command<String> {
   Future<void> _uninstallPackage(final WinPackageType packageType) async {
     stdout.writeln('$tag Uninstalling package: ${packageType.packageName}');
 
+    if (packageType == WinPackageType.defenderRemoval) {
+      await _securityService.enableDefender();
+    }
+
     if (packageType == WinPackageType.aiRemoval) {
       WinRegistryService.unhidePageVisibilitySettings("aicomponents");
       WinRegistryService.unhidePageVisibilitySettings("privacy-systemaimodels");

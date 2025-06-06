@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:path/path.dart' as p;
 import 'package:process_run/shell.dart';
-import 'package:revitool/core/security/security_service.dart';
 import 'package:revitool/shared/network_service.dart';
 import 'package:revitool/shared/win_registry_service.dart';
 
@@ -27,7 +26,6 @@ class WinPackageService {
 
   static final _networkService = NetworkService();
   static final _shell = Shell();
-  static final _securityService = SecurityService();
 
   static final cabPath = p.join(
     Directory.systemTemp.path,
@@ -114,10 +112,6 @@ class WinPackageService {
   }
 
   Future<void> uninstallPackage(final WinPackageType packageType) async {
-    if (packageType == WinPackageType.defenderRemoval) {
-      await _securityService.enableDefender();
-    }
-
     await _shell.run(
       'PowerShell -EP Unrestricted -NonInteractive -NoLogo -NoP -C "Get-WindowsPackage -Online -PackageName \'${packageType.packageName}*\' | Remove-WindowsPackage -Online -NoRestart"',
     );
