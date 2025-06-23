@@ -3,7 +3,7 @@ part 'search_response_dto.freezed.dart';
 part 'search_response_dto.g.dart';
 
 @freezed
-class MSStoreSearchResponseDTO with _$MSStoreSearchResponseDTO {
+sealed class MSStoreSearchResponseDTO with _$MSStoreSearchResponseDTO {
   const factory MSStoreSearchResponseDTO({
     List<ProductsList>? highlightedList,
     List<ProductsList>? productsList,
@@ -14,7 +14,7 @@ class MSStoreSearchResponseDTO with _$MSStoreSearchResponseDTO {
 }
 
 @freezed
-class ProductsList with _$ProductsList {
+sealed class ProductsList with _$ProductsList {
   const factory ProductsList({
     String? productId,
     String? title,

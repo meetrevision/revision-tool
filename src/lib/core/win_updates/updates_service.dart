@@ -123,20 +123,7 @@ class WinUpdatesService {
   }
 
   void enableVisibilityWU() {
-    final currentValue = WinRegistryService.readString(
-      RegistryHive.localMachine,
-      r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
-      'SettingsPageVisibility',
-    );
-
-    WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
-      'SettingsPageVisibility',
-      currentValue!.endsWith(";")
-          ? currentValue.replaceAll("windowsupdate;", "")
-          : currentValue.replaceAll("windowsupdate", ""),
-    );
+    WinRegistryService.unhidePageVisibilitySettings("windowsupdate");
   }
 
   void disableVisibilityWU() {

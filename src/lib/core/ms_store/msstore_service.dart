@@ -8,6 +8,7 @@ import 'package:revitool/core/ms_store/product.dart';
 import 'package:revitool/core/ms_store/search_response_dto.dart';
 import 'package:revitool/core/ms_store/update_response.dart';
 import 'package:revitool/shared/network_service.dart';
+import 'package:revitool/shared/win_registry_service.dart';
 import 'package:revitool/utils.dart';
 
 import 'package:xml/xml.dart' as xml;
@@ -482,12 +483,31 @@ class MSStoreService {
     return "";
   }
 
-  Future<List<Response>> downloadPackages(String productId, String ring) async {
+  Future<List<Response>> downloadPackages(
+    String productId,
+    String ring,
+    String arch,
+  ) async {
     final path = "$_storeFolder\\$productId\\$ring";
     final downloadFutures = <Future<Response>>[];
+    final archToDownload =
+        WinRegistryService.cpuArch == "amd64" ? "x64" : "arm64";
 
     for (final item in _packagesCache[productId]!.packages) {
+      if (arch != 'all') {
+        final packageArch = item.arch;
+
+        if (arch == 'auto') {
+          if (packageArch != 'neutral' && packageArch != archToDownload) {
+            continue;
+          }
+        } else if (arch != packageArch && packageArch != 'neutral') {
+          continue;
+        }
+      }
+
       final downloadPath = item.isDependency ? "$path\\Dependencies" : path;
+
       downloadFutures.add(
         _networkService.downloadFile(
           item.uri,

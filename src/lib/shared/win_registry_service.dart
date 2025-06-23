@@ -87,6 +87,48 @@ class WinRegistryService {
     }
   }
 
+  static void unhidePageVisibilitySettings(String pageName) {
+    final currentValue = readString(
+      RegistryHive.localMachine,
+      r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
+      'SettingsPageVisibility',
+    );
+
+    if (currentValue == null || currentValue.isEmpty) return;
+
+    if (currentValue.contains(pageName)) {
+      String newValue = currentValue;
+
+      if (currentValue == "hide:$pageName") {
+        deleteValue(
+          Registry.localMachine,
+          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
+          'SettingsPageVisibility',
+        );
+        return;
+      } else if (currentValue.contains("$pageName;")) {
+        newValue = newValue.replaceAll("$pageName;", "");
+      } else if (currentValue.contains(";$pageName")) {
+        newValue = newValue.replaceAll(";$pageName", "");
+      }
+
+      if (newValue == "hide:" || newValue.isEmpty) {
+        deleteValue(
+          Registry.localMachine,
+          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
+          'SettingsPageVisibility',
+        );
+      } else {
+        writeRegistryValue(
+          Registry.localMachine,
+          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
+          'SettingsPageVisibility',
+          newValue,
+        );
+      }
+    }
+  }
+
   static Iterable<String> getUserServices(String subkey) {
     return Registry.openPath(
       RegistryHive.localMachine,

@@ -7,7 +7,7 @@ part 'product.freezed.dart';
 part 'product.g.dart';
 
 @freezed
-class Product with _$Product {
+sealed class Product with _$Product {
   const factory Product({
     @JsonKey(name: "ExpiryUtc") DateTime? expiryUtc,
     @JsonKey(name: "Payload") Payload? payload,
@@ -18,7 +18,7 @@ class Product with _$Product {
 }
 
 @freezed
-class Payload with _$Payload {
+sealed class Payload with _$Payload {
   const factory Payload({
     @JsonKey(name: "ProductId") String? productId,
     @JsonKey(name: "Title") String? title,
@@ -46,7 +46,7 @@ enum SkuType {
 }
 
 @freezed
-class Skus with _$Skus {
+sealed class Skus with _$Skus {
   const factory Skus({
     @JsonKey(name: "SkuId") String? skuId,
     @JsonKey(name: "Title") String? title,
@@ -62,7 +62,7 @@ class Skus with _$Skus {
 }
 
 @freezed
-class FulfillmentData with _$FulfillmentData {
+sealed class FulfillmentData with _$FulfillmentData {
   const factory FulfillmentData({
     @JsonKey(name: "ProductId") String? productId,
     @JsonKey(name: "WuBundleId") String? wuBundleId,

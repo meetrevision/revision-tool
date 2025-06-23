@@ -90,7 +90,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
 }
 
 @freezed
-class AppSettings with _$AppSettings {
+sealed class AppSettings with _$AppSettings {
   const factory AppSettings({
     required AccentColor accentColor,
     required ThemeMode themeMode,

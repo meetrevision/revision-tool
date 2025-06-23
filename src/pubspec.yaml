@@ -1,24 +1,24 @@
 name: revitool
 description: A tool to personalize ReviOS to your needs
-publish_to: 'none'
+publish_to: "none"
 
 # The version number defaults to 1.0.0 for easier development and is incremented by the build flags based on the tag
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.7.0
+  sdk: ^3.8.1
 
 dependencies:
   flutter:
     sdk: flutter
-  
+
   # Localization
   flutter_localizations:
     sdk: flutter
-  intl: '>=0.18.0 <= 1.0.0'
+  intl: any
 
   # UI
-  fluent_ui: ^4.11.2
+  fluent_ui: ^4.12.0
   system_theme: ^3.1.2
   flutter_acrylic: ^1.1.4
   fluentui_system_icons: ^1.1.273
@@ -37,43 +37,42 @@ dependencies:
 
   # Network
   dio: ^5.8.0+1
-  
+
   # Shell
   process_run: ^1.2.4
-  
+
   # Used to get the version of the app
-  package_info_plus: ^8.2.1
-  
+  package_info_plus: ^8.3.0
+
   # Interactivity with Windows
   win32: ^5.13.0
   win32_registry: ^2.1.0
 
   # Code generation
-  freezed_annotation: ^2.4.4
+  freezed_annotation: ^3.0.0
   json_annotation: ^4.9.0
-  
+
   # Logging
   logger: ^2.5.0
 
   # Command line
-  args: ^2.6.0
+  args: ^2.7.0
 
   # Other
   collection: ^1.18.0
   xml: ^6.5.0
   ffi: ^2.1.4
-  
 
 dev_dependencies:
   # flutter_test:
   #   sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   build_runner: ^2.4.15
-  freezed: ^2.5.8
-  json_serializable: ^6.9.4
-  riverpod_generator: ^2.6.2
-  custom_lint: ^0.7.3
-  riverpod_lint: ^2.6.4
+  freezed: ^3.0.6
+  json_serializable: ^6.9.5
+  riverpod_generator: ^2.6.5
+  custom_lint: ^0.7.5
+  riverpod_lint: ^2.6.5
 
 # dependency_overrides:
 #   meta: ^1.16.0

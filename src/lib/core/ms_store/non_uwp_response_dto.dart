@@ -5,7 +5,7 @@ part 'non_uwp_response_dto.freezed.dart';
 part 'non_uwp_response_dto.g.dart';
 
 @freezed
-class MSStoreNonUWPResponseDTO with _$MSStoreNonUWPResponseDTO {
+sealed class MSStoreNonUWPResponseDTO with _$MSStoreNonUWPResponseDTO {
   const factory MSStoreNonUWPResponseDTO({@JsonKey(name: "Data") Data? data}) =
       _MSStoreNonUWPResponseDTO;
 
@@ -14,7 +14,7 @@ class MSStoreNonUWPResponseDTO with _$MSStoreNonUWPResponseDTO {
 }
 
 @freezed
-class Data with _$Data {
+sealed class Data with _$Data {
   const factory Data({
     @JsonKey(name: "PackageIdentifier") String? packageIdentifier,
     @JsonKey(name: "Versions") List<Versions>? versions,
@@ -24,7 +24,7 @@ class Data with _$Data {
 }
 
 @freezed
-class Versions with _$Versions {
+sealed class Versions with _$Versions {
   const factory Versions({
     @JsonKey(name: "PackageVersion") String? packageVersion,
     @JsonKey(name: "DefaultLocale") DefaultLocale? defaultLocale,
@@ -36,7 +36,7 @@ class Versions with _$Versions {
 }
 
 @freezed
-class DefaultLocale with _$DefaultLocale {
+sealed class DefaultLocale with _$DefaultLocale {
   const factory DefaultLocale({
     @JsonKey(name: 'PackageName') String? packageName,
   }) = _DefaultLocale;
@@ -46,7 +46,7 @@ class DefaultLocale with _$DefaultLocale {
 }
 
 @freezed
-class Installers with _$Installers {
+sealed class Installers with _$Installers {
   const factory Installers({
     @JsonKey(name: "InstallerSha256") String? installerSha256,
     @JsonKey(name: "InstallerUrl") String? installerUrl,
@@ -62,7 +62,7 @@ class Installers with _$Installers {
 }
 
 @freezed
-class InstallerSwitches with _$InstallerSwitches {
+sealed class InstallerSwitches with _$InstallerSwitches {
   const factory InstallerSwitches({@JsonKey(name: "Silent") String? silent}) =
       _InstallerSwitches;
 
