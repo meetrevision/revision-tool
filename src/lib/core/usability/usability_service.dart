@@ -146,6 +146,10 @@ class UsabilityService {
       'Allow',
     );
 
+    for (final page in ["notifications", "privacy-notifications"]) {
+      WinRegistryService.unhidePageVisibilitySettings(page);
+    }
+    
     final wpnServices = WinRegistryService.getUserServices('Wpn');
 
     for (final service in wpnServices) {
@@ -159,6 +163,8 @@ class UsabilityService {
 
     await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
     await Process.run('explorer.exe', [], runInShell: true);
+
+
   }
 
   Future<void> disableNotification() async {
