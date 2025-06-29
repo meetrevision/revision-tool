@@ -112,6 +112,6 @@
   "securityDownfallMitDescription":"用於緩解 Downfall 漏洞的補丁，禁用此功能可能會帶來更好的性能",
   "securityDownfallMitCodeSnippet":"在啟用 Hyper-V（虛擬化）時禁用緩解措施不在此當前實現的範圍內",
   "perfSGMLabel": "服務分組模式",
-  "perfSGMDescription": "「Recommended」是 ReviOS 中的預設選項，建議大多數用戶使用。 \n「Forced」可大幅減少記憶體使用量，但會導致某些服務無法正常運作，例如 Xbox",
+  "perfSGMDescription": "「Recommended」是 ReviOS 中的預設選項，建議大多數用戶使用。\n「Forced」可大幅減少記憶體使用量，但會導致某些服務無法正常運作，例如 Xbox",
   "perfSGMDialog": "此選項可能會破壞某些服務，例如 Xbox。使用它需要您自擔風險。可以透過將其改回「Recommended」來恢復",
 }
