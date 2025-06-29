@@ -111,11 +111,5 @@
     "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
-  ],
-
-  "zh_TW": [
-    "perfSGMLabel",
-    "perfSGMDescription",
-    "perfSGMDialog"
   ]
 }
