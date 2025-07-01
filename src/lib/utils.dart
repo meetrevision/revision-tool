@@ -8,10 +8,9 @@ import 'package:revitool/shared/win_registry_service.dart';
 import 'package:win32_registry/win32_registry.dart';
 
 final String mainPath = Platform.resolvedExecutable;
-final String directoryExe =
-    Directory(
-      "${mainPath.substring(0, mainPath.lastIndexOf("\\"))}\\data\\flutter_assets\\additionals",
-    ).path;
+final String directoryExe = Directory(
+  "${mainPath.substring(0, mainPath.lastIndexOf("\\"))}\\data\\flutter_assets\\additionals",
+).path;
 
 String systemLanguage =
     WinRegistryService.readString(
@@ -52,20 +51,19 @@ final logger = Logger(
   output: AdvancedFileOutput(overrideExisting: true, path: tempReviPath),
 );
 
-typedef IsRunningCFunc = Int32 Function(Pointer<Utf16>);
-typedef IsRunningCDart = int Function(Pointer<Utf16>);
+typedef IsRunningFunc = Int32 Function(Pointer<Utf16>);
+typedef IsRunningDart = int Function(Pointer<Utf16>);
 
 bool isProcessRunning(String name) {
-  final dllPath =
-      const bool.fromEnvironment("dart.vm.product")
-          ? path.join(
-            mainPath.substring(0, mainPath.lastIndexOf("\\")),
-            'process_checker.dll',
-          )
-          : path.join(
-            path.current.substring(0, path.current.lastIndexOf('\\')),
-            'native_utils\\process_checker.dll',
-          ); // for dev purposes
+  final dllPath = const bool.fromEnvironment("dart.vm.product")
+      ? path.join(
+          mainPath.substring(0, mainPath.lastIndexOf("\\")),
+          'process_checker.dll',
+        )
+      : path.join(
+          path.current.substring(0, path.current.lastIndexOf('\\')),
+          'native_utils\\process_checker.dll',
+        ); // for dev purposes
 
   if (!File(dllPath).existsSync()) {
     logger.e('DLL not found: $dllPath');
@@ -74,13 +72,13 @@ bool isProcessRunning(String name) {
 
   final dylib = DynamicLibrary.open(dllPath);
 
-  final isRunningC = dylib.lookupFunction<IsRunningCFunc, IsRunningCDart>(
-    'IsRunningC',
+  final isRunning = dylib.lookupFunction<IsRunningFunc, IsRunningDart>(
+    'IsRunning',
   );
 
   final processName = name.toNativeUtf16();
-  final result = isRunningC(processName);
+  final result = isRunning(processName);
   calloc.free(processName);
 
-  return result == 0;
+  return result == 1;
 }
