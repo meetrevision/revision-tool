@@ -86,7 +86,6 @@ bool isProcessRunning(String name) {
 /// PowerShell helper for executing commands with faster startup time
 Future<String> runPSCommand(String command) async {
   final result = await Process.run('powershell', [
-    '-EP Unrestricted',
     '-NoProfile',
     '-NonInteractive',
     '-NoLogo',
