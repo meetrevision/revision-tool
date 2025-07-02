@@ -2,17 +2,16 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:process_run/shell_run.dart';
 import 'package:revitool/core/ms_store/ms_store_command.dart';
 import 'package:revitool/core/security/security_service.dart';
 import 'package:revitool/core/winsxs/win_package_service.dart';
 import 'package:revitool/shared/win_registry_service.dart';
+import 'package:revitool/utils.dart';
 
 class WindowsPackageCommand extends Command<String> {
   static final _winPackageService = WinPackageService();
   static final _msStoreCommand = MSStoreCommand();
   static final _securityService = SecurityService();
-  static final _shell = Shell();
 
   static const tag = "[Windows Package]";
 
@@ -23,6 +22,21 @@ class WindowsPackageCommand extends Command<String> {
   String get name => 'winpackage';
 
   WindowsPackageCommand() {
+    argParser.addOption(
+      'download',
+      help: 'Downloads a package',
+
+      allowed: const [
+        'system-components-removal',
+        'defender-removal',
+        'ai-removal',
+      ],
+    );
+    argParser.addOption(
+      'download-path',
+      help: 'Custom download path for packages',
+      defaultsTo: WinPackageService.cabPath,
+    );
     argParser.addOption(
       'install',
       help: 'Install a package',
@@ -48,7 +62,12 @@ class WindowsPackageCommand extends Command<String> {
     final installOption = argResults?.option('install');
     final uninstallOption = argResults?.option('uninstall');
 
-    if (installOption != null) {
+    final downloadOption = argResults?.option('download');
+    final downloadPath = argResults?.option('download-path');
+
+    if (downloadOption != null) {
+      await _downloadPackage(downloadOption, downloadPath);
+    } else if (installOption != null) {
       await _installPackage(installOption);
     } else if (uninstallOption != null) {
       await _uninstallPackage(getPackageType(uninstallOption));
@@ -71,6 +90,23 @@ class WindowsPackageCommand extends Command<String> {
     }
   }
 
+  Future<void> _downloadPackage(
+    final String parameter,
+    final String? path,
+  ) async {
+    try {
+      final mode = getPackageType(parameter);
+      stdout.writeln('$tag Downloading package: ${mode.packageName}');
+      final packagePath = await _winPackageService.downloadPackage(
+        mode,
+        path: path,
+      );
+      stdout.writeln(packagePath);
+    } catch (e) {
+      stderr.writeln('$tag $e');
+    }
+  }
+
   Future<void> _installPackage(final String parameter) async {
     try {
       final mode = getPackageType(parameter);
@@ -89,11 +125,11 @@ class WindowsPackageCommand extends Command<String> {
       if (mode == WinPackageType.aiRemoval) {
         WinRegistryService.hidePageVisibilitySettings("aicomponents");
         WinRegistryService.hidePageVisibilitySettings("privacy-systemaimodels");
-        await _shell.run(
-          'PowerShell -EP Unrestricted -NonInteractive -NoLogo -NoP -C "Disable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart"',
+        await runPSCommand(
+          'Disable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart',
         );
-        await _shell.run(
-          'PowerShell -EP Unrestricted -NonInteractive -NoLogo -NoP -C "Get-AppxPackage -AllUsers Microsoft.Copilot* | Remove-AppxPackage"',
+        await runPSCommand(
+          'Get-AppxPackage -AllUsers Microsoft.Copilot* | Remove-AppxPackage',
         );
       }
     } catch (e) {
@@ -111,8 +147,8 @@ class WindowsPackageCommand extends Command<String> {
     if (packageType == WinPackageType.aiRemoval) {
       WinRegistryService.unhidePageVisibilitySettings("aicomponents");
       WinRegistryService.unhidePageVisibilitySettings("privacy-systemaimodels");
-      await _shell.run(
-        'PowerShell -EP Unrestricted -NonInteractive -NoLogo -NoP -C "Enable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart"',
+      await runPSCommand(
+        'Enable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart',
       );
       await _msStoreCommand.installPackage(
         id: "9nht9rb2f4hd",

@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:path/path.dart' as p;
-import 'package:process_run/shell.dart';
 import 'package:revitool/shared/network_service.dart';
 import 'package:revitool/shared/win_registry_service.dart';
+import 'package:revitool/utils.dart';
 
 import 'package:win32_registry/win32_registry.dart';
 
@@ -25,7 +25,6 @@ class WinPackageService {
   const WinPackageService._private();
 
   static final _networkService = NetworkService();
-  static final _shell = Shell();
 
   static final cabPath = p.join(
     Directory.systemTemp.path,
@@ -65,15 +64,13 @@ class WinPackageService {
         lastError == null;
   }
 
-  Future<String> downloadPackage(final WinPackageType packageType) async {
-    final cabPath = p.join(Directory.systemTemp.path, 'Revision-Tool', 'CAB');
-    if (await Directory(cabPath).exists()) {
-      try {
-        await Directory(cabPath).delete(recursive: true);
-      } catch (e) {
-        stderr.writeln('Failed to delete CAB directory: $e');
-      }
-    }
+  Future<String> downloadPackage(
+    final WinPackageType packageType, {
+    String? path,
+  }) async {
+    final downloadPath = path ?? cabPath;
+
+    Directory(downloadPath).createSync(recursive: true);
 
     final List<dynamic> assests = (await _networkService.getGHLatestRelease(
       ApiEndpoints.cabPackages,
@@ -90,30 +87,44 @@ class WinPackageService {
       throw 'No matching package found for ${packageType.packageName} with architecture ${WinRegistryService.cpuArch}';
     }
 
-    final downloadPath = "$cabPath\\$name";
-    await _networkService.downloadFile(downloadUrl, downloadPath);
-    if (!File(downloadPath).existsSync()) {
+    final filePath = p.join(downloadPath, name);
+
+    await _networkService.downloadFile(downloadUrl, filePath);
+    if (!File(filePath).existsSync()) {
       throw 'Failed to download package: $name';
     }
 
-    return downloadPath;
+    return filePath;
   }
 
   Future<void> installPackage(final String packagePath) async {
+    if (!File(packagePath).existsSync()) {
+      throw 'Package file does not exist: $packagePath';
+    }
+
+    String certValue = await runPSCommand(
+      '(Get-AuthenticodeSignature -FilePath "$packagePath").SignerCertificate.Extensions.EnhancedKeyUsages.Value',
+    );
+
+    if (certValue.isEmpty || certValue != '1.3.6.1.4.1.311.10.3.6') {
+      throw '[win_package] invalid signature: $packagePath';
+    }
+
     WinRegistryService.createKey(
       Registry.localMachine,
       r'Software\Microsoft\SystemCertificates\ROOT\Certificates\8A334AA8052DD244A647306A76B8178FA215F344',
     );
 
     // running it via TrustedInstaller causes 'Win32 internal error "Access is denied" 0x5 occurred while reading the console output buffer'
-    await _shell.run(
-      "powershell -EP Unrestricted -NoLogo -NonInteractive -NoP -C \"Add-WindowsPackage -Online -NoRestart -IgnoreCheck -PackagePath '$packagePath'\"",
+    await runPSCommand(
+      'Add-WindowsPackage -Online -NoRestart -IgnoreCheck -PackagePath "$packagePath"',
     );
+    await File(packagePath).delete();
   }
 
   Future<void> uninstallPackage(final WinPackageType packageType) async {
-    await _shell.run(
-      'PowerShell -EP Unrestricted -NonInteractive -NoLogo -NoP -C "Get-WindowsPackage -Online -PackageName \'${packageType.packageName}*\' | Remove-WindowsPackage -Online -NoRestart"',
+    await runPSCommand(
+      'Get-WindowsPackage -Online -PackageName "${packageType.packageName}*" | Remove-WindowsPackage -Online -NoRestart',
     );
   }
 }

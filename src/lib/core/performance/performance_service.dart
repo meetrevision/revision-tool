@@ -124,15 +124,11 @@ class PerformanceService {
   }
 
   Future<void> enableMemoryCompression() async {
-    await _shell.run(
-      'PowerShell -NonInteractive -NoLogo -NoProfile -Command "Enable-MMAgent -mc"',
-    );
+    await runPSCommand('Enable-MMAgent -mc');
   }
 
   Future<void> disableMemoryCompression() async {
-    await _shell.run(
-      'PowerShell -NonInteractive -NoLogo -NoProfile -Command "Disable-MMAgent -mc"',
-    );
+    await runPSCommand('Disable-MMAgent -mc');
   }
 
   bool get statusIntelTSX {

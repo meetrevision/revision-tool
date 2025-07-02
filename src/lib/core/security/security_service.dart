@@ -324,8 +324,8 @@ class SecurityService {
       );
 
       if (File(_mpCmdRunString).existsSync()) {
-        await _shell.run(
-          "PowerShell -EP Unrestricted -NonInteractive -NoLogo -NoP -C 'Start-Process -FilePath \"$_mpCmdRunString\" -ArgumentList \"-RemoveDefinitions -All\" -NoNewWindow -Wait'",
+        await runPSCommand(
+          'Start-Process -FilePath "$_mpCmdRunString" -ArgumentList "-RemoveDefinitions -All" -NoNewWindow -Wait',
         );
       }
 

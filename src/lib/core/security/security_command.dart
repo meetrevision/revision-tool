@@ -3,13 +3,11 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 
-import 'package:process_run/shell_run.dart';
 import 'package:revitool/core/security/security_service.dart';
 import 'package:revitool/utils.dart';
 
 class SecurityCommand extends Command<String> {
   static final _securityService = SecurityService();
-  static final _shell = Shell();
   String get tag => "[Security - Defender]";
 
   @override
@@ -71,8 +69,8 @@ Virus and Threat Protections Status: ${_securityService.statusDefenderProtection
       }
 
       if (!_securityService.statusDefenderProtectionTamper) {
-        await _shell.run(
-          'PowerShell -EP Unrestricted -NonInteractive -NoLogo -NoP Set-MpPreference -DisableRealtimeMonitoring \$true',
+        await runPSCommand(
+          'Set-MpPreference -DisableRealtimeMonitoring \$true',
         );
         break;
       }
