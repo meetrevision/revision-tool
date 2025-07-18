@@ -6,6 +6,7 @@
 #define MyAppPublisher "MeetRevision"
 #define MyAppURL "https://www.revi.cc/"
 #define MyAppExeName "revitoolw.exe"
+#include "CodeDependencies.iss"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -45,9 +46,6 @@ Source: "{#SourcePath}\src\build\windows\x64\runner\Release\window_plus_plugin.d
 Source: "{#SourcePath}\src\build\windows\x64\runner\Release\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourcePath}\src\build\windows\x64\runner\Release\system_theme_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourcePath}\src\build\windows\x64\runner\Release\flutter_acrylic_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\src\dlls\msvcp140.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\src\dlls\vcruntime140.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\src\dlls\vcruntime140_1.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourcePath}\src\build\windows\x64\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; FFI
 Source: "{#SourcePath}\native_utils\process_checker.dll"; DestDir: "{app}"; Flags: ignoreversion
@@ -60,3 +58,9 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: runascurrentuser nowait postinstall skipifsilent
 
+[Code]
+function InitializeSetup: Boolean;
+begin
+  Dependency_AddVC2015To2022;
+  Result := True;
+end;

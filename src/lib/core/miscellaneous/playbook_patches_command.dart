@@ -2,11 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:revitool/core/miscellaneous/miscellaneous_service.dart';
 
 class PlaybookPatchesCommand extends Command<String> {
-  static final _miscellaneousService = MiscellaneousService();
-
   static const tag = "[Playbook Patches]";
 
   @override
@@ -36,7 +33,5 @@ Something went wrong. Please try again.
     exit(0);
   }
 
-  Future<void> applyPatches() async {
-    await _miscellaneousService.updateKGL();
-  }
+  Future<void> applyPatches() async {}
 }

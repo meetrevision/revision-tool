@@ -54,6 +54,8 @@ jobs:
       
       - name: Build Installer
         run: |
+          git clone https://github.com/DomGries/InnoDependencyInstaller
+          copy InnoDependencyInstaller\CodeDependencies.iss .
           "%programfiles(x86)%\Inno Setup 6\iscc.exe" "inno-setup.iss"
         shell: cmd
 
