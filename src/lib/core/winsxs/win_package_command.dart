@@ -21,16 +21,18 @@ class WindowsPackageCommand extends Command<String> {
   @override
   String get name => 'winpackage';
 
+  static const allowedList = [
+    'system-components-removal',
+    'defender-removal',
+    'ai-removal',
+    'onedrive-removal',
+  ];
+
   WindowsPackageCommand() {
     argParser.addOption(
       'download',
       help: 'Downloads a package',
-
-      allowed: const [
-        'system-components-removal',
-        'defender-removal',
-        'ai-removal',
-      ],
+      allowed: allowedList,
     );
     argParser.addOption(
       'download-path',
@@ -40,20 +42,12 @@ class WindowsPackageCommand extends Command<String> {
     argParser.addOption(
       'install',
       help: 'Install a package',
-      allowed: const [
-        'system-components-removal',
-        'defender-removal',
-        'ai-removal',
-      ],
+      allowed: allowedList,
     );
     argParser.addOption(
       'uninstall',
       help: 'Uninstall a package',
-      allowed: const [
-        'system-components-removal',
-        'defender-removal',
-        'ai-removal',
-      ],
+      allowed: allowedList,
     );
   }
 
