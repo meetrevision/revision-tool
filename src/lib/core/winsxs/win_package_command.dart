@@ -21,12 +21,15 @@ class WindowsPackageCommand extends Command<String> {
   @override
   String get name => 'winpackage';
 
-  static const allowedList = [
-    'system-components-removal',
-    'defender-removal',
-    'ai-removal',
-    'onedrive-removal',
-  ];
+  static const packageList = {
+    'system-components-removal': WinPackageType.systemComponentsRemoval,
+    'defender-removal': WinPackageType.defenderRemoval,
+    'ai-removal': WinPackageType.aiRemoval,
+    'onedrive-removal': WinPackageType.oneDriveRemoval,
+  };
+
+  static List<String> get allowedList =>
+      packageList.keys.toList(growable: false);
 
   WindowsPackageCommand() {
     argParser.addOption(
@@ -72,16 +75,12 @@ class WindowsPackageCommand extends Command<String> {
   }
 
   WinPackageType getPackageType(final String package) {
-    switch (package) {
-      case 'system-components-removal':
-        return WinPackageType.systemComponentsRemoval;
-      case 'defender-removal':
-        return WinPackageType.defenderRemoval;
-      case 'ai-removal':
-        return WinPackageType.aiRemoval;
-      default:
-        throw Exception('Invalid package: $package');
+    final type = packageList[package];
+    if (type == null) {
+      stderr.writeln('$tag Invalid package type: $package');
+      exit(1);
     }
+    return type;
   }
 
   Future<void> _downloadPackage(
