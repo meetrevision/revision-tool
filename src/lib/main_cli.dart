@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:revitool/core/miscellaneous/miscellaneous_command.dart';
 
 import 'package:revitool/core/ms_store/ms_store_command.dart';
 import 'package:revitool/core/miscellaneous/playbook_patches_command.dart';
@@ -35,7 +36,8 @@ Future<void> main(List<String> args) async {
         ..addCommand(MSStoreCommand())
         ..addCommand(SecurityCommand())
         ..addCommand(WindowsPackageCommand())
-        ..addCommand(PlaybookPatchesCommand());
+        ..addCommand(PlaybookPatchesCommand())
+        ..addCommand(MiscellaneousCommand());
   await runner.run(args);
   exit(0);
 }
