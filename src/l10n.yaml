@@ -4,7 +4,7 @@ output-localization-file: localizations.dart
 output-dir: lib/l10n/generated
 template-arb-file: intl_en.arb
 preferred-supported-locales: ["en"]
-synthetic-package: false
+# synthetic-package: false
 nullable-getter: false
 format: false
 untranslated-messages-file: lib/l10n/untranslated.json

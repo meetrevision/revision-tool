@@ -169,28 +169,28 @@ class PerformanceService {
 
   void enableFullscreenOptimization() {
     WinRegistryService.writeRegistryValue(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'System\GameConfigStore',
       'GameDVR_FSEBehaviorMode',
       0,
     );
     WinRegistryService.deleteValue(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'System\GameConfigStore',
       'GameDVR_FSEBehavior',
     );
     WinRegistryService.deleteValue(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'System\GameConfigStore',
       'GameDVR_HonorUserFSEBehaviorMode',
     );
     WinRegistryService.deleteValue(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'System\GameConfigStore',
       'GameDVR_DXGIHonorFSEWindowsCompatible',
     );
     WinRegistryService.deleteValue(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'System\GameConfigStore',
       'GameDVR_EFSEFeatureFlags',
     );
@@ -225,31 +225,31 @@ class PerformanceService {
 
   void disableFullscreenOptimization() {
     WinRegistryService.writeRegistryValue(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'System\GameConfigStore',
       'GameDVR_FSEBehaviorMode',
       2,
     );
     WinRegistryService.writeRegistryValue(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'System\GameConfigStore',
       'GameDVR_HonorUserFSEBehaviorMode',
       1,
     );
     WinRegistryService.writeRegistryValue(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'System\GameConfigStore',
       'GameDVR_DXGIHonorFSEWindowsCompatible',
       1,
     );
     WinRegistryService.writeRegistryValue(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'System\GameConfigStore',
       'GameDVR_EFSEFeatureFlags',
       0,
     );
     WinRegistryService.writeRegistryValue(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'System\GameConfigStore',
       'GameDVR_FSEBehavior',
       2,
@@ -292,7 +292,7 @@ class PerformanceService {
     }
 
     WinRegistryService.writeRegistryValue(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'Software\Microsoft\DirectX\UserGpuPreferences',
       'DirectXUserGlobalSettings',
       newValue,
@@ -315,7 +315,7 @@ class PerformanceService {
     }
 
     WinRegistryService.writeRegistryValue(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'Software\Microsoft\DirectX\UserGpuPreferences',
       'DirectXUserGlobalSettings',
       newValue,
@@ -345,7 +345,7 @@ class PerformanceService {
 
   void enableBackgroundApps() {
     WinRegistryService.deleteValue(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'Software\Microsoft\Windows\CurrentVersion\Search',
       'BackgroundAppGlobalToggle',
     );
@@ -356,7 +356,7 @@ class PerformanceService {
     );
 
     WinRegistryService.deleteValue(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications',
       'GlobalUserDisabled',
     );
@@ -369,14 +369,14 @@ class PerformanceService {
 
   void disableBackgroundApps() {
     WinRegistryService.writeRegistryValue(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'Software\Microsoft\Windows\CurrentVersion\Search',
       'BackgroundAppGlobalToggle',
       0,
     );
 
     WinRegistryService.writeRegistryValue(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications',
       'GlobalUserDisabled',
       1,

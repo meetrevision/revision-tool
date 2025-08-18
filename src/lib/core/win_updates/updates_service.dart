@@ -141,7 +141,7 @@ class WinUpdatesService {
 
   void enableDriversWU() {
     WinRegistryService.deleteKey(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'Software\Policies\Microsoft\Windows\DriverSearching',
     );
     WinRegistryService.deleteKey(
@@ -169,7 +169,7 @@ class WinUpdatesService {
 
   void disableDriversWU() {
     WinRegistryService.writeRegistryValue(
-      Registry.currentUser,
+      WinRegistryService.currentUser,
       r'Software\Policies\Microsoft\Windows\DriverSearching',
       'DontPromptForWindowsUpdate',
       1,

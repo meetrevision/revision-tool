@@ -238,13 +238,13 @@ sc start DPS
       final kgl = KGLModel.fromJson(json.data['settings']);
 
       WinRegistryService.writeRegistryValue(
-        Registry.currentUser,
+        WinRegistryService.currentUser,
         r'Software\Microsoft\Windows\CurrentVersion\GameDVR',
         'KGLRevision',
         kgl.version,
       );
       WinRegistryService.writeRegistryValue(
-        Registry.currentUser,
+        WinRegistryService.currentUser,
         r'Software\Microsoft\Windows\CurrentVersion\GameDVR',
         'KGLToGCSUpdatedRevision',
         kgl.version,

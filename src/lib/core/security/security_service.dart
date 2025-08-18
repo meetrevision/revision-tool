@@ -211,7 +211,7 @@ class SecurityService {
       }
 
       WinRegistryService.deleteKey(
-        Registry.currentUser,
+        WinRegistryService.currentUser,
         r'Software\Microsoft\Windows\CurrentVersion\Policies\Associations',
       );
       WinRegistryService.writeRegistryValue(
@@ -227,12 +227,12 @@ class SecurityService {
       );
 
       WinRegistryService.deleteValue(
-        Registry.currentUser,
+        WinRegistryService.currentUser,
         r'Software\Microsoft\Windows\CurrentVersion\AppHost',
         'EnableWebContentEvaluation',
       );
       WinRegistryService.deleteValue(
-        Registry.currentUser,
+        WinRegistryService.currentUser,
         r'Software\Microsoft\Windows\CurrentVersion\AppHost',
         'PreventOverride',
       );

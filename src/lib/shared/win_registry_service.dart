@@ -1,10 +1,13 @@
 import 'dart:typed_data';
 
+import 'package:process_run/shell_run.dart';
 import 'package:revitool/utils.dart';
 import 'package:win32_registry/win32_registry.dart';
 
 class WinRegistryService {
   const WinRegistryService._private();
+
+  static final _shell = Shell();
 
   static int get buildNumber => _buildNumber;
   static final int _buildNumber = int.parse(
@@ -15,15 +18,18 @@ class WinRegistryService {
     )!,
   );
 
+  static final currentUser = Registry.currentUser;
+  static const defaultUser = 'DefaultUserHive';
+  static const defaultUserHivePath = "C:\\Users\\Default\\NTUSER.DAT";
+
   static bool get isW11 => _w11;
   static final bool _w11 = buildNumber > 19045;
 
-  static final String cpuArch =
-      WinRegistryService.readString(
-        RegistryHive.localMachine,
-        r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
-        'PROCESSOR_ARCHITECTURE',
-      )!.toLowerCase();
+  static final String cpuArch = WinRegistryService.readString(
+    RegistryHive.localMachine,
+    r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
+    'PROCESSOR_ARCHITECTURE',
+  )!.toLowerCase();
 
   static bool get isSupported {
     return _validate() ||
@@ -177,12 +183,14 @@ class WinRegistryService {
     }
   }
 
-  static Future<void> writeRegistryValue(
+  static Future<void> writeRegistryValue<T extends Object>(
     RegistryKey key,
     String path,
     String name,
-    dynamic value,
+    T value,
   ) async {
+    bool shouldClose = key != WinRegistryService.currentUser;
+
     try {
       final registryValue = switch (value) {
         final int v => RegistryValue.int32(name, v),
@@ -190,13 +198,28 @@ class WinRegistryService {
         final List<String> v => RegistryValue.stringArray(name, v),
         // final List<int> v => RegistryValue.binary(name, Uint8List.fromList(v)),
         final Uint8List v => RegistryValue.binary(name, v),
-        final _ =>
-          throw ArgumentError('Unsupported type: ${value.runtimeType}'),
+        final _ => throw ArgumentError(
+          'Unsupported type: ${value.runtimeType}',
+        ),
       };
       key.createKey(path).createValue(registryValue);
+
+      if (key == WinRegistryService.currentUser) {
+        await _shell.run(
+          '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /c "reg load HKU\\$defaultUser $defaultUserHivePath"',
+        );
+        final reg = Registry.allUsers;
+        reg.createKey('$defaultUser\\$path').createValue(registryValue);
+        reg.close();
+      }
+
       logger.i('Added $name: $value to $path');
     } catch (e) {
       logger.w('Error writing $name - $e');
+    } finally {
+      if (shouldClose) {
+        key.close();
+      }
     }
   }
 
