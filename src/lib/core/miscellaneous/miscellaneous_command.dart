@@ -3,9 +3,10 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:revitool/core/miscellaneous/miscellaneous_service.dart';
+import 'package:revitool/utils.dart';
 
 class MiscellaneousCommand extends Command<String> {
-  static const tag = "[Miscellaneous]";
+  static const tag = "Miscellaneous";
   final _miscService = MiscellaneousService();
 
   @override
@@ -17,13 +18,11 @@ class MiscellaneousCommand extends Command<String> {
   MiscellaneousCommand() {
     argParser.addCommand('hibernate')
       ..addFlag('enable', negatable: false, help: 'Enable hibernation')
-      ..addFlag('disable', negatable: false, help: 'Disable hibernation')
-      ..addFlag('status', negatable: false, help: 'Show hibernation status');
+      ..addFlag('disable', negatable: false, help: 'Disable hibernation');
 
     argParser.addCommand('fast-startup')
       ..addFlag('enable', negatable: false, help: 'Enable fast startup')
-      ..addFlag('disable', negatable: false, help: 'Disable fast startup')
-      ..addFlag('status', negatable: false, help: 'Show fast startup status');
+      ..addFlag('disable', negatable: false, help: 'Disable fast startup');
   }
 
   @override
@@ -49,38 +48,22 @@ class MiscellaneousCommand extends Command<String> {
   }
 
   Future<void> _handleHibernate(ArgResults command) async {
-    if (command['status']) {
-      final status = _miscService.statusHibernation;
-      stdout.writeln('$tag Hibernation is ${status ? "enabled" : "disabled"}');
-      return;
-    }
-
     if (command['enable']) {
-      stdout.writeln('$tag Enabling hibernation...');
       await _miscService.enableHibernation();
-      stdout.writeln('$tag Hibernation enabled');
+      logger.i('$name: Hibernation enabled');
     } else if (command['disable']) {
-      stdout.writeln('$tag Disabling hibernation...');
       await _miscService.disableHibernation();
-      stdout.writeln('$tag Hibernation disabled');
+      logger.i('$name: Hibernation disabled');
     }
   }
 
   Future<void> _handleFastStartup(ArgResults command) async {
-    if (command['status']) {
-      final status = _miscService.statusFastStartup;
-      stdout.writeln('$tag Fast Startup is ${status ? "enabled" : "disabled"}');
-      return;
-    }
-
     if (command['enable']) {
-      stdout.writeln('$tag Enabling Fast Startup...');
       _miscService.enableFastStartup();
-      stdout.writeln('$tag Fast Startup enabled');
+      logger.i('$name: Fast Startup enabled');
     } else if (command['disable']) {
-      stdout.writeln('$tag Disabling Fast Startup...');
       _miscService.disableFastStartup();
-      stdout.writeln('$tag Fast Startup disabled');
+      logger.i('$name: Fast Startup disabled');
     }
   }
 }

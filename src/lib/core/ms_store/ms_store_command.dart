@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:revitool/core/ms_store/msstore_service.dart';
+import 'package:revitool/utils.dart';
 
 class MSStoreCommand extends Command<String> {
   static final _msStoreService = MSStoreService();
@@ -48,7 +49,8 @@ class MSStoreCommand extends Command<String> {
     );
   }
 
-  String get tag => "[MS Store]";
+  String get tag => "MS Store";
+
   @override
   String get description =>
       "[$name] Downloads and optionally installs free apps from MS Store";
@@ -80,21 +82,32 @@ class MSStoreCommand extends Command<String> {
     required String arch,
     required bool downloadOnly,
   }) async {
-    stdout.writeln('$tag Starting process - $id ($ring)');
+    logger.i(
+      '$name(installPackage): Starting id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
+    );
     try {
       await _msStoreService.startProcess(id, ring);
     } catch (e) {
-      stderr.writeln(e.toString());
-      stderr.writeln('$tag Failed to get any information for $id');
+      logger.e(
+        '$name(installPackage): Failed to start process for id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
+        error: e,
+        stackTrace: StackTrace.current,
+      );
       exit(1);
     }
 
     if (_msStoreService.packages.isEmpty) {
-      stderr.writeln('$tag Failed to get any information for $id');
+      logger.e(
+        '$name(installPackage): No packages found for id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
+        error: 'No packages found',
+        stackTrace: StackTrace.current,
+      );
       exit(1);
     }
 
-    stdout.writeln('$tag Downloading $id...');
+    logger.i(
+      '$name(installPackage): Downloading id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
+    );
     final downloadResult = await _msStoreService.downloadPackages(
       id,
       ring,
@@ -102,38 +115,58 @@ class MSStoreCommand extends Command<String> {
     );
 
     if (downloadResult.isEmpty || downloadResult.first.statusCode != 200) {
-      stderr.writeln('$tag Failed to download $id');
+      logger.e(
+        '$name(installPackage): Download failed for id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
+        error: 'Download failed',
+      );
       exit(1);
     }
 
     if (downloadOnly) {
       final downloadPath = "${_msStoreService.storeFolder}\\$id\\$ring";
-      stdout.writeln('$tag Downloaded $id successfully');
+      logger.i(
+        '$name(installPackage): Downloaded $id successfully to $downloadPath. downloadOnly=$downloadOnly therefore not installing',
+      );
       stdout.writeln(downloadPath);
       return;
     }
 
-    stdout.writeln('$tag Installing $id...');
+    logger.i(
+      '$name(installPackage): Installing id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
+    );
     final installResult = await _msStoreService.installPackages(id, ring);
 
     bool areResultsZero = true;
     for (final e in installResult) {
       if (e.exitCode != 0) {
-        stderr.writeln(e.errText);
-        stdout.writeln(e.outText);
+        logger.e(
+          '$name(installPackage): Installation failed for id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly; ${e.outText}',
+          error: e.errText,
+          stackTrace: StackTrace.current,
+        );
         areResultsZero = false;
         break;
       }
     }
 
     if (installResult.isEmpty || !areResultsZero) {
-      stderr.writeln('$tag Failed to install $id');
+      logger.e(
+        '$name(installPackage): Installation failed for id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
+        error: 'Installation failed',
+        stackTrace: StackTrace.current,
+      );
       exit(1);
     }
-    stdout.writeln('$tag Successfully installed $id');
+
+    logger.i(
+      '$name(installPackage): Successfully installed id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
+    );
 
     if (!downloadOnly) {
       await _msStoreService.cleanUpDownloads();
+      logger.i(
+        '$name(installPackage): Cleaned up downloads for id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
+      );
     }
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
-import 'package:process_run/shell_run.dart';
 import 'package:revitool/core/ms_store/non_uwp_response_dto.dart';
 import 'package:revitool/core/ms_store/packages_info_dto.dart';
 import 'package:revitool/core/ms_store/product.dart';
@@ -10,6 +9,7 @@ import 'package:revitool/core/ms_store/update_response.dart';
 import 'package:revitool/shared/network_service.dart';
 import 'package:revitool/shared/win_registry_service.dart';
 import 'package:revitool/utils.dart';
+import 'package:process_run/shell_run.dart';
 
 import 'package:xml/xml.dart' as xml;
 
@@ -27,12 +27,15 @@ class MSStoreService {
       "${Directory.systemTemp.path}\\Revision-Tool\\MSStore";
   String get storeFolder => _storeFolder;
 
-  static final _cookieFile =
-      File('$directoryExe\\msstore\\cookie.xml').readAsStringSync();
-  static final _urlFile =
-      File('$directoryExe\\msstore\\url.xml').readAsStringSync();
-  static final _wuFile =
-      File('$directoryExe\\msstore\\wu.xml').readAsStringSync();
+  static final _cookieFile = File(
+    '$directoryExe\\msstore\\cookie.xml',
+  ).readAsStringSync();
+  static final _urlFile = File(
+    '$directoryExe\\msstore\\url.xml',
+  ).readAsStringSync();
+  static final _wuFile = File(
+    '$directoryExe\\msstore\\wu.xml',
+  ).readAsStringSync();
   static const _fe3Delivery =
       "https://fe3.delivery.mp.microsoft.com/ClientWebService/client.asmx";
   static const _storeAPI = "https://storeedgefd.dsx.mp.microsoft.com/v9.0";
@@ -280,10 +283,11 @@ class MSStoreService {
 
     final doc = document.findAllElements('SyncUpdatesResult').first;
 
-    for (final updateElement in doc
-        .getElement('ExtendedUpdateInfo')!
-        .getElement('Updates')!
-        .findElements('Update')) {
+    for (final updateElement
+        in doc
+            .getElement('ExtendedUpdateInfo')!
+            .getElement('Updates')!
+            .findElements('Update')) {
       final id = updateElement.getElement('ID')!.innerText;
 
       final xmlElement = updateElement.getElement('Xml');
@@ -312,14 +316,12 @@ class MSStoreService {
             packageFullName: packageFullName,
             digest: fileElement.getAttribute('Digest'),
             digestAlgorithm: fileElement.getAttribute('DigestAlgorithm'),
-            size:
-                fileElement.getAttribute('Size') != null
-                    ? int.tryParse(fileElement.getAttribute('Size')!)
-                    : null,
-            modifiedDate:
-                fileElement.getAttribute('Modified') != null
-                    ? DateTime.parse(fileElement.getAttribute('Modified')!)
-                    : null,
+            size: fileElement.getAttribute('Size') != null
+                ? int.tryParse(fileElement.getAttribute('Size')!)
+                : null,
+            modifiedDate: fileElement.getAttribute('Modified') != null
+                ? DateTime.parse(fileElement.getAttribute('Modified')!)
+                : null,
           ),
         );
       }
@@ -332,10 +334,9 @@ class MSStoreService {
           contentType: propsElement.getAttribute('ContentType'),
           isAppxFramework:
               propsElement.getAttribute('IsAppxFramework') == 'true',
-          creationDate:
-              propsElement.getAttribute('CreationDate') != null
-                  ? DateTime.parse(propsElement.getAttribute('CreationDate')!)
-                  : null,
+          creationDate: propsElement.getAttribute('CreationDate') != null
+              ? DateTime.parse(propsElement.getAttribute('CreationDate')!)
+              : null,
           packageIdentityName: propsElement.getAttribute('PackageIdentityName'),
         );
 
@@ -349,9 +350,8 @@ class MSStoreService {
       }
     }
 
-    for (final updateInfoElement in doc
-        .getElement('NewUpdates')!
-        .findElements('UpdateInfo')) {
+    for (final updateInfoElement
+        in doc.getElement('NewUpdates')!.findElements('UpdateInfo')) {
       final id = updateInfoElement.getElement('ID')?.innerText ?? '';
 
       if (id.isEmpty) continue;
@@ -490,8 +490,9 @@ class MSStoreService {
   ) async {
     final path = "$_storeFolder\\$productId\\$ring";
     final downloadFutures = <Future<Response>>[];
-    final archToDownload =
-        WinRegistryService.cpuArch == "amd64" ? "x64" : "arm64";
+    final archToDownload = WinRegistryService.cpuArch == "amd64"
+        ? "x64"
+        : "arm64";
 
     for (final item in _packagesCache[productId]!.packages) {
       if (arch != 'all') {

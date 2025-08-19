@@ -25,8 +25,9 @@ Future<void> main(List<String> args) async {
     }
     exit(1);
   }
+  const tag = 'cli_main:';
 
-  logger.i('Revision Tool CLI is starting');
+  logger.i('$tag Revision Tool CLI is starting');
 
   final runner =
       CommandRunner<String>(

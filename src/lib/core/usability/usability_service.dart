@@ -2,14 +2,13 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
-import 'package:process_run/shell_run.dart';
 import 'package:revitool/shared/win_registry_service.dart';
+import 'package:revitool/utils.dart';
 import 'package:win32_registry/win32_registry.dart';
 
 enum NotificationMode { on, offMinimal, offFull }
 
 class UsabilityService {
-  static final _shell = Shell();
   static const _listEquality = ListEquality();
 
   static final _cplValue = Uint8List.fromList([
@@ -503,7 +502,7 @@ class UsabilityService {
   }
 
   Future<void> enableNewContextMenu() async {
-    _shell.run(
+    shell.run(
       r'reg delete "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" /f',
     );
     // Error 0x80070005: Access is denied.

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:revitool/core/miscellaneous/kgl_dto.dart';
 import 'package:revitool/core/performance/performance_service.dart';
 import 'package:revitool/shared/win_registry_service.dart';
@@ -7,13 +5,9 @@ import 'package:revitool/utils.dart';
 
 import '../../shared/network_service.dart';
 
-import 'package:process_run/shell_run.dart';
-
 import 'package:win32_registry/win32_registry.dart';
 
 class MiscellaneousService {
-  static final _shell = Shell();
-
   static const _instance = MiscellaneousService._private();
   factory MiscellaneousService() {
     return _instance;
@@ -45,7 +39,7 @@ class MiscellaneousService {
       'HibernateEnabled',
       1,
     );
-    await _shell.run(r'''
+    await shell.run(r'''
                      powercfg -h on
                      powercfg /h /type full
                     ''');
@@ -64,7 +58,7 @@ class MiscellaneousService {
       'HibernateEnabled',
       0,
     );
-    await _shell.run(r'''
+    await shell.run(r'''
 powercfg -h off
 ''');
   }
@@ -75,11 +69,11 @@ powercfg -h off
   // }
 
   // Future<void> setHibernateModeReduced() async {
-  //   await _shell.run('powercfg /h /type reduced');
+  //   await shell.run('powercfg /h /type reduced');
   // }
 
   // Future<void> setHibernateModeFull() async {
-  //   await _shell.run('powercfg /h /type full');
+  //   await shell.run('powercfg /h /type full');
   // }
 
   bool get statusFastStartup {
@@ -155,11 +149,6 @@ powercfg -h off
       'Start',
       2,
     );
-    await _shell.run(r'''
-sc start GraphicsPerfSvc
-sc start Ndu
-sc start DPS
-''');
   }
 
   void disableTMMonitoring() {
@@ -219,13 +208,13 @@ sc start DPS
   }
 
   Future<void> enableUsageReporting() async {
-    await _shell.run(
+    await shell.run(
       '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\EnableUR.bat"',
     );
   }
 
   Future<void> disableUsageReporting() async {
-    await _shell.run(
+    await shell.run(
       '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\DisableUR.bat"',
     );
   }
@@ -283,8 +272,11 @@ sc start DPS
 
       _performanceService.enableBackgroundApps();
     } catch (e) {
-      logger.e('Failed to update KGL.\n\nError: $e');
-      stdout.writeln('Failed to update KGL.\n\nError: $e');
+      logger.e(
+        'Failed to update KGL.',
+        error: e,
+        stackTrace: StackTrace.current,
+      );
       rethrow;
     }
   }

@@ -1,13 +1,11 @@
 import 'dart:typed_data';
 
-import 'package:process_run/shell_run.dart';
 import 'package:revitool/utils.dart';
 import 'package:win32_registry/win32_registry.dart';
 
 class WinRegistryService {
+  static const tag = 'WinRegistryService';
   const WinRegistryService._private();
-
-  static final _shell = Shell();
 
   static int get buildNumber => _buildNumber;
   static final int _buildNumber = int.parse(
@@ -160,7 +158,6 @@ class WinRegistryService {
     try {
       return Registry.openPath(hive, path: path).getIntValue(value);
     } catch (_) {
-      // w('Error reading $value from ${hive.name} $path');
       return null;
     }
   }
@@ -169,7 +166,6 @@ class WinRegistryService {
     try {
       return Registry.openPath(hive, path: path).getStringValue(value);
     } catch (_) {
-      // w('Error reading $value from ${hive.name} $path');
       return null;
     }
   }
@@ -178,7 +174,6 @@ class WinRegistryService {
     try {
       return Registry.openPath(hive, path: path).getBinaryValue(value);
     } catch (_) {
-      // w('Error reading binary $value from $path');
       return null;
     }
   }
@@ -199,23 +194,29 @@ class WinRegistryService {
         // final List<int> v => RegistryValue.binary(name, Uint8List.fromList(v)),
         final Uint8List v => RegistryValue.binary(name, v),
         final _ => throw ArgumentError(
-          'Unsupported type: ${value.runtimeType}',
+          '$tag(writeRegistryValue): Unsupported type: ${value.runtimeType}',
         ),
       };
       key.createKey(path).createValue(registryValue);
+      logger.i('$tag(writeRegistryValue): $path\\$name = $value');
 
       if (key == WinRegistryService.currentUser) {
-        await _shell.run(
+        await shell.run(
           '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /c "reg load HKU\\$defaultUser $defaultUserHivePath"',
         );
         final reg = Registry.allUsers;
         reg.createKey('$defaultUser\\$path').createValue(registryValue);
+        logger.i(
+          '$tag(writeRegistryValue): $defaultUser\\$path\\$name = $value',
+        );
         reg.close();
       }
-
-      logger.i('Added $name: $value to $path');
     } catch (e) {
-      logger.w('Error writing $name - $e');
+      logger.e(
+        '$tag(writeRegistryValue): $path\\$name',
+        error: e,
+        stackTrace: StackTrace.current,
+      );
     } finally {
       if (shouldClose) {
         key.close();
@@ -226,27 +227,39 @@ class WinRegistryService {
   static void deleteValue(RegistryKey key, String path, String name) {
     try {
       key.createKey(path).deleteValue(name);
-      logger.i('Deleted $name from $path');
-    } catch (_) {
-      logger.w('Error deleting $name from $path');
+      logger.i('$tag(deleteValue): $path\\$name');
+    } catch (e) {
+      logger.e(
+        '$tag(deleteValue): $path\\$name',
+        error: e,
+        stackTrace: StackTrace.current,
+      );
     }
   }
 
   static void deleteKey(RegistryKey key, String path) {
     try {
       key.deleteKey(path);
-      logger.i('Deleted $path');
+      logger.i('$tag(deleteKey): $path');
     } catch (e) {
-      logger.w('Error deleting $path');
+      logger.e(
+        '$tag(deleteKey): $path',
+        error: e,
+        stackTrace: StackTrace.current,
+      );
     }
   }
 
   static void createKey(RegistryKey key, String path) {
     try {
       key.createKey(path);
-      logger.i('Created $path');
-    } catch (_) {
-      logger.w('Error creating $path');
+      logger.i('$tag(createKey): $path');
+    } catch (e) {
+      logger.e(
+        '$tag(createKey): $path',
+        error: e,
+        stackTrace: StackTrace.current,
+      );
     }
   }
 }

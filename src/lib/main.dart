@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,12 +18,25 @@ import 'package:window_plus/window_plus.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  const tag = 'gui_main:';
 
-  logger.i('Revision Tool GUI is starting');
+  FlutterError.onError = (details) {
+    logger.e(
+      '$tag gui_main: flutter_framework_error',
+      error: details.exception,
+      stackTrace: details.stack,
+    );
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    logger.e('$tag platform_dispatcher_error', error: error, stackTrace: stack);
+    return true;
+  };
+
+  logger.i('$tag Revision Tool GUI is starting');
 
   if (WinRegistryService.isSupported) {
-    logger.i('isSupported is true');
     _isSupported = true;
+    logger.i('$tag supported=$_isSupported');
   }
 
   if (WinRegistryService.readString(
@@ -31,7 +45,7 @@ Future<void> main() async {
         'ThemeMode',
       ) ==
       null) {
-    logger.i('Creating Revision registry keys');
+    logger.i('$tag Initializing Revision registry keys');
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SOFTWARE\Revision\Revision Tool',
@@ -52,12 +66,12 @@ Future<void> main() async {
     );
   }
 
-  logger.i('Initializing settings controller');
+  logger.i('$tag Initializing settings controller');
   await SystemTheme.accentColor.load();
   await Window.initialize();
   await Window.hideWindowControls();
 
-  logger.i('Initializing WindowPlus');
+  logger.i('$tag Initializing WindowPlus');
   await WindowPlus.ensureInitialized(
     application: 'revision-tool',
     enableCustomFrame: true,

@@ -5,8 +5,6 @@ import 'package:revitool/shared/win_registry_service.dart';
 import 'package:revitool/utils.dart';
 import 'package:win32_registry/win32_registry.dart';
 
-import 'package:process_run/shell.dart';
-
 enum Mitigation { meltdownSpectre, downfall }
 
 extension MitigationBits on Mitigation {
@@ -21,7 +19,6 @@ extension MitigationBits on Mitigation {
 }
 
 class SecurityService {
-  static final _shell = Shell();
   static final _winPackageService = WinPackageService();
   static final String _mpCmdRunString =
       '${WinRegistryService.readString(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows Defender', 'InstallLocation') ?? r'C:\Program Files\Windows Defender'}\\MpCmdRun.exe';
@@ -124,20 +121,20 @@ class SecurityService {
       // WinRegistryService.writeRegistryValue(Registry.localMachine,
       //     r'SOFTWARE\Microsoft\Windows Defender', 'DisableAntiVirus', 0);
 
-      await _shell.run(
+      await shell.run(
         '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg delete "HKLM\\SOFTWARE\\Microsoft\\Windows Defender" /v DisableAntiSpyware /f',
       );
-      await _shell.run(
+      await shell.run(
         '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg delete "HKLM\\SOFTWARE\\Microsoft\\Windows Defender" /v DisableAntiVirus /f',
       );
 
       await _winPackageService.uninstallPackage(WinPackageType.defenderRemoval);
 
-      await _shell.run(
+      await shell.run(
         'start /WAIT /MIN /B "" "%systemroot%\\System32\\gpupdate.exe" /Target:Computer /Force',
       );
 
-      await _shell.run(
+      await shell.run(
         '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg add "HKLM\\System\\ControlSet001\\Services\\MDCoreSvc" /v Start /t REG_DWORD /d 2 /f',
       );
 
@@ -205,7 +202,7 @@ class SecurityService {
       const smartscreenPath = 'C:\\Windows\\System32\\smartscreen.exe';
       if (!File(smartscreenPath).existsSync() &&
           File('$smartscreenPath.revi').existsSync()) {
-        await _shell.run(
+        await shell.run(
           '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller ren "$smartscreenPath.revi" smartscreen.exe',
         );
       }
@@ -319,7 +316,7 @@ class SecurityService {
         1,
       );
 
-      await _shell.run(
+      await shell.run(
         'start /WAIT /MIN /B "" "%systemroot%\\System32\\gpupdate.exe" /Target:Computer /Force',
       );
 
@@ -329,14 +326,14 @@ class SecurityService {
         );
       }
 
-      await _shell.run(
+      await shell.run(
         '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg add "HKLM\\SOFTWARE\\Microsoft\\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f',
       );
-      await _shell.run(
+      await shell.run(
         '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg add "HKLM\\SOFTWARE\\Microsoft\\Windows Defender" /v DisableAntiVirus /t REG_DWORD /d 1 /f',
       );
 
-      await _shell.run(
+      await shell.run(
         '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg add "HKLM\\System\\ControlSet001\\Services\\MDCoreSvc" /v Start /t REG_DWORD /d 4 /f',
       );
 
@@ -542,7 +539,7 @@ class SecurityService {
   }
 
   Future<void> updateCertificates() async {
-    await _shell.run(
+    await shell.run(
       'PowerShell -NonInteractive -NoLogo -NoP -C "& {\$tmp = (New-TemporaryFile).FullName; CertUtil -generateSSTFromWU -f \$tmp; if ( (Get-Item \$tmp | Measure-Object -Property Length -Sum).sum -gt 0 ) { \$SST_File = Get-ChildItem -Path \$tmp; \$SST_File | Import-Certificate -CertStoreLocation "Cert:\\LocalMachine\\Root"; \$SST_File | Import-Certificate -CertStoreLocation "Cert:\\LocalMachine\\AuthRoot" } Remove-Item -Path \$tmp}"',
     );
   }

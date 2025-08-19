@@ -8,7 +8,7 @@ import 'package:revitool/utils.dart';
 
 class SecurityCommand extends Command<String> {
   static final _securityService = SecurityService();
-  String get tag => "[Security - Defender]";
+  String get tag => "Security - Defender";
 
   @override
   String get description => '[$tag] A command to manage Windows Defender';
@@ -28,7 +28,7 @@ class SecurityCommand extends Command<String> {
     switch (argResults?.command?.name) {
       case 'enable':
         if (!isForce && _securityService.statusDefender) {
-          stdout.writeln('$tag Windows Defender is already enabled');
+          logger.i('$name: Windows Defender is already enabled');
           exit(0);
         }
         await _securityService.enableDefender();
@@ -37,17 +37,16 @@ class SecurityCommand extends Command<String> {
         await _disableDefender(isForce);
         break;
       default:
-        stdout.writeln('''
-Defender Status: ${_securityService.statusDefender.toString()}
-Virus and Threat Protections Status: ${_securityService.statusDefenderProtections.toString()}
-''');
+        logger.i(
+          '$name: defender-status: ${_securityService.statusDefender.toString()}\nVirus and Threat Protections Status: ${_securityService.statusDefenderProtections.toString()}',
+        );
     }
     exit(0);
   }
 
   Future<void> _disableDefender(bool isForce) async {
     if (!isForce && !_securityService.statusDefender) {
-      stdout.writeln('$tag Windows Defender is already disabled');
+      logger.i('$name: Windows Defender is already disabled');
       exit(0);
     }
 
@@ -56,15 +55,11 @@ Virus and Threat Protections Status: ${_securityService.statusDefenderProtection
       await Future.delayed(const Duration(seconds: 5));
     }
 
-    stdout.writeln('$tag Disabling Windows Defender...');
-
-    stdout.writeln(
-      '$tag Checking if Virus and Threat Protections are enabled...',
-    );
+    logger.i('$name: Checking if Virus and Threat Protections are enabled...');
     int count = 0;
     while (_securityService.statusDefenderProtections) {
       if (count > 10) {
-        stderr.writeln('$tag Unable to disable Defender. Exiting...');
+        logger.e('$name: Unable to disable Defender. Exiting...');
         exit(1);
       }
 
@@ -75,7 +70,7 @@ Virus and Threat Protections Status: ${_securityService.statusDefenderProtection
         break;
       }
 
-      stdout.writeln('$tag Please disable Realtime and Tamper Protections');
+      logger.i('$name: Please disable Realtime and Tamper Protections');
       await _securityService.openDefenderThreatSettings();
 
       await Future.delayed(const Duration(seconds: 7));
@@ -86,7 +81,11 @@ Virus and Threat Protections Status: ${_securityService.statusDefenderProtection
     try {
       await _securityService.disableDefender();
     } on Exception catch (e) {
-      stderr.writeln('$tag Error disabling Windows Defender: ${e.toString()}');
+      logger.e(
+        '$name: Error disabling Windows Defender: ${e.toString()}',
+        error: e,
+        stackTrace: StackTrace.current,
+      );
       exit(1);
     }
   }

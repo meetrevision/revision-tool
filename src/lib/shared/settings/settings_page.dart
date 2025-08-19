@@ -52,8 +52,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           description: context.l10n.settingsCTDescription,
           child: ComboBox(
             value: appSettings.themeMode,
-            onChanged:
-                ref.read(appSettingsNotifierProvider.notifier).updateThemeMode,
+            onChanged: ref
+                .read(appSettingsNotifierProvider.notifier)
+                .updateThemeMode,
             items: [
               ComboBoxItem(
                 value: ThemeMode.system,
@@ -90,63 +91,90 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           icon: msicons.FluentIcons.arrow_clockwise_20_regular,
           child: ValueListenableBuilder(
             valueListenable: _updateTitle,
-            builder:
-                (context, value, child) => FilledButton(
-                  child: Text(_updateTitle.value),
-                  onPressed: () async {
-                    await _toolUpdateService.fetchData();
-                    final currentVersion = _toolUpdateService.getCurrentVersion;
-                    final latestVersion = _toolUpdateService.getLatestVersion;
-                    final data = _toolUpdateService.data;
+            builder: (context, value, child) => FilledButton(
+              child: Text(_updateTitle.value),
+              onPressed: () async {
+                try {
+                  await _toolUpdateService.fetchData();
+                  final currentVersion = _toolUpdateService.getCurrentVersion;
+                  final latestVersion = _toolUpdateService.getLatestVersion;
+                  final data = _toolUpdateService.data;
 
-                    if (latestVersion > currentVersion) {
-                      if (!context.mounted) return;
-                      _updateTitle.value = context.l10n.settingsUpdateButton;
+                  if (latestVersion > currentVersion) {
+                    if (!context.mounted) return;
+                    _updateTitle.value = context.l10n.settingsUpdateButton;
 
-                      if (!context.mounted) return;
-                      showDialog(
-                        context: context,
-                        builder:
-                            (context) => ContentDialog(
-                              title: Text(
-                                context.l10n.settingsUpdateButtonAvailable,
-                              ),
-                              content: Text(
-                                "${context.l10n.settingsUpdateButtonAvailablePrompt} ${data["tag_name"]}?",
-                              ),
-                              actions: [
-                                FilledButton(
-                                  child: Text(context.l10n.okButton),
-                                  onPressed: () async {
-                                    _updateTitle.value =
-                                        "${context.l10n.settingsUpdatingStatus}...";
+                    final shouldInstall = await showDialog<bool>(
+                      context: context,
+                      builder: (dialogCtx) => ContentDialog(
+                        title: Text(context.l10n.settingsUpdateButtonAvailable),
+                        content: Text(
+                          "${context.l10n.settingsUpdateButtonAvailablePrompt} ${data["tag_name"]}?",
+                        ),
+                        actions: [
+                          FilledButton(
+                            child: Text(context.l10n.okButton),
+                            onPressed: () => Navigator.pop(dialogCtx, true),
+                          ),
+                          Button(
+                            child: Text(context.l10n.notNowButton),
+                            onPressed: () => Navigator.pop(dialogCtx, false),
+                          ),
+                        ],
+                      ),
+                    );
 
-                                    context.pop();
-                                    await _toolUpdateService
-                                        .downloadNewVersion();
-                                    await _toolUpdateService.installUpdate();
-
-                                    if (!context.mounted) return;
-                                    _updateTitle.value =
-                                        context
-                                            .l10n
-                                            .settingsUpdatingStatusSuccess;
-                                  },
-                                ),
-                                Button(
-                                  child: Text(context.l10n.notNowButton),
-                                  onPressed: () => Navigator.pop(context),
-                                ),
-                              ],
-                            ),
-                      );
-                    } else {
+                    if (shouldInstall == true) {
                       if (!context.mounted) return;
                       _updateTitle.value =
-                          context.l10n.settingsUpdatingStatusNotFound;
+                          "${context.l10n.settingsUpdatingStatus}...";
+                      try {
+                        await _toolUpdateService.downloadNewVersion();
+                        await _toolUpdateService.installUpdate();
+                        if (!context.mounted) return;
+                        _updateTitle.value =
+                            context.l10n.settingsUpdatingStatusSuccess;
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        _updateTitle.value = "Update failed";
+                        await showDialog(
+                          context: context,
+                          builder: (c) => ContentDialog(
+                            title: const Text('Error'),
+                            content: Text(e.toString()),
+                            actions: [
+                              Button(
+                                child: Text(context.l10n.okButton),
+                                onPressed: () => Navigator.pop(c),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
                     }
-                  },
-                ),
+                  } else {
+                    if (!context.mounted) return;
+                    _updateTitle.value =
+                        context.l10n.settingsUpdatingStatusNotFound;
+                  }
+                } catch (e) {
+                  if (!context.mounted) return;
+                  await showDialog(
+                    context: context,
+                    builder: (c) => ContentDialog(
+                      title: const Text('Error'),
+                      content: Text(e.toString()),
+                      actions: [
+                        Button(
+                          child: Text(context.l10n.okButton),
+                          onPressed: () => Navigator.pop(c),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+            ),
           ),
         ),
         CardHighlight(

@@ -6,6 +6,7 @@ import 'package:path/path.dart' as path;
 import 'package:ffi/ffi.dart';
 import 'package:revitool/shared/win_registry_service.dart';
 import 'package:win32_registry/win32_registry.dart';
+import 'package:process_run/shell_run.dart';
 
 final String mainPath = Platform.resolvedExecutable;
 final String directoryExe = Directory(
@@ -43,12 +44,12 @@ final tempReviPath = path.join(
 
 final logger = Logger(
   filter: ProductionFilter(),
-  printer: PrettyPrinter(
-    methodCount: 0,
-    colors: false,
-    dateTimeFormat: DateTimeFormat.dateAndTime,
-  ),
-  output: AdvancedFileOutput(overrideExisting: true, path: tempReviPath),
+  level: Level.debug,
+  printer: SimplePrinter(printTime: true, colors: false),
+  output: MultiOutput([
+    AdvancedFileOutput(overrideExisting: true, path: tempReviPath),
+    ConsoleOutput(),
+  ]),
 );
 
 typedef IsRunningFunc = Int32 Function(Pointer<Utf16>);
@@ -94,8 +95,21 @@ Future<String> runPSCommand(String command) async {
   ], runInShell: true);
 
   if (result.exitCode != 0) {
-    throw Exception('PowerShell command failed: ${result.stderr}');
+    logger.e(
+      'ps_command',
+      error: result.stderr,
+      stackTrace: StackTrace.current,
+    );
+    throw ProcessException(
+      'powershell',
+      ['-NoProfile', '-NonInteractive', '-NoLogo', '-Command', command],
+      result.stderr.toString(),
+      result.exitCode,
+    );
   }
+  logger.i('ps_command: $command');
 
   return result.stdout.toString();
 }
+
+final shell = Shell(verbose: true, commandVerbose: true);

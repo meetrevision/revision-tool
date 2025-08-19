@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:revitool/utils.dart';
 
 class PlaybookPatchesCommand extends Command<String> {
-  static const tag = "[Playbook Patches]";
+  static const tag = "Playbook Patches";
 
   @override
   String get description {
@@ -25,9 +26,7 @@ class PlaybookPatchesCommand extends Command<String> {
         await applyPatches();
         break;
       default:
-        stdout.writeln('''
-Something went wrong. Please try again.
-''');
+        logger.e('$name: Unknown command "${argResults?.command?.name}"');
         exit(1);
     }
     exit(0);

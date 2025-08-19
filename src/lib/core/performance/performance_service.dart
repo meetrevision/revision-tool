@@ -1,4 +1,3 @@
-import 'package:process_run/shell_run.dart';
 import 'package:revitool/shared/win_registry_service.dart';
 import 'package:revitool/utils.dart';
 import 'package:win32_registry/win32_registry.dart';
@@ -84,8 +83,6 @@ const _defaultSplitDisabled = {
 };
 
 class PerformanceService {
-  static final _shell = Shell();
-
   static const _instance = PerformanceService._private();
   factory PerformanceService() {
     return _instance;
@@ -108,13 +105,13 @@ class PerformanceService {
   }
 
   Future<void> enableSuperfetch() async {
-    await _shell.run(
+    await shell.run(
       '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\EnableSF.bat"',
     );
   }
 
   Future<void> disableSuperfetch() async {
-    await _shell.run(
+    await shell.run(
       '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\DisableSF.bat"',
     );
   }
@@ -425,11 +422,11 @@ class PerformanceService {
   }
 
   Future<void> enableLastTimeAccessNTFS() async {
-    await _shell.run('fsutil behavior set disableLastAccess 0');
+    await shell.run('fsutil behavior set disableLastAccess 0');
   }
 
   Future<void> disableLastTimeAccessNTFS() async {
-    await _shell.run('fsutil behavior set disableLastAccess 1');
+    await shell.run('fsutil behavior set disableLastAccess 1');
   }
 
   bool get status8dot3NamingNTFS {
@@ -442,11 +439,11 @@ class PerformanceService {
   }
 
   Future<void> enable8dot3NamingNTFS() async {
-    await _shell.run('fsutil behavior set disable8dot3 2');
+    await shell.run('fsutil behavior set disable8dot3 2');
   }
 
   Future<void> disable8dot3NamingNTFS() async {
-    await _shell.run('fsutil behavior set disable8dot3 1');
+    await shell.run('fsutil behavior set disable8dot3 1');
   }
 
   bool get statusMemoryUsageNTFS {
@@ -533,10 +530,10 @@ class PerformanceService {
   }
 
   Future<void> enableMemoryUsageNTFS() async {
-    await _shell.run('fsutil behavior set memoryusage 2');
+    await shell.run('fsutil behavior set memoryusage 2');
   }
 
   Future<void> disableMemoryUsageNTFS() async {
-    await _shell.run('fsutil behavior set memoryusage 1');
+    await shell.run('fsutil behavior set memoryusage 1');
   }
 }

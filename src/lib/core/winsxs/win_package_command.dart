@@ -13,7 +13,7 @@ class WindowsPackageCommand extends Command<String> {
   static final _msStoreCommand = MSStoreCommand();
   static final _securityService = SecurityService();
 
-  static const tag = "[Windows Package]";
+  static const tag = "Windows Package";
 
   @override
   String get description => '[$tag] A command to manage Windows Defender';
@@ -69,7 +69,9 @@ class WindowsPackageCommand extends Command<String> {
     } else if (uninstallOption != null) {
       await _uninstallPackage(getPackageType(uninstallOption));
     } else {
-      stderr.writeln('$tag Invalid command');
+      logger.e(
+        '$name: No valid options provided. Use --help for usage information.',
+      );
     }
     exit(0);
   }
@@ -77,7 +79,7 @@ class WindowsPackageCommand extends Command<String> {
   WinPackageType getPackageType(final String package) {
     final type = packageList[package];
     if (type == null) {
-      stderr.writeln('$tag Invalid package type: $package');
+      logger.e('$name(getPackageType): Invalid package type: package=$package');
       exit(1);
     }
     return type;
@@ -87,32 +89,42 @@ class WindowsPackageCommand extends Command<String> {
     final String parameter,
     final String? path,
   ) async {
+    final mode = getPackageType(parameter);
+    logger.i(
+      '$name(downloadPackage): Downloading package=${mode.packageName}, path=$path',
+    );
     try {
-      final mode = getPackageType(parameter);
-      stdout.writeln('$tag Downloading package: ${mode.packageName}');
       final packagePath = await _winPackageService.downloadPackage(
         mode,
         path: path,
       );
       stdout.writeln(packagePath);
     } catch (e) {
-      stderr.writeln('$tag $e');
+      logger.e(
+        '$name(downloadPackage): Error downloading package: package=${mode.packageName}, path=$path',
+        error: e,
+        stackTrace: StackTrace.current,
+      );
     }
   }
 
   Future<void> _installPackage(final String parameter) async {
-    try {
-      final mode = getPackageType(parameter);
+    final mode = getPackageType(parameter);
 
+    try {
       if (mode == WinPackageType.defenderRemoval) {
         await _securityService.disableDefender();
         return;
       }
 
-      stdout.writeln('$tag Downloading package: ${mode.packageName}');
+      logger.i(
+        '$name(installPackage): Downloading package=${mode.packageName}',
+      );
       final packagePath = await _winPackageService.downloadPackage(mode);
 
-      stdout.writeln('$tag Installing package: ${mode.packageName}');
+      logger.i(
+        '$name(installPackage): Installing package=${mode.packageName}, path=$packagePath',
+      );
       await _winPackageService.installPackage(packagePath);
 
       if (mode == WinPackageType.aiRemoval) {
@@ -126,30 +138,47 @@ class WindowsPackageCommand extends Command<String> {
         );
       }
     } catch (e) {
-      stderr.writeln('$tag $e');
+      logger.e(
+        '$name(installPackage): Error installing package',
+        error: e,
+        stackTrace: StackTrace.current,
+      );
     }
   }
 
   Future<void> _uninstallPackage(final WinPackageType packageType) async {
-    stdout.writeln('$tag Uninstalling package: ${packageType.packageName}');
+    logger.i(
+      '$name(uninstallPackage): Uninstalling package=${packageType.packageName}',
+    );
 
-    if (packageType == WinPackageType.defenderRemoval) {
-      await _securityService.enableDefender();
-    }
+    try {
+      if (packageType == WinPackageType.defenderRemoval) {
+        await _securityService.enableDefender();
+      }
 
-    if (packageType == WinPackageType.aiRemoval) {
-      WinRegistryService.unhidePageVisibilitySettings("aicomponents");
-      WinRegistryService.unhidePageVisibilitySettings("privacy-systemaimodels");
-      await runPSCommand(
-        'Enable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart',
+      if (packageType == WinPackageType.aiRemoval) {
+        WinRegistryService.unhidePageVisibilitySettings("aicomponents");
+        WinRegistryService.unhidePageVisibilitySettings(
+          "privacy-systemaimodels",
+        );
+        await runPSCommand(
+          'Enable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart',
+        );
+        await _msStoreCommand.installPackage(
+          id: "9nht9rb2f4hd",
+          ring: "Retail",
+          arch: "auto",
+          downloadOnly: false,
+        );
+      }
+      await _winPackageService.uninstallPackage(packageType);
+    } catch (e) {
+      logger.e(
+        '$name(uninstallPackage): Error uninstalling package=${packageType.packageName}',
+        error: e,
+        stackTrace: StackTrace.current,
       );
-      await _msStoreCommand.installPackage(
-        id: "9nht9rb2f4hd",
-        ring: "Retail",
-        arch: "auto",
-        downloadOnly: false,
-      );
+      exit(1);
     }
-    await _winPackageService.uninstallPackage(packageType);
   }
 }
