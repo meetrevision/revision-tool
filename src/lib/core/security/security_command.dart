@@ -50,7 +50,8 @@ class SecurityCommand extends Command<String> {
       exit(0);
     }
 
-    if (!isProcessRunning('explorer.exe')) {
+    if (!isForce && !isProcessRunning('explorer.exe')) {
+      logger.i('$name: Explorer.exe is not running. Starting Explorer...');
       await Process.run('explorer.exe', const []);
       await Future.delayed(const Duration(seconds: 5));
     }
