@@ -117,16 +117,6 @@ class WindowsPackageCommand extends Command<String> {
         return;
       }
 
-      logger.i(
-        '$name(installPackage): Downloading package=${mode.packageName}',
-      );
-      final packagePath = await _winPackageService.downloadPackage(mode);
-
-      logger.i(
-        '$name(installPackage): Installing package=${mode.packageName}, path=$packagePath',
-      );
-      await _winPackageService.installPackage(packagePath);
-
       if (mode == WinPackageType.aiRemoval) {
         WinRegistryService.hidePageVisibilitySettings("aicomponents");
         WinRegistryService.hidePageVisibilitySettings("privacy-systemaimodels");
@@ -137,6 +127,16 @@ class WindowsPackageCommand extends Command<String> {
           'Get-AppxPackage -AllUsers Microsoft.Copilot* | Remove-AppxPackage',
         );
       }
+
+      logger.i(
+        '$name(installPackage): Downloading package=${mode.packageName}',
+      );
+      final packagePath = await _winPackageService.downloadPackage(mode);
+
+      logger.i(
+        '$name(installPackage): Installing package=${mode.packageName}, path=$packagePath',
+      );
+      await _winPackageService.installPackage(packagePath);
     } catch (e) {
       logger.e(
         '$name(installPackage): Error installing package',
