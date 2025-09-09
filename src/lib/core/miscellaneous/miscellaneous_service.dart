@@ -2,22 +2,18 @@ import 'package:revitool/core/miscellaneous/kgl_dto.dart';
 import 'package:revitool/core/performance/performance_service.dart';
 import 'package:revitool/shared/win_registry_service.dart';
 import 'package:revitool/utils.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../shared/network_service.dart';
 
 import 'package:win32_registry/win32_registry.dart';
 
-class MiscellaneousService {
-  static const _instance = MiscellaneousService._private();
-  factory MiscellaneousService() {
-    return _instance;
-  }
-  const MiscellaneousService._private();
+part 'miscellaneous_service.g.dart';
 
-  static final _performanceService = PerformanceService();
+abstract final class MiscellaneousService {
   static final _networkService = NetworkService();
 
-  bool get statusHibernation {
+  static bool get statusHibernation {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\Power',
@@ -26,7 +22,7 @@ class MiscellaneousService {
         1;
   }
 
-  Future<void> enableHibernation() async {
+  static Future<void> enableHibernation() async {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'Software\Policies\Microsoft\Windows\System',
@@ -45,7 +41,7 @@ class MiscellaneousService {
                     ''');
   }
 
-  Future<void> disableHibernation() async {
+  static Future<void> disableHibernation() async {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'Software\Policies\Microsoft\Windows\System',
@@ -76,7 +72,7 @@ powercfg -h off
   //   await shell.run('powercfg /h /type full');
   // }
 
-  bool get statusFastStartup {
+  static bool get statusFastStartup {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'System\ControlSet001\Control\Session Manager\Power',
@@ -85,7 +81,7 @@ powercfg -h off
         1;
   }
 
-  void enableFastStartup() {
+  static void enableFastStartup() {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'System\ControlSet001\Control\Session Manager\Power',
@@ -100,7 +96,7 @@ powercfg -h off
     );
   }
 
-  void disableFastStartup() {
+  static void disableFastStartup() {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'System\ControlSet001\Control\Session Manager\Power',
@@ -115,7 +111,7 @@ powercfg -h off
     );
   }
 
-  bool get statusTMMonitoring {
+  static bool get statusTMMonitoring {
     return WinRegistryService.readInt(
               RegistryHive.localMachine,
               r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc',
@@ -130,7 +126,7 @@ powercfg -h off
             2;
   }
 
-  Future<void> enableTMMonitoring() async {
+  static Future<void> enableTMMonitoring() async {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc',
@@ -151,7 +147,7 @@ powercfg -h off
     );
   }
 
-  void disableTMMonitoring() {
+  static void disableTMMonitoring() {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc',
@@ -172,7 +168,7 @@ powercfg -h off
     );
   }
 
-  bool get statusMPO {
+  static bool get statusMPO {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows\Dwm',
@@ -181,7 +177,7 @@ powercfg -h off
         5;
   }
 
-  void enableMPO() {
+  static void enableMPO() {
     WinRegistryService.deleteValue(
       Registry.localMachine,
       r'SOFTWARE\Microsoft\Windows\Dwm',
@@ -189,7 +185,7 @@ powercfg -h off
     );
   }
 
-  void disableMPO() {
+  static void disableMPO() {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SOFTWARE\Microsoft\Windows\Dwm',
@@ -198,7 +194,7 @@ powercfg -h off
     );
   }
 
-  bool get statusUsageReporting {
+  static bool get statusUsageReporting {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Services\DPS',
@@ -207,19 +203,19 @@ powercfg -h off
         4;
   }
 
-  Future<void> enableUsageReporting() async {
+  static Future<void> enableUsageReporting() async {
     await shell.run(
       '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\EnableUR.bat"',
     );
   }
 
-  Future<void> disableUsageReporting() async {
+  static Future<void> disableUsageReporting() async {
     await shell.run(
       '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\DisableUR.bat"',
     );
   }
 
-  Future<void> updateKGL() async {
+  static Future<void> updateKGL() async {
     const api =
         'https://settings.data.microsoft.com/settings/v3.0/xbox/knowngamelist';
     try {
@@ -270,7 +266,7 @@ powercfg -h off
         kgl.versionCheckTimeout,
       );
 
-      _performanceService.enableBackgroundApps();
+      PerformanceService.enableBackgroundApps();
     } catch (e) {
       logger.e(
         'Failed to update KGL.',
@@ -280,4 +276,30 @@ powercfg -h off
       rethrow;
     }
   }
+}
+
+// Riverpod Providers
+@riverpod
+bool hibernationStatus(Ref ref) {
+  return MiscellaneousService.statusHibernation;
+}
+
+@riverpod
+bool fastStartupStatus(Ref ref) {
+  return MiscellaneousService.statusFastStartup;
+}
+
+@riverpod
+bool tmMonitoringStatus(Ref ref) {
+  return MiscellaneousService.statusTMMonitoring;
+}
+
+@riverpod
+bool mpoStatus(Ref ref) {
+  return MiscellaneousService.statusMPO;
+}
+
+@riverpod
+bool usageReportingStatus(Ref ref) {
+  return MiscellaneousService.statusUsageReporting;
 }

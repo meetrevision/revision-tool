@@ -3,7 +3,10 @@ import 'dart:io';
 import 'package:revitool/core/winsxs/win_package_service.dart';
 import 'package:revitool/shared/win_registry_service.dart';
 import 'package:revitool/utils.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:win32_registry/win32_registry.dart';
+
+part 'security_service.g.dart';
 
 enum Mitigation { meltdownSpectre, downfall }
 
@@ -18,20 +21,12 @@ extension MitigationBits on Mitigation {
   }
 }
 
-class SecurityService {
-  static final _winPackageService = WinPackageService();
+abstract final class SecurityService {
   static final String _mpCmdRunString =
       '${WinRegistryService.readString(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows Defender', 'InstallLocation') ?? r'C:\Program Files\Windows Defender'}\\MpCmdRun.exe';
 
-  static const _instance = SecurityService._private();
-
-  factory SecurityService() {
-    return _instance;
-  }
-  const SecurityService._private();
-
-  bool get statusDefender {
-    if (_winPackageService.checkPackageInstalled(
+  static bool get statusDefender {
+    if (WinPackageService.checkPackageInstalled(
       WinPackageType.defenderRemoval,
     )) {
       return false;
@@ -58,13 +53,13 @@ class SecurityService {
     return true;
   }
 
-  bool get statusDefenderProtections {
+  static bool get statusDefenderProtections {
     return (statusDefenderProtectionTamper ||
             statusDefenderProtectionRealtime) &&
         statusDefender;
   }
 
-  bool get statusDefenderProtectionTamper {
+  static bool get statusDefenderProtectionTamper {
     final tp = WinRegistryService.readInt(
       RegistryHive.localMachine,
       r'SOFTWARE\Microsoft\Windows Defender\Features',
@@ -83,7 +78,7 @@ class SecurityService {
     return tp != 4;
   }
 
-  bool get statusDefenderProtectionRealtime {
+  static bool get statusDefenderProtectionRealtime {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows Defender\Real-Time Protection',
@@ -92,13 +87,13 @@ class SecurityService {
         1;
   }
 
-  Future<ProcessResult> openDefenderThreatSettings() async {
+  static Future<ProcessResult> openDefenderThreatSettings() async {
     return await Process.run('start', [
       'windowsdefender://threatsettings',
     ], runInShell: true);
   }
 
-  Future<void> enableDefender() async {
+  static Future<void> enableDefender() async {
     try {
       WinRegistryService.deleteValue(
         Registry.localMachine,
@@ -128,7 +123,7 @@ class SecurityService {
         '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller reg delete "HKLM\\SOFTWARE\\Microsoft\\Windows Defender" /v DisableAntiVirus /f',
       );
 
-      await _winPackageService.uninstallPackage(WinPackageType.defenderRemoval);
+      await WinPackageService.uninstallPackage(WinPackageType.defenderRemoval);
 
       await shell.run(
         'start /WAIT /MIN /B "" "%systemroot%\\System32\\gpupdate.exe" /Target:Computer /Force',
@@ -293,9 +288,9 @@ class SecurityService {
     }
   }
 
-  Future<void> disableDefender() async {
+  static Future<void> disableDefender() async {
     try {
-      await _winPackageService.downloadPackage(WinPackageType.defenderRemoval);
+      await WinPackageService.downloadPackage(WinPackageType.defenderRemoval);
 
       WinRegistryService.writeRegistryValue(
         Registry.localMachine,
@@ -343,16 +338,16 @@ class SecurityService {
         'RevisionEnableDefenderCMD',
       );
 
-      final packagePath = await _winPackageService.downloadPackage(
+      final packagePath = await WinPackageService.downloadPackage(
         WinPackageType.defenderRemoval,
       );
-      await _winPackageService.installPackage(packagePath);
+      await WinPackageService.installPackage(packagePath);
     } on Exception catch (e) {
       throw ('Failed to disable Windows Defender:\n\n$e');
     }
   }
 
-  bool get statusUAC {
+  static bool get statusUAC {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
@@ -361,7 +356,7 @@ class SecurityService {
         1;
   }
 
-  void enableUAC() {
+  static void enableUAC() {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
@@ -424,7 +419,7 @@ class SecurityService {
     );
   }
 
-  void disableUAC() {
+  static void disableUAC() {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
@@ -487,7 +482,7 @@ class SecurityService {
     );
   }
 
-  bool isMitigationEnabled(Mitigation mitigation) {
+  static bool isMitigationEnabled(Mitigation mitigation) {
     final val = WinRegistryService.readInt(
       RegistryHive.localMachine,
       r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
@@ -497,7 +492,7 @@ class SecurityService {
     return (val & mitigation.bitmask) == 0;
   }
 
-  void enableMitigation(Mitigation mitigation) {
+  static void enableMitigation(Mitigation mitigation) {
     final otherMitigation =
         Mitigation.values[(mitigation.index + 1) % Mitigation.values.length];
     if (isMitigationEnabled(otherMitigation)) {
@@ -525,7 +520,7 @@ class SecurityService {
     _writeOverride(newVal);
   }
 
-  void disableMitigation(Mitigation mitigation) {
+  static void disableMitigation(Mitigation mitigation) {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
@@ -538,7 +533,7 @@ class SecurityService {
     _writeOverride(newVal);
   }
 
-  Future<void> updateCertificates() async {
+  static Future<void> updateCertificates() async {
     await shell.run(
       'PowerShell -NonInteractive -NoLogo -NoP -C "& {\$tmp = (New-TemporaryFile).FullName; CertUtil -generateSSTFromWU -f \$tmp; if ( (Get-Item \$tmp | Measure-Object -Property Length -Sum).sum -gt 0 ) { \$SST_File = Get-ChildItem -Path \$tmp; \$SST_File | Import-Certificate -CertStoreLocation "Cert:\\LocalMachine\\Root"; \$SST_File | Import-Certificate -CertStoreLocation "Cert:\\LocalMachine\\AuthRoot" } Remove-Item -Path \$tmp}"',
     );
@@ -567,4 +562,40 @@ void _writeOverride(int value) {
     'FeatureSettingsOverrideMask',
     value,
   );
+}
+
+// Riverpod Providers
+@riverpod
+bool defenderStatus(Ref ref) {
+  return SecurityService.statusDefender;
+}
+
+@riverpod
+bool defenderProtectionsStatus(Ref ref) {
+  return SecurityService.statusDefenderProtections;
+}
+
+@riverpod
+bool defenderProtectionTamperStatus(Ref ref) {
+  return SecurityService.statusDefenderProtectionTamper;
+}
+
+@riverpod
+bool defenderProtectionRealtimeStatus(Ref ref) {
+  return SecurityService.statusDefenderProtectionRealtime;
+}
+
+@riverpod
+bool uacStatus(Ref ref) {
+  return SecurityService.statusUAC;
+}
+
+@riverpod
+bool meltdownSpectreStatus(Ref ref) {
+  return SecurityService.isMitigationEnabled(Mitigation.meltdownSpectre);
+}
+
+@riverpod
+bool downfallStatus(Ref ref) {
+  return SecurityService.isMitigationEnabled(Mitigation.downfall);
 }

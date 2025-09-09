@@ -1,15 +1,12 @@
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:win32_registry/win32_registry.dart';
 
 import '../../shared/win_registry_service.dart';
 
-class WinUpdatesService {
-  static const _instance = WinUpdatesService._private();
-  factory WinUpdatesService() {
-    return _instance;
-  }
-  const WinUpdatesService._private();
+part 'updates_service.g.dart';
 
-  bool get statusPauseUpdatesWU {
+abstract final class WinUpdatesService {
+  static bool get statusPauseUpdatesWU {
     return WinRegistryService.readString(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
@@ -18,7 +15,7 @@ class WinUpdatesService {
         false;
   }
 
-  void enablePauseUpdatesWU() {
+  static void enablePauseUpdatesWU() {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
@@ -69,7 +66,7 @@ class WinUpdatesService {
     );
   }
 
-  void disablePauseUpdatesWU() {
+  static void disablePauseUpdatesWU() {
     WinRegistryService.deleteValue(
       Registry.localMachine,
       r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
@@ -113,7 +110,7 @@ class WinUpdatesService {
     );
   }
 
-  bool get statusVisibilityWU {
+  static bool get statusVisibilityWU {
     return WinRegistryService.readString(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
@@ -122,15 +119,15 @@ class WinUpdatesService {
         false;
   }
 
-  void enableVisibilityWU() {
+  static void enableVisibilityWU() {
     WinRegistryService.unhidePageVisibilitySettings("windowsupdate");
   }
 
-  void disableVisibilityWU() {
+  static void disableVisibilityWU() {
     WinRegistryService.hidePageVisibilitySettings("windowsupdate");
   }
 
-  bool get statusDriversWU {
+  static bool get statusDriversWU {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata',
@@ -139,7 +136,7 @@ class WinUpdatesService {
         0;
   }
 
-  void enableDriversWU() {
+  static void enableDriversWU() {
     WinRegistryService.deleteKey(
       WinRegistryService.currentUser,
       r'Software\Policies\Microsoft\Windows\DriverSearching',
@@ -167,7 +164,7 @@ class WinUpdatesService {
     );
   }
 
-  void disableDriversWU() {
+  static void disableDriversWU() {
     WinRegistryService.writeRegistryValue(
       WinRegistryService.currentUser,
       r'Software\Policies\Microsoft\Windows\DriverSearching',
@@ -205,4 +202,20 @@ class WinUpdatesService {
       1,
     );
   }
+}
+
+// Riverpod Providers
+@riverpod
+bool pauseUpdatesWUStatus(Ref ref) {
+  return WinUpdatesService.statusPauseUpdatesWU;
+}
+
+@riverpod
+bool visibilityWUStatus(Ref ref) {
+  return WinUpdatesService.statusVisibilityWU;
+}
+
+@riverpod
+bool driversWUStatus(Ref ref) {
+  return WinUpdatesService.statusDriversWU;
 }

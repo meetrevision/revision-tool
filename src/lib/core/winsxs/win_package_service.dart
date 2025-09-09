@@ -20,11 +20,7 @@ enum WinPackageType {
   final String packageName;
 }
 
-class WinPackageService {
-  static const _instance = WinPackageService._private();
-  factory WinPackageService() => _instance;
-  const WinPackageService._private();
-
+abstract final class WinPackageService {
   static final _networkService = NetworkService();
 
   static final cabPath = p.join(
@@ -35,7 +31,7 @@ class WinPackageService {
   static const cbsPackagesRegPath =
       r'SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages\';
 
-  bool checkPackageInstalled(final WinPackageType packageType) {
+  static bool checkPackageInstalled(final WinPackageType packageType) {
     final String? key =
         Registry.openPath(
           RegistryHive.localMachine,
@@ -65,7 +61,7 @@ class WinPackageService {
         lastError == null;
   }
 
-  Future<String> downloadPackage(
+  static Future<String> downloadPackage(
     final WinPackageType packageType, {
     String? path,
   }) async {
@@ -98,7 +94,7 @@ class WinPackageService {
     return filePath;
   }
 
-  Future<void> installPackage(final String packagePath) async {
+  static Future<void> installPackage(final String packagePath) async {
     if (!File(packagePath).existsSync()) {
       throw 'Package file does not exist: $packagePath';
     }
@@ -124,7 +120,7 @@ class WinPackageService {
     await File(packagePath).delete();
   }
 
-  Future<void> uninstallPackage(final WinPackageType packageType) async {
+  static Future<void> uninstallPackage(final WinPackageType packageType) async {
     await runPSCommand(
       'Get-WindowsPackage -Online -PackageName "${packageType.packageName}*" | Remove-WindowsPackage -Online -NoRestart',
     );

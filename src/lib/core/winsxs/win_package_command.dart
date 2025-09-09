@@ -9,9 +9,7 @@ import 'package:revitool/shared/win_registry_service.dart';
 import 'package:revitool/utils.dart';
 
 class WindowsPackageCommand extends Command<String> {
-  static final _winPackageService = WinPackageService();
   static final _msStoreCommand = MSStoreCommand();
-  static final _securityService = SecurityService();
 
   static const tag = "Windows Package";
 
@@ -94,7 +92,7 @@ class WindowsPackageCommand extends Command<String> {
       '$name(downloadPackage): Downloading package=${mode.packageName}, path=$path',
     );
     try {
-      final packagePath = await _winPackageService.downloadPackage(
+      final packagePath = await WinPackageService.downloadPackage(
         mode,
         path: path,
       );
@@ -113,7 +111,7 @@ class WindowsPackageCommand extends Command<String> {
 
     try {
       if (mode == WinPackageType.defenderRemoval) {
-        await _securityService.disableDefender();
+        await SecurityService.disableDefender();
         return;
       }
 
@@ -131,12 +129,12 @@ class WindowsPackageCommand extends Command<String> {
       logger.i(
         '$name(installPackage): Downloading package=${mode.packageName}',
       );
-      final packagePath = await _winPackageService.downloadPackage(mode);
+      final packagePath = await WinPackageService.downloadPackage(mode);
 
       logger.i(
         '$name(installPackage): Installing package=${mode.packageName}, path=$packagePath',
       );
-      await _winPackageService.installPackage(packagePath);
+      await WinPackageService.installPackage(packagePath);
     } catch (e) {
       logger.e(
         '$name(installPackage): Error installing package',
@@ -153,7 +151,7 @@ class WindowsPackageCommand extends Command<String> {
 
     try {
       if (packageType == WinPackageType.defenderRemoval) {
-        await _securityService.enableDefender();
+        await SecurityService.enableDefender();
       }
 
       if (packageType == WinPackageType.aiRemoval) {
@@ -171,7 +169,7 @@ class WindowsPackageCommand extends Command<String> {
           downloadOnly: false,
         );
       }
-      await _winPackageService.uninstallPackage(packageType);
+      await WinPackageService.uninstallPackage(packageType);
     } catch (e) {
       logger.e(
         '$name(uninstallPackage): Error uninstalling package=${packageType.packageName}',

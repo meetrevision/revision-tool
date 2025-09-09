@@ -75,7 +75,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           icon: msicons.FluentIcons.warning_20_regular,
           label: context.l10n.settingsEPTLabel,
           // description: context.l10n.settingsEPTDescription,
-          switchBool: expBool,
+          switchBool: ValueNotifier(ref.watch(settingsExperimentalStatus)),
           function: (value) {
             WinRegistryService.writeRegistryValue(
               Registry.localMachine,
@@ -83,7 +83,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               'Experimental',
               value ? 1 : 0,
             );
-            expBool.value = value;
+            ref.invalidate(settingsExperimentalStatus);
           },
         ),
         CardHighlight(

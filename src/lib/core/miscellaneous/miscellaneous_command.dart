@@ -7,8 +7,6 @@ import 'package:revitool/utils.dart';
 
 class MiscellaneousCommand extends Command<String> {
   static const tag = "Miscellaneous";
-  final _miscService = MiscellaneousService();
-
   @override
   String get description => '[$tag] Manage system miscellaneous settings';
 
@@ -49,20 +47,20 @@ class MiscellaneousCommand extends Command<String> {
 
   Future<void> _handleHibernate(ArgResults command) async {
     if (command['enable']) {
-      await _miscService.enableHibernation();
+      await MiscellaneousService.enableHibernation();
       logger.i('$name: Hibernation enabled');
     } else if (command['disable']) {
-      await _miscService.disableHibernation();
+      await MiscellaneousService.disableHibernation();
       logger.i('$name: Hibernation disabled');
     }
   }
 
   Future<void> _handleFastStartup(ArgResults command) async {
     if (command['enable']) {
-      _miscService.enableFastStartup();
+      MiscellaneousService.enableFastStartup();
       logger.i('$name: Fast Startup enabled');
     } else if (command['disable']) {
-      _miscService.disableFastStartup();
+      MiscellaneousService.disableFastStartup();
       logger.i('$name: Fast Startup disabled');
     }
   }
