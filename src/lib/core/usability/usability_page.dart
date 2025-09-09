@@ -17,14 +17,14 @@ class UsabilityPage extends ConsumerWidget {
       padding: kScaffoldPagePadding,
       header: PageHeader(title: Text(context.l10n.pageUsability)),
       children: [
-        _NotificationCard(),
-        _LegacyBalloonCard(),
-        _InputPersonalizationCard(),
-        _CapsLockCard(),
-        _ScreenEdgeSwipeCard(),
+        const _NotificationCard(),
+        const _LegacyBalloonCard(),
+        const _InputPersonalizationCard(),
+        const _CapsLockCard(),
+        const _ScreenEdgeSwipeCard(),
         if (WinRegistryService.isW11) ...[
           const Subtitle(content: Text("Windows 11")),
-          _NewContextMenuCard(),
+          const _NewContextMenuCard(),
         ],
       ],
     );
@@ -32,6 +32,7 @@ class UsabilityPage extends ConsumerWidget {
 }
 
 class _NotificationCard extends ConsumerWidget {
+  const _NotificationCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(notificationStatusProvider);
@@ -40,11 +41,11 @@ class _NotificationCard extends ConsumerWidget {
       icon: msicons.FluentIcons.alert_20_regular,
       label: context.l10n.usabilityNotifLabel,
       description: context.l10n.usabilityNotifDescription,
-      child: ComboBox<NotificationMode>(
+      action: ComboBox<NotificationMode>(
         value: status,
         onChanged: (value) async {
           if (value == null) return;
-          
+
           switch (value) {
             case NotificationMode.on:
               await UsabilityService.enableNotification();
@@ -58,7 +59,7 @@ class _NotificationCard extends ConsumerWidget {
               await UsabilityService.disableNotificationAggressive();
               break;
           }
-          
+
           ref.invalidate(notificationStatusProvider);
         },
         items: const [
@@ -78,6 +79,7 @@ class _NotificationCard extends ConsumerWidget {
 }
 
 class _LegacyBalloonCard extends ConsumerWidget {
+  const _LegacyBalloonCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notificationStatus = ref.watch(notificationStatusProvider);
@@ -87,95 +89,109 @@ class _LegacyBalloonCard extends ConsumerWidget {
       return const SizedBox();
     }
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.balloon_20_regular,
       label: context.l10n.usabilityLBNLabel,
       description: context.l10n.usabilityLBNDescription,
-      switchBool: ValueNotifier(status),
-      function: (value) {
-        value
-            ? UsabilityService.enableLegacyBalloon()
-            : UsabilityService.disableLegacyBalloon();
-        ref.invalidate(legacyBalloonStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        onChanged: (value) {
+          value
+              ? UsabilityService.enableLegacyBalloon()
+              : UsabilityService.disableLegacyBalloon();
+          ref.invalidate(legacyBalloonStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _InputPersonalizationCard extends ConsumerWidget {
+  const _InputPersonalizationCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(inputPersonalizationStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.keyboard_20_regular,
       label: context.l10n.usabilityITPLabel,
       description: context.l10n.usabilityITPDescription,
-      switchBool: ValueNotifier(status),
-      function: (value) {
-        value
-            ? UsabilityService.enableInputPersonalization()
-            : UsabilityService.disableInputPersonalization();
-        ref.invalidate(inputPersonalizationStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        onChanged: (value) {
+          value
+              ? UsabilityService.enableInputPersonalization()
+              : UsabilityService.disableInputPersonalization();
+          ref.invalidate(inputPersonalizationStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _CapsLockCard extends ConsumerWidget {
+  const _CapsLockCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(capsLockStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.desktop_keyboard_20_regular,
       label: context.l10n.usabilityCPLLabel,
-      switchBool: ValueNotifier(status),
-      function: (value) {
-        value
-            ? UsabilityService.disableCapsLock()
-            : UsabilityService.enableCapsLock();
-        ref.invalidate(capsLockStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        onChanged: (value) {
+          value
+              ? UsabilityService.disableCapsLock()
+              : UsabilityService.enableCapsLock();
+          ref.invalidate(capsLockStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _ScreenEdgeSwipeCard extends ConsumerWidget {
+  const _ScreenEdgeSwipeCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(screenEdgeSwipeStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.swipe_up_20_regular,
       label: context.l10n.usabilitySESLabel,
       description: context.l10n.usabilitySESDescription,
-      switchBool: ValueNotifier(status),
-      function: (value) {
-        value
-            ? UsabilityService.enableScreenEdgeSwipe()
-            : UsabilityService.disableScreenEdgeSwipe();
-        ref.invalidate(screenEdgeSwipeStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        onChanged: (value) {
+          value
+              ? UsabilityService.enableScreenEdgeSwipe()
+              : UsabilityService.disableScreenEdgeSwipe();
+          ref.invalidate(screenEdgeSwipeStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _NewContextMenuCard extends ConsumerWidget {
+  const _NewContextMenuCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(newContextMenuStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.document_one_page_20_regular,
       label: context.l10n.usability11MRCLabel,
-      switchBool: ValueNotifier(status),
-      function: (value) async {
-        value
-            ? await UsabilityService.enableNewContextMenu()
-            : await UsabilityService.disableNewContextMenu();
-        ref.invalidate(newContextMenuStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        onChanged: (value) async {
+          value
+              ? await UsabilityService.enableNewContextMenu()
+              : await UsabilityService.disableNewContextMenu();
+          ref.invalidate(newContextMenuStatusProvider);
+        },
+      ),
     );
   }
 }

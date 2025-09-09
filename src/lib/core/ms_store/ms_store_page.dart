@@ -107,10 +107,10 @@ class _MSStorePageState extends State<MSStorePage>
         for (final product in _productsList) ...[
           if (product.displayPrice == "Free") ...[
             CardHighlight(
-              label: product.title,
+              label: product.title!,
               image: product.iconUrl!,
               description: product.description,
-              child: FilledButton(
+              action: FilledButton(
                 child: Text(context.l10n.install),
                 onPressed: () async {
                   await showInstallDialog(
@@ -195,55 +195,53 @@ class _MSStorePageState extends State<MSStorePage>
 
     await showDialog<String>(
       context: context,
-      builder:
-          (context) => ContentDialog(
-            constraints: const BoxConstraints(maxWidth: 600),
-            title: Text(context.l10n.msstorePackagesPrompt),
-            content: TreeView(
-              selectionMode: TreeViewSelectionMode.multiple,
-              shrinkWrap: true,
-              items: items,
-            ),
-            actions: [
-              FilledButton(
-                child: Text(context.l10n.okButton),
-                onPressed: () async {
-                  final downloadList = <MSStorePackagesInfoDTO>[];
-                  for (final item in items) {
-                    if (item.selected!) {
-                      downloadList.add(packages.elementAt(item.value));
-                    }
-                  }
-                  if (downloadList.isEmpty) {
-                    Navigator.pop(context, 'Download list is empty');
-                    return;
-                  }
+      builder: (context) => ContentDialog(
+        constraints: const BoxConstraints(maxWidth: 600),
+        title: Text(context.l10n.msstorePackagesPrompt),
+        content: TreeView(
+          selectionMode: TreeViewSelectionMode.multiple,
+          shrinkWrap: true,
+          items: items,
+        ),
+        actions: [
+          FilledButton(
+            child: Text(context.l10n.okButton),
+            onPressed: () async {
+              final downloadList = <MSStorePackagesInfoDTO>[];
+              for (final item in items) {
+                if (item.selected!) {
+                  downloadList.add(packages.elementAt(item.value));
+                }
+              }
+              if (downloadList.isEmpty) {
+                Navigator.pop(context, 'Download list is empty');
+                return;
+              }
 
-                  if (!context.mounted) return;
-                  Navigator.pop(context);
+              if (!context.mounted) return;
+              Navigator.pop(context);
 
-                  await showDialog(
-                    context: context,
-                    dismissWithEsc: false,
-                    builder:
-                        (context) => MsStorePackagesDownloadWidget(
-                          items: downloadList,
-                          productId: productId.trim(),
-                          cleanUpAfterInstall: cleanUp,
-                          ring: _selectedRing,
-                        ),
-                  );
+              await showDialog(
+                context: context,
+                dismissWithEsc: false,
+                builder: (context) => MsStorePackagesDownloadWidget(
+                  items: downloadList,
+                  productId: productId.trim(),
+                  cleanUpAfterInstall: cleanUp,
+                  ring: _selectedRing,
+                ),
+              );
 
-                  if (!context.mounted) return;
-                  Navigator.pop(context, 'Successfully downloaded');
-                },
-              ),
-              Button(
-                child: Text(context.l10n.close),
-                onPressed: () => Navigator.pop(context, 'User canceled dialog'),
-              ),
-            ],
+              if (!context.mounted) return;
+              Navigator.pop(context, 'Successfully downloaded');
+            },
           ),
+          Button(
+            child: Text(context.l10n.close),
+            onPressed: () => Navigator.pop(context, 'User canceled dialog'),
+          ),
+        ],
+      ),
     );
     setState(() {});
   }

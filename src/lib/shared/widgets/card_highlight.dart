@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:revitool/extensions.dart';
 
@@ -18,91 +16,95 @@ const _cardDescStyleForLight = TextStyle(
   overflow: TextOverflow.fade,
 );
 
-class CardHighlightSwitch extends StatelessWidget {
-  const CardHighlightSwitch({
+const _imgXY = 48.0;
+
+class CardHighlight extends StatelessWidget {
+  const CardHighlight({
     super.key,
     this.icon,
     required this.label,
     this.description,
-    required this.switchBool,
-    required this.function,
-    this.requiresRestart,
     this.codeSnippet,
-  });
+    this.backgroundColor,
+    this.borderColor,
+    this.image,
+    required this.action,
+  }) : assert(
+         icon == null || image == null,
+         'Cannot provide both icon and image',
+       );
 
   final IconData? icon;
   final String label;
   final String? description;
-  final ValueNotifier<bool> switchBool;
-  final ValueChanged function;
-  final bool? requiresRestart;
   final String? codeSnippet;
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final String? image;
+  final Widget action;
 
-  static final _key = Random().nextInt(1000);
   @override
   Widget build(BuildContext context) {
+    // Use label hash for stable PageStorageKey to prevent unnecessary rebuilds
+    final pageStorageKey = label.hashCode;
+
     return Column(
-      key: PageStorageKey(_key),
+      key: PageStorageKey(pageStorageKey),
       children: [
         Card(
+          backgroundColor: backgroundColor,
           borderRadius: _cardBorderRadius,
+          borderColor: borderColor,
           child: SizedBox(
-            // height: 44,
             width: double.infinity,
             child: Align(
               heightFactor: 1.18,
               alignment: AlignmentDirectional.center,
               child: Row(
                 children: [
-                  if (icon != null) ...[
+                  if (image != null) ...[
+                    const SizedBox(width: 5.0),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(5),
+                      child: Image.network(
+                        image!,
+                        width: _imgXY,
+                        height: _imgXY,
+                        cacheHeight:
+                            (_imgXY * MediaQuery.devicePixelRatioOf(context))
+                                .toInt(),
+                        cacheWidth:
+                            (_imgXY * MediaQuery.devicePixelRatioOf(context))
+                                .toInt(),
+                        filterQuality: FilterQuality.high,
+                      ),
+                    ),
+                    const SizedBox(width: 15.0),
+                  ] else if (icon != null) ...[
                     const SizedBox(width: 5.0),
                     Icon(icon, size: 24),
                     const SizedBox(width: 15.0),
                   ],
                   Expanded(
-                    child: SizedBox(
-                      child: InfoLabel(
-                        label: label,
-                        labelStyle: const TextStyle(
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        child:
-                            description != null
-                                ? Text(
-                                  description ?? "",
-                                  style:
-                                      context.theme.brightness.isDark
-                                          ? _cardDescStyleForDark
-                                          : _cardDescStyleForLight,
-                                )
-                                : const SizedBox(),
+                    child: InfoLabel(
+                      label: label,
+                      labelStyle: const TextStyle(
+                        overflow: TextOverflow.ellipsis,
                       ),
+                      child: description != null
+                          ? Text(
+                              description!,
+                              style: context.theme.brightness.isDark
+                                  ? _cardDescStyleForDark
+                                  : _cardDescStyleForLight,
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          : const SizedBox(),
                     ),
                   ),
-                  const SizedBox(width: 2.0),
-                  ValueListenableBuilder<bool>(
-                    valueListenable: switchBool,
-                    builder: (context, value, child) {
-                      return Text(
-                        value ? context.l10n.onStatus : context.l10n.offStatus,
-                      );
-                    },
-                  ),
                   const SizedBox(width: 10.0),
-                  ValueListenableBuilder<bool>(
-                    valueListenable: switchBool,
-                    builder: (context, builderValue, child) {
-                      return ToggleSwitch(
-                        checked: builderValue,
-                        onChanged: (value) async {
-                          function(value);
-                          if (requiresRestart != null) {
-                            showRestartDialog(context);
-                          }
-                        },
-                      );
-                    },
-                  ),
+
+                  RepaintBoundary(child: action),
                 ],
               ),
             ),
@@ -110,7 +112,7 @@ class CardHighlightSwitch extends StatelessWidget {
         ),
         if (codeSnippet != null) ...[
           _CardHighlightCodeSnippet(
-            pageStorageKey: _key,
+            pageStorageKey: pageStorageKey,
             codeSnippet: codeSnippet!,
           ),
         ],
@@ -120,6 +122,55 @@ class CardHighlightSwitch extends StatelessWidget {
   }
 }
 
+class CardToggleSwitch extends StatelessWidget {
+  const CardToggleSwitch({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    this.requiresRestart = false,
+  });
+
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  final bool requiresRestart;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(value ? context.l10n.onStatus : context.l10n.offStatus),
+        const SizedBox(width: 10.0),
+        ToggleSwitch(
+          checked: value,
+          onChanged: (newValue) async {
+            onChanged(newValue);
+            if (requiresRestart) {
+              showRestartDialog(context);
+            }
+          },
+        ),
+      ],
+    );
+  }
+}
+
+/// A status text widget that shows on/off status.
+///
+/// Useful when you want to show status but without an interactive switch.
+class CardStatusText extends StatelessWidget {
+  const CardStatusText({super.key, required this.value});
+
+  /// Status value to display
+  final bool value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(value ? context.l10n.onStatus : context.l10n.offStatus);
+  }
+}
+
+/// Shows a restart dialog to inform the user that a restart is required.
 void showRestartDialog(
   final BuildContext context, {
   String title = "",
@@ -127,19 +178,18 @@ void showRestartDialog(
 }) {
   showDialog(
     context: context,
-    builder:
-        (context) => ContentDialog(
-          title: title.isEmpty ? null : Text(title),
-          content: Text(content.isEmpty ? context.l10n.restartDialog : content),
-          actions: [
-            Button(
-              child: Text(context.l10n.okButton),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
+    builder: (context) => ContentDialog(
+      title: title.isEmpty ? null : Text(title),
+      content: Text(content.isEmpty ? context.l10n.restartDialog : content),
+      actions: [
+        Button(
+          child: Text(context.l10n.okButton),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
+      ],
+    ),
   );
 }
 
@@ -182,99 +232,6 @@ const _fluentHighlightTheme = {
   'emphasis': TextStyle(fontStyle: FontStyle.italic),
 };
 
-class CardHighlight extends StatelessWidget {
-  const CardHighlight({
-    super.key,
-    required this.child,
-    this.codeSnippet,
-    this.backgroundColor,
-    this.icon,
-    this.label,
-    this.description,
-    this.image,
-    this.borderColor,
-  });
-  final Widget child;
-  final String? codeSnippet;
-  final Color? backgroundColor;
-  final IconData? icon;
-  final String? label;
-  final String? description;
-  final String? image;
-  final Color? borderColor;
-
-  static final _key = Random().nextInt(1000);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Card(
-          backgroundColor: backgroundColor,
-          borderRadius: _cardBorderRadius,
-          borderColor: borderColor,
-          child: SizedBox(
-            // height: 44,
-            width: double.infinity,
-            child: Align(
-              heightFactor: 1.18,
-              alignment: AlignmentDirectional.center,
-              child: Row(
-                children: [
-                  if (icon != null) ...[
-                    const SizedBox(width: 5.0),
-                    Icon(icon, size: 24),
-                    const SizedBox(width: 15.0),
-                  ],
-                  if (image != null) ...[
-                    const SizedBox(width: 5.0),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(5),
-                      child: Image.network(
-                        image!,
-                        width: 48,
-                        height: 48,
-                        filterQuality: FilterQuality.high,
-                      ),
-                    ),
-                    const SizedBox(width: 15.0),
-                  ],
-                  Expanded(
-                    child: InfoLabel(
-                      label: label!,
-                      labelStyle: const TextStyle(overflow: TextOverflow.fade),
-                      child:
-                          description != null
-                              ? Text(
-                                description ?? "",
-                                style:
-                                    context.theme.brightness.isDark
-                                        ? _cardDescStyleForDark
-                                        : _cardDescStyleForLight,
-                                overflow: TextOverflow.ellipsis,
-                              )
-                              : const SizedBox(),
-                    ),
-                  ),
-                  const SizedBox(width: 10.0),
-                  child,
-                ],
-              ),
-            ),
-          ),
-        ),
-        if (codeSnippet != null) ...[
-          _CardHighlightCodeSnippet(
-            pageStorageKey: _key,
-            codeSnippet: codeSnippet!,
-          ),
-        ],
-        const SizedBox(height: 5.0),
-      ],
-    );
-  }
-}
-
 class _CardHighlightCodeSnippet extends StatelessWidget {
   const _CardHighlightCodeSnippet({
     required this.pageStorageKey,
@@ -293,10 +250,9 @@ class _CardHighlightCodeSnippet extends StatelessWidget {
           backgroundColor: Colors.transparent,
           child: Expander(
             key: PageStorageKey(pageStorageKey),
-            headerShape:
-                (open) => const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                ),
+            headerShape: (open) => const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(4.0)),
+            ),
             onStateChanged: (state) {
               setState(() {});
             },

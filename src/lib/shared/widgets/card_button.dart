@@ -42,7 +42,7 @@ class CardButtonWidget extends StatelessWidget {
           description: subtitle,
           borderColor: Colors.transparent,
           backgroundColor: Colors.transparent,
-          child: const Icon(
+          action: const Icon(
             msicons.FluentIcons.chevron_right_20_regular,
             size: 20,
           ),

@@ -20,7 +20,7 @@ class SecurityPage extends ConsumerWidget {
           child: Text(context.l10n.pageSecurity),
         ),
       ),
-      children: [
+      children: const [
         _DefenderCard(),
         _UACCard(),
         _MeltdownSpectreCard(),
@@ -32,68 +32,71 @@ class SecurityPage extends ConsumerWidget {
 }
 
 class _DefenderCard extends ConsumerWidget {
+  const _DefenderCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final defenderStatus = ref.watch(defenderStatusProvider);
     final protectionsStatus = ref.watch(defenderProtectionsStatusProvider);
 
     if (!protectionsStatus) {
-      return CardHighlightSwitch(
+      return CardHighlight(
         icon: msicons.FluentIcons.shield_20_regular,
         label: context.l10n.securityWDLabel,
         description: context.l10n.securityWDDescription,
-        switchBool: ValueNotifier(defenderStatus),
-        function: (value) async {
-          showLoadingDialog(context, '');
-          try {
-            if (value) {
-              await SecurityService.enableDefender();
-            } else {
-              await SecurityService.disableDefender();
+        action: CardToggleSwitch(
+          value: defenderStatus,
+          onChanged: (value) async {
+            showLoadingDialog(context, '');
+            try {
+              if (value) {
+                await SecurityService.enableDefender();
+              } else {
+                await SecurityService.disableDefender();
+              }
+              if (!context.mounted) return;
+              context.pop();
+
+              // Invalidate both providers since they're related
+              ref.invalidate(defenderStatusProvider);
+              ref.invalidate(defenderProtectionsStatusProvider);
+
+              await showDialog(
+                context: context,
+                builder: (context) => ContentDialog(
+                  content: Text(context.l10n.restartDialog),
+                  actions: [
+                    Button(
+                      child: Text(context.l10n.okButton),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              );
+            } catch (e) {
+              if (!context.mounted) return;
+              context.pop();
+              await showDialog(
+                context: context,
+                builder: (context) => ContentDialog(
+                  content: Text(e.toString()),
+                  actions: [
+                    Button(
+                      child: Text(context.l10n.okButton),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              );
             }
-            if (!context.mounted) return;
-            context.pop();
-
-            // Invalidate both providers since they're related
-            ref.invalidate(defenderStatusProvider);
-            ref.invalidate(defenderProtectionsStatusProvider);
-
-            await showDialog(
-              context: context,
-              builder: (context) => ContentDialog(
-                content: Text(context.l10n.restartDialog),
-                actions: [
-                  Button(
-                    child: Text(context.l10n.okButton),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-            );
-          } catch (e) {
-            if (!context.mounted) return;
-            context.pop();
-            await showDialog(
-              context: context,
-              builder: (context) => ContentDialog(
-                content: Text(e.toString()),
-                actions: [
-                  Button(
-                    child: Text(context.l10n.okButton),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-            );
-          }
-        },
+          },
+        ),
       );
     } else {
       return CardHighlight(
         icon: msicons.FluentIcons.shield_20_regular,
         label: context.l10n.securityWDLabel,
         description: context.l10n.securityWDDescription,
-        child: SizedBox(
+        action: SizedBox(
           width: 150,
           child: Button(
             onPressed: () async {
@@ -138,75 +141,85 @@ class _DefenderCard extends ConsumerWidget {
 }
 
 class _UACCard extends ConsumerWidget {
+  const _UACCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(uacStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.person_lock_20_regular,
       label: context.l10n.securityUACLabel,
       description: context.l10n.securityUACDescription,
-      switchBool: ValueNotifier(status),
-      requiresRestart: true,
-      function: (value) {
-        value ? SecurityService.enableUAC() : SecurityService.disableUAC();
-        ref.invalidate(uacStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        requiresRestart: true,
+        onChanged: (value) {
+          value ? SecurityService.enableUAC() : SecurityService.disableUAC();
+          ref.invalidate(uacStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _MeltdownSpectreCard extends ConsumerWidget {
+  const _MeltdownSpectreCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(meltdownSpectreStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.shield_badge_20_regular,
       label: context.l10n.securitySMLabel,
       description: context.l10n.securitySMDescription,
-      switchBool: ValueNotifier(status),
-      requiresRestart: true,
-      function: (value) {
-        value
-            ? SecurityService.enableMitigation(Mitigation.meltdownSpectre)
-            : SecurityService.disableMitigation(Mitigation.meltdownSpectre);
-        ref.invalidate(meltdownSpectreStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        requiresRestart: true,
+        onChanged: (value) {
+          value
+              ? SecurityService.enableMitigation(Mitigation.meltdownSpectre)
+              : SecurityService.disableMitigation(Mitigation.meltdownSpectre);
+          ref.invalidate(meltdownSpectreStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _DownfallCard extends ConsumerWidget {
+  const _DownfallCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(downfallStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.shield_badge_20_regular,
       label: context.l10n.securityDownfallMitLabel,
       description: context.l10n.securityDownfallMitDescription,
       codeSnippet: context.l10n.securityDownfallMitCodeSnippet,
-      switchBool: ValueNotifier(status),
-      requiresRestart: true,
-      function: (value) {
-        value
-            ? SecurityService.enableMitigation(Mitigation.downfall)
-            : SecurityService.disableMitigation(Mitigation.downfall);
-        ref.invalidate(downfallStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        requiresRestart: true,
+        onChanged: (value) {
+          value
+              ? SecurityService.enableMitigation(Mitigation.downfall)
+              : SecurityService.disableMitigation(Mitigation.downfall);
+          ref.invalidate(downfallStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _CertificatesCard extends ConsumerWidget {
+  const _CertificatesCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return CardHighlight(
       icon: msicons.FluentIcons.certificate_20_regular,
       label: context.l10n.miscCertsLabel,
       description: context.l10n.miscCertsDescription,
-      child: SizedBox(
+      action: SizedBox(
         width: 150,
         child: Button(
           onPressed: () async {

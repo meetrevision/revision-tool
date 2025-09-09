@@ -15,7 +15,7 @@ class MiscellaneousPage extends ConsumerWidget {
     return ScaffoldPage.scrollable(
       padding: kScaffoldPagePadding,
       header: PageHeader(title: Text(context.l10n.pageMiscellaneous)),
-      children: [
+      children: const [
         _HibernationCard(),
         _FastStartupCard(),
         _TMMonitoringCard(),
@@ -28,114 +28,131 @@ class MiscellaneousPage extends ConsumerWidget {
 }
 
 class _HibernationCard extends ConsumerWidget {
+  const _HibernationCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(hibernationStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.sleep_20_regular,
       label: context.l10n.miscHibernateLabel,
       description: context.l10n.miscHibernateDescription,
-      switchBool: ValueNotifier(status),
-      function: (value) async {
-        value
-            ? await MiscellaneousService.enableHibernation()
-            : await MiscellaneousService.disableHibernation();
-        ref.invalidate(hibernationStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        onChanged: (value) async {
+          value
+              ? await MiscellaneousService.enableHibernation()
+              : await MiscellaneousService.disableHibernation();
+          ref.invalidate(hibernationStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _FastStartupCard extends ConsumerWidget {
+  const _FastStartupCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(fastStartupStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.flash_20_regular,
       label: context.l10n.miscFastStartupLabel,
       description: context.l10n.miscFastStartupDescription,
-      switchBool: ValueNotifier(status),
-      function: (value) {
-        value
-            ? MiscellaneousService.enableFastStartup()
-            : MiscellaneousService.disableFastStartup();
-        ref.invalidate(fastStartupStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        requiresRestart: true,
+        onChanged: (value) {
+          value
+              ? MiscellaneousService.enableFastStartup()
+              : MiscellaneousService.disableFastStartup();
+          ref.invalidate(fastStartupStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _TMMonitoringCard extends ConsumerWidget {
+  const _TMMonitoringCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(tmMonitoringStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: FluentIcons.task_manager,
       label: context.l10n.miscTMMonitoringLabel,
       description: context.l10n.miscTMMonitoringDescription,
-      switchBool: ValueNotifier(status),
-      requiresRestart: true,
-      function: (value) async {
-        value
-            ? await MiscellaneousService.enableTMMonitoring()
-            : MiscellaneousService.disableTMMonitoring();
-        ref.invalidate(tmMonitoringStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        requiresRestart: true,
+        onChanged: (value) async {
+          value
+              ? await MiscellaneousService.enableTMMonitoring()
+              : MiscellaneousService.disableTMMonitoring();
+          ref.invalidate(tmMonitoringStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _MPOCard extends ConsumerWidget {
+  const _MPOCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(mpoStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.window_settings_20_regular,
       label: context.l10n.miscMpoLabel,
       codeSnippet: context.l10n.miscMpoCodeSnippet,
-      switchBool: ValueNotifier(status),
-      function: (value) {
-        value
-            ? MiscellaneousService.enableMPO()
-            : MiscellaneousService.disableMPO();
-        ref.invalidate(mpoStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        onChanged: (value) {
+          value
+              ? MiscellaneousService.enableMPO()
+              : MiscellaneousService.disableMPO();
+          ref.invalidate(mpoStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _UsageReportingCard extends ConsumerWidget {
+  const _UsageReportingCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(usageReportingStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.battery_checkmark_20_regular,
       label: context.l10n.miscURLabel,
       description: context.l10n.miscURDescription,
-      switchBool: ValueNotifier(status),
-      function: (value) async {
-        value
-            ? await MiscellaneousService.enableUsageReporting()
-            : await MiscellaneousService.disableUsageReporting();
-        ref.invalidate(usageReportingStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        onChanged: (value) async {
+          value
+              ? await MiscellaneousService.enableUsageReporting()
+              : await MiscellaneousService.disableUsageReporting();
+          ref.invalidate(usageReportingStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _UpdateKGLCard extends ConsumerWidget {
+  const _UpdateKGLCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return CardHighlight(
       icon: msicons.FluentIcons.xbox_controller_20_regular,
       label: context.l10n.miscUpdateKGL,
       description: context.l10n.miscUpdateKGLDescription,
-      child: SizedBox(
+      action: SizedBox(
         width: 150,
         child: FilledButton(
           onPressed: () async {

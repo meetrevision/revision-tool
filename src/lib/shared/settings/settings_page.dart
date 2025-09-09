@@ -26,181 +26,218 @@ const languageList = [
   ComboBoxItem(value: 'it_IT', child: Text('Italian')),
 ];
 
-class SettingsPage extends ConsumerStatefulWidget {
+class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
   @override
-  ConsumerState<SettingsPage> createState() => _SettingsPageState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ScaffoldPage.scrollable(
+      padding: kScaffoldPagePadding,
+      header: PageHeader(title: Text(context.l10n.pageSettings)),
+      children: const [
+        _ThemeModeCard(),
+        _ExperimentalCard(),
+        _UpdateCard(),
+        _LanguageCard(),
+      ],
+    );
+  }
 }
 
-class _SettingsPageState extends ConsumerState<SettingsPage> {
-  late ThemeMode theme;
+class _ThemeModeCard extends ConsumerWidget {
+  const _ThemeModeCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appSettings = ref.watch(appSettingsNotifierProvider);
+
+    return CardHighlight(
+      icon: msicons.FluentIcons.paint_brush_20_regular,
+      label: context.l10n.settingsCTLabel,
+      description: context.l10n.settingsCTDescription,
+      action: ComboBox(
+        value: appSettings.themeMode,
+        onChanged: ref
+            .read(appSettingsNotifierProvider.notifier)
+            .updateThemeMode,
+        items: [
+          ComboBoxItem(
+            value: ThemeMode.system,
+            child: Text(ThemeMode.system.name.uppercaseFirst()),
+          ),
+          ComboBoxItem(
+            value: ThemeMode.light,
+            child: Text(ThemeMode.light.name.uppercaseFirst()),
+          ),
+          ComboBoxItem(
+            value: ThemeMode.dark,
+            child: Text(ThemeMode.dark.name.uppercaseFirst()),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ExperimentalCard extends ConsumerWidget {
+  const _ExperimentalCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final status = ref.watch(settingsExperimentalStatus);
+
+    return CardHighlight(
+      icon: msicons.FluentIcons.warning_20_regular,
+      label: context.l10n.settingsEPTLabel,
+      // description: context.l10n.settingsEPTDescription,
+      action: CardToggleSwitch(
+        value: status,
+        onChanged: (value) {
+          WinRegistryService.writeRegistryValue(
+            Registry.localMachine,
+            r'SOFTWARE\Revision\Revision Tool',
+            'Experimental',
+            value ? 1 : 0,
+          );
+          ref.invalidate(settingsExperimentalStatus);
+        },
+      ),
+    );
+  }
+}
+
+class _UpdateCard extends ConsumerStatefulWidget {
+  const _UpdateCard();
+
+  @override
+  ConsumerState<_UpdateCard> createState() => _UpdateCardState();
+}
+
+class _UpdateCardState extends ConsumerState<_UpdateCard> {
   final _toolUpdateService = ToolUpdateService();
   final _updateTitle = ValueNotifier<String>("Check for Updates");
 
   @override
   Widget build(BuildContext context) {
-    final appSettings = ref.watch(appSettingsNotifierProvider);
+    return CardHighlight(
+      label: context.l10n.settingsUpdateLabel,
+      icon: msicons.FluentIcons.arrow_clockwise_20_regular,
+      action: ValueListenableBuilder(
+        valueListenable: _updateTitle,
+        builder: (context, value, child) => FilledButton(
+          child: Text(_updateTitle.value),
+          onPressed: () async {
+            try {
+              await _toolUpdateService.fetchData();
+              final currentVersion = _toolUpdateService.getCurrentVersion;
+              final latestVersion = _toolUpdateService.getLatestVersion;
+              final data = _toolUpdateService.data;
 
-    return ScaffoldPage.scrollable(
-      padding: kScaffoldPagePadding,
-      header: PageHeader(title: Text(context.l10n.pageSettings)),
-      children: [
-        CardHighlight(
-          icon: msicons.FluentIcons.paint_brush_20_regular,
-          label: context.l10n.settingsCTLabel,
-          description: context.l10n.settingsCTDescription,
-          child: ComboBox(
-            value: appSettings.themeMode,
-            onChanged: ref
-                .read(appSettingsNotifierProvider.notifier)
-                .updateThemeMode,
-            items: [
-              ComboBoxItem(
-                value: ThemeMode.system,
-                child: Text(ThemeMode.system.name.uppercaseFirst()),
-              ),
-              ComboBoxItem(
-                value: ThemeMode.light,
-                child: Text(ThemeMode.light.name.uppercaseFirst()),
-              ),
-              ComboBoxItem(
-                value: ThemeMode.dark,
-                child: Text(ThemeMode.dark.name.uppercaseFirst()),
-              ),
-            ],
-          ),
-        ),
-        CardHighlightSwitch(
-          icon: msicons.FluentIcons.warning_20_regular,
-          label: context.l10n.settingsEPTLabel,
-          // description: context.l10n.settingsEPTDescription,
-          switchBool: ValueNotifier(ref.watch(settingsExperimentalStatus)),
-          function: (value) {
-            WinRegistryService.writeRegistryValue(
-              Registry.localMachine,
-              r'SOFTWARE\Revision\Revision Tool',
-              'Experimental',
-              value ? 1 : 0,
-            );
-            ref.invalidate(settingsExperimentalStatus);
-          },
-        ),
-        CardHighlight(
-          label: context.l10n.settingsUpdateLabel,
-          icon: msicons.FluentIcons.arrow_clockwise_20_regular,
-          child: ValueListenableBuilder(
-            valueListenable: _updateTitle,
-            builder: (context, value, child) => FilledButton(
-              child: Text(_updateTitle.value),
-              onPressed: () async {
-                try {
-                  await _toolUpdateService.fetchData();
-                  final currentVersion = _toolUpdateService.getCurrentVersion;
-                  final latestVersion = _toolUpdateService.getLatestVersion;
-                  final data = _toolUpdateService.data;
+              if (latestVersion > currentVersion) {
+                if (!context.mounted) return;
+                _updateTitle.value = context.l10n.settingsUpdateButton;
 
-                  if (latestVersion > currentVersion) {
+                final shouldInstall = await showDialog<bool>(
+                  context: context,
+                  builder: (dialogCtx) => ContentDialog(
+                    title: Text(context.l10n.settingsUpdateButtonAvailable),
+                    content: Text(
+                      "${context.l10n.settingsUpdateButtonAvailablePrompt} ${data["tag_name"]}?",
+                    ),
+                    actions: [
+                      FilledButton(
+                        child: Text(context.l10n.okButton),
+                        onPressed: () => Navigator.pop(dialogCtx, true),
+                      ),
+                      Button(
+                        child: Text(context.l10n.notNowButton),
+                        onPressed: () => Navigator.pop(dialogCtx, false),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (shouldInstall == true) {
+                  if (!context.mounted) return;
+                  _updateTitle.value =
+                      "${context.l10n.settingsUpdatingStatus}...";
+                  try {
+                    await _toolUpdateService.downloadNewVersion();
+                    await _toolUpdateService.installUpdate();
                     if (!context.mounted) return;
-                    _updateTitle.value = context.l10n.settingsUpdateButton;
-
-                    final shouldInstall = await showDialog<bool>(
+                    _updateTitle.value =
+                        context.l10n.settingsUpdatingStatusSuccess;
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    _updateTitle.value = "Update failed";
+                    await showDialog(
                       context: context,
-                      builder: (dialogCtx) => ContentDialog(
-                        title: Text(context.l10n.settingsUpdateButtonAvailable),
-                        content: Text(
-                          "${context.l10n.settingsUpdateButtonAvailablePrompt} ${data["tag_name"]}?",
-                        ),
+                      builder: (c) => ContentDialog(
+                        title: const Text('Error'),
+                        content: Text(e.toString()),
                         actions: [
-                          FilledButton(
-                            child: Text(context.l10n.okButton),
-                            onPressed: () => Navigator.pop(dialogCtx, true),
-                          ),
                           Button(
-                            child: Text(context.l10n.notNowButton),
-                            onPressed: () => Navigator.pop(dialogCtx, false),
+                            child: Text(context.l10n.okButton),
+                            onPressed: () => Navigator.pop(c),
                           ),
                         ],
                       ),
                     );
-
-                    if (shouldInstall == true) {
-                      if (!context.mounted) return;
-                      _updateTitle.value =
-                          "${context.l10n.settingsUpdatingStatus}...";
-                      try {
-                        await _toolUpdateService.downloadNewVersion();
-                        await _toolUpdateService.installUpdate();
-                        if (!context.mounted) return;
-                        _updateTitle.value =
-                            context.l10n.settingsUpdatingStatusSuccess;
-                      } catch (e) {
-                        if (!context.mounted) return;
-                        _updateTitle.value = "Update failed";
-                        await showDialog(
-                          context: context,
-                          builder: (c) => ContentDialog(
-                            title: const Text('Error'),
-                            content: Text(e.toString()),
-                            actions: [
-                              Button(
-                                child: Text(context.l10n.okButton),
-                                onPressed: () => Navigator.pop(c),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                    }
-                  } else {
-                    if (!context.mounted) return;
-                    _updateTitle.value =
-                        context.l10n.settingsUpdatingStatusNotFound;
                   }
-                } catch (e) {
-                  if (!context.mounted) return;
-                  await showDialog(
-                    context: context,
-                    builder: (c) => ContentDialog(
-                      title: const Text('Error'),
-                      content: Text(e.toString()),
-                      actions: [
-                        Button(
-                          child: Text(context.l10n.okButton),
-                          onPressed: () => Navigator.pop(c),
-                        ),
-                      ],
-                    ),
-                  );
                 }
-              },
-            ),
-          ),
+              } else {
+                if (!context.mounted) return;
+                _updateTitle.value =
+                    context.l10n.settingsUpdatingStatusNotFound;
+              }
+            } catch (e) {
+              if (!context.mounted) return;
+              await showDialog(
+                context: context,
+                builder: (c) => ContentDialog(
+                  title: const Text('Error'),
+                  content: Text(e.toString()),
+                  actions: [
+                    Button(
+                      child: Text(context.l10n.okButton),
+                      onPressed: () => Navigator.pop(c),
+                    ),
+                  ],
+                ),
+              );
+            }
+          },
         ),
-        CardHighlight(
-          icon: msicons.FluentIcons.local_language_20_regular,
-          label: context.l10n.settingsLanguageLabel,
-          description: context.l10n.settingsLanguageDescription,
-          child: ComboBox(
-            value: appLanguage,
-            onChanged: (value) {
-              setState(() {
-                appLanguage = value ?? 'en_US';
-                WinRegistryService.writeRegistryValue(
-                  Registry.localMachine,
-                  r'SOFTWARE\Revision\Revision Tool',
-                  'Language',
-                  appLanguage,
-                );
-                ref
-                    .read(appSettingsNotifierProvider.notifier)
-                    .updateLocale(appLanguage);
-              });
-            },
-            items: languageList,
-          ),
-        ),
-      ],
+      ),
+    );
+  }
+}
+
+class _LanguageCard extends ConsumerWidget {
+  const _LanguageCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return CardHighlight(
+      icon: msicons.FluentIcons.local_language_20_regular,
+      label: context.l10n.settingsLanguageLabel,
+      description: context.l10n.settingsLanguageDescription,
+      action: ComboBox(
+        value: appLanguage,
+        onChanged: (value) {
+          final newLanguage = value ?? 'en_US';
+          WinRegistryService.writeRegistryValue(
+            Registry.localMachine,
+            r'SOFTWARE\Revision\Revision Tool',
+            'Language',
+            newLanguage,
+          );
+          ref
+              .read(appSettingsNotifierProvider.notifier)
+              .updateLocale(newLanguage);
+        },
+        items: languageList,
+      ),
     );
   }
 }

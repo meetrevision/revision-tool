@@ -14,23 +14,22 @@ class PerformancePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ScaffoldPage.scrollable(
-      resizeToAvoidBottomInset: false,
       padding: kScaffoldPagePadding,
       header: PageHeader(title: Text(context.l10n.pagePerformance)),
       children: [
-        _SuperfetchCard(),
-        _MemoryCompressionCard(),
-        _IntelTSXCard(),
-        _FullscreenOptimizationCard(),
-        if (WinRegistryService.isW11) _WindowedOptimizationCard(),
-        _BackgroundAppsCard(),
-        _ServicesGroupingCard(),
+        const _SuperfetchCard(),
+        const _MemoryCompressionCard(),
+        const _IntelTSXCard(),
+        const _FullscreenOptimizationCard(),
+        if (WinRegistryService.isW11) const _WindowedOptimizationCard(),
+        const _BackgroundAppsCard(),
+        const _ServicesGroupingCard(),
         if (ref.watch(settingsExperimentalStatus)) ...[
-          _CStatesCard(),
+          const _CStatesCard(),
           Subtitle(content: Text(context.l10n.perfSectionFS)),
-          _LastTimeAccessCard(),
-          _Dot3NamingCard(),
-          _MemoryUsageCard(),
+          const _LastTimeAccessCard(),
+          const _Dot3NamingCard(),
+          const _MemoryUsageCard(),
         ],
       ],
     );
@@ -38,28 +37,34 @@ class PerformancePage extends ConsumerWidget {
 }
 
 class _SuperfetchCard extends ConsumerWidget {
+  const _SuperfetchCard();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(superfetchStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.top_speed_20_regular,
       label: context.l10n.perfSuperfetchLabel,
       description: context.l10n.perfSuperfetchDescription,
-      switchBool: ValueNotifier(status),
-      requiresRestart: true,
-      function: (value) async {
-        value
-            ? await PerformanceService.enableSuperfetch()
-            : await PerformanceService.disableSuperfetch();
+      action: CardToggleSwitch(
+        value: status,
+        requiresRestart: true,
+        onChanged: (value) async {
+          value
+              ? await PerformanceService.enableSuperfetch()
+              : await PerformanceService.disableSuperfetch();
 
-        ref.invalidate(superfetchStatusProvider);
-      },
+          ref.invalidate(superfetchStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _MemoryCompressionCard extends ConsumerWidget {
+  const _MemoryCompressionCard();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final superfetchStatus = ref.watch(superfetchStatusProvider);
@@ -69,103 +74,119 @@ class _MemoryCompressionCard extends ConsumerWidget {
       return const SizedBox();
     }
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.ram_20_regular,
       label: context.l10n.perfMCLabel,
       description: context.l10n.perfMCDescription,
-      switchBool: ValueNotifier(memoryCompressionStatus),
-      requiresRestart: true,
-      function: (value) async {
-        value
-            ? await PerformanceService.enableMemoryCompression()
-            : await PerformanceService.disableMemoryCompression();
-        ref.invalidate(memoryCompressionStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: memoryCompressionStatus,
+        requiresRestart: true,
+        onChanged: (value) async {
+          value
+              ? await PerformanceService.enableMemoryCompression()
+              : await PerformanceService.disableMemoryCompression();
+          ref.invalidate(memoryCompressionStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _IntelTSXCard extends ConsumerWidget {
+  const _IntelTSXCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(intelTSXStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.transmission_20_regular,
       label: context.l10n.perfITSXLabel,
       description: context.l10n.perfITSXDescription,
-      switchBool: ValueNotifier(status),
-      function: (value) {
-        value
-            ? PerformanceService.enableIntelTSX()
-            : PerformanceService.disableIntelTSX();
-        ref.invalidate(intelTSXStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        requiresRestart: true,
+        onChanged: (value) {
+          value
+              ? PerformanceService.enableIntelTSX()
+              : PerformanceService.disableIntelTSX();
+          ref.invalidate(intelTSXStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _FullscreenOptimizationCard extends ConsumerWidget {
+  const _FullscreenOptimizationCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(fullscreenOptimizationStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.desktop_20_regular,
       label: context.l10n.perfFOLabel,
       description: context.l10n.perfFODescription,
-      switchBool: ValueNotifier(status),
-      function: (value) {
-        value
-            ? PerformanceService.enableFullscreenOptimization()
-            : PerformanceService.disableFullscreenOptimization();
-        ref.invalidate(fullscreenOptimizationStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        onChanged: (value) {
+          value
+              ? PerformanceService.enableFullscreenOptimization()
+              : PerformanceService.disableFullscreenOptimization();
+          ref.invalidate(fullscreenOptimizationStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _WindowedOptimizationCard extends ConsumerWidget {
+  const _WindowedOptimizationCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(windowedOptimizationStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.desktop_mac_20_regular,
       label: context.l10n.perfOWGLabel,
       description: context.l10n.perfOWGDescription,
-      switchBool: ValueNotifier(status),
-      function: (value) {
-        value
-            ? PerformanceService.enableWindowedOptimization()
-            : PerformanceService.disableWindowedOptimization();
-        ref.invalidate(windowedOptimizationStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        onChanged: (value) {
+          value
+              ? PerformanceService.enableWindowedOptimization()
+              : PerformanceService.disableWindowedOptimization();
+          ref.invalidate(windowedOptimizationStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _BackgroundAppsCard extends ConsumerWidget {
+  const _BackgroundAppsCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(backgroundAppsStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.bezier_curve_square_20_regular,
       label: context.l10n.perfBALabel,
       description: context.l10n.perfBADescription,
-      switchBool: ValueNotifier(status),
-      function: (value) {
-        value
-            ? PerformanceService.enableBackgroundApps()
-            : PerformanceService.disableBackgroundApps();
-        ref.invalidate(backgroundAppsStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        onChanged: (value) {
+          value
+              ? PerformanceService.enableBackgroundApps()
+              : PerformanceService.disableBackgroundApps();
+          ref.invalidate(backgroundAppsStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _ServicesGroupingCard extends ConsumerWidget {
+  const _ServicesGroupingCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(servicesGroupingStatusProvider);
@@ -174,7 +195,7 @@ class _ServicesGroupingCard extends ConsumerWidget {
       icon: msicons.FluentIcons.group_20_regular,
       label: context.l10n.perfSGMLabel,
       description: context.l10n.perfSGMDescription,
-      child: ComboBox<ServiceGrouping>(
+      action: ComboBox<ServiceGrouping>(
         value: status,
         onChanged: (value) {
           if (value == null) return;
@@ -227,81 +248,95 @@ class _ServicesGroupingCard extends ConsumerWidget {
 }
 
 class _CStatesCard extends ConsumerWidget {
+  const _CStatesCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(cStatesStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.sleep_20_regular,
       label: context.l10n.perfCStatesLabel,
       description: context.l10n.perfCStatesDescription,
-      switchBool: ValueNotifier(status),
-      function: (value) {
-        value
-            ? PerformanceService.disableCStates()
-            : PerformanceService.enableCStates();
-        ref.invalidate(cStatesStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        onChanged: (value) {
+          value
+              ? PerformanceService.disableCStates()
+              : PerformanceService.enableCStates();
+          ref.invalidate(cStatesStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _LastTimeAccessCard extends ConsumerWidget {
+  const _LastTimeAccessCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(lastTimeAccessNTFSStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.document_bullet_list_clock_20_regular,
       label: context.l10n.perfLTALabel,
       description: context.l10n.perfLTADescription,
-      switchBool: ValueNotifier(status),
-      function: (value) async {
-        value
-            ? await PerformanceService.disableLastTimeAccessNTFS()
-            : await PerformanceService.enableLastTimeAccessNTFS();
-        ref.invalidate(lastTimeAccessNTFSStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        requiresRestart: true,
+        onChanged: (value) async {
+          value
+              ? await PerformanceService.disableLastTimeAccessNTFS()
+              : await PerformanceService.enableLastTimeAccessNTFS();
+          ref.invalidate(lastTimeAccessNTFSStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _Dot3NamingCard extends ConsumerWidget {
+  const _Dot3NamingCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(dot3NamingNTFSStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.hard_drive_20_regular,
       label: context.l10n.perfEdTLabel,
       description: context.l10n.perfEdTDescription,
-      switchBool: ValueNotifier(status),
-      function: (value) async {
-        value
-            ? await PerformanceService.disable8dot3NamingNTFS()
-            : await PerformanceService.enable8dot3NamingNTFS();
-        ref.invalidate(dot3NamingNTFSStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        requiresRestart: true,
+        onChanged: (value) async {
+          value
+              ? await PerformanceService.disable8dot3NamingNTFS()
+              : await PerformanceService.enable8dot3NamingNTFS();
+          ref.invalidate(dot3NamingNTFSStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _MemoryUsageCard extends ConsumerWidget {
+  const _MemoryUsageCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(memoryUsageNTFSStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.memory_16_regular,
       label: context.l10n.perfMULabel,
-      switchBool: ValueNotifier(status),
-      function: (value) async {
-        value
-            ? await PerformanceService.enableMemoryUsageNTFS()
-            : await PerformanceService.disableMemoryUsageNTFS();
-        ref.invalidate(memoryUsageNTFSStatusProvider);
-      },
-      codeSnippet: context.l10n.perfMUDescription,
+      action: CardToggleSwitch(
+        value: status,
+        requiresRestart: true,
+        onChanged: (value) async {
+          value
+              ? await PerformanceService.enableMemoryUsageNTFS()
+              : await PerformanceService.disableMemoryUsageNTFS();
+          ref.invalidate(memoryUsageNTFSStatusProvider);
+        },
+      ),
     );
   }
 }

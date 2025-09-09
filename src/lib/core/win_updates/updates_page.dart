@@ -14,71 +14,76 @@ class WinUpdatesPage extends ConsumerWidget {
     return ScaffoldPage.scrollable(
       padding: kScaffoldPagePadding,
       header: PageHeader(title: Text(context.l10n.pageUpdates)),
-      children: [
-        _PauseUpdatesCard(),
-        _VisibilityCard(),
-        _DriversCard(),
-      ],
+      children: const [_PauseUpdatesCard(), _VisibilityCard(), _DriversCard()],
     );
   }
 }
 
 class _PauseUpdatesCard extends ConsumerWidget {
+  const _PauseUpdatesCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(pauseUpdatesWUStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.pause_20_regular,
       label: context.l10n.wuPauseLabel,
       description: context.l10n.wuPauseDescription,
-      switchBool: ValueNotifier(status),
-      function: (value) {
-        value
-            ? WinUpdatesService.enablePauseUpdatesWU()
-            : WinUpdatesService.disablePauseUpdatesWU();
-        ref.invalidate(pauseUpdatesWUStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        onChanged: (value) {
+          value
+              ? WinUpdatesService.enablePauseUpdatesWU()
+              : WinUpdatesService.disablePauseUpdatesWU();
+          ref.invalidate(pauseUpdatesWUStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _VisibilityCard extends ConsumerWidget {
+  const _VisibilityCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(visibilityWUStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: msicons.FluentIcons.arrow_sync_20_regular,
       label: context.l10n.wuPageLabel,
       description: context.l10n.wuPageDescription,
-      switchBool: ValueNotifier(status),
-      function: (value) {
-        value
-            ? WinUpdatesService.disableVisibilityWU()
-            : WinUpdatesService.enableVisibilityWU();
-        ref.invalidate(visibilityWUStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        onChanged: (value) {
+          value
+              ? WinUpdatesService.disableVisibilityWU()
+              : WinUpdatesService.enableVisibilityWU();
+          ref.invalidate(visibilityWUStatusProvider);
+        },
+      ),
     );
   }
 }
 
 class _DriversCard extends ConsumerWidget {
+  const _DriversCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(driversWUStatusProvider);
 
-    return CardHighlightSwitch(
+    return CardHighlight(
       icon: FluentIcons.devices4,
       label: context.l10n.wuDriversLabel,
       description: context.l10n.wuDriversDescription,
-      switchBool: ValueNotifier(status),
-      function: (value) {
-        value
-            ? WinUpdatesService.enableDriversWU()
-            : WinUpdatesService.disableDriversWU();
-        ref.invalidate(driversWUStatusProvider);
-      },
+      action: CardToggleSwitch(
+        value: status,
+        onChanged: (value) {
+          value
+              ? WinUpdatesService.enableDriversWU()
+              : WinUpdatesService.disableDriversWU();
+          ref.invalidate(driversWUStatusProvider);
+        },
+      ),
     );
   }
 }
