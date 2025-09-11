@@ -51,6 +51,10 @@ jobs:
       - name: Build revitool GUI
         run: flutter build windows --build-name=${{ env.NEW_VERSION }} --build-number=1 --obfuscate --split-debug-info=/symbols --dart-define=APP_VERSION=${{ env.NEW_VERSION }}
         working-directory: src
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y
+        shell: powershell  
       
       - name: Build Installer
         run: |
