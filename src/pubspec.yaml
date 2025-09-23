@@ -28,11 +28,10 @@ dependencies:
       url: https://github.com/alexmercerind/window_plus
 
   # State management
-  flutter_riverpod: ^3.0.0-dev.17
-  riverpod_annotation: ^3.0.0-dev.17
+  flutter_riverpod: ^3.0.0
+  riverpod_annotation: ^3.0.0
 
   # Path
-  path_provider: ^2.1.5
   path: ^1.9.1
 
   # Network
@@ -40,9 +39,6 @@ dependencies:
 
   # Shell
   process_run: ^1.2.4
-
-  # Used to get the version of the app
-  package_info_plus: ^8.3.0
 
   # Interactivity with Windows
   win32: ^5.13.0
@@ -70,12 +66,12 @@ dev_dependencies:
   # flutter_test:
   #   sdk: flutter
   flutter_lints: ^6.0.0
-  build_runner: ^2.7.0
-  freezed: ^3.0.6
-  json_serializable: ^6.10.0
-  riverpod_generator: ^3.0.0-dev.17
+  build_runner: ^2.7.1
+  freezed: ^3.2.3
+  json_serializable: ^6.11.1
+  riverpod_generator: ^3.0.0
   custom_lint: ^0.8.0
-  riverpod_lint: ^3.0.0-dev.17
+  riverpod_lint: ^3.0.0
 
 flutter:
   generate: true
