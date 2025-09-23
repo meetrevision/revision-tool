@@ -12,16 +12,18 @@ class MiscellaneousPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final hibernationStatus = ref.watch(hibernationStatusProvider);
+
     return ScaffoldPage.scrollable(
       padding: kScaffoldPagePadding,
       header: PageHeader(title: Text(context.l10n.pageMiscellaneous)),
-      children: const [
-        _HibernationCard(),
-        _FastStartupCard(),
-        _TMMonitoringCard(),
-        _MPOCard(),
-        _UsageReportingCard(),
-        _UpdateKGLCard(),
+      children: [
+        const _HibernationCard(),
+        if (hibernationStatus) const _FastStartupCard(),
+        const _TMMonitoringCard(),
+        const _MPOCard(),
+        const _UsageReportingCard(),
+        const _UpdateKGLCard(),
       ],
     );
   }
