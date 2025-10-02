@@ -28,6 +28,16 @@ abstract final class WinPackageService {
     'Revision-Tool',
     'CAB',
   );
+
+  static final bundledPackagesPath = p.join(
+    Directory.current.path,
+    'data',
+    'flutter_assets',
+    'additionals',
+    'packages',
+    'winsxs',
+  );
+
   static const cbsPackagesRegPath =
       r'SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages\';
 
@@ -61,37 +71,95 @@ abstract final class WinPackageService {
         lastError == null;
   }
 
+  /// Check if a bundled package exists for the given package type
+  static String? getBundledPackagePath(final WinPackageType packageType) {
+    try {
+      final bundledDir = Directory(bundledPackagesPath);
+      if (!bundledDir.existsSync()) {
+        logger.w(
+          'Bundled packages directory does not exist: $bundledPackagesPath',
+        );
+        return null;
+      }
+
+      final String? packageFile = bundledDir
+          .listSync()
+          .whereType<File>()
+          .map((file) => p.basename(file.path))
+          .firstWhereOrNull(
+            (name) =>
+                name.startsWith("${packageType.packageName}31bf3856ad364e35") &&
+                name.contains(WinRegistryService.cpuArch) &&
+                name.endsWith('.cab'),
+          );
+
+      if (packageFile != null) {
+        final fullPath = p.join(bundledPackagesPath, packageFile);
+        logger.i('Found bundled package: $fullPath');
+        return fullPath;
+      }
+    } catch (e) {
+      logger.w('Error checking bundled packages: $e');
+    }
+    return null;
+  }
+
   static Future<String> downloadPackage(
     final WinPackageType packageType, {
     String? path,
   }) async {
     final downloadPath = path ?? cabPath;
 
-    Directory(downloadPath).createSync(recursive: true);
+    try {
+      logger.i('Attempting to download package from GitHub...');
 
-    final List<dynamic> assests = (await _networkService.getGHLatestRelease(
-      ApiEndpoints.cabPackages,
-    ))['assets'];
-    String name = '';
+      Directory(downloadPath).createSync(recursive: true);
 
-    final String? downloadUrl = assests.firstWhereOrNull((final e) {
-      name = e['name'];
-      return name.startsWith("${packageType.packageName}31bf3856ad364e35") &&
-          name.contains(WinRegistryService.cpuArch);
-    })['browser_download_url'];
+      final List<dynamic> assests = (await _networkService.getGHLatestRelease(
+        ApiEndpoints.cabPackages,
+      ))['assets'];
+      String name = '';
 
-    if (downloadUrl == null) {
-      throw 'No matching package found for ${packageType.packageName} with architecture ${WinRegistryService.cpuArch}';
+      final String? downloadUrl = assests.firstWhereOrNull((final e) {
+        name = e['name'];
+        return name.startsWith("${packageType.packageName}31bf3856ad364e35") &&
+            name.contains(WinRegistryService.cpuArch);
+      })['browser_download_url'];
+
+      if (downloadUrl == null) {
+        throw 'No matching package found for ${packageType.packageName} with architecture ${WinRegistryService.cpuArch}';
+      }
+
+      final filePath = p.join(downloadPath, name);
+
+      await _networkService.downloadFile(downloadUrl, filePath);
+      if (!File(filePath).existsSync()) {
+        throw 'Failed to download package: $name';
+      }
+
+      logger.i('Successfully downloaded package from GitHub: $filePath');
+      return filePath;
+    } catch (e) {
+      logger.w('Failed to download from GitHub: $e');
+      logger.i('Falling back to bundled packages...');
+
+      final bundledPath = getBundledPackagePath(packageType);
+      if (bundledPath != null && File(bundledPath).existsSync()) {
+        logger.i('Using bundled package: $bundledPath');
+
+        if (path != null) {
+          final targetPath = p.join(path, p.basename(bundledPath));
+          Directory(path).createSync(recursive: true);
+          await File(bundledPath).copy(targetPath);
+          return targetPath;
+        }
+
+        return bundledPath;
+      }
+
+      logger.e('No bundled package found for ${packageType.packageName}');
+      throw 'Failed to download package from GitHub and no bundled package available: $e';
     }
-
-    final filePath = p.join(downloadPath, name);
-
-    await _networkService.downloadFile(downloadUrl, filePath);
-    if (!File(filePath).existsSync()) {
-      throw 'Failed to download package: $name';
-    }
-
-    return filePath;
   }
 
   static Future<void> installPackage(final String packagePath) async {

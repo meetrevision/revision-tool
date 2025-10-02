@@ -33,6 +33,28 @@ jobs:
       - name: Compile C code
         run: gcc -shared -o process_checker.dll process_checker.c -lpsapi -O3
         working-directory: native_utils
+      
+      - name: Download bundled WinSxS packages
+        run: |
+          New-Item -Path "src\additionals\packages\winsxs" -ItemType Directory -Force | Out-Null
+          
+          Write-Host "Fetching latest packages from meetrevision/packages..."
+          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/meetrevision/packages/releases/latest"
+          
+          $cabAssets = $release.assets | Where-Object { $_.name -like "*.cab" }
+          Write-Host "Downloading $($cabAssets.Count) packages..."
+          
+          foreach ($asset in $cabAssets) {
+            $fileName = $asset.name
+            $downloadUrl = $asset.browser_download_url
+            $filePath = "src\packages\winsxs\$fileName"
+            
+            Write-Host "  Downloading $fileName..."
+            Invoke-WebRequest -Uri $downloadUrl -OutFile $filePath
+          }
+          
+          Write-Host "Downloaded $($cabAssets.Count) packages successfully"
+        shell: pwsh
 
       - run: flutter gen-l10n
         working-directory: src

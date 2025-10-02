@@ -80,3 +80,4 @@ flutter:
   assets:
     - additionals/
     - additionals/msstore/
+    - additionals/packages/winsxs/
