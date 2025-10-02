@@ -29,14 +29,7 @@ abstract final class WinPackageService {
     'CAB',
   );
 
-  static final bundledPackagesPath = p.join(
-    Directory.current.path,
-    'data',
-    'flutter_assets',
-    'additionals',
-    'packages',
-    'winsxs',
-  );
+  static final bundledPackagesPath = p.join(directoryExe, 'packages', 'winsxs');
 
   static const cbsPackagesRegPath =
       r'SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages\';
