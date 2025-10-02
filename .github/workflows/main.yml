@@ -36,8 +36,9 @@ jobs:
       
       - name: Download bundled WinSxS packages
         run: |
-          New-Item -Path "src\additionals\packages\winsxs" -ItemType Directory -Force | Out-Null
-          
+          $path = "src\additionals\packages\winsxs"
+          New-Item -Path $path -ItemType Directory -Force | Out-Null
+
           Write-Host "Fetching latest packages from meetrevision/packages..."
           $release = Invoke-RestMethod -Uri "https://api.github.com/repos/meetrevision/packages/releases/latest"
           
@@ -47,7 +48,7 @@ jobs:
           foreach ($asset in $cabAssets) {
             $fileName = $asset.name
             $downloadUrl = $asset.browser_download_url
-            $filePath = "src\packages\winsxs\$fileName"
+            $filePath = "$path\$fileName"
             
             Write-Host "  Downloading $fileName..."
             Invoke-WebRequest -Uri $downloadUrl -OutFile $filePath
