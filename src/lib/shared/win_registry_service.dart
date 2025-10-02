@@ -29,6 +29,20 @@ class WinRegistryService {
     'PROCESSOR_ARCHITECTURE',
   )!.toLowerCase();
 
+  // CPU vendor identification via registry only (no external dependencies)
+  static final String _cpuVendorIdentifier =
+      (WinRegistryService.readString(
+                RegistryHive.localMachine,
+                r'HARDWARE\DESCRIPTION\System\CentralProcessor\0',
+                'VendorIdentifier',
+              ) ??
+              '')
+          .toLowerCase();
+
+  // Convenience flags
+  static bool get isIntelCpu => _cpuVendorIdentifier.contains('intel');
+  static bool get isAmdCpu => _cpuVendorIdentifier.contains('amd');
+
   static bool get isSupported {
     return _validate() ||
         readString(

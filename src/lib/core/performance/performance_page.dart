@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:revitool/core/performance/performance_service.dart';
@@ -19,9 +20,10 @@ class PerformancePage extends ConsumerWidget {
       children: [
         const _SuperfetchCard(),
         const _MemoryCompressionCard(),
-        const _IntelTSXCard(),
+        if (WinRegistryService.isIntelCpu || kDebugMode) const _IntelTSXCard(),
         const _FullscreenOptimizationCard(),
-        if (WinRegistryService.isW11) const _WindowedOptimizationCard(),
+        if (WinRegistryService.isW11 || kDebugMode)
+          const _WindowedOptimizationCard(),
         const _BackgroundAppsCard(),
         const _ServicesGroupingCard(),
         if (ref.watch(settingsExperimentalStatus)) ...[

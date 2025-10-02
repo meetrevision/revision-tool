@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:revitool/core/security/security_service.dart';
 import 'package:revitool/extensions.dart';
@@ -6,6 +7,7 @@ import 'package:revitool/utils_gui.dart';
 import 'package:revitool/shared/widgets/card_highlight.dart';
 import 'package:revitool/core/ms_store/widgets/msstore_dialogs.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
+import 'package:revitool/shared/win_registry_service.dart';
 
 class SecurityPage extends ConsumerWidget {
   const SecurityPage({super.key});
@@ -20,12 +22,12 @@ class SecurityPage extends ConsumerWidget {
           child: Text(context.l10n.pageSecurity),
         ),
       ),
-      children: const [
-        _DefenderCard(),
-        _UACCard(),
-        _MeltdownSpectreCard(),
-        _DownfallCard(),
-        _CertificatesCard(),
+      children: [
+        const _DefenderCard(),
+        const _UACCard(),
+        const _MeltdownSpectreCard(),
+        if (WinRegistryService.isIntelCpu || kDebugMode) const _DownfallCard(),
+        const _CertificatesCard(),
       ],
     );
   }

@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:revitool/core/usability/usability_service.dart';
@@ -22,7 +23,7 @@ class UsabilityPage extends ConsumerWidget {
         const _InputPersonalizationCard(),
         const _CapsLockCard(),
         const _ScreenEdgeSwipeCard(),
-        if (WinRegistryService.isW11) ...[
+        if (WinRegistryService.isW11 || kDebugMode) ...[
           const Subtitle(content: Text("Windows 11")),
           const _NewContextMenuCard(),
         ],

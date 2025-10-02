@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:revitool/core/miscellaneous/miscellaneous_service.dart';
 import 'package:revitool/extensions.dart';
@@ -19,7 +20,7 @@ class MiscellaneousPage extends ConsumerWidget {
       header: PageHeader(title: Text(context.l10n.pageMiscellaneous)),
       children: [
         const _HibernationCard(),
-        if (hibernationStatus) const _FastStartupCard(),
+        if (hibernationStatus || kDebugMode) const _FastStartupCard(),
         const _TMMonitoringCard(),
         const _MPOCard(),
         const _UsageReportingCard(),
