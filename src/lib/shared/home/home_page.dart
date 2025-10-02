@@ -53,7 +53,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     final imgCacheSize = (imgXY * MediaQuery.devicePixelRatioOf(context))
         .toInt();
 
-    final currentIndex = ref.watch(navigationNotifierProvider);
+    final currentIndex = ref.watch(navigationProvider);
 
     final items = <NavigationPaneItem>[
       PaneItem(
@@ -113,7 +113,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           size: const NavigationPaneSize(openWidth: 300),
           selected: currentIndex,
           onChanged: (index) =>
-              ref.read(navigationNotifierProvider.notifier).setIndex(index),
+              ref.read(navigationProvider.notifier).setIndex(index),
           displayMode: context.mqSize.width >= 800
               ? PaneDisplayMode.open
               : PaneDisplayMode.minimal,
@@ -186,9 +186,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       items: items,
                     ).effectiveIndexOf(page);
 
-                    ref
-                        .read(navigationNotifierProvider.notifier)
-                        .setIndex(itemIndex);
+                    ref.read(navigationProvider.notifier).setIndex(itemIndex);
                     await Future.delayed(const Duration(milliseconds: 17));
                     _searchController.clear();
                   },

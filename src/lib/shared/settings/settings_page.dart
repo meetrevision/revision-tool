@@ -2,7 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:revitool/extensions.dart';
 
-import 'package:revitool/shared/settings/app_settings_notifier.dart';
+import 'package:revitool/shared/settings/app_settings_provider.dart';
 import 'package:revitool/shared/settings/tool_update_service.dart';
 import 'package:revitool/utils.dart';
 import 'package:revitool/utils_gui.dart';
@@ -49,7 +49,7 @@ class _ThemeModeCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appSettings = ref.watch(appSettingsNotifierProvider);
+    final appSettings = ref.watch(appSettingsProvider);
 
     return CardHighlight(
       icon: msicons.FluentIcons.paint_brush_20_regular,
@@ -57,9 +57,7 @@ class _ThemeModeCard extends ConsumerWidget {
       description: context.l10n.settingsCTDescription,
       action: ComboBox(
         value: appSettings.themeMode,
-        onChanged: ref
-            .read(appSettingsNotifierProvider.notifier)
-            .updateThemeMode,
+        onChanged: ref.read(appSettingsProvider.notifier).updateThemeMode,
         items: [
           ComboBoxItem(
             value: ThemeMode.system,
@@ -232,9 +230,7 @@ class _LanguageCard extends ConsumerWidget {
             'Language',
             newLanguage,
           );
-          ref
-              .read(appSettingsNotifierProvider.notifier)
-              .updateLocale(newLanguage);
+          ref.read(appSettingsProvider.notifier).updateLocale(newLanguage);
         },
         items: languageList,
       ),

@@ -8,9 +8,9 @@ import 'package:system_theme/system_theme.dart';
 import 'package:win32_registry/win32_registry.dart';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-part 'app_settings_notifier.g.dart';
 
-part 'app_settings_notifier.freezed.dart';
+part 'app_settings_provider.g.dart';
+part 'app_settings_provider.freezed.dart';
 
 enum NavigationIndicators { sticky, end }
 
@@ -22,12 +22,9 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     themeMode: SettingsService.themeMode(),
     displayMode: PaneDisplayMode.auto,
     indicator: NavigationIndicators.sticky,
-    windowEffect:
-        WinRegistryService.themeTransparencyEffect
-            ? (WinRegistryService.isW11
-                ? WindowEffect.mica
-                : WindowEffect.disabled)
-            : WindowEffect.disabled,
+    windowEffect: WinRegistryService.themeTransparencyEffect
+        ? (WinRegistryService.isW11 ? WindowEffect.mica : WindowEffect.disabled)
+        : WindowEffect.disabled,
     textDirection: TextDirection.ltr,
     locale: _localeFromString(appLanguage),
   );
@@ -58,10 +55,9 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   void setEffect(Color micaBackgroundColor, bool isDark) async {
     Window.setEffect(
       effect: state.windowEffect,
-      color:
-          state.windowEffect == WindowEffect.mica
-              ? micaBackgroundColor.withValues(alpha: 0.05)
-              : Colors.transparent,
+      color: state.windowEffect == WindowEffect.mica
+          ? micaBackgroundColor.withValues(alpha: 0.05)
+          : Colors.transparent,
       dark: isDark,
     );
   }

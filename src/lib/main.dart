@@ -9,7 +9,7 @@ import 'package:revitool/l10n/generated/localizations.dart';
 
 import 'package:revitool/shared/home/home_page.dart';
 
-import 'package:revitool/shared/settings/app_settings_notifier.dart';
+import 'package:revitool/shared/settings/app_settings_provider.dart';
 import 'package:revitool/shared/win_registry_service.dart';
 import 'package:revitool/utils.dart';
 import 'package:system_theme/system_theme.dart';
@@ -89,7 +89,7 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appSettings = ref.watch(appSettingsNotifierProvider);
+    final appSettings = ref.watch(appSettingsProvider);
 
     return SystemThemeBuilder(
       builder: (context, accent) => FluentApp(
@@ -110,15 +110,15 @@ class MyApp extends ConsumerWidget {
 
           navigationPaneTheme: NavigationPaneThemeData(
             backgroundColor: ref
-                .watch(appSettingsNotifierProvider.notifier)
+                .watch(appSettingsProvider.notifier)
                 .effectColor(null),
           ),
           scaffoldBackgroundColor: ref
-              .watch(appSettingsNotifierProvider.notifier)
+              .watch(appSettingsProvider.notifier)
               .effectColor(const Color.fromARGB(255, 32, 32, 32)),
           // cardColor: Color(0xFF2B2B2B),
           cardColor: ref
-              .watch(appSettingsNotifierProvider.notifier)
+              .watch(appSettingsProvider.notifier)
               .effectColor(
                 const Color.fromARGB(
                   255,
@@ -134,7 +134,7 @@ class MyApp extends ConsumerWidget {
           ),
           resources: ResourceDictionary.dark(
             cardStrokeColorDefault: ref
-                .watch(appSettingsNotifierProvider.notifier)
+                .watch(appSettingsProvider.notifier)
                 .effectColor(
                   const Color.fromARGB(255, 29, 29, 29),
                   modifyColors: true,
@@ -146,11 +146,11 @@ class MyApp extends ConsumerWidget {
           visualDensity: VisualDensity.standard,
           navigationPaneTheme: NavigationPaneThemeData(
             backgroundColor: ref
-                .watch(appSettingsNotifierProvider.notifier)
+                .watch(appSettingsProvider.notifier)
                 .effectColor(null),
           ),
           scaffoldBackgroundColor: ref
-              .watch(appSettingsNotifierProvider.notifier)
+              .watch(appSettingsProvider.notifier)
               .effectColor(const Color.fromRGBO(243, 243, 243, 100)),
           focusTheme: FocusThemeData(
             glowFactor: is10footScreen(context) ? 2.0 : 0.0,
@@ -162,7 +162,7 @@ class MyApp extends ConsumerWidget {
         home: _isSupported ? const HomePage() : const _UnsupportedError(),
         builder: (context, child) {
           ref
-              .watch(appSettingsNotifierProvider.notifier)
+              .watch(appSettingsProvider.notifier)
               .setEffect(
                 FluentTheme.of(context).micaBackgroundColor,
                 FluentTheme.of(context).brightness.isDark,
