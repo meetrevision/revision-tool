@@ -345,7 +345,7 @@ class _HomePageContent extends StatelessWidget {
                 child: Button(
                   child: Text(context.l10n.homeReviLink),
                   onPressed: () async => await run(
-                    "rundll32 url.dll,FileProtocolHandler https://www.revi.cc",
+                    "rundll32 url.dll,FileProtocolHandler https://revi.cc",
                   ),
                 ),
               ),
@@ -357,7 +357,7 @@ class _HomePageContent extends StatelessWidget {
                 child: FilledButton(
                   child: Text(context.l10n.homeReviFAQLink),
                   onPressed: () async => await run(
-                    "rundll32 url.dll,FileProtocolHandler https://www.revi.cc/docs/category/faq",
+                    "rundll32 url.dll,FileProtocolHandler https://revi.cc/docs",
                   ),
                 ),
               ),
