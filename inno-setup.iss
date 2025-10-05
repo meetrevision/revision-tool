@@ -4,7 +4,7 @@
 #define MyAppName "Revision Tool"
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "MeetRevision"
-#define MyAppURL "https://www.revi.cc/"
+#define MyAppURL "https://revi.cc/"
 #define MyAppExeName "revitoolw.exe"
 #include "CodeDependencies.iss"
 
