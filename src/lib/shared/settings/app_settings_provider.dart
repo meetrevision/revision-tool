@@ -37,7 +37,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     if (newThemeMode == null) return;
     if (newThemeMode == state.themeMode) return;
     state = state.copyWith(themeMode: newThemeMode);
-    // SettingsService.updateThemeMode(newThemeMode);
+    SettingsService.updateThemeMode(newThemeMode);
   }
 
   void updateDisplayMode(PaneDisplayMode displayMode) {
