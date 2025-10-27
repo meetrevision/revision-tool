@@ -26,6 +26,7 @@ class PerformancePage extends ConsumerWidget {
           const _WindowedOptimizationCard(),
         const _BackgroundAppsCard(),
         const _ServicesGroupingCard(),
+        const _BackgroundWindowMessageRateCard(),
         if (ref.watch(settingsExperimentalStatus)) ...[
           const _CStatesCard(),
           Subtitle(content: Text(context.l10n.perfSectionFS)),
@@ -243,6 +244,49 @@ class _ServicesGroupingCard extends ConsumerWidget {
             child: Text(context.l10n.close),
             onPressed: () => context.pop(),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BackgroundWindowMessageRateCard extends ConsumerWidget {
+  const _BackgroundWindowMessageRateCard();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final status = ref.watch(backgroundWindowMessageRateLimitStatusProvider);
+
+    return CardHighlight(
+      icon: msicons.FluentIcons.group_20_regular,
+      label: context.l10n.perfBWMRLabel,
+      description: context.l10n.perfBWMRDescription,
+      action: ComboBox<int>(
+        value: 1000 ~/ status,
+        onChanged: (value) {
+          if (value == null) return;
+
+          try {
+            PerformanceService.setBackgroundWindowMessageRateLimit(value);
+          } catch (e) {
+            showDialog(
+              context: context,
+              builder: (context) => ContentDialog(
+                title: Text(context.l10n.perfBWMRLabel),
+                content: Text(e.toString()),
+                actions: [
+                  FilledButton(
+                    child: Text(context.l10n.close),
+                    onPressed: () => context.pop(),
+                  ),
+                ],
+              ),
+            );
+          }
+          ref.invalidate(backgroundWindowMessageRateLimitStatusProvider);
+        },
+        items: const [
+          ComboBoxItem(value: 20, child: Text("50Hz")),
+          ComboBoxItem(value: 8, child: Text("125Hz (Default)")),
         ],
       ),
     );

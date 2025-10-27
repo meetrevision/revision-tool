@@ -5,6 +5,8 @@
     "securityDownfallMitCodeSnippet",
     "perfSGMLabel",
     "perfSGMDescription",
+    "perfBWMRLabel",
+    "perfBWMRDescription",
     "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
@@ -17,6 +19,8 @@
     "usabilityNotifDescription",
     "perfSGMLabel",
     "perfSGMDescription",
+    "perfBWMRLabel",
+    "perfBWMRDescription",
     "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
@@ -29,6 +33,8 @@
     "usabilityNotifDescription",
     "perfSGMLabel",
     "perfSGMDescription",
+    "perfBWMRLabel",
+    "perfBWMRDescription",
     "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
@@ -41,6 +47,8 @@
     "usabilityNotifDescription",
     "perfSGMLabel",
     "perfSGMDescription",
+    "perfBWMRLabel",
+    "perfBWMRDescription",
     "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
@@ -53,6 +61,8 @@
     "usabilityNotifDescription",
     "perfSGMLabel",
     "perfSGMDescription",
+    "perfBWMRLabel",
+    "perfBWMRDescription",
     "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
@@ -65,9 +75,16 @@
     "usabilityNotifDescription",
     "perfSGMLabel",
     "perfSGMDescription",
+    "perfBWMRLabel",
+    "perfBWMRDescription",
     "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
+  ],
+
+  "pt_BR": [
+    "perfBWMRLabel",
+    "perfBWMRDescription"
   ],
 
   "ro": [
@@ -77,6 +94,8 @@
     "usabilityNotifDescription",
     "perfSGMLabel",
     "perfSGMDescription",
+    "perfBWMRLabel",
+    "perfBWMRDescription",
     "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
@@ -89,6 +108,8 @@
     "usabilityNotifDescription",
     "perfSGMLabel",
     "perfSGMDescription",
+    "perfBWMRLabel",
+    "perfBWMRDescription",
     "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
@@ -97,6 +118,8 @@
   "tr": [
     "perfSGMLabel",
     "perfSGMDescription",
+    "perfBWMRLabel",
+    "perfBWMRDescription",
     "perfSGMDialog"
   ],
 
@@ -107,8 +130,20 @@
     "usabilityNotifDescription",
     "perfSGMLabel",
     "perfSGMDescription",
+    "perfBWMRLabel",
+    "perfBWMRDescription",
     "perfSGMDialog",
     "miscUpdateKGL",
     "miscUpdateKGLDescription"
+  ],
+
+  "zh": [
+    "perfBWMRLabel",
+    "perfBWMRDescription"
+  ],
+
+  "zh_TW": [
+    "perfBWMRLabel",
+    "perfBWMRDescription"
   ]
 }

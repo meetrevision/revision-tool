@@ -526,6 +526,63 @@ abstract final class PerformanceService {
     );
   }
 
+  static int get statusBackgroundWindowMessageRateLimit {
+    final bool rawMouseThrottleEnabled =
+        WinRegistryService.readInt(
+          RegistryHive.currentUser,
+          r'Control Panel\Mouse',
+          'RawMouseThrottleEnabled',
+        ) !=
+        0;
+
+    if (!rawMouseThrottleEnabled) {
+      return -1;
+    }
+
+    final int rawMouseThrottleDuration =
+        WinRegistryService.readInt(
+          RegistryHive.currentUser,
+          r'Control Panel\Mouse',
+          'RawMouseThrottleDuration',
+        ) ??
+        8;
+
+    if (!_rmtdValidator(rawMouseThrottleDuration)) {
+      return -1;
+    }
+
+    final pollFrequency = (1000 / rawMouseThrottleDuration).round();
+    return pollFrequency;
+  }
+
+  static bool _rmtdValidator(int value) {
+    if (value < 3 || value > 20) {
+      throw ArgumentError('Value must be between 3 and 20 (inclusive).');
+    }
+    return true;
+  }
+
+  /// For more info: https://github.com/valleyofdoom/PC-Tuning?tab=readme-ov-file#window-message-rate
+  static void setBackgroundWindowMessageRateLimit(int value) {
+    if (!_rmtdValidator(value)) {
+      throw ArgumentError('DWORD value must be between 3 and 20');
+    }
+
+    WinRegistryService.writeRegistryValue(
+      WinRegistryService.currentUser,
+      r'Control Panel\Mouse',
+      'RawMouseThrottleEnabled',
+      1,
+    );
+
+    WinRegistryService.writeRegistryValue(
+      WinRegistryService.currentUser,
+      r'Control Panel\Mouse',
+      'RawMouseThrottleDuration',
+      value,
+    );
+  }
+
   static Future<void> enableMemoryUsageNTFS() async {
     await shell.run('fsutil behavior set memoryusage 2');
   }
@@ -568,6 +625,11 @@ bool backgroundAppsStatus(Ref ref) {
 @riverpod
 ServiceGrouping servicesGroupingStatus(Ref ref) {
   return PerformanceService.statusServicesGrouping;
+}
+
+@riverpod
+int backgroundWindowMessageRateLimitStatus(Ref ref) {
+  return PerformanceService.statusBackgroundWindowMessageRateLimit;
 }
 
 @riverpod

@@ -59,6 +59,8 @@
   "perfBADescription": "Allow apps to run in the background, even when you're not using them. This will have a performance impact due to constantly running in the background. Disabling this will also disable notifications for some apps",
   "perfSGMLabel": "Service Grouping Mode",
   "perfSGMDescription": "Recommended is the default option in ReviOS and is recommended for most users.\nForced reduces memory usage significantly, but causes some services to not work properly, such as Xbox",
+  "perfBWMRLabel": "Background Window Message Rate Limit",
+  "perfBWMRDescription": "Controls how often background apps receive mouse and keyboard input updates. A higher rate (125 Hz) offers maximum responsiveness, while a lower rate (50 Hz) improves performance by reducing background processing but may cause issues with hotkeys or idle detection.",
   "perfSGMDialog": "This option may break some services, such as Xbox. Use it at your own risk. It can be reverted by changing it back to 'Recommended'",
   "perfCStatesLabel": "Disable the ACPI C2 and C3 states",
   "perfCStatesDescription": "Disabling ACPI C-states may improve performance and latency, but it will consume more power while idle, potentially reducing battery life",
