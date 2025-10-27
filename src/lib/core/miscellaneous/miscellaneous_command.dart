@@ -47,20 +47,20 @@ class MiscellaneousCommand extends Command<String> {
 
   Future<void> _handleHibernate(ArgResults command) async {
     if (command['enable']) {
-      await MiscellaneousService.enableHibernation();
+      await const MiscellaneousServiceImpl().enableHibernation();
       logger.i('$name: Hibernation enabled');
     } else if (command['disable']) {
-      await MiscellaneousService.disableHibernation();
+      await const MiscellaneousServiceImpl().disableHibernation();
       logger.i('$name: Hibernation disabled');
     }
   }
 
   Future<void> _handleFastStartup(ArgResults command) async {
     if (command['enable']) {
-      MiscellaneousService.enableFastStartup();
+      const MiscellaneousServiceImpl().enableFastStartup();
       logger.i('$name: Fast Startup enabled');
     } else if (command['disable']) {
-      MiscellaneousService.disableFastStartup();
+      const MiscellaneousServiceImpl().disableFastStartup();
       logger.i('$name: Fast Startup disabled');
     }
   }

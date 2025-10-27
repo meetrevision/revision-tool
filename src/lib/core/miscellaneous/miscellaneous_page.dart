@@ -44,8 +44,10 @@ class _HibernationCard extends ConsumerWidget {
         value: status,
         onChanged: (value) async {
           value
-              ? await MiscellaneousService.enableHibernation()
-              : await MiscellaneousService.disableHibernation();
+              ? await ref.read(miscellaneousServiceProvider).enableHibernation()
+              : await ref
+                    .read(miscellaneousServiceProvider)
+                    .disableHibernation();
           ref.invalidate(hibernationStatusProvider);
         },
       ),
@@ -68,8 +70,8 @@ class _FastStartupCard extends ConsumerWidget {
         requiresRestart: true,
         onChanged: (value) {
           value
-              ? MiscellaneousService.enableFastStartup()
-              : MiscellaneousService.disableFastStartup();
+              ? ref.read(miscellaneousServiceProvider).enableFastStartup()
+              : ref.read(miscellaneousServiceProvider).disableFastStartup();
           ref.invalidate(fastStartupStatusProvider);
         },
       ),
@@ -92,8 +94,10 @@ class _TMMonitoringCard extends ConsumerWidget {
         requiresRestart: true,
         onChanged: (value) async {
           value
-              ? await MiscellaneousService.enableTMMonitoring()
-              : MiscellaneousService.disableTMMonitoring();
+              ? await ref
+                    .read(miscellaneousServiceProvider)
+                    .enableTMMonitoring()
+              : ref.read(miscellaneousServiceProvider).disableTMMonitoring();
           ref.invalidate(tmMonitoringStatusProvider);
         },
       ),
@@ -115,8 +119,8 @@ class _MPOCard extends ConsumerWidget {
         value: status,
         onChanged: (value) {
           value
-              ? MiscellaneousService.enableMPO()
-              : MiscellaneousService.disableMPO();
+              ? ref.read(miscellaneousServiceProvider).enableMPO()
+              : ref.read(miscellaneousServiceProvider).disableMPO();
           ref.invalidate(mpoStatusProvider);
         },
       ),
@@ -138,8 +142,12 @@ class _UsageReportingCard extends ConsumerWidget {
         value: status,
         onChanged: (value) async {
           value
-              ? await MiscellaneousService.enableUsageReporting()
-              : await MiscellaneousService.disableUsageReporting();
+              ? await ref
+                    .read(miscellaneousServiceProvider)
+                    .enableUsageReporting()
+              : await ref
+                    .read(miscellaneousServiceProvider)
+                    .disableUsageReporting();
           ref.invalidate(usageReportingStatusProvider);
         },
       ),
@@ -165,7 +173,7 @@ class _UpdateKGLCard extends ConsumerWidget {
                 context,
                 "${context.l10n.settingsUpdatingStatus} KGL",
               );
-              await MiscellaneousService.updateKGL();
+              await ref.read(miscellaneousServiceProvider).updateKGL();
               if (!context.mounted) return;
               message = context.l10n.restartDialog;
             } catch (e) {

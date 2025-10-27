@@ -51,9 +51,9 @@ class _DefenderCard extends ConsumerWidget {
             showLoadingDialog(context, '');
             try {
               if (value) {
-                await SecurityService.enableDefender();
+                await ref.read(securityServiceProvider).enableDefender();
               } else {
-                await SecurityService.disableDefender();
+                await ref.read(securityServiceProvider).disableDefender();
               }
               if (!context.mounted) return;
               context.pop();
@@ -103,7 +103,7 @@ class _DefenderCard extends ConsumerWidget {
           child: Button(
             onPressed: () async {
               Future.delayed(const Duration(seconds: 1), () async {
-                await SecurityService.openDefenderThreatSettings();
+                await ref.read(securityServiceProvider).openDefenderThreatSettings();
               });
 
               showDialog(
@@ -123,7 +123,7 @@ class _DefenderCard extends ConsumerWidget {
                           );
 
                           if (updatedStatus) {
-                            await SecurityService.openDefenderThreatSettings();
+                            await ref.read(securityServiceProvider).openDefenderThreatSettings();
                           } else {
                             Navigator.pop(context);
                           }
@@ -156,7 +156,7 @@ class _UACCard extends ConsumerWidget {
         value: status,
         requiresRestart: true,
         onChanged: (value) {
-          value ? SecurityService.enableUAC() : SecurityService.disableUAC();
+          value ? ref.read(securityServiceProvider).enableUAC() : ref.read(securityServiceProvider).disableUAC();
           ref.invalidate(uacStatusProvider);
         },
       ),
@@ -179,8 +179,8 @@ class _MeltdownSpectreCard extends ConsumerWidget {
         requiresRestart: true,
         onChanged: (value) {
           value
-              ? SecurityService.enableMitigation(Mitigation.meltdownSpectre)
-              : SecurityService.disableMitigation(Mitigation.meltdownSpectre);
+              ? ref.read(securityServiceProvider).enableMitigation(Mitigation.meltdownSpectre)
+              : ref.read(securityServiceProvider).disableMitigation(Mitigation.meltdownSpectre);
           ref.invalidate(meltdownSpectreStatusProvider);
         },
       ),
@@ -204,8 +204,8 @@ class _DownfallCard extends ConsumerWidget {
         requiresRestart: true,
         onChanged: (value) {
           value
-              ? SecurityService.enableMitigation(Mitigation.downfall)
-              : SecurityService.disableMitigation(Mitigation.downfall);
+              ? ref.read(securityServiceProvider).enableMitigation(Mitigation.downfall)
+              : ref.read(securityServiceProvider).disableMitigation(Mitigation.downfall);
           ref.invalidate(downfallStatusProvider);
         },
       ),
@@ -226,7 +226,7 @@ class _CertificatesCard extends ConsumerWidget {
         child: Button(
           onPressed: () async {
             showLoadingDialog(context, "Updating Certificates");
-            await SecurityService.updateCertificates();
+            await ref.read(securityServiceProvider).updateCertificates();
 
             if (!context.mounted) return;
             context.pop();

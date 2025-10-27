@@ -26,25 +26,25 @@ class SecurityCommand extends Command<String> {
     final bool isForce = argResults?.command?.command?.name == '--force';
     switch (argResults?.command?.name) {
       case 'enable':
-        if (!isForce && SecurityService.statusDefender) {
+        if (!isForce && const SecurityServiceImpl().statusDefender) {
           logger.i('$name: Windows Defender is already enabled');
           exit(0);
         }
-        await SecurityService.enableDefender();
+        await const SecurityServiceImpl().enableDefender();
         break;
       case 'disable':
         await _disableDefender(isForce);
         break;
       default:
         logger.i(
-          '$name: defender-status: ${SecurityService.statusDefender.toString()}\nVirus and Threat Protections Status: ${SecurityService.statusDefenderProtections.toString()}',
+          '$name: defender-status: ${const SecurityServiceImpl().statusDefender.toString()}\nVirus and Threat Protections Status: ${const SecurityServiceImpl().statusDefenderProtections.toString()}',
         );
     }
     exit(0);
   }
 
   Future<void> _disableDefender(bool isForce) async {
-    if (!isForce && !SecurityService.statusDefender) {
+    if (!isForce && !const SecurityServiceImpl().statusDefender) {
       logger.i('$name: Windows Defender is already disabled');
       exit(0);
     }
@@ -57,13 +57,13 @@ class SecurityCommand extends Command<String> {
 
     logger.i('$name: Checking if Virus and Threat Protections are enabled...');
     int count = 0;
-    while (SecurityService.statusDefenderProtections) {
+    while (const SecurityServiceImpl().statusDefenderProtections) {
       if (count > 10) {
         logger.e('$name: Unable to disable Defender. Exiting...');
         exit(1);
       }
 
-      if (!SecurityService.statusDefenderProtectionTamper) {
+      if (!const SecurityServiceImpl().statusDefenderProtectionTamper) {
         await runPSCommand(
           'Set-MpPreference -DisableRealtimeMonitoring \$true',
         );
@@ -71,7 +71,7 @@ class SecurityCommand extends Command<String> {
       }
 
       logger.i('$name: Please disable Realtime and Tamper Protections');
-      await SecurityService.openDefenderThreatSettings();
+      await const SecurityServiceImpl().openDefenderThreatSettings();
 
       await Future.delayed(const Duration(seconds: 7));
       count++;
@@ -79,7 +79,7 @@ class SecurityCommand extends Command<String> {
     await Process.run('taskkill', ['/f', '/im', 'SecHealthUI.exe']);
 
     try {
-      await SecurityService.disableDefender();
+      await const SecurityServiceImpl().disableDefender();
     } on Exception catch (e) {
       logger.e(
         '$name: Error disabling Windows Defender: ${e.toString()}',

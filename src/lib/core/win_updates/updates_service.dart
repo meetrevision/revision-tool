@@ -5,8 +5,25 @@ import '../../shared/win_registry_service.dart';
 
 part 'updates_service.g.dart';
 
-abstract final class WinUpdatesService {
-  static bool get statusPauseUpdatesWU {
+/// Abstract interface for Windows Updates operations
+abstract class WinUpdatesService {
+  bool get statusPauseUpdatesWU;
+  void enablePauseUpdatesWU();
+  void disablePauseUpdatesWU();
+  bool get statusVisibilityWU;
+  void enableVisibilityWU();
+  void disableVisibilityWU();
+  bool get statusDriversWU;
+  void enableDriversWU();
+  void disableDriversWU();
+}
+
+/// Implementation of WinUpdatesService
+class WinUpdatesServiceImpl implements WinUpdatesService {
+  const WinUpdatesServiceImpl();
+
+  @override
+  bool get statusPauseUpdatesWU {
     return WinRegistryService.readString(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
@@ -15,7 +32,8 @@ abstract final class WinUpdatesService {
         false;
   }
 
-  static void enablePauseUpdatesWU() {
+  @override
+  void enablePauseUpdatesWU() {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
@@ -66,7 +84,8 @@ abstract final class WinUpdatesService {
     );
   }
 
-  static void disablePauseUpdatesWU() {
+  @override
+  void disablePauseUpdatesWU() {
     WinRegistryService.deleteValue(
       Registry.localMachine,
       r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
@@ -110,7 +129,8 @@ abstract final class WinUpdatesService {
     );
   }
 
-  static bool get statusVisibilityWU {
+  @override
+  bool get statusVisibilityWU {
     return WinRegistryService.readString(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
@@ -119,15 +139,18 @@ abstract final class WinUpdatesService {
         false;
   }
 
-  static void enableVisibilityWU() {
+  @override
+  void enableVisibilityWU() {
     WinRegistryService.unhidePageVisibilitySettings("windowsupdate");
   }
 
-  static void disableVisibilityWU() {
+  @override
+  void disableVisibilityWU() {
     WinRegistryService.hidePageVisibilitySettings("windowsupdate");
   }
 
-  static bool get statusDriversWU {
+  @override
+  bool get statusDriversWU {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata',
@@ -136,7 +159,8 @@ abstract final class WinUpdatesService {
         0;
   }
 
-  static void enableDriversWU() {
+  @override
+  void enableDriversWU() {
     WinRegistryService.deleteKey(
       WinRegistryService.currentUser,
       r'Software\Policies\Microsoft\Windows\DriverSearching',
@@ -164,7 +188,8 @@ abstract final class WinUpdatesService {
     );
   }
 
-  static void disableDriversWU() {
+  @override
+  void disableDriversWU() {
     WinRegistryService.writeRegistryValue(
       WinRegistryService.currentUser,
       r'Software\Policies\Microsoft\Windows\DriverSearching',
@@ -204,18 +229,23 @@ abstract final class WinUpdatesService {
   }
 }
 
+@Riverpod(keepAlive: true)
+WinUpdatesService winUpdatesService(Ref ref) {
+  return const WinUpdatesServiceImpl();
+}
+
 // Riverpod Providers
 @riverpod
 bool pauseUpdatesWUStatus(Ref ref) {
-  return WinUpdatesService.statusPauseUpdatesWU;
+  return ref.watch(winUpdatesServiceProvider).statusPauseUpdatesWU;
 }
 
 @riverpod
 bool visibilityWUStatus(Ref ref) {
-  return WinUpdatesService.statusVisibilityWU;
+  return ref.watch(winUpdatesServiceProvider).statusVisibilityWU;
 }
 
 @riverpod
 bool driversWUStatus(Ref ref) {
-  return WinUpdatesService.statusDriversWU;
+  return ref.watch(winUpdatesServiceProvider).statusDriversWU;
 }

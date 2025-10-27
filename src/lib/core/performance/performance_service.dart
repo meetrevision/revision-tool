@@ -85,8 +85,53 @@ const _defaultSplitDisabled = {
   "UserDataSvc",
 };
 
-abstract final class PerformanceService {
-  static bool get statusSuperfetch {
+// Abstract interface for testing
+abstract class PerformanceService {
+  bool get statusSuperfetch;
+  bool get statusMemoryCompression;
+  bool get statusIntelTSX;
+  bool get statusFullscreenOptimization;
+  bool get statusWindowedOptimization;
+  bool get statusBackgroundApps;
+  bool get statusCStates;
+  bool get statusLastTimeAccessNTFS;
+  bool get status8dot3NamingNTFS;
+  bool get statusMemoryUsageNTFS;
+  ServiceGrouping get statusServicesGrouping;
+  int get statusBackgroundWindowMessageRateLimit;
+
+  Future<void> enableSuperfetch();
+  Future<void> disableSuperfetch();
+  Future<void> enableMemoryCompression();
+  Future<void> disableMemoryCompression();
+  void enableIntelTSX();
+  void disableIntelTSX();
+  void enableFullscreenOptimization();
+  void disableFullscreenOptimization();
+  void enableWindowedOptimization();
+  void disableWindowedOptimization();
+  void enableBackgroundApps();
+  void disableBackgroundApps();
+  void enableCStates();
+  void disableCStates();
+  Future<void> enableLastTimeAccessNTFS();
+  Future<void> disableLastTimeAccessNTFS();
+  Future<void> enable8dot3NamingNTFS();
+  Future<void> disable8dot3NamingNTFS();
+  Future<void> enableMemoryUsageNTFS();
+  Future<void> disableMemoryUsageNTFS();
+  void forcedServicesGrouping();
+  void recommendedServicesGrouping();
+  void disableServicesGrouping();
+  void setBackgroundWindowMessageRateLimit(int milliseconds);
+}
+
+// Implementation
+class PerformanceServiceImpl implements PerformanceService {
+  const PerformanceServiceImpl();
+
+  @override
+  bool get statusSuperfetch {
     return !(WinRegistryService.readInt(
               RegistryHive.localMachine,
               r'SYSTEM\ControlSet001\Services\rdyboost',
@@ -101,31 +146,37 @@ abstract final class PerformanceService {
             4);
   }
 
-  static Future<void> enableSuperfetch() async {
+  @override
+  Future<void> enableSuperfetch() async {
     await shell.run(
       '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\EnableSF.bat"',
     );
   }
 
-  static Future<void> disableSuperfetch() async {
+  @override
+  Future<void> disableSuperfetch() async {
     await shell.run(
       '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\DisableSF.bat"',
     );
   }
 
-  static bool get statusMemoryCompression {
+  @override
+  bool get statusMemoryCompression {
     return isProcessRunning('Memory Compression');
   }
 
-  static Future<void> enableMemoryCompression() async {
+  @override
+  Future<void> enableMemoryCompression() async {
     await runPSCommand('Enable-MMAgent -mc');
   }
 
-  static Future<void> disableMemoryCompression() async {
+  @override
+  Future<void> disableMemoryCompression() async {
     await runPSCommand('Disable-MMAgent -mc');
   }
 
-  static bool get statusIntelTSX {
+  @override
+  bool get statusIntelTSX {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\Session Manager\Kernel',
@@ -134,7 +185,8 @@ abstract final class PerformanceService {
         0;
   }
 
-  static void enableIntelTSX() {
+  @override
+  void enableIntelTSX() {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SYSTEM\CurrentControlSet\Control\Session Manager\kernel',
@@ -143,7 +195,8 @@ abstract final class PerformanceService {
     );
   }
 
-  static void disableIntelTSX() {
+  @override
+  void disableIntelTSX() {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SYSTEM\CurrentControlSet\Control\Session Manager\kernel',
@@ -152,7 +205,8 @@ abstract final class PerformanceService {
     );
   }
 
-  static bool get statusFullscreenOptimization {
+  @override
+  bool get statusFullscreenOptimization {
     return WinRegistryService.readInt(
           RegistryHive.currentUser,
           r'System\GameConfigStore',
@@ -161,7 +215,8 @@ abstract final class PerformanceService {
         0;
   }
 
-  static void enableFullscreenOptimization() {
+  @override
+  void enableFullscreenOptimization() {
     WinRegistryService.writeRegistryValue(
       WinRegistryService.currentUser,
       r'System\GameConfigStore',
@@ -217,7 +272,8 @@ abstract final class PerformanceService {
     );
   }
 
-  static void disableFullscreenOptimization() {
+  @override
+  void disableFullscreenOptimization() {
     WinRegistryService.writeRegistryValue(
       WinRegistryService.currentUser,
       r'System\GameConfigStore',
@@ -261,7 +317,8 @@ abstract final class PerformanceService {
     //     Registry.allUsers, r'System\GameConfigStore', 'GameDVR_FSEBehavior', 2);
   }
 
-  static bool get statusWindowedOptimization {
+  @override
+  bool get statusWindowedOptimization {
     final value = WinRegistryService.readString(
       RegistryHive.currentUser,
       r'Software\Microsoft\DirectX\UserGpuPreferences',
@@ -270,7 +327,8 @@ abstract final class PerformanceService {
     return value == null || !value.contains('SwapEffectUpgradeEnable=0');
   }
 
-  static void enableWindowedOptimization() {
+  @override
+  void enableWindowedOptimization() {
     final currentValue = WinRegistryService.readString(
       RegistryHive.currentUser,
       r'Software\Microsoft\DirectX\UserGpuPreferences',
@@ -293,7 +351,8 @@ abstract final class PerformanceService {
     );
   }
 
-  static void disableWindowedOptimization() {
+  @override
+  void disableWindowedOptimization() {
     final currentValue = WinRegistryService.readString(
       RegistryHive.currentUser,
       r'Software\Microsoft\DirectX\UserGpuPreferences',
@@ -316,7 +375,8 @@ abstract final class PerformanceService {
     );
   }
 
-  static bool get statusBackgroundApps {
+  @override
+  bool get statusBackgroundApps {
     return WinRegistryService.readInt(
               RegistryHive.localMachine,
               r'Software\Policies\Microsoft\Windows\AppPrivacy',
@@ -337,7 +397,8 @@ abstract final class PerformanceService {
             1;
   }
 
-  static void enableBackgroundApps() {
+  @override
+  void enableBackgroundApps() {
     WinRegistryService.deleteValue(
       WinRegistryService.currentUser,
       r'Software\Microsoft\Windows\CurrentVersion\Search',
@@ -361,7 +422,8 @@ abstract final class PerformanceService {
     );
   }
 
-  static void disableBackgroundApps() {
+  @override
+  void disableBackgroundApps() {
     WinRegistryService.writeRegistryValue(
       WinRegistryService.currentUser,
       r'Software\Microsoft\Windows\CurrentVersion\Search',
@@ -383,7 +445,8 @@ abstract final class PerformanceService {
     );
   }
 
-  static bool get statusCStates {
+  @override
+  bool get statusCStates {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\Processor',
@@ -392,7 +455,8 @@ abstract final class PerformanceService {
         516198;
   }
 
-  static void enableCStates() {
+  @override
+  void enableCStates() {
     WinRegistryService.deleteValue(
       Registry.localMachine,
       r'SYSTEM\ControlSet001\Control\Processor',
@@ -400,7 +464,8 @@ abstract final class PerformanceService {
     );
   }
 
-  static void disableCStates() {
+  @override
+  void disableCStates() {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SYSTEM\ControlSet001\Control\Processor',
@@ -409,7 +474,8 @@ abstract final class PerformanceService {
     );
   }
 
-  static bool get statusLastTimeAccessNTFS {
+  @override
+  bool get statusLastTimeAccessNTFS {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\FileSystem',
@@ -418,15 +484,18 @@ abstract final class PerformanceService {
         1;
   }
 
-  static Future<void> enableLastTimeAccessNTFS() async {
+  @override
+  Future<void> enableLastTimeAccessNTFS() async {
     await shell.run('fsutil behavior set disableLastAccess 0');
   }
 
-  static Future<void> disableLastTimeAccessNTFS() async {
+  @override
+  Future<void> disableLastTimeAccessNTFS() async {
     await shell.run('fsutil behavior set disableLastAccess 1');
   }
 
-  static bool get status8dot3NamingNTFS {
+  @override
+  bool get status8dot3NamingNTFS {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\FileSystem',
@@ -435,15 +504,18 @@ abstract final class PerformanceService {
         1;
   }
 
-  static Future<void> enable8dot3NamingNTFS() async {
+  @override
+  Future<void> enable8dot3NamingNTFS() async {
     await shell.run('fsutil behavior set disable8dot3 2');
   }
 
-  static Future<void> disable8dot3NamingNTFS() async {
+  @override
+  Future<void> disable8dot3NamingNTFS() async {
     await shell.run('fsutil behavior set disable8dot3 1');
   }
 
-  static bool get statusMemoryUsageNTFS {
+  @override
+  bool get statusMemoryUsageNTFS {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\FileSystem',
@@ -452,7 +524,8 @@ abstract final class PerformanceService {
         2;
   }
 
-  static ServiceGrouping get statusServicesGrouping {
+  @override
+  ServiceGrouping get statusServicesGrouping {
     final value = WinRegistryService.readInt(
       RegistryHive.localMachine,
       r'SYSTEM\ControlSet001\Control',
@@ -478,7 +551,8 @@ abstract final class PerformanceService {
     return ServiceGrouping.disabled;
   }
 
-  static void forcedServicesGrouping() {
+  @override
+  void forcedServicesGrouping() {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SYSTEM\CurrentControlSet\Control',
@@ -487,7 +561,8 @@ abstract final class PerformanceService {
     );
   }
 
-  static void recommendedServicesGrouping() {
+  @override
+  void recommendedServicesGrouping() {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SYSTEM\CurrentControlSet\Control',
@@ -507,7 +582,8 @@ abstract final class PerformanceService {
     }
   }
 
-  static void disableServicesGrouping() {
+  @override
+  void disableServicesGrouping() {
     final servicesToDelete = _recommendedSplitDisabled.difference(
       _defaultSplitDisabled,
     );
@@ -526,7 +602,8 @@ abstract final class PerformanceService {
     );
   }
 
-  static int get statusBackgroundWindowMessageRateLimit {
+  @override
+  int get statusBackgroundWindowMessageRateLimit {
     final bool rawMouseThrottleEnabled =
         WinRegistryService.readInt(
           RegistryHive.currentUser,
@@ -555,7 +632,7 @@ abstract final class PerformanceService {
     return pollFrequency;
   }
 
-  static bool _rmtdValidator(int value) {
+  bool _rmtdValidator(int value) {
     if (value < 3 || value > 20) {
       throw ArgumentError('Value must be between 3 and 20 (inclusive).');
     }
@@ -563,7 +640,8 @@ abstract final class PerformanceService {
   }
 
   /// For more info: https://github.com/valleyofdoom/PC-Tuning?tab=readme-ov-file#window-message-rate
-  static void setBackgroundWindowMessageRateLimit(int value) {
+  @override
+  void setBackgroundWindowMessageRateLimit(int value) {
     if (!_rmtdValidator(value)) {
       throw ArgumentError('DWORD value must be between 3 and 20');
     }
@@ -583,71 +661,81 @@ abstract final class PerformanceService {
     );
   }
 
-  static Future<void> enableMemoryUsageNTFS() async {
+  @override
+  Future<void> enableMemoryUsageNTFS() async {
     await shell.run('fsutil behavior set memoryusage 2');
   }
 
-  static Future<void> disableMemoryUsageNTFS() async {
+  @override
+  Future<void> disableMemoryUsageNTFS() async {
     await shell.run('fsutil behavior set memoryusage 1');
   }
 }
 
+// Provider for PerformanceService instance
+@Riverpod(keepAlive: true)
+PerformanceService performanceService(Ref ref) {
+  return const PerformanceServiceImpl();
+}
+
 @riverpod
 bool superfetchStatus(Ref ref) {
-  return PerformanceService.statusSuperfetch;
+  return ref.watch(performanceServiceProvider).statusSuperfetch;
 }
 
 @riverpod
 bool memoryCompressionStatus(Ref ref) {
-  return PerformanceService.statusMemoryCompression;
+  return ref.watch(performanceServiceProvider).statusMemoryCompression;
 }
 
 @riverpod
 bool intelTSXStatus(Ref ref) {
-  return PerformanceService.statusIntelTSX;
+  return ref.watch(performanceServiceProvider).statusIntelTSX;
 }
 
 @riverpod
 bool fullscreenOptimizationStatus(Ref ref) {
-  return PerformanceService.statusFullscreenOptimization;
+  return ref.watch(performanceServiceProvider).statusFullscreenOptimization;
 }
 
 @riverpod
 bool windowedOptimizationStatus(Ref ref) {
-  return PerformanceService.statusWindowedOptimization;
+  return ref.watch(performanceServiceProvider).statusWindowedOptimization;
 }
 
 @riverpod
 bool backgroundAppsStatus(Ref ref) {
-  return PerformanceService.statusBackgroundApps;
+  return ref.watch(performanceServiceProvider).statusBackgroundApps;
 }
 
 @riverpod
 ServiceGrouping servicesGroupingStatus(Ref ref) {
-  return PerformanceService.statusServicesGrouping;
+  return ref.watch(performanceServiceProvider).statusServicesGrouping;
 }
 
 @riverpod
 int backgroundWindowMessageRateLimitStatus(Ref ref) {
-  return PerformanceService.statusBackgroundWindowMessageRateLimit;
+  return ref
+      .watch(performanceServiceProvider)
+      .statusBackgroundWindowMessageRateLimit;
 }
 
 @riverpod
 bool cStatesStatus(Ref ref) {
-  return PerformanceService.statusCStates;
+  return ref.watch(performanceServiceProvider).statusCStates;
 }
 
 @riverpod
 bool lastTimeAccessNTFSStatus(Ref ref) {
-  return PerformanceService.statusLastTimeAccessNTFS;
+  return ref.watch(performanceServiceProvider).statusLastTimeAccessNTFS;
 }
 
 @riverpod
 bool dot3NamingNTFSStatus(Ref ref) {
-  return PerformanceService.status8dot3NamingNTFS;
+  return ref.watch(performanceServiceProvider).status8dot3NamingNTFS;
 }
 
 @riverpod
 bool memoryUsageNTFSStatus(Ref ref) {
-  return PerformanceService.statusMemoryUsageNTFS;
+  return ref.watch(performanceServiceProvider).statusMemoryUsageNTFS;
 }

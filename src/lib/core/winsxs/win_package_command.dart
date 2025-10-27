@@ -111,7 +111,7 @@ class WindowsPackageCommand extends Command<String> {
 
     try {
       if (mode == WinPackageType.defenderRemoval) {
-        await SecurityService.disableDefender();
+        await const SecurityServiceImpl().disableDefender();
         return;
       }
 
@@ -151,7 +151,7 @@ class WindowsPackageCommand extends Command<String> {
 
     try {
       if (packageType == WinPackageType.defenderRemoval) {
-        await SecurityService.enableDefender();
+        await const SecurityServiceImpl().enableDefender();
       }
 
       if (packageType == WinPackageType.aiRemoval) {

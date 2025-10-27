@@ -65,6 +65,11 @@ jobs:
 
       - name: Build revitool CLI
         run: dart compile exe src/lib/main_cli.dart -o revitool.exe --define=APP_VERSION=${{ env.NEW_VERSION }} 
+      
+      - name: Run tests
+        continue-on-error: true
+        run: flutter test --reporter=expanded
+        working-directory: src
 
       - name: Enable Administrator Privileges for revitool CLI app
         shell: pwsh
@@ -77,7 +82,7 @@ jobs:
 
       - name: Install Inno Setup
         run: choco install innosetup -y
-        shell: powershell  
+        shell: powershell
       
       - name: Build Installer
         run: |

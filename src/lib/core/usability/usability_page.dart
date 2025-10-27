@@ -49,15 +49,15 @@ class _NotificationCard extends ConsumerWidget {
 
           switch (value) {
             case NotificationMode.on:
-              await UsabilityService.enableNotification();
+              await ref.read(usabilityServiceProvider).enableNotification();
               if (!context.mounted) return;
               showRestartDialog(context);
               break;
             case NotificationMode.offMinimal:
-              await UsabilityService.disableNotification();
+              await ref.read(usabilityServiceProvider).disableNotification();
               break;
             case NotificationMode.offFull:
-              await UsabilityService.disableNotificationAggressive();
+              await ref.read(usabilityServiceProvider).disableNotificationAggressive();
               break;
           }
 
@@ -98,8 +98,8 @@ class _LegacyBalloonCard extends ConsumerWidget {
         value: status,
         onChanged: (value) {
           value
-              ? UsabilityService.enableLegacyBalloon()
-              : UsabilityService.disableLegacyBalloon();
+              ? ref.read(usabilityServiceProvider).enableLegacyBalloon()
+              : ref.read(usabilityServiceProvider).disableLegacyBalloon();
           ref.invalidate(legacyBalloonStatusProvider);
         },
       ),
@@ -121,8 +121,8 @@ class _InputPersonalizationCard extends ConsumerWidget {
         value: status,
         onChanged: (value) {
           value
-              ? UsabilityService.enableInputPersonalization()
-              : UsabilityService.disableInputPersonalization();
+              ? ref.read(usabilityServiceProvider).enableInputPersonalization()
+              : ref.read(usabilityServiceProvider).disableInputPersonalization();
           ref.invalidate(inputPersonalizationStatusProvider);
         },
       ),
@@ -143,8 +143,8 @@ class _CapsLockCard extends ConsumerWidget {
         value: status,
         onChanged: (value) {
           value
-              ? UsabilityService.disableCapsLock()
-              : UsabilityService.enableCapsLock();
+              ? ref.read(usabilityServiceProvider).disableCapsLock()
+              : ref.read(usabilityServiceProvider).enableCapsLock();
           ref.invalidate(capsLockStatusProvider);
         },
       ),
@@ -166,8 +166,8 @@ class _ScreenEdgeSwipeCard extends ConsumerWidget {
         value: status,
         onChanged: (value) {
           value
-              ? UsabilityService.enableScreenEdgeSwipe()
-              : UsabilityService.disableScreenEdgeSwipe();
+              ? ref.read(usabilityServiceProvider).enableScreenEdgeSwipe()
+              : ref.read(usabilityServiceProvider).disableScreenEdgeSwipe();
           ref.invalidate(screenEdgeSwipeStatusProvider);
         },
       ),
@@ -188,8 +188,8 @@ class _NewContextMenuCard extends ConsumerWidget {
         value: status,
         onChanged: (value) async {
           value
-              ? await UsabilityService.enableNewContextMenu()
-              : await UsabilityService.disableNewContextMenu();
+              ? await ref.read(usabilityServiceProvider).enableNewContextMenu()
+              : await ref.read(usabilityServiceProvider).disableNewContextMenu();
           ref.invalidate(newContextMenuStatusProvider);
         },
       ),

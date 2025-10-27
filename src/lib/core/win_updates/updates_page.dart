@@ -33,8 +33,8 @@ class _PauseUpdatesCard extends ConsumerWidget {
         value: status,
         onChanged: (value) {
           value
-              ? WinUpdatesService.enablePauseUpdatesWU()
-              : WinUpdatesService.disablePauseUpdatesWU();
+              ? ref.read(winUpdatesServiceProvider).enablePauseUpdatesWU()
+              : ref.read(winUpdatesServiceProvider).disablePauseUpdatesWU();
           ref.invalidate(pauseUpdatesWUStatusProvider);
         },
       ),
@@ -56,8 +56,8 @@ class _VisibilityCard extends ConsumerWidget {
         value: status,
         onChanged: (value) {
           value
-              ? WinUpdatesService.disableVisibilityWU()
-              : WinUpdatesService.enableVisibilityWU();
+              ? ref.read(winUpdatesServiceProvider).disableVisibilityWU()
+              : ref.read(winUpdatesServiceProvider).enableVisibilityWU();
           ref.invalidate(visibilityWUStatusProvider);
         },
       ),
@@ -79,8 +79,8 @@ class _DriversCard extends ConsumerWidget {
         value: status,
         onChanged: (value) {
           value
-              ? WinUpdatesService.enableDriversWU()
-              : WinUpdatesService.disableDriversWU();
+              ? ref.read(winUpdatesServiceProvider).enableDriversWU()
+              : ref.read(winUpdatesServiceProvider).disableDriversWU();
           ref.invalidate(driversWUStatusProvider);
         },
       ),

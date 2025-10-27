@@ -22,11 +22,14 @@ class PerformancePage extends ConsumerWidget {
         const _MemoryCompressionCard(),
         if (WinRegistryService.isIntelCpu || kDebugMode) const _IntelTSXCard(),
         const _FullscreenOptimizationCard(),
-        if (WinRegistryService.isW11 || kDebugMode)
+        if (WinRegistryService.isW11 || kDebugMode) ...[
           const _WindowedOptimizationCard(),
+        ],
         const _BackgroundAppsCard(),
         const _ServicesGroupingCard(),
-        const _BackgroundWindowMessageRateCard(),
+        if (WinRegistryService.isW11 || kDebugMode) ...[
+          const _BackgroundWindowMessageRateCard(),
+        ],
         if (ref.watch(settingsExperimentalStatus)) ...[
           const _CStatesCard(),
           Subtitle(content: Text(context.l10n.perfSectionFS)),
@@ -55,8 +58,8 @@ class _SuperfetchCard extends ConsumerWidget {
         requiresRestart: true,
         onChanged: (value) async {
           value
-              ? await PerformanceService.enableSuperfetch()
-              : await PerformanceService.disableSuperfetch();
+              ? await ref.read(performanceServiceProvider).enableSuperfetch()
+              : await ref.read(performanceServiceProvider).disableSuperfetch();
 
           ref.invalidate(superfetchStatusProvider);
         },
@@ -86,8 +89,12 @@ class _MemoryCompressionCard extends ConsumerWidget {
         requiresRestart: true,
         onChanged: (value) async {
           value
-              ? await PerformanceService.enableMemoryCompression()
-              : await PerformanceService.disableMemoryCompression();
+              ? await ref
+                    .read(performanceServiceProvider)
+                    .enableMemoryCompression()
+              : await ref
+                    .read(performanceServiceProvider)
+                    .disableMemoryCompression();
           ref.invalidate(memoryCompressionStatusProvider);
         },
       ),
@@ -110,8 +117,8 @@ class _IntelTSXCard extends ConsumerWidget {
         requiresRestart: true,
         onChanged: (value) {
           value
-              ? PerformanceService.enableIntelTSX()
-              : PerformanceService.disableIntelTSX();
+              ? ref.read(performanceServiceProvider).enableIntelTSX()
+              : ref.read(performanceServiceProvider).disableIntelTSX();
           ref.invalidate(intelTSXStatusProvider);
         },
       ),
@@ -133,8 +140,12 @@ class _FullscreenOptimizationCard extends ConsumerWidget {
         value: status,
         onChanged: (value) {
           value
-              ? PerformanceService.enableFullscreenOptimization()
-              : PerformanceService.disableFullscreenOptimization();
+              ? ref
+                    .read(performanceServiceProvider)
+                    .enableFullscreenOptimization()
+              : ref
+                    .read(performanceServiceProvider)
+                    .disableFullscreenOptimization();
           ref.invalidate(fullscreenOptimizationStatusProvider);
         },
       ),
@@ -156,8 +167,12 @@ class _WindowedOptimizationCard extends ConsumerWidget {
         value: status,
         onChanged: (value) {
           value
-              ? PerformanceService.enableWindowedOptimization()
-              : PerformanceService.disableWindowedOptimization();
+              ? ref
+                    .read(performanceServiceProvider)
+                    .enableWindowedOptimization()
+              : ref
+                    .read(performanceServiceProvider)
+                    .disableWindowedOptimization();
           ref.invalidate(windowedOptimizationStatusProvider);
         },
       ),
@@ -179,8 +194,8 @@ class _BackgroundAppsCard extends ConsumerWidget {
         value: status,
         onChanged: (value) {
           value
-              ? PerformanceService.enableBackgroundApps()
-              : PerformanceService.disableBackgroundApps();
+              ? ref.read(performanceServiceProvider).enableBackgroundApps()
+              : ref.read(performanceServiceProvider).disableBackgroundApps();
           ref.invalidate(backgroundAppsStatusProvider);
         },
       ),
@@ -206,13 +221,15 @@ class _ServicesGroupingCard extends ConsumerWidget {
           switch (value) {
             case ServiceGrouping.forced:
               _showServicesGroupingWarning(context);
-              PerformanceService.forcedServicesGrouping();
+              ref.read(performanceServiceProvider).forcedServicesGrouping();
               break;
             case ServiceGrouping.recommended:
-              PerformanceService.recommendedServicesGrouping();
+              ref
+                  .read(performanceServiceProvider)
+                  .recommendedServicesGrouping();
               break;
             case ServiceGrouping.disabled:
-              PerformanceService.disableServicesGrouping();
+              ref.read(performanceServiceProvider).disableServicesGrouping();
               break;
           }
           ref.invalidate(servicesGroupingStatusProvider);
@@ -266,7 +283,9 @@ class _BackgroundWindowMessageRateCard extends ConsumerWidget {
           if (value == null) return;
 
           try {
-            PerformanceService.setBackgroundWindowMessageRateLimit(value);
+            ref
+                .read(performanceServiceProvider)
+                .setBackgroundWindowMessageRateLimit(value);
           } catch (e) {
             showDialog(
               context: context,
@@ -307,8 +326,8 @@ class _CStatesCard extends ConsumerWidget {
         value: status,
         onChanged: (value) {
           value
-              ? PerformanceService.disableCStates()
-              : PerformanceService.enableCStates();
+              ? ref.read(performanceServiceProvider).disableCStates()
+              : ref.read(performanceServiceProvider).enableCStates();
           ref.invalidate(cStatesStatusProvider);
         },
       ),
@@ -331,8 +350,12 @@ class _LastTimeAccessCard extends ConsumerWidget {
         requiresRestart: true,
         onChanged: (value) async {
           value
-              ? await PerformanceService.disableLastTimeAccessNTFS()
-              : await PerformanceService.enableLastTimeAccessNTFS();
+              ? await ref
+                    .read(performanceServiceProvider)
+                    .disableLastTimeAccessNTFS()
+              : await ref
+                    .read(performanceServiceProvider)
+                    .enableLastTimeAccessNTFS();
           ref.invalidate(lastTimeAccessNTFSStatusProvider);
         },
       ),
@@ -355,8 +378,12 @@ class _Dot3NamingCard extends ConsumerWidget {
         requiresRestart: true,
         onChanged: (value) async {
           value
-              ? await PerformanceService.disable8dot3NamingNTFS()
-              : await PerformanceService.enable8dot3NamingNTFS();
+              ? await ref
+                    .read(performanceServiceProvider)
+                    .disable8dot3NamingNTFS()
+              : await ref
+                    .read(performanceServiceProvider)
+                    .enable8dot3NamingNTFS();
           ref.invalidate(dot3NamingNTFSStatusProvider);
         },
       ),
@@ -378,8 +405,12 @@ class _MemoryUsageCard extends ConsumerWidget {
         requiresRestart: true,
         onChanged: (value) async {
           value
-              ? await PerformanceService.enableMemoryUsageNTFS()
-              : await PerformanceService.disableMemoryUsageNTFS();
+              ? await ref
+                    .read(performanceServiceProvider)
+                    .enableMemoryUsageNTFS()
+              : await ref
+                    .read(performanceServiceProvider)
+                    .disableMemoryUsageNTFS();
           ref.invalidate(memoryUsageNTFSStatusProvider);
         },
       ),

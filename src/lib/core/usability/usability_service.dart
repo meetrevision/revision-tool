@@ -11,7 +11,33 @@ part 'usability_service.g.dart';
 
 enum NotificationMode { on, offMinimal, offFull }
 
-abstract final class UsabilityService {
+/// Abstract interface for usability-related operations
+abstract class UsabilityService {
+  NotificationMode get statusNotification;
+  Future<void> enableNotification();
+  Future<void> disableNotification();
+  Future<void> disableNotificationAggressive();
+  bool get statusLegacyBalloon;
+  Future<void> enableLegacyBalloon();
+  Future<void> disableLegacyBalloon();
+  bool get statusInputPersonalization;
+  void enableInputPersonalization();
+  void disableInputPersonalization();
+  bool get statusCapsLock;
+  void enableCapsLock();
+  void disableCapsLock();
+  bool get statusScreenEdgeSwipe;
+  void enableScreenEdgeSwipe();
+  void disableScreenEdgeSwipe();
+  bool get statusNewContextMenu;
+  Future<void> enableNewContextMenu();
+  Future<void> disableNewContextMenu();
+}
+
+/// Implementation of UsabilityService
+class UsabilityServiceImpl implements UsabilityService {
+  const UsabilityServiceImpl();
+
   static const _listEquality = ListEquality();
 
   static final _cplValue = Uint8List.fromList([
@@ -37,7 +63,8 @@ abstract final class UsabilityService {
     0,
   ]);
 
-  static NotificationMode get statusNotification {
+  @override
+  NotificationMode get statusNotification {
     final isToastEnabled =
         WinRegistryService.readInt(
           RegistryHive.currentUser,
@@ -62,7 +89,8 @@ abstract final class UsabilityService {
     }
   }
 
-  static Future<void> enableNotification() async {
+  @override
+  Future<void> enableNotification() async {
     WinRegistryService.deleteKey(
       WinRegistryService.currentUser,
       r'Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications',
@@ -161,7 +189,8 @@ abstract final class UsabilityService {
     await Process.run('explorer.exe', [], runInShell: true);
   }
 
-  static Future<void> disableNotification() async {
+  @override
+  Future<void> disableNotification() async {
     WinRegistryService.deleteValue(
       Registry.localMachine,
       r'SOFTWARE\Policies\Microsoft\Windows\Explorer',
@@ -245,7 +274,8 @@ abstract final class UsabilityService {
     await Process.run('explorer.exe', [], runInShell: true);
   }
 
-  static Future<void> disableNotificationAggressive() async {
+  @override
+  Future<void> disableNotificationAggressive() async {
     await disableNotification();
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
@@ -275,7 +305,8 @@ abstract final class UsabilityService {
     }
   }
 
-  static bool get statusLegacyBalloon {
+  @override
+  bool get statusLegacyBalloon {
     return WinRegistryService.readInt(
           RegistryHive.currentUser,
           r'Software\Policies\Microsoft\Windows\Explorer',
@@ -284,7 +315,8 @@ abstract final class UsabilityService {
         0;
   }
 
-  static Future<void> enableLegacyBalloon() async {
+  @override
+  Future<void> enableLegacyBalloon() async {
     WinRegistryService.writeRegistryValue(
       WinRegistryService.currentUser,
       r'Software\Policies\Microsoft\Windows\Explorer',
@@ -295,7 +327,8 @@ abstract final class UsabilityService {
     await Process.run('explorer.exe', [], runInShell: true);
   }
 
-  static Future<void> disableLegacyBalloon() async {
+  @override
+  Future<void> disableLegacyBalloon() async {
     WinRegistryService.writeRegistryValue(
       WinRegistryService.currentUser,
       r'Software\Policies\Microsoft\Windows\Explorer',
@@ -306,7 +339,8 @@ abstract final class UsabilityService {
     await Process.run('explorer.exe', [], runInShell: true);
   }
 
-  static bool get statusInputPersonalization {
+  @override
+  bool get statusInputPersonalization {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SOFTWARE\Policies\Microsoft\InputPersonalization',
@@ -315,7 +349,8 @@ abstract final class UsabilityService {
         1;
   }
 
-  static void enableInputPersonalization() {
+  @override
+  void enableInputPersonalization() {
     WinRegistryService.writeRegistryValue(
       WinRegistryService.currentUser,
       r'Software\Microsoft\InputPersonalization',
@@ -372,7 +407,8 @@ abstract final class UsabilityService {
     );
   }
 
-  static void disableInputPersonalization() {
+  @override
+  void disableInputPersonalization() {
     WinRegistryService.writeRegistryValue(
       WinRegistryService.currentUser,
       r'Software\Microsoft\InputPersonalization',
@@ -429,7 +465,8 @@ abstract final class UsabilityService {
     );
   }
 
-  static bool get statusCapsLock {
+  @override
+  bool get statusCapsLock {
     Uint8List? value;
     try {
       value = WinRegistryService.readBinary(
@@ -444,7 +481,8 @@ abstract final class UsabilityService {
     return _listEquality.equals(_cplValue, value);
   }
 
-  static void enableCapsLock() {
+  @override
+  void enableCapsLock() {
     WinRegistryService.deleteValue(
       Registry.localMachine,
       r"SYSTEM\CurrentControlSet\Control\Keyboard Layout",
@@ -452,7 +490,8 @@ abstract final class UsabilityService {
     );
   }
 
-  static void disableCapsLock() {
+  @override
+  void disableCapsLock() {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r"SYSTEM\CurrentControlSet\Control\Keyboard Layout",
@@ -461,7 +500,8 @@ abstract final class UsabilityService {
     );
   }
 
-  static bool get statusScreenEdgeSwipe {
+  @override
+  bool get statusScreenEdgeSwipe {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SOFTWARE\Policies\Microsoft\Windows\EdgeUI',
@@ -470,7 +510,8 @@ abstract final class UsabilityService {
         0;
   }
 
-  static void enableScreenEdgeSwipe() {
+  @override
+  void enableScreenEdgeSwipe() {
     WinRegistryService.deleteValue(
       Registry.localMachine,
       r'SOFTWARE\Policies\Microsoft\Windows\EdgeUI',
@@ -478,7 +519,8 @@ abstract final class UsabilityService {
     );
   }
 
-  static void disableScreenEdgeSwipe() {
+  @override
+  void disableScreenEdgeSwipe() {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SOFTWARE\Policies\Microsoft\Windows\EdgeUI',
@@ -489,7 +531,8 @@ abstract final class UsabilityService {
 
   //Windows 11
 
-  static bool get statusNewContextMenu {
+  @override
+  bool get statusNewContextMenu {
     return WinRegistryService.readString(
           RegistryHive.currentUser,
           r'Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32',
@@ -498,7 +541,8 @@ abstract final class UsabilityService {
         true;
   }
 
-  static Future<void> enableNewContextMenu() async {
+  @override
+  Future<void> enableNewContextMenu() async {
     shell.run(
       r'reg delete "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" /f',
     );
@@ -509,7 +553,8 @@ abstract final class UsabilityService {
     await Process.run('explorer.exe', [], runInShell: true);
   }
 
-  static Future<void> disableNewContextMenu() async {
+  @override
+  Future<void> disableNewContextMenu() async {
     WinRegistryService.createKey(
       WinRegistryService.currentUser,
       r'Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32',
@@ -525,33 +570,38 @@ abstract final class UsabilityService {
   }
 }
 
+@Riverpod(keepAlive: true)
+UsabilityService usabilityService(Ref ref) {
+  return const UsabilityServiceImpl();
+}
+
 // Riverpod Providers
 @riverpod
 NotificationMode notificationStatus(Ref ref) {
-  return UsabilityService.statusNotification;
+  return ref.watch(usabilityServiceProvider).statusNotification;
 }
 
 @riverpod
 bool legacyBalloonStatus(Ref ref) {
-  return UsabilityService.statusLegacyBalloon;
+  return ref.watch(usabilityServiceProvider).statusLegacyBalloon;
 }
 
 @riverpod
 bool inputPersonalizationStatus(Ref ref) {
-  return UsabilityService.statusInputPersonalization;
+  return ref.watch(usabilityServiceProvider).statusInputPersonalization;
 }
 
 @riverpod
 bool capsLockStatus(Ref ref) {
-  return UsabilityService.statusCapsLock;
+  return ref.watch(usabilityServiceProvider).statusCapsLock;
 }
 
 @riverpod
 bool screenEdgeSwipeStatus(Ref ref) {
-  return UsabilityService.statusScreenEdgeSwipe;
+  return ref.watch(usabilityServiceProvider).statusScreenEdgeSwipe;
 }
 
 @riverpod
 bool newContextMenuStatus(Ref ref) {
-  return UsabilityService.statusNewContextMenu;
+  return ref.watch(usabilityServiceProvider).statusNewContextMenu;
 }

@@ -21,11 +21,34 @@ extension MitigationBits on Mitigation {
   }
 }
 
-abstract final class SecurityService {
-  static final String _mpCmdRunString =
+/// Abstract interface for security-related operations
+abstract class SecurityService {
+  bool get statusDefender;
+  bool get statusDefenderProtections;
+  bool get statusDefenderProtectionTamper;
+  bool get statusDefenderProtectionRealtime;
+  bool get statusUAC;
+
+  Future<ProcessResult> openDefenderThreatSettings();
+  Future<void> enableDefender();
+  Future<void> disableDefender();
+  void enableUAC();
+  void disableUAC();
+  bool isMitigationEnabled(Mitigation mitigation);
+  void enableMitigation(Mitigation mitigation);
+  void disableMitigation(Mitigation mitigation);
+  Future<void> updateCertificates();
+}
+
+/// Implementation of SecurityService
+class SecurityServiceImpl implements SecurityService {
+  const SecurityServiceImpl();
+
+  String get _mpCmdRunString =>
       '${WinRegistryService.readString(RegistryHive.localMachine, r'SOFTWARE\Microsoft\Windows Defender', 'InstallLocation') ?? r'C:\Program Files\Windows Defender'}\\MpCmdRun.exe';
 
-  static bool get statusDefender {
+  @override
+  bool get statusDefender {
     if (WinPackageService.checkPackageInstalled(
       WinPackageType.defenderRemoval,
     )) {
@@ -53,13 +76,15 @@ abstract final class SecurityService {
     return true;
   }
 
-  static bool get statusDefenderProtections {
+  @override
+  bool get statusDefenderProtections {
     return (statusDefenderProtectionTamper ||
             statusDefenderProtectionRealtime) &&
         statusDefender;
   }
 
-  static bool get statusDefenderProtectionTamper {
+  @override
+  bool get statusDefenderProtectionTamper {
     final tp = WinRegistryService.readInt(
       RegistryHive.localMachine,
       r'SOFTWARE\Microsoft\Windows Defender\Features',
@@ -78,7 +103,8 @@ abstract final class SecurityService {
     return tp != 4;
   }
 
-  static bool get statusDefenderProtectionRealtime {
+  @override
+  bool get statusDefenderProtectionRealtime {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows Defender\Real-Time Protection',
@@ -87,13 +113,15 @@ abstract final class SecurityService {
         1;
   }
 
-  static Future<ProcessResult> openDefenderThreatSettings() async {
+  @override
+  Future<ProcessResult> openDefenderThreatSettings() async {
     return await Process.run('start', [
       'windowsdefender://threatsettings',
     ], runInShell: true);
   }
 
-  static Future<void> enableDefender() async {
+  @override
+  Future<void> enableDefender() async {
     try {
       WinRegistryService.deleteValue(
         Registry.localMachine,
@@ -288,7 +316,8 @@ abstract final class SecurityService {
     }
   }
 
-  static Future<void> disableDefender() async {
+  @override
+  Future<void> disableDefender() async {
     try {
       await WinPackageService.downloadPackage(WinPackageType.defenderRemoval);
 
@@ -347,7 +376,8 @@ abstract final class SecurityService {
     }
   }
 
-  static bool get statusUAC {
+  @override
+  bool get statusUAC {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
@@ -356,7 +386,8 @@ abstract final class SecurityService {
         1;
   }
 
-  static void enableUAC() {
+  @override
+  void enableUAC() {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
@@ -419,7 +450,8 @@ abstract final class SecurityService {
     );
   }
 
-  static void disableUAC() {
+  @override
+  void disableUAC() {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
@@ -482,7 +514,8 @@ abstract final class SecurityService {
     );
   }
 
-  static bool isMitigationEnabled(Mitigation mitigation) {
+  @override
+  bool isMitigationEnabled(Mitigation mitigation) {
     final val = WinRegistryService.readInt(
       RegistryHive.localMachine,
       r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
@@ -492,7 +525,8 @@ abstract final class SecurityService {
     return (val & mitigation.bitmask) == 0;
   }
 
-  static void enableMitigation(Mitigation mitigation) {
+  @override
+  void enableMitigation(Mitigation mitigation) {
     final otherMitigation =
         Mitigation.values[(mitigation.index + 1) % Mitigation.values.length];
     if (isMitigationEnabled(otherMitigation)) {
@@ -520,7 +554,8 @@ abstract final class SecurityService {
     _writeOverride(newVal);
   }
 
-  static void disableMitigation(Mitigation mitigation) {
+  @override
+  void disableMitigation(Mitigation mitigation) {
     WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
@@ -533,7 +568,8 @@ abstract final class SecurityService {
     _writeOverride(newVal);
   }
 
-  static Future<void> updateCertificates() async {
+  @override
+  Future<void> updateCertificates() async {
     await shell.run(
       'PowerShell -NonInteractive -NoLogo -NoP -C "& {\$tmp = (New-TemporaryFile).FullName; CertUtil -generateSSTFromWU -f \$tmp; if ( (Get-Item \$tmp | Measure-Object -Property Length -Sum).sum -gt 0 ) { \$SST_File = Get-ChildItem -Path \$tmp; \$SST_File | Import-Certificate -CertStoreLocation "Cert:\\LocalMachine\\Root"; \$SST_File | Import-Certificate -CertStoreLocation "Cert:\\LocalMachine\\AuthRoot" } Remove-Item -Path \$tmp}"',
     );
@@ -565,37 +601,46 @@ void _writeOverride(int value) {
 }
 
 // Riverpod Providers
+@Riverpod(keepAlive: true)
+SecurityService securityService(Ref ref) {
+  return const SecurityServiceImpl();
+}
+
 @riverpod
 bool defenderStatus(Ref ref) {
-  return SecurityService.statusDefender;
+  return ref.watch(securityServiceProvider).statusDefender;
 }
 
 @riverpod
 bool defenderProtectionsStatus(Ref ref) {
-  return SecurityService.statusDefenderProtections;
+  return ref.watch(securityServiceProvider).statusDefenderProtections;
 }
 
 @riverpod
 bool defenderProtectionTamperStatus(Ref ref) {
-  return SecurityService.statusDefenderProtectionTamper;
+  return ref.watch(securityServiceProvider).statusDefenderProtectionTamper;
 }
 
 @riverpod
 bool defenderProtectionRealtimeStatus(Ref ref) {
-  return SecurityService.statusDefenderProtectionRealtime;
+  return ref.watch(securityServiceProvider).statusDefenderProtectionRealtime;
 }
 
 @riverpod
 bool uacStatus(Ref ref) {
-  return SecurityService.statusUAC;
+  return ref.watch(securityServiceProvider).statusUAC;
 }
 
 @riverpod
 bool meltdownSpectreStatus(Ref ref) {
-  return SecurityService.isMitigationEnabled(Mitigation.meltdownSpectre);
+  return ref
+      .watch(securityServiceProvider)
+      .isMitigationEnabled(Mitigation.meltdownSpectre);
 }
 
 @riverpod
 bool downfallStatus(Ref ref) {
-  return SecurityService.isMitigationEnabled(Mitigation.downfall);
+  return ref
+      .watch(securityServiceProvider)
+      .isMitigationEnabled(Mitigation.downfall);
 }
