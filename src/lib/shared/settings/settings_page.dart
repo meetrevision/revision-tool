@@ -1,9 +1,11 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:revitool/extensions.dart';
 
 import 'package:revitool/shared/settings/app_settings_provider.dart';
 import 'package:revitool/shared/settings/tool_update_service.dart';
+import 'package:revitool/shared/trusted_installer/trusted_installer_service.dart';
 import 'package:revitool/utils.dart';
 import 'package:revitool/utils_gui.dart';
 import 'package:revitool/shared/win_registry_service.dart';
@@ -39,6 +41,7 @@ class SettingsPage extends ConsumerWidget {
         _ExperimentalCard(),
         _UpdateCard(),
         _LanguageCard(),
+        if (kDebugMode) _TrustedInstallerDemoCard(),
       ],
     );
   }
@@ -233,6 +236,203 @@ class _LanguageCard extends ConsumerWidget {
           ref.read(appSettingsProvider.notifier).updateLocale(newLanguage);
         },
         items: languageList,
+      ),
+    );
+  }
+}
+
+class _TrustedInstallerDemoCard extends ConsumerWidget {
+  const _TrustedInstallerDemoCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final trustedInstallerService = ref.watch(trustedInstallerServiceProvider);
+
+    return CardHighlight(
+      icon: msicons.FluentIcons.shield_checkmark_24_regular,
+      label: 'TrustedInstaller Demo',
+      description:
+          'Test TrustedInstaller token impersonation by writing to protected registry',
+      action: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Button(
+            onPressed: () async {
+              try {
+                // Try WITHOUT TrustedInstaller - should fail
+                const keyPath =
+                    r'SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing';
+                final randomValue =
+                    'Test_${DateTime.now().millisecondsSinceEpoch}';
+
+                final key = Registry.openPath(
+                  RegistryHive.localMachine,
+                  path: keyPath,
+                  desiredAccessRights: AccessRights.allAccess,
+                );
+
+                try {
+                  key.createValue(
+                    RegistryValue.string('TestWithoutTI', randomValue),
+                  );
+
+                  if (context.mounted) {
+                    await showDialog(
+                      context: context,
+                      builder: (context) => ContentDialog(
+                        title: const Text(
+                          'Without TrustedInstaller - Unexpected Success',
+                        ),
+                        content: const Text(
+                          'This should have failed! The key might not be protected.',
+                        ),
+                        actions: [
+                          Button(
+                            child: const Text('Close'),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                } finally {
+                  key.close();
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  await showDialog(
+                    context: context,
+                    builder: (context) => ContentDialog(
+                      title: const Text('Without TrustedInstaller - Failed ✅'),
+                      content: SelectableText(
+                        'Expected failure! Cannot write to TrustedInstaller-protected key:\n\n$e',
+                      ),
+                      actions: [
+                        Button(
+                          child: const Text('Close'),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('Without TI (should fail)'),
+          ),
+          const SizedBox(height: 8),
+          Button(
+            onPressed: () async {
+              try {
+                final randomValue =
+                    'TI_${DateTime.now().millisecondsSinceEpoch}';
+
+                // Test 1: Execute whoami command with TrustedInstaller
+                final result = await trustedInstallerService.executeCommand(
+                  'whoami',
+                  [],
+                );
+
+                logger.i(
+                  'whoami command result:\nExit code: ${result.exitCode}\nOutput:\n${result.output}',
+                );
+
+                // Test 2: Test registry write with TrustedInstaller
+                final regResult = await trustedInstallerService
+                    .executeWithTrustedInstaller(() async {
+                      // This will run whoami with TrustedInstaller privileges
+                      // Test WRITE access using direct Win32 registry API
+                      // This works under impersonation unlike shell commands
+                      const keyPath =
+                          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing';
+
+                      // Try to write a test value with random data
+                      WinRegistryService.writeRegistryValue(
+                        Registry.localMachine,
+                        keyPath,
+                        'TestWithTI',
+                        randomValue,
+                      );
+
+                      // Read it back to verify
+                      final value = WinRegistryService.readString(
+                        RegistryHive.localMachine,
+                        keyPath,
+                        'TestWithTI',
+                      );
+                      return 'Successfully wrote and verified: TestWithTI = $value';
+                    });
+
+                if (context.mounted) {
+                  await showDialog(
+                    context: context,
+                    builder: (context) => ContentDialog(
+                      title: const Text('With TrustedInstaller - SUCCESS! ✅'),
+                      content: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'TrustedInstaller impersonation is working!\n\n'
+                              'Command output (whoami):\n',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            SelectableText(
+                              result.output,
+                              style: const TextStyle(
+                                fontFamily: 'Consolas',
+                                fontSize: 10,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Registry write test:\n',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            SelectableText(
+                              regResult,
+                              style: const TextStyle(
+                                fontFamily: 'Consolas',
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        Button(
+                          child: const Text('Close'),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  await showDialog(
+                    context: context,
+                    builder: (context) => ContentDialog(
+                      title: const Text('With TrustedInstaller - Failed ❌'),
+                      content: SelectableText(
+                        'Error: $e\n\nTrustedInstaller impersonation is not working.',
+                      ),
+                      actions: [
+                        Button(
+                          child: const Text('Close'),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('With TI'),
+          ),
+        ],
       ),
     );
   }
