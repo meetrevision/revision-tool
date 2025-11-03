@@ -7,176 +7,184 @@ import 'package:revitool/core/security/security_service.dart';
 class MockSecurityService extends Mock implements SecurityService {}
 
 void main() {
-  group('SecurityService - Real Implementation', () {
-    late SecurityService service;
+  const skipIntegration = bool.fromEnvironment(
+    'SKIP_INTEGRATION',
+    defaultValue: true,
+  );
 
-    setUp(() {
-      service = const SecurityServiceImpl();
-    });
+  group(
+    'SecurityService (Real Implementation)',
+    skip: skipIntegration
+        ? 'Skipped in CI (use --dart-define=SKIP_INTEGRATION=false to run)'
+        : false,
+    () {
+      late SecurityService service;
 
-    group('Windows Defender', () {
-      test('statusDefender returns a boolean', () {
-        expect(service.statusDefender, isA<bool>());
+      setUp(() {
+        service = const SecurityServiceImpl();
       });
 
-      test('statusDefenderProtections returns a boolean', () {
-        expect(service.statusDefenderProtections, isA<bool>());
+      group('Windows Defender', () {
+        test('statusDefender returns a boolean', () {
+          expect(service.statusDefender, isA<bool>());
+        });
+
+        test('statusDefenderProtections returns a boolean', () {
+          expect(service.statusDefenderProtections, isA<bool>());
+        });
+
+        test('statusDefenderProtectionTamper returns a boolean', () {
+          expect(service.statusDefenderProtectionTamper, isA<bool>());
+        });
+
+        test('statusDefenderProtectionRealtime returns a boolean', () {
+          expect(service.statusDefenderProtectionRealtime, isA<bool>());
+        });
+
+        test('enableDefender completes without error', () async {
+          await expectLater(service.enableDefender(), completes);
+        });
+
+        test('disableDefender completes without error', () async {
+          await expectLater(service.disableDefender(), completes);
+        });
+
+        test('openDefenderThreatSettings returns ProcessResult', () async {
+          expect(service.openDefenderThreatSettings(), isA<Future<dynamic>>());
+        });
       });
 
-      test('statusDefenderProtectionTamper returns a boolean', () {
-        expect(service.statusDefenderProtectionTamper, isA<bool>());
+      group('UAC (User Account Control)', () {
+        test('statusUAC returns a boolean', () {
+          expect(service.statusUAC, isA<bool>());
+        });
+
+        test('enableUAC completes without error', () async {
+          await expectLater(service.enableUAC(), completes);
+        });
+
+        test('disableUAC completes without error', () async {
+          await expectLater(service.disableUAC(), completes);
+        });
       });
 
-      test('statusDefenderProtectionRealtime returns a boolean', () {
-        expect(service.statusDefenderProtectionRealtime, isA<bool>());
+      group('CPU Mitigations', () {
+        test('isMitigationEnabled accepts Meltdown/Spectre mitigation', () {
+          expect(
+            service.isMitigationEnabled(Mitigation.meltdownSpectre),
+            isA<bool>(),
+          );
+        });
+
+        test('isMitigationEnabled accepts Downfall mitigation', () {
+          expect(service.isMitigationEnabled(Mitigation.downfall), isA<bool>());
+        });
+
+        test('enableMitigation completes for Meltdown/Spectre', () async {
+          await expectLater(
+            service.enableMitigation(Mitigation.meltdownSpectre),
+            completes,
+          );
+        });
+
+        test('enableMitigation completes for Downfall', () async {
+          await expectLater(
+            service.enableMitigation(Mitigation.downfall),
+            completes,
+          );
+        });
+
+        test('disableMitigation completes for Meltdown/Spectre', () async {
+          await expectLater(
+            service.disableMitigation(Mitigation.meltdownSpectre),
+            completes,
+          );
+        });
+
+        test('disableMitigation completes for Downfall', () async {
+          await expectLater(
+            service.disableMitigation(Mitigation.downfall),
+            completes,
+          );
+        });
       });
 
-      test('enableDefender completes without error', () async {
-        expect(() => service.enableDefender(), returnsNormally);
+      group('Certificates', () {
+        test('updateCertificates completes without error', () async {
+          await expectLater(service.updateCertificates(), completes);
+        });
       });
 
-      test('disableDefender completes without error', () async {
-        expect(() => service.disableDefender(), returnsNormally);
+      group('Service Instance', () {
+        test('SecurityService can be instantiated', () {
+          expect(() => const SecurityServiceImpl(), returnsNormally);
+        });
+
+        test('SecurityService is const constructible', () {
+          const service1 = SecurityServiceImpl();
+          const service2 = SecurityServiceImpl();
+          expect(identical(service1, service2), isTrue);
+        });
+
+        test('Multiple instances behave identically', () {
+          const service1 = SecurityServiceImpl();
+          const service2 = SecurityServiceImpl();
+
+          // Both should read the same registry values
+          expect(service1.statusDefender, equals(service2.statusDefender));
+          expect(service1.statusUAC, equals(service2.statusUAC));
+        });
       });
 
-      test('openDefenderThreatSettings returns ProcessResult', () async {
-        expect(service.openDefenderThreatSettings(), isA<Future<dynamic>>());
-      });
-    });
+      group('Method Return Types', () {
+        test('All status getters return boolean', () {
+          expect(service.statusDefender, isA<bool>());
+          expect(service.statusDefenderProtections, isA<bool>());
+          expect(service.statusDefenderProtectionTamper, isA<bool>());
+          expect(service.statusDefenderProtectionRealtime, isA<bool>());
+          expect(service.statusUAC, isA<bool>());
+          expect(
+            service.isMitigationEnabled(Mitigation.meltdownSpectre),
+            isA<bool>(),
+          );
+          expect(service.isMitigationEnabled(Mitigation.downfall), isA<bool>());
+        });
 
-    group('UAC (User Account Control)', () {
-      test('statusUAC returns a boolean', () {
-        expect(service.statusUAC, isA<bool>());
-      });
-
-      test('enableUAC completes without error', () {
-        expect(() => service.enableUAC(), returnsNormally);
-      });
-
-      test('disableUAC completes without error', () {
-        expect(() => service.disableUAC(), returnsNormally);
-      });
-    });
-
-    group('CPU Mitigations', () {
-      test('isMitigationEnabled accepts Meltdown/Spectre mitigation', () {
-        expect(
-          service.isMitigationEnabled(Mitigation.meltdownSpectre),
-          isA<bool>(),
-        );
-      });
-
-      test('isMitigationEnabled accepts Downfall mitigation', () {
-        expect(service.isMitigationEnabled(Mitigation.downfall), isA<bool>());
-      });
-
-      test('enableMitigation completes for Meltdown/Spectre', () {
-        expect(
-          () => service.enableMitigation(Mitigation.meltdownSpectre),
-          returnsNormally,
-        );
+        test('All methods return Future', () {
+          expect(service.enableDefender(), isA<Future<void>>());
+          expect(service.disableDefender(), isA<Future<void>>());
+          expect(service.openDefenderThreatSettings(), isA<Future<dynamic>>());
+          expect(service.updateCertificates(), isA<Future<void>>());
+          expect(service.enableUAC(), isA<Future<void>>());
+          expect(service.disableUAC(), isA<Future<void>>());
+          expect(
+            service.enableMitigation(Mitigation.meltdownSpectre),
+            isA<Future<void>>(),
+          );
+          expect(
+            service.disableMitigation(Mitigation.meltdownSpectre),
+            isA<Future<void>>(),
+          );
+        });
       });
 
-      test('enableMitigation completes for Downfall', () {
-        expect(
-          () => service.enableMitigation(Mitigation.downfall),
-          returnsNormally,
-        );
-      });
+      group('Mitigation Enum', () {
+        test('Mitigation enum has all expected values', () {
+          expect(Mitigation.values.length, equals(2));
+          expect(Mitigation.values, contains(Mitigation.meltdownSpectre));
+          expect(Mitigation.values, contains(Mitigation.downfall));
+        });
 
-      test('disableMitigation completes for Meltdown/Spectre', () {
-        expect(
-          () => service.disableMitigation(Mitigation.meltdownSpectre),
-          returnsNormally,
-        );
-      });
+        test('Meltdown/Spectre bitmask is correct', () {
+          expect(Mitigation.meltdownSpectre.bitmask, equals(0x00000003));
+        });
 
-      test('disableMitigation completes for Downfall', () {
-        expect(
-          () => service.disableMitigation(Mitigation.downfall),
-          returnsNormally,
-        );
+        test('Downfall bitmask is correct', () {
+          expect(Mitigation.downfall.bitmask, equals(0x02000000));
+        });
       });
-    });
-
-    group('Certificates', () {
-      test('updateCertificates completes without error', () async {
-        expect(() => service.updateCertificates(), returnsNormally);
-      });
-    });
-
-    group('Service Instance', () {
-      test('SecurityService can be instantiated', () {
-        expect(() => const SecurityServiceImpl(), returnsNormally);
-      });
-
-      test('SecurityService is const constructible', () {
-        const service1 = SecurityServiceImpl();
-        const service2 = SecurityServiceImpl();
-        expect(identical(service1, service2), isTrue);
-      });
-
-      test('Multiple instances behave identically', () {
-        const service1 = SecurityServiceImpl();
-        const service2 = SecurityServiceImpl();
-
-        // Both should read the same registry values
-        expect(service1.statusDefender, equals(service2.statusDefender));
-        expect(service1.statusUAC, equals(service2.statusUAC));
-      });
-    });
-
-    group('Method Return Types', () {
-      test('All status getters return boolean', () {
-        expect(service.statusDefender, isA<bool>());
-        expect(service.statusDefenderProtections, isA<bool>());
-        expect(service.statusDefenderProtectionTamper, isA<bool>());
-        expect(service.statusDefenderProtectionRealtime, isA<bool>());
-        expect(service.statusUAC, isA<bool>());
-        expect(
-          service.isMitigationEnabled(Mitigation.meltdownSpectre),
-          isA<bool>(),
-        );
-        expect(service.isMitigationEnabled(Mitigation.downfall), isA<bool>());
-      });
-
-      test('Async methods return Future', () {
-        expect(service.enableDefender(), isA<Future<void>>());
-        expect(service.disableDefender(), isA<Future<void>>());
-        expect(service.openDefenderThreatSettings(), isA<Future<dynamic>>());
-        expect(service.updateCertificates(), isA<Future<void>>());
-      });
-
-      test('Sync enable/disable methods return void', () {
-        expect(service.enableUAC, returnsNormally);
-        expect(service.disableUAC, returnsNormally);
-        expect(
-          () => service.enableMitigation(Mitigation.meltdownSpectre),
-          returnsNormally,
-        );
-        expect(
-          () => service.disableMitigation(Mitigation.meltdownSpectre),
-          returnsNormally,
-        );
-      });
-    });
-
-    group('Mitigation Enum', () {
-      test('Mitigation enum has all expected values', () {
-        expect(Mitigation.values.length, equals(2));
-        expect(Mitigation.values, contains(Mitigation.meltdownSpectre));
-        expect(Mitigation.values, contains(Mitigation.downfall));
-      });
-
-      test('Meltdown/Spectre bitmask is correct', () {
-        expect(Mitigation.meltdownSpectre.bitmask, equals(0x00000003));
-      });
-
-      test('Downfall bitmask is correct', () {
-        expect(Mitigation.downfall.bitmask, equals(0x02000000));
-      });
-    });
-  });
+    },
+  );
 
   group('SecurityService - Mocked (CI Safe)', () {
     late MockSecurityService mockService;
@@ -248,17 +256,21 @@ void main() {
         expect(mockService.statusUAC, isTrue);
       });
 
-      test('enableUAC can be called without system changes', () {
-        when(() => mockService.enableUAC()).thenReturn(null);
+      test('enableUAC can be called without system changes', () async {
+        when(
+          () => mockService.enableUAC(),
+        ).thenAnswer((_) async => Future.value());
 
-        mockService.enableUAC();
+        await mockService.enableUAC();
         verify(() => mockService.enableUAC()).called(1);
       });
 
-      test('disableUAC can be called without system changes', () {
-        when(() => mockService.disableUAC()).thenReturn(null);
+      test('disableUAC can be called without system changes', () async {
+        when(
+          () => mockService.disableUAC(),
+        ).thenAnswer((_) async => Future.value());
 
-        mockService.disableUAC();
+        await mockService.disableUAC();
         verify(() => mockService.disableUAC()).called(1);
       });
     });
@@ -279,23 +291,23 @@ void main() {
         expect(mockService.isMitigationEnabled(Mitigation.downfall), isFalse);
       });
 
-      test('enableMitigation can be called without system changes', () {
+      test('enableMitigation can be called without system changes', () async {
         when(
           () => mockService.enableMitigation(Mitigation.meltdownSpectre),
-        ).thenReturn(null);
+        ).thenAnswer((_) async => Future.value());
 
-        mockService.enableMitigation(Mitigation.meltdownSpectre);
+        await mockService.enableMitigation(Mitigation.meltdownSpectre);
         verify(
           () => mockService.enableMitigation(Mitigation.meltdownSpectre),
         ).called(1);
       });
 
-      test('disableMitigation can be called without system changes', () {
+      test('disableMitigation can be called without system changes', () async {
         when(
           () => mockService.disableMitigation(Mitigation.downfall),
-        ).thenReturn(null);
+        ).thenAnswer((_) async => Future.value());
 
-        mockService.disableMitigation(Mitigation.downfall);
+        await mockService.disableMitigation(Mitigation.downfall);
         verify(
           () => mockService.disableMitigation(Mitigation.downfall),
         ).called(1);
@@ -314,14 +326,16 @@ void main() {
     });
 
     group('Call Order Verification', () {
-      test('can verify method call order', () {
+      test('can verify method call order', () async {
         when(() => mockService.statusDefender).thenReturn(false);
-        when(() => mockService.enableUAC()).thenReturn(null);
+        when(
+          () => mockService.enableUAC(),
+        ).thenAnswer((_) async => Future.value());
         when(() => mockService.statusUAC).thenReturn(true);
 
         // Execute in specific order
         final defenderStatus = mockService.statusDefender;
-        mockService.enableUAC();
+        await mockService.enableUAC();
         final uacStatus = mockService.statusUAC;
 
         expect(defenderStatus, isFalse);

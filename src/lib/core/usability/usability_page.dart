@@ -57,7 +57,9 @@ class _NotificationCard extends ConsumerWidget {
               await ref.read(usabilityServiceProvider).disableNotification();
               break;
             case NotificationMode.offFull:
-              await ref.read(usabilityServiceProvider).disableNotificationAggressive();
+              await ref
+                  .read(usabilityServiceProvider)
+                  .disableNotificationAggressive();
               break;
           }
 
@@ -96,10 +98,10 @@ class _LegacyBalloonCard extends ConsumerWidget {
       description: context.l10n.usabilityLBNDescription,
       action: CardToggleSwitch(
         value: status,
-        onChanged: (value) {
+        onChanged: (value) async {
           value
-              ? ref.read(usabilityServiceProvider).enableLegacyBalloon()
-              : ref.read(usabilityServiceProvider).disableLegacyBalloon();
+              ? await ref.read(usabilityServiceProvider).enableLegacyBalloon()
+              : await ref.read(usabilityServiceProvider).disableLegacyBalloon();
           ref.invalidate(legacyBalloonStatusProvider);
         },
       ),
@@ -119,10 +121,14 @@ class _InputPersonalizationCard extends ConsumerWidget {
       description: context.l10n.usabilityITPDescription,
       action: CardToggleSwitch(
         value: status,
-        onChanged: (value) {
+        onChanged: (value) async {
           value
-              ? ref.read(usabilityServiceProvider).enableInputPersonalization()
-              : ref.read(usabilityServiceProvider).disableInputPersonalization();
+              ? await ref
+                    .read(usabilityServiceProvider)
+                    .enableInputPersonalization()
+              : await ref
+                    .read(usabilityServiceProvider)
+                    .disableInputPersonalization();
           ref.invalidate(inputPersonalizationStatusProvider);
         },
       ),
@@ -141,10 +147,10 @@ class _CapsLockCard extends ConsumerWidget {
       label: context.l10n.usabilityCPLLabel,
       action: CardToggleSwitch(
         value: status,
-        onChanged: (value) {
+        onChanged: (value) async {
           value
-              ? ref.read(usabilityServiceProvider).disableCapsLock()
-              : ref.read(usabilityServiceProvider).enableCapsLock();
+              ? await ref.read(usabilityServiceProvider).disableCapsLock()
+              : await ref.read(usabilityServiceProvider).enableCapsLock();
           ref.invalidate(capsLockStatusProvider);
         },
       ),
@@ -164,10 +170,12 @@ class _ScreenEdgeSwipeCard extends ConsumerWidget {
       description: context.l10n.usabilitySESDescription,
       action: CardToggleSwitch(
         value: status,
-        onChanged: (value) {
+        onChanged: (value) async {
           value
-              ? ref.read(usabilityServiceProvider).enableScreenEdgeSwipe()
-              : ref.read(usabilityServiceProvider).disableScreenEdgeSwipe();
+              ? await ref.read(usabilityServiceProvider).enableScreenEdgeSwipe()
+              : await ref
+                    .read(usabilityServiceProvider)
+                    .disableScreenEdgeSwipe();
           ref.invalidate(screenEdgeSwipeStatusProvider);
         },
       ),
@@ -189,7 +197,9 @@ class _NewContextMenuCard extends ConsumerWidget {
         onChanged: (value) async {
           value
               ? await ref.read(usabilityServiceProvider).enableNewContextMenu()
-              : await ref.read(usabilityServiceProvider).disableNewContextMenu();
+              : await ref
+                    .read(usabilityServiceProvider)
+                    .disableNewContextMenu();
           ref.invalidate(newContextMenuStatusProvider);
         },
       ),

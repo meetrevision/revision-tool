@@ -10,6 +10,7 @@ import 'package:revitool/l10n/generated/localizations.dart';
 import 'package:revitool/shared/home/home_page.dart';
 
 import 'package:revitool/shared/settings/app_settings_provider.dart';
+import 'package:revitool/shared/trusted_installer/trusted_installer_service.dart';
 import 'package:revitool/shared/win_registry_service.dart';
 import 'package:revitool/utils.dart';
 import 'package:system_theme/system_theme.dart';
@@ -22,7 +23,7 @@ Future<void> main() async {
 
   FlutterError.onError = (details) {
     logger.e(
-      '$tag gui_main: flutter_framework_error',
+      '$tag flutter_framework_error',
       error: details.exception,
       stackTrace: details.stack,
     );
@@ -33,6 +34,13 @@ Future<void> main() async {
   };
 
   logger.i('$tag Revision Tool GUI is starting');
+
+  try {
+    logger.i('$tag Initializing TrustedInstaller service');
+    await TrustedInstallerServiceImpl.initialize();
+  } catch (e) {
+    logger.w('$tag Failed to initialize TrustedInstaller: $e');
+  }
 
   if (WinRegistryService.isSupported) {
     _isSupported = true;
@@ -46,19 +54,19 @@ Future<void> main() async {
       ) ==
       null) {
     logger.i('$tag Initializing Revision registry keys');
-    WinRegistryService.writeRegistryValue(
+    await WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SOFTWARE\Revision\Revision Tool',
       'ThemeMode',
       ThemeMode.system.name,
     );
-    WinRegistryService.writeRegistryValue(
+    await WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SOFTWARE\Revision\Revision Tool',
       'Experimental',
       0,
     );
-    WinRegistryService.writeRegistryValue(
+    await WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SOFTWARE\Revision\Revision Tool',
       'Language',

@@ -115,10 +115,10 @@ class _IntelTSXCard extends ConsumerWidget {
       action: CardToggleSwitch(
         value: status,
         requiresRestart: true,
-        onChanged: (value) {
+        onChanged: (value) async {
           value
-              ? ref.read(performanceServiceProvider).enableIntelTSX()
-              : ref.read(performanceServiceProvider).disableIntelTSX();
+              ? await ref.read(performanceServiceProvider).enableIntelTSX()
+              : await ref.read(performanceServiceProvider).disableIntelTSX();
           ref.invalidate(intelTSXStatusProvider);
         },
       ),
@@ -138,12 +138,12 @@ class _FullscreenOptimizationCard extends ConsumerWidget {
       description: context.l10n.perfFODescription,
       action: CardToggleSwitch(
         value: status,
-        onChanged: (value) {
+        onChanged: (value) async {
           value
-              ? ref
+              ? await ref
                     .read(performanceServiceProvider)
                     .enableFullscreenOptimization()
-              : ref
+              : await ref
                     .read(performanceServiceProvider)
                     .disableFullscreenOptimization();
           ref.invalidate(fullscreenOptimizationStatusProvider);
@@ -165,12 +165,12 @@ class _WindowedOptimizationCard extends ConsumerWidget {
       description: context.l10n.perfOWGDescription,
       action: CardToggleSwitch(
         value: status,
-        onChanged: (value) {
+        onChanged: (value) async {
           value
-              ? ref
+              ? await ref
                     .read(performanceServiceProvider)
                     .enableWindowedOptimization()
-              : ref
+              : await ref
                     .read(performanceServiceProvider)
                     .disableWindowedOptimization();
           ref.invalidate(windowedOptimizationStatusProvider);
@@ -192,10 +192,14 @@ class _BackgroundAppsCard extends ConsumerWidget {
       description: context.l10n.perfBADescription,
       action: CardToggleSwitch(
         value: status,
-        onChanged: (value) {
+        onChanged: (value) async {
           value
-              ? ref.read(performanceServiceProvider).enableBackgroundApps()
-              : ref.read(performanceServiceProvider).disableBackgroundApps();
+              ? await ref
+                    .read(performanceServiceProvider)
+                    .enableBackgroundApps()
+              : await ref
+                    .read(performanceServiceProvider)
+                    .disableBackgroundApps();
           ref.invalidate(backgroundAppsStatusProvider);
         },
       ),
@@ -215,7 +219,7 @@ class _ServicesGroupingCard extends ConsumerWidget {
       description: context.l10n.perfSGMDescription,
       action: ComboBox<ServiceGrouping>(
         value: status,
-        onChanged: (value) {
+        onChanged: (value) async {
           if (value == null) return;
 
           switch (value) {
@@ -279,7 +283,7 @@ class _BackgroundWindowMessageRateCard extends ConsumerWidget {
       description: context.l10n.perfBWMRDescription,
       action: ComboBox<int>(
         value: 1000 ~/ status,
-        onChanged: (value) {
+        onChanged: (value) async {
           if (value == null) return;
 
           try {
@@ -324,10 +328,10 @@ class _CStatesCard extends ConsumerWidget {
       description: context.l10n.perfCStatesDescription,
       action: CardToggleSwitch(
         value: status,
-        onChanged: (value) {
+        onChanged: (value) async {
           value
-              ? ref.read(performanceServiceProvider).disableCStates()
-              : ref.read(performanceServiceProvider).enableCStates();
+              ? await ref.read(performanceServiceProvider).disableCStates()
+              : await ref.read(performanceServiceProvider).enableCStates();
           ref.invalidate(cStatesStatusProvider);
         },
       ),

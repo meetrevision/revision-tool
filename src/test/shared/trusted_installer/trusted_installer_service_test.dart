@@ -292,7 +292,7 @@ void main() {
     });
 
     test('CommandResult contains proper values', () {
-      final result = CommandResult(
+      const result = CommandResult(
         exitCode: 0,
         output: 'test output',
         error: 'test error',
@@ -363,7 +363,7 @@ void main() {
     });
 
     test('CommandResult class is accessible', () {
-      final result = CommandResult(exitCode: 0, output: '', error: '');
+      const result = CommandResult(exitCode: 0, output: '', error: '');
       expect(result, isA<CommandResult>());
     });
   });

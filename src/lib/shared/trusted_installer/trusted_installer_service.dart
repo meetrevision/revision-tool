@@ -6,7 +6,6 @@ import 'win32_token_helper.dart';
 
 part 'trusted_installer_service.g.dart';
 
-/// Result of executing a command with TrustedInstaller privileges.
 class CommandResult {
   final int exitCode;
   final String output;
@@ -37,7 +36,7 @@ abstract class TrustedInstallerService {
   /// ```dart
   /// await service.executeWithTrustedInstaller(() async {
   ///   // Registry operations here run with TrustedInstaller privileges
-  ///   return someRegistryOperation();
+  ///   return await someRegistryOperation();
   /// });
   /// ```
   Future<T> executeWithTrustedInstaller<T>(Future<T> Function() callback);
@@ -61,17 +60,58 @@ abstract class TrustedInstallerService {
   bool isTrustedInstallerAvailable();
 }
 
-/// Implementation of TrustedInstaller service using Win32 API.
 class TrustedInstallerServiceImpl implements TrustedInstallerService {
   static const String _serviceName = 'TrustedInstaller';
   static const int _maxRetries = 8;
   static const Duration _initialRetryDelay = Duration(milliseconds: 500);
   static const Duration _maxRetryDelay = Duration(milliseconds: 3000);
 
+  // Cached state
+  static int? _cachedSystemPid;
+  static bool _initialized = false;
+
+  static Future<void> initialize() async {
+    if (_initialized) return;
+
+    logger.i('[TrustedInstaller] Initializing - caching system process PID');
+
+    if (!Win32TokenHelper.enableDebugPrivilege()) {
+      final error = Win32TokenHelper.getLastError();
+      logger.e(
+        '[TrustedInstaller] Failed to enable SeDebugPrivilege during init (Error: $error)',
+      );
+      throw TrustedInstallerException(
+        'Failed to enable SeDebugPrivilege during initialization',
+        error,
+      );
+    }
+
+    _cachedSystemPid = await Win32TokenHelper.findProcessByName('winlogon.exe');
+    _cachedSystemPid ??= await Win32TokenHelper.findProcessByName('lsass.exe');
+
+    if (_cachedSystemPid == null || _cachedSystemPid == 0) {
+      logger.e(
+        '[TrustedInstaller] Failed to find winlogon.exe or lsass.exe during init',
+      );
+      throw TrustedInstallerException(
+        'Failed to find system process during initialization',
+      );
+    }
+
+    _initialized = true;
+    logger.i(
+      '[TrustedInstaller] Initialized successfully (System PID: $_cachedSystemPid)',
+    );
+  }
+
   @override
   Future<T> executeWithTrustedInstaller<T>(
     Future<T> Function() callback,
   ) async {
+    if (!_initialized) {
+      await initialize();
+    }
+
     int scManager = 0;
     int service = 0;
     int process = 0;
@@ -80,39 +120,8 @@ class TrustedInstallerServiceImpl implements TrustedInstallerService {
     int systemToken = 0;
 
     try {
-      // 1. Enable SeDebugPrivilege first - needed to open winlogon.exe
-      if (!Win32TokenHelper.enableDebugPrivilege()) {
-        final error = Win32TokenHelper.getLastError();
-        logger.e(
-          '[TrustedInstaller] Failed to enable SeDebugPrivilege (Error: $error)',
-        );
-        throw TrustedInstallerException(
-          'Failed to enable SeDebugPrivilege. This is required to access system processes. '
-          'Make sure the app is running as Administrator.',
-          error,
-        );
-      }
+      final systemPid = _cachedSystemPid!;
 
-      // Impersonate as SYSTEM using winlogon.exe
-      // This allows us to then access TrustedInstaller
-      final winlogonPid = await Win32TokenHelper.findProcessByName(
-        'winlogon.exe',
-      );
-
-      // If winlogon.exe is not found, try lsass.exe as fallback
-      final systemPid =
-          winlogonPid ?? await Win32TokenHelper.findProcessByName('lsass.exe');
-
-      if (systemPid == null || systemPid == 0) {
-        logger.e(
-          '[TrustedInstaller] Failed to find winlogon.exe or lsass.exe process',
-        );
-        throw TrustedInstallerException(
-          'Failed to find winlogon.exe or lsass.exe process. Cannot impersonate as SYSTEM.',
-        );
-      }
-
-      // Open SYSTEM process (winlogon.exe or lsass.exe)
       final winlogonProcess = Win32TokenHelper.openProcess(
         systemPid,
         Win32TokenHelper.PROCESS_QUERY_INFORMATION,
@@ -127,7 +136,6 @@ class TrustedInstallerServiceImpl implements TrustedInstallerService {
       }
 
       try {
-        // Get SYSTEM token
         systemToken =
             Win32TokenHelper.openProcessToken(
               winlogonProcess,
@@ -143,7 +151,6 @@ class TrustedInstallerServiceImpl implements TrustedInstallerService {
           throw TrustedInstallerException('Failed to open SYSTEM token', error);
         }
 
-        // Duplicate the SYSTEM token
         final systemDupToken =
             Win32TokenHelper.duplicateToken(
               systemToken,
@@ -179,8 +186,6 @@ class TrustedInstallerServiceImpl implements TrustedInstallerService {
 
         Win32TokenHelper.closeHandle(systemDupToken);
 
-        // NOW we can access TrustedInstaller!
-        // Open Service Control Manager (now as SYSTEM)
         scManager = Win32TokenHelper.openServiceControlManager(
           desiredAccess: Win32TokenHelper.SC_MANAGER_CONNECT,
         );
@@ -196,7 +201,6 @@ class TrustedInstallerServiceImpl implements TrustedInstallerService {
           );
         }
 
-        // Open TrustedInstaller service
         service = Win32TokenHelper.openService(
           scManager,
           _serviceName,
@@ -215,7 +219,6 @@ class TrustedInstallerServiceImpl implements TrustedInstallerService {
           );
         }
 
-        // Ensure service is running
         final processId = await _ensureServiceRunning(service);
         if (processId == null || processId == 0) {
           logger.e(
@@ -226,7 +229,6 @@ class TrustedInstallerServiceImpl implements TrustedInstallerService {
           );
         }
 
-        // Open TrustedInstaller process (now possible because we're SYSTEM)
         process = Win32TokenHelper.openProcess(
           processId,
           Win32TokenHelper.PROCESS_QUERY_INFORMATION,
@@ -243,7 +245,6 @@ class TrustedInstallerServiceImpl implements TrustedInstallerService {
           );
         }
 
-        // Open TrustedInstaller token
         processToken =
             Win32TokenHelper.openProcessToken(
               process,
@@ -262,7 +263,6 @@ class TrustedInstallerServiceImpl implements TrustedInstallerService {
           );
         }
 
-        // Duplicate TrustedInstaller token
         duplicatedToken =
             Win32TokenHelper.duplicateToken(
               processToken,
@@ -283,7 +283,6 @@ class TrustedInstallerServiceImpl implements TrustedInstallerService {
           );
         }
 
-        // Revert from SYSTEM, then impersonate as TrustedInstaller
         Win32TokenHelper.revertToSelf();
 
         if (!Win32TokenHelper.impersonateLoggedOnUser(duplicatedToken)) {
@@ -297,7 +296,6 @@ class TrustedInstallerServiceImpl implements TrustedInstallerService {
           );
         }
 
-        // Execute callback with TrustedInstaller privileges
         final result = await callback();
 
         return result;
@@ -347,7 +345,6 @@ class TrustedInstallerServiceImpl implements TrustedInstallerService {
     int? tiToken;
 
     try {
-      // Capture TI token while impersonated
       await executeWithTrustedInstaller(() async {
         final service = Win32TokenHelper.openService(
           Win32TokenHelper.openServiceControlManager(
@@ -440,13 +437,11 @@ class TrustedInstallerServiceImpl implements TrustedInstallerService {
           .clamp(0, _maxRetryDelay.inMilliseconds);
       final delay = Duration(milliseconds: delayMs);
 
-      // Check current state
       final state = Win32TokenHelper.getServiceState(service);
 
       if (state == Win32TokenHelper.SERVICE_RUNNING) {
-        // Service is running, get process ID
         final pid = Win32TokenHelper.getServiceProcessId(service);
-        // If we get a valid PID (not null and not 0), return it
+
         if (pid != null && pid != 0) {
           return pid;
         }
@@ -457,26 +452,21 @@ class TrustedInstallerServiceImpl implements TrustedInstallerService {
       }
 
       if (state == Win32TokenHelper.SERVICE_START_PENDING) {
-        // Service is starting, wait and retry with exponential backoff
         await Future.delayed(delay);
         continue;
       }
 
       if (state == Win32TokenHelper.SERVICE_STOPPED) {
-        // Try to start the service
         if (Win32TokenHelper.startService(service)) {
-          // Wait longer after starting the service
           await Future.delayed(const Duration(milliseconds: 1000));
           continue;
         } else {
           final error = Win32TokenHelper.getLastError();
           // ERROR_SERVICE_ALREADY_RUNNING = 1056
           if (error == 1056) {
-            // Service is already running, just wait and check again
             await Future.delayed(const Duration(milliseconds: 300));
             continue;
           }
-          // Other error, use exponential backoff
           await Future.delayed(delay);
         }
       }

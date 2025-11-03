@@ -38,7 +38,7 @@ class PlaybookPatchesCommand extends Command<String> {
     logger.i('$name: Applying patches...');
     // Disable WebView2 spawning from SearchHost
     // https://www.reddit.com/r/WindowsHelp/comments/1lfu325/comment/n2nk50h
-    WinRegistryService.writeRegistryValue(
+    await WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SYSTEM\ControlSet001\Control\FeatureManagement\Overrides\8\1694661260',
       "EnabledState",

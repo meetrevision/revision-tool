@@ -85,7 +85,6 @@ const _defaultSplitDisabled = {
   "UserDataSvc",
 };
 
-// Abstract interface for testing
 abstract class PerformanceService {
   bool get statusSuperfetch;
   bool get statusMemoryCompression;
@@ -104,29 +103,28 @@ abstract class PerformanceService {
   Future<void> disableSuperfetch();
   Future<void> enableMemoryCompression();
   Future<void> disableMemoryCompression();
-  void enableIntelTSX();
-  void disableIntelTSX();
-  void enableFullscreenOptimization();
-  void disableFullscreenOptimization();
-  void enableWindowedOptimization();
-  void disableWindowedOptimization();
-  void enableBackgroundApps();
-  void disableBackgroundApps();
-  void enableCStates();
-  void disableCStates();
+  Future<void> enableIntelTSX();
+  Future<void> disableIntelTSX();
+  Future<void> enableFullscreenOptimization();
+  Future<void> disableFullscreenOptimization();
+  Future<void> enableWindowedOptimization();
+  Future<void> disableWindowedOptimization();
+  Future<void> enableBackgroundApps();
+  Future<void> disableBackgroundApps();
+  Future<void> enableCStates();
+  Future<void> disableCStates();
   Future<void> enableLastTimeAccessNTFS();
   Future<void> disableLastTimeAccessNTFS();
   Future<void> enable8dot3NamingNTFS();
   Future<void> disable8dot3NamingNTFS();
   Future<void> enableMemoryUsageNTFS();
   Future<void> disableMemoryUsageNTFS();
-  void forcedServicesGrouping();
-  void recommendedServicesGrouping();
-  void disableServicesGrouping();
-  void setBackgroundWindowMessageRateLimit(int milliseconds);
+  Future<void> forcedServicesGrouping();
+  Future<void> recommendedServicesGrouping();
+  Future<void> disableServicesGrouping();
+  Future<void> setBackgroundWindowMessageRateLimit(int milliseconds);
 }
 
-// Implementation
 class PerformanceServiceImpl implements PerformanceService {
   const PerformanceServiceImpl();
 
@@ -148,16 +146,127 @@ class PerformanceServiceImpl implements PerformanceService {
 
   @override
   Future<void> enableSuperfetch() async {
-    await shell.run(
-      '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\EnableSF.bat"',
+    final lowerFilters = WinRegistryService.getStringArrayValue(
+      RegistryHive.localMachine,
+      r'SYSTEM\ControlSet001\Control\Class\{71a27cdd-812a-11d0-bec7-08002be2092f}',
+      'LowerFilters',
     );
+    if (lowerFilters != null &&
+        !lowerFilters.any((e) => e.toLowerCase() == 'rdyboost')) {
+      lowerFilters.add('rdyboost');
+      await WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\Class\{71a27cdd-812a-11d0-bec7-08002be2092f}',
+        'LowerFilters',
+        lowerFilters,
+      );
+    }
+
+    await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\rdyboost',
+        'Start',
+        0,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\SysMain',
+        'Start',
+        2,
+      ),
+      WinRegistryService.deleteValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
+        'EnableSuperfetch',
+      ),
+    ]);
+
+    final hardDriveType = await runPSCommand(
+      '(Get-PhysicalDisk -SerialNumber (Get-Disk -Number (Get-Partition -DriveLetter \$env:SystemDrive.Substring(0, 1)).DiskNumber).SerialNumber.TrimStart()).MediaType',
+    );
+    if (hardDriveType == 'HDD') {
+      await WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
+        'EnableSuperfetch',
+        3,
+      );
+    }
+
+    await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
+        'EnablePrefetcher',
+        3,
+      ),
+      WinRegistryService.deleteValue(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\EMDMgmt',
+        'GroupPolicyDisallowCaches',
+      ),
+      WinRegistryService.deleteValue(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\EMDMgmt',
+        'AllowNewCachesByDefault',
+      ),
+    ]);
   }
 
   @override
   Future<void> disableSuperfetch() async {
-    await shell.run(
-      '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\DisableSF.bat"',
+    final lowerFilters = WinRegistryService.getStringArrayValue(
+      RegistryHive.localMachine,
+      r'SYSTEM\ControlSet001\Control\Class\{71a27cdd-812a-11d0-bec7-08002be2092f}',
+      'LowerFilters',
     );
+    lowerFilters!.removeWhere((e) => e.toLowerCase() == 'rdyboost');
+    await WinRegistryService.writeRegistryValue(
+      Registry.localMachine,
+      r'SYSTEM\ControlSet001\Control\Class\{71a27cdd-812a-11d0-bec7-08002be2092f}',
+      'LowerFilters',
+      lowerFilters,
+    );
+
+    await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\SysMain',
+        'Start',
+        4,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\rdyboost',
+        'Start',
+        4,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
+        'EnablePrefetcher',
+        0,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters',
+        'EnableSuperfetch',
+        0,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\EMDMgmt',
+        'GroupPolicyDisallowCaches',
+        1,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\EMDMgmt',
+        'AllowNewCachesByDefault',
+        0,
+      ),
+    ]);
   }
 
   @override
@@ -186,8 +295,8 @@ class PerformanceServiceImpl implements PerformanceService {
   }
 
   @override
-  void enableIntelTSX() {
-    WinRegistryService.writeRegistryValue(
+  Future<void> enableIntelTSX() async {
+    await WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SYSTEM\CurrentControlSet\Control\Session Manager\kernel',
       'DisableTsx',
@@ -196,8 +305,8 @@ class PerformanceServiceImpl implements PerformanceService {
   }
 
   @override
-  void disableIntelTSX() {
-    WinRegistryService.writeRegistryValue(
+  Future<void> disableIntelTSX() async {
+    await WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SYSTEM\CurrentControlSet\Control\Session Manager\kernel',
       'DisableTsx',
@@ -216,105 +325,97 @@ class PerformanceServiceImpl implements PerformanceService {
   }
 
   @override
-  void enableFullscreenOptimization() {
-    WinRegistryService.writeRegistryValue(
-      WinRegistryService.currentUser,
-      r'System\GameConfigStore',
-      'GameDVR_FSEBehaviorMode',
-      0,
-    );
-    WinRegistryService.deleteValue(
-      WinRegistryService.currentUser,
-      r'System\GameConfigStore',
-      'GameDVR_FSEBehavior',
-    );
-    WinRegistryService.deleteValue(
-      WinRegistryService.currentUser,
-      r'System\GameConfigStore',
-      'GameDVR_HonorUserFSEBehaviorMode',
-    );
-    WinRegistryService.deleteValue(
-      WinRegistryService.currentUser,
-      r'System\GameConfigStore',
-      'GameDVR_DXGIHonorFSEWindowsCompatible',
-    );
-    WinRegistryService.deleteValue(
-      WinRegistryService.currentUser,
-      r'System\GameConfigStore',
-      'GameDVR_EFSEFeatureFlags',
-    );
-
-    WinRegistryService.writeRegistryValue(
-      Registry.allUsers,
-      r'.DEFAULT\System\GameConfigStore',
-      'GameDVR_FSEBehaviorMode',
-      0,
-    );
-    WinRegistryService.deleteValue(
-      Registry.allUsers,
-      r'.DEFAULT\System\GameConfigStore',
-      'GameDVR_FSEBehavior',
-    );
-    WinRegistryService.deleteValue(
-      Registry.allUsers,
-      r'.DEFAULT\System\GameConfigStore',
-      'GameDVR_HonorUserFSEBehaviorMode',
-    );
-    WinRegistryService.deleteValue(
-      Registry.allUsers,
-      r'.DEFAULT\System\GameConfigStore',
-      'GameDVR_DXGIHonorFSEWindowsCompatible',
-    );
-    WinRegistryService.deleteValue(
-      Registry.allUsers,
-      r'.DEFAULT\System\GameConfigStore',
-      'GameDVR_EFSEFeatureFlags',
-    );
+  Future<void> enableFullscreenOptimization() async {
+    await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        WinRegistryService.currentUser,
+        r'System\GameConfigStore',
+        'GameDVR_FSEBehaviorMode',
+        0,
+      ),
+      WinRegistryService.deleteValue(
+        WinRegistryService.currentUser,
+        r'System\GameConfigStore',
+        'GameDVR_FSEBehavior',
+      ),
+      WinRegistryService.deleteValue(
+        WinRegistryService.currentUser,
+        r'System\GameConfigStore',
+        'GameDVR_HonorUserFSEBehaviorMode',
+      ),
+      WinRegistryService.deleteValue(
+        WinRegistryService.currentUser,
+        r'System\GameConfigStore',
+        'GameDVR_DXGIHonorFSEWindowsCompatible',
+      ),
+      WinRegistryService.deleteValue(
+        WinRegistryService.currentUser,
+        r'System\GameConfigStore',
+        'GameDVR_EFSEFeatureFlags',
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.allUsers,
+        r'.DEFAULT\System\GameConfigStore',
+        'GameDVR_FSEBehaviorMode',
+        0,
+      ),
+      WinRegistryService.deleteValue(
+        Registry.allUsers,
+        r'.DEFAULT\System\GameConfigStore',
+        'GameDVR_FSEBehavior',
+      ),
+      WinRegistryService.deleteValue(
+        Registry.allUsers,
+        r'.DEFAULT\System\GameConfigStore',
+        'GameDVR_HonorUserFSEBehaviorMode',
+      ),
+      WinRegistryService.deleteValue(
+        Registry.allUsers,
+        r'.DEFAULT\System\GameConfigStore',
+        'GameDVR_DXGIHonorFSEWindowsCompatible',
+      ),
+      WinRegistryService.deleteValue(
+        Registry.allUsers,
+        r'.DEFAULT\System\GameConfigStore',
+        'GameDVR_EFSEFeatureFlags',
+      ),
+    ]);
   }
 
   @override
-  void disableFullscreenOptimization() {
-    WinRegistryService.writeRegistryValue(
-      WinRegistryService.currentUser,
-      r'System\GameConfigStore',
-      'GameDVR_FSEBehaviorMode',
-      2,
-    );
-    WinRegistryService.writeRegistryValue(
-      WinRegistryService.currentUser,
-      r'System\GameConfigStore',
-      'GameDVR_HonorUserFSEBehaviorMode',
-      1,
-    );
-    WinRegistryService.writeRegistryValue(
-      WinRegistryService.currentUser,
-      r'System\GameConfigStore',
-      'GameDVR_DXGIHonorFSEWindowsCompatible',
-      1,
-    );
-    WinRegistryService.writeRegistryValue(
-      WinRegistryService.currentUser,
-      r'System\GameConfigStore',
-      'GameDVR_EFSEFeatureFlags',
-      0,
-    );
-    WinRegistryService.writeRegistryValue(
-      WinRegistryService.currentUser,
-      r'System\GameConfigStore',
-      'GameDVR_FSEBehavior',
-      2,
-    );
-
-    // WinRegistryService.writeRegistryValue(Registry.allUsers,
-    //     r'System\GameConfigStore', 'GameDVR_FSEBehaviorMode', 2);
-    // WinRegistryService.writeRegistryValue(Registry.allUsers,
-    //     r'System\GameConfigStore', 'GameDVR_HonorUserFSEBehaviorMode', 1);
-    // WinRegistryService.writeRegistryValue(Registry.allUsers,
-    //     r'System\GameConfigStore', 'GameDVR_DXGIHonorFSEWindowsCompatible', 1);
-    // WinRegistryService.writeRegistryValue(Registry.allUsers,
-    //     r'System\GameConfigStore', 'GameDVR_EFSEFeatureFlags', 0);
-    // WinRegistryService.writeRegistryValue(
-    //     Registry.allUsers, r'System\GameConfigStore', 'GameDVR_FSEBehavior', 2);
+  Future<void> disableFullscreenOptimization() async {
+    await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        WinRegistryService.currentUser,
+        r'System\GameConfigStore',
+        'GameDVR_FSEBehaviorMode',
+        2,
+      ),
+      WinRegistryService.writeRegistryValue(
+        WinRegistryService.currentUser,
+        r'System\GameConfigStore',
+        'GameDVR_HonorUserFSEBehaviorMode',
+        1,
+      ),
+      WinRegistryService.writeRegistryValue(
+        WinRegistryService.currentUser,
+        r'System\GameConfigStore',
+        'GameDVR_DXGIHonorFSEWindowsCompatible',
+        1,
+      ),
+      WinRegistryService.writeRegistryValue(
+        WinRegistryService.currentUser,
+        r'System\GameConfigStore',
+        'GameDVR_EFSEFeatureFlags',
+        0,
+      ),
+      WinRegistryService.writeRegistryValue(
+        WinRegistryService.currentUser,
+        r'System\GameConfigStore',
+        'GameDVR_FSEBehavior',
+        2,
+      ),
+    ]);
   }
 
   @override
@@ -328,7 +429,7 @@ class PerformanceServiceImpl implements PerformanceService {
   }
 
   @override
-  void enableWindowedOptimization() {
+  Future<void> enableWindowedOptimization() async {
     final currentValue = WinRegistryService.readString(
       RegistryHive.currentUser,
       r'Software\Microsoft\DirectX\UserGpuPreferences',
@@ -343,7 +444,7 @@ class PerformanceServiceImpl implements PerformanceService {
           'SwapEffectUpgradeEnable=1;${currentValue.replaceAll('SwapEffectUpgradeEnable=0;', '').replaceAll('SwapEffectUpgradeEnable=0', '')}';
     }
 
-    WinRegistryService.writeRegistryValue(
+    await WinRegistryService.writeRegistryValue(
       WinRegistryService.currentUser,
       r'Software\Microsoft\DirectX\UserGpuPreferences',
       'DirectXUserGlobalSettings',
@@ -352,7 +453,7 @@ class PerformanceServiceImpl implements PerformanceService {
   }
 
   @override
-  void disableWindowedOptimization() {
+  Future<void> disableWindowedOptimization() async {
     final currentValue = WinRegistryService.readString(
       RegistryHive.currentUser,
       r'Software\Microsoft\DirectX\UserGpuPreferences',
@@ -367,7 +468,7 @@ class PerformanceServiceImpl implements PerformanceService {
           'SwapEffectUpgradeEnable=0;${currentValue.replaceAll('SwapEffectUpgradeEnable=1;', '').replaceAll('SwapEffectUpgradeEnable=1', '')}';
     }
 
-    WinRegistryService.writeRegistryValue(
+    await WinRegistryService.writeRegistryValue(
       WinRegistryService.currentUser,
       r'Software\Microsoft\DirectX\UserGpuPreferences',
       'DirectXUserGlobalSettings',
@@ -398,51 +499,53 @@ class PerformanceServiceImpl implements PerformanceService {
   }
 
   @override
-  void enableBackgroundApps() {
-    WinRegistryService.deleteValue(
-      WinRegistryService.currentUser,
-      r'Software\Microsoft\Windows\CurrentVersion\Search',
-      'BackgroundAppGlobalToggle',
-    );
-    WinRegistryService.deleteValue(
-      Registry.localMachine,
-      r'Software\Microsoft\Windows\CurrentVersion\Search',
-      'BackgroundAppGlobalToggle',
-    );
-
-    WinRegistryService.deleteValue(
-      WinRegistryService.currentUser,
-      r'Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications',
-      'GlobalUserDisabled',
-    );
-    WinRegistryService.deleteValue(
-      Registry.localMachine,
-      r'Software\Policies\Microsoft\Windows\AppPrivacy',
-      'LetAppsRunInBackground',
-    );
+  Future<void> enableBackgroundApps() async {
+    await Future.wait([
+      WinRegistryService.deleteValue(
+        WinRegistryService.currentUser,
+        r'Software\Microsoft\Windows\CurrentVersion\Search',
+        'BackgroundAppGlobalToggle',
+      ),
+      WinRegistryService.deleteValue(
+        Registry.localMachine,
+        r'Software\Microsoft\Windows\CurrentVersion\Search',
+        'BackgroundAppGlobalToggle',
+      ),
+      WinRegistryService.deleteValue(
+        WinRegistryService.currentUser,
+        r'Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications',
+        'GlobalUserDisabled',
+      ),
+      WinRegistryService.deleteValue(
+        Registry.localMachine,
+        r'Software\Policies\Microsoft\Windows\AppPrivacy',
+        'LetAppsRunInBackground',
+      ),
+    ]);
   }
 
   @override
-  void disableBackgroundApps() {
-    WinRegistryService.writeRegistryValue(
-      WinRegistryService.currentUser,
-      r'Software\Microsoft\Windows\CurrentVersion\Search',
-      'BackgroundAppGlobalToggle',
-      0,
-    );
-
-    WinRegistryService.writeRegistryValue(
-      WinRegistryService.currentUser,
-      r'Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications',
-      'GlobalUserDisabled',
-      1,
-    );
-    WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'Software\Policies\Microsoft\Windows\AppPrivacy',
-      'LetAppsRunInBackground',
-      2,
-    );
+  Future<void> disableBackgroundApps() async {
+    await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        WinRegistryService.currentUser,
+        r'Software\Microsoft\Windows\CurrentVersion\Search',
+        'BackgroundAppGlobalToggle',
+        0,
+      ),
+      WinRegistryService.writeRegistryValue(
+        WinRegistryService.currentUser,
+        r'Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications',
+        'GlobalUserDisabled',
+        1,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'Software\Policies\Microsoft\Windows\AppPrivacy',
+        'LetAppsRunInBackground',
+        2,
+      ),
+    ]);
   }
 
   @override
@@ -456,8 +559,8 @@ class PerformanceServiceImpl implements PerformanceService {
   }
 
   @override
-  void enableCStates() {
-    WinRegistryService.deleteValue(
+  Future<void> enableCStates() async {
+    await WinRegistryService.deleteValue(
       Registry.localMachine,
       r'SYSTEM\ControlSet001\Control\Processor',
       'Capabilities',
@@ -465,8 +568,8 @@ class PerformanceServiceImpl implements PerformanceService {
   }
 
   @override
-  void disableCStates() {
-    WinRegistryService.writeRegistryValue(
+  Future<void> disableCStates() async {
+    await WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SYSTEM\ControlSet001\Control\Processor',
       'Capabilities',
@@ -552,8 +655,8 @@ class PerformanceServiceImpl implements PerformanceService {
   }
 
   @override
-  void forcedServicesGrouping() {
-    WinRegistryService.writeRegistryValue(
+  Future<void> forcedServicesGrouping() async {
+    await WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SYSTEM\CurrentControlSet\Control',
       'SvcHostSplitThresholdInKB',
@@ -562,44 +665,46 @@ class PerformanceServiceImpl implements PerformanceService {
   }
 
   @override
-  void recommendedServicesGrouping() {
-    WinRegistryService.writeRegistryValue(
+  Future<void> recommendedServicesGrouping() async {
+    await WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SYSTEM\CurrentControlSet\Control',
       'SvcHostSplitThresholdInKB',
       0x380000, // default value
     );
-    for (final service in {
-      ..._defaultSplitDisabled,
-      ..._recommendedSplitDisabled,
-    }) {
-      WinRegistryService.writeRegistryValue(
-        Registry.localMachine,
-        r'SYSTEM\ControlSet001\Services\' + service,
-        'SvcHostSplitDisable',
-        1,
-      );
-    }
+    final services = {..._defaultSplitDisabled, ..._recommendedSplitDisabled};
+    await Future.wait(
+      services.map(
+        (service) => WinRegistryService.writeRegistryValue(
+          Registry.localMachine,
+          r'SYSTEM\ControlSet001\Services\' + service,
+          'SvcHostSplitDisable',
+          1,
+        ),
+      ),
+    );
   }
 
   @override
-  void disableServicesGrouping() {
+  Future<void> disableServicesGrouping() async {
     final servicesToDelete = _recommendedSplitDisabled.difference(
       _defaultSplitDisabled,
     );
-    for (final service in servicesToDelete) {
-      WinRegistryService.deleteValue(
+    await Future.wait([
+      ...servicesToDelete.map(
+        (service) => WinRegistryService.deleteValue(
+          Registry.localMachine,
+          'SYSTEM\\ControlSet001\\Services\\$service',
+          'SvcHostSplitDisable',
+        ),
+      ),
+      WinRegistryService.writeRegistryValue(
         Registry.localMachine,
-        'SYSTEM\\ControlSet001\\Services\\$service',
-        'SvcHostSplitDisable',
-      );
-    }
-    WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'SYSTEM\CurrentControlSet\Control',
-      'SvcHostSplitThresholdInKB',
-      0x380000, // default value
-    );
+        r'SYSTEM\CurrentControlSet\Control',
+        'SvcHostSplitThresholdInKB',
+        0x380000,
+      ),
+    ]);
   }
 
   @override
@@ -641,24 +746,25 @@ class PerformanceServiceImpl implements PerformanceService {
 
   /// For more info: https://github.com/valleyofdoom/PC-Tuning?tab=readme-ov-file#window-message-rate
   @override
-  void setBackgroundWindowMessageRateLimit(int value) {
+  Future<void> setBackgroundWindowMessageRateLimit(int value) async {
     if (!_rmtdValidator(value)) {
       throw ArgumentError('DWORD value must be between 3 and 20');
     }
 
-    WinRegistryService.writeRegistryValue(
-      WinRegistryService.currentUser,
-      r'Control Panel\Mouse',
-      'RawMouseThrottleEnabled',
-      1,
-    );
-
-    WinRegistryService.writeRegistryValue(
-      WinRegistryService.currentUser,
-      r'Control Panel\Mouse',
-      'RawMouseThrottleDuration',
-      value,
-    );
+    await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        WinRegistryService.currentUser,
+        r'Control Panel\Mouse',
+        'RawMouseThrottleEnabled',
+        1,
+      ),
+      WinRegistryService.writeRegistryValue(
+        WinRegistryService.currentUser,
+        r'Control Panel\Mouse',
+        'RawMouseThrottleDuration',
+        value,
+      ),
+    ]);
   }
 
   @override
@@ -672,7 +778,6 @@ class PerformanceServiceImpl implements PerformanceService {
   }
 }
 
-// Provider for PerformanceService instance
 @Riverpod(keepAlive: true)
 PerformanceService performanceService(Ref ref) {
   return const PerformanceServiceImpl();

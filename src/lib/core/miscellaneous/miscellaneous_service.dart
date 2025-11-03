@@ -1,5 +1,6 @@
 import 'package:revitool/core/miscellaneous/kgl_dto.dart';
 import 'package:revitool/core/performance/performance_service.dart';
+import 'package:revitool/shared/trusted_installer/trusted_installer_service.dart';
 import 'package:revitool/shared/win_registry_service.dart';
 import 'package:revitool/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -15,21 +16,20 @@ abstract class MiscellaneousService {
   Future<void> enableHibernation();
   Future<void> disableHibernation();
   bool get statusFastStartup;
-  void enableFastStartup();
-  void disableFastStartup();
+  Future<void> enableFastStartup();
+  Future<void> disableFastStartup();
   bool get statusTMMonitoring;
   Future<void> enableTMMonitoring();
-  void disableTMMonitoring();
+  Future<void> disableTMMonitoring();
   bool get statusMPO;
-  void enableMPO();
-  void disableMPO();
+  Future<void> enableMPO();
+  Future<void> disableMPO();
   bool get statusUsageReporting;
   Future<void> enableUsageReporting();
   Future<void> disableUsageReporting();
   Future<void> updateKGL();
 }
 
-/// Implementation of MiscellaneousService
 class MiscellaneousServiceImpl implements MiscellaneousService {
   const MiscellaneousServiceImpl();
 
@@ -45,45 +45,49 @@ class MiscellaneousServiceImpl implements MiscellaneousService {
 
   @override
   Future<void> enableHibernation() async {
-    WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'Software\Policies\Microsoft\Windows\System',
-      'ShowHibernateOption',
-      1,
-    );
-    WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'SYSTEM\ControlSet001\Control\Power',
-      'HibernateEnabled',
-      1,
-    );
-    await shell.run(r'''
-                     powercfg -h on
-                     powercfg /h /type full
-                    ''');
+    await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'Software\Policies\Microsoft\Windows\System',
+        'ShowHibernateOption',
+        1,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\Power',
+        'HibernateEnabled',
+        1,
+      ),
+      shell.run(r'''
+                       powercfg -h on
+                       powercfg /h /type full
+                      '''),
+    ]);
   }
 
   @override
   Future<void> disableHibernation() async {
-    WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'Software\Policies\Microsoft\Windows\System',
-      'ShowHibernateOption',
-      0,
-    );
-    WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'SYSTEM\ControlSet001\Control\Power',
-      'HibernateEnabled',
-      0,
-    );
-    await shell.run(r'''
+    await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'Software\Policies\Microsoft\Windows\System',
+        'ShowHibernateOption',
+        0,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\Power',
+        'HibernateEnabled',
+        0,
+      ),
+      shell.run(r'''
 powercfg -h off
-''');
+'''),
+    ]);
   }
 
   // int? get statusHibernationMode {
-  //   return WinRegistryService.readInt(RegistryHive.localMachine,
+  //   return await WinRegistryService.readInt(RegistryHive.localMachine,
   //       r'System\ControlSet001\Control\Power', 'HiberFileType');
   // }
 
@@ -106,35 +110,39 @@ powercfg -h off
   }
 
   @override
-  void enableFastStartup() {
-    WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'System\ControlSet001\Control\Session Manager\Power',
-      'HiberbootEnabled',
-      1,
-    );
-    WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'Software\Policies\Microsoft\Windows\System',
-      'HiberbootEnabled',
-      1,
-    );
+  Future<void> enableFastStartup() async {
+    await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'System\ControlSet001\Control\Session Manager\Power',
+        'HiberbootEnabled',
+        1,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'Software\Policies\Microsoft\Windows\System',
+        'HiberbootEnabled',
+        1,
+      ),
+    ]);
   }
 
   @override
-  void disableFastStartup() {
-    WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'System\ControlSet001\Control\Session Manager\Power',
-      'HiberbootEnabled',
-      0,
-    );
-    WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'Software\Policies\Microsoft\Windows\System',
-      'HiberbootEnabled',
-      0,
-    );
+  Future<void> disableFastStartup() async {
+    await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'System\ControlSet001\Control\Session Manager\Power',
+        'HiberbootEnabled',
+        0,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'Software\Policies\Microsoft\Windows\System',
+        'HiberbootEnabled',
+        0,
+      ),
+    ]);
   }
 
   @override
@@ -155,46 +163,50 @@ powercfg -h off
 
   @override
   Future<void> enableTMMonitoring() async {
-    WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc',
-      'Start',
-      2,
-    );
-    WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'SYSTEM\ControlSet001\Services\Ndu',
-      'Start',
-      2,
-    );
-    WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'SYSTEM\ControlSet001\Services\DPS',
-      'Start',
-      2,
-    );
+    await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc',
+        'Start',
+        2,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\Ndu',
+        'Start',
+        2,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\DPS',
+        'Start',
+        2,
+      ),
+    ]);
   }
 
   @override
-  void disableTMMonitoring() {
-    WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc',
-      'Start',
-      4,
-    );
-    WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'SYSTEM\ControlSet001\Services\Ndu',
-      'Start',
-      4,
-    );
-    WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'SYSTEM\ControlSet001\Services\DPS',
-      'Start',
-      4,
-    );
+  Future<void> disableTMMonitoring() async {
+    await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\GraphicsPerfSvc',
+        'Start',
+        4,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\Ndu',
+        'Start',
+        4,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\DPS',
+        'Start',
+        4,
+      ),
+    ]);
   }
 
   @override
@@ -208,8 +220,8 @@ powercfg -h off
   }
 
   @override
-  void enableMPO() {
-    WinRegistryService.deleteValue(
+  Future<void> enableMPO() async {
+    await WinRegistryService.deleteValue(
       Registry.localMachine,
       r'SOFTWARE\Microsoft\Windows\Dwm',
       'OverlayTestMode',
@@ -217,8 +229,8 @@ powercfg -h off
   }
 
   @override
-  void disableMPO() {
-    WinRegistryService.writeRegistryValue(
+  Future<void> disableMPO() async {
+    await WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SOFTWARE\Microsoft\Windows\Dwm',
       'OverlayTestMode',
@@ -238,16 +250,103 @@ powercfg -h off
 
   @override
   Future<void> enableUsageReporting() async {
-    await shell.run(
-      '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\EnableUR.bat"',
-    );
+    await Future.wait([
+      TrustedInstallerServiceImpl().executeCommand('wevtutil', [
+        'sl',
+        'Microsoft-Windows-SleepStudy/Diagnostic',
+        '/q:true',
+      ]),
+      TrustedInstallerServiceImpl().executeCommand('wevtutil', [
+        'sl',
+        'Microsoft-Windows-Kernel-Processor-Power/Diagnostic',
+        '/q:true',
+      ]),
+      TrustedInstallerServiceImpl().executeCommand('wevtutil', [
+        'sl',
+        'Microsoft-Windows-UserModePowerService/Diagnostic',
+        '/q:true',
+      ]),
+      WinRegistryService.deleteValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\Session Manager\Power',
+        'SleepStudyDisabled',
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\DPS',
+        'Start',
+        2,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\diagsvc',
+        'Start',
+        2,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\WdiServiceHost',
+        'Start',
+        2,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\WdiSystemHost',
+        'Start',
+        2,
+      ),
+    ]);
   }
 
   @override
   Future<void> disableUsageReporting() async {
-    await shell.run(
-      '"$directoryExe\\MinSudo.exe" --NoLogo --TrustedInstaller cmd /min /c "$directoryExe\\DisableUR.bat"',
-    );
+    await Future.wait([
+      TrustedInstallerServiceImpl().executeCommand('wevtutil', [
+        'sl',
+        'Microsoft-Windows-SleepStudy/Diagnostic',
+        '/q:false',
+      ]),
+      TrustedInstallerServiceImpl().executeCommand('wevtutil', [
+        'sl',
+        'Microsoft-Windows-Kernel-Processor-Power/Diagnostic',
+        '/q:false',
+      ]),
+      TrustedInstallerServiceImpl().executeCommand('wevtutil', [
+        'sl',
+        'Microsoft-Windows-UserModePowerService/Diagnostic',
+        '/q:false',
+      ]),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\Session Manager\Power',
+        'SleepStudyDisabled',
+        1,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\DPS',
+        'Start',
+        4,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\diagsvc',
+        'Start',
+        4,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\WdiServiceHost',
+        'Start',
+        4,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\WdiSystemHost',
+        'Start',
+        4,
+      ),
+    ]);
   }
 
   @override
@@ -259,44 +358,44 @@ powercfg -h off
       final json = await networkService.get(api);
       final kgl = KGLModel.fromJson(json.data['settings']);
 
-      WinRegistryService.writeRegistryValue(
+      await WinRegistryService.writeRegistryValue(
         WinRegistryService.currentUser,
         r'Software\Microsoft\Windows\CurrentVersion\GameDVR',
         'KGLRevision',
         kgl.version,
       );
-      WinRegistryService.writeRegistryValue(
+      await WinRegistryService.writeRegistryValue(
         WinRegistryService.currentUser,
         r'Software\Microsoft\Windows\CurrentVersion\GameDVR',
         'KGLToGCSUpdatedRevision',
         kgl.version,
       );
 
-      WinRegistryService.writeRegistryValue(
+      await WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\KGL\OneSettings',
         'ActivateOnUpdate',
         kgl.activateOnUpdate,
       );
-      WinRegistryService.writeRegistryValue(
+      await WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\KGL\OneSettings',
         'Hash',
         kgl.hash,
       );
-      WinRegistryService.writeRegistryValue(
+      await WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\KGL\OneSettings',
         'URI',
         kgl.uri,
       );
-      WinRegistryService.writeRegistryValue(
+      await WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\KGL\OneSettings',
         'Version',
         kgl.version,
       );
-      WinRegistryService.writeRegistryValue(
+      await WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\KGL\OneSettings',
         'VersionCheckTimeout',
@@ -320,7 +419,6 @@ MiscellaneousService miscellaneousService(Ref ref) {
   return const MiscellaneousServiceImpl();
 }
 
-// Riverpod Providers
 @riverpod
 bool hibernationStatus(Ref ref) {
   return ref.watch(miscellaneousServiceProvider).statusHibernation;

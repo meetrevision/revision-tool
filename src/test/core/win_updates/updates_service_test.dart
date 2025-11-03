@@ -5,119 +5,130 @@ import 'package:revitool/core/win_updates/updates_service.dart';
 class MockWinUpdatesService extends Mock implements WinUpdatesService {}
 
 void main() {
-  group('WinUpdatesService - Real Implementation', () {
-    late WinUpdatesService service;
+  const skipIntegration = bool.fromEnvironment(
+    'SKIP_INTEGRATION',
+    defaultValue: true,
+  );
 
-    setUp(() {
-      service = const WinUpdatesServiceImpl();
-    });
+  group(
+    'WinUpdatesService - Real Implementation',
+    skip: skipIntegration
+        ? 'Skipped in CI (use --dart-define=SKIP_INTEGRATION=false to run)'
+        : false,
+    () {
+      late WinUpdatesService service;
 
-    group('Pause Updates', () {
-      test('statusPauseUpdatesWU returns a boolean', () {
-        expect(service.statusPauseUpdatesWU, isA<bool>());
+      setUp(() {
+        service = const WinUpdatesServiceImpl();
       });
 
-      test('enablePauseUpdatesWU completes without error', () {
-        expect(() => service.enablePauseUpdatesWU(), returnsNormally);
+      group('Pause Updates', () {
+        test('statusPauseUpdatesWU returns a boolean', () {
+          expect(service.statusPauseUpdatesWU, isA<bool>());
+        });
+
+        test('enablePauseUpdatesWU completes without error', () async {
+          await expectLater(service.enablePauseUpdatesWU(), completes);
+        });
+
+        test('disablePauseUpdatesWU completes without error', () async {
+          await expectLater(service.disablePauseUpdatesWU(), completes);
+        });
       });
 
-      test('disablePauseUpdatesWU completes without error', () {
-        expect(() => service.disablePauseUpdatesWU(), returnsNormally);
-      });
-    });
+      group('Visibility', () {
+        test('statusVisibilityWU returns a boolean', () {
+          expect(service.statusVisibilityWU, isA<bool>());
+        });
 
-    group('Visibility', () {
-      test('statusVisibilityWU returns a boolean', () {
-        expect(service.statusVisibilityWU, isA<bool>());
-      });
+        test('enableVisibilityWU completes without error', () async {
+          await expectLater(service.enableVisibilityWU(), completes);
+        });
 
-      test('enableVisibilityWU completes without error', () {
-        expect(() => service.enableVisibilityWU(), returnsNormally);
-      });
-
-      test('disableVisibilityWU completes without error', () {
-        expect(() => service.disableVisibilityWU(), returnsNormally);
-      });
-    });
-
-    group('Drivers', () {
-      test('statusDriversWU returns a boolean', () {
-        expect(service.statusDriversWU, isA<bool>());
+        test('disableVisibilityWU completes without error', () async {
+          await expectLater(service.disableVisibilityWU(), completes);
+        });
       });
 
-      test('enableDriversWU completes without error', () {
-        expect(() => service.enableDriversWU(), returnsNormally);
+      group('Drivers', () {
+        test('statusDriversWU returns a boolean', () {
+          expect(service.statusDriversWU, isA<bool>());
+        });
+
+        test('enableDriversWU completes without error', () async {
+          await expectLater(service.enableDriversWU(), completes);
+        });
+
+        test('disableDriversWU completes without error', () async {
+          await expectLater(service.disableDriversWU(), completes);
+        });
       });
 
-      test('disableDriversWU completes without error', () {
-        expect(() => service.disableDriversWU(), returnsNormally);
-      });
-    });
+      group('Service Instance', () {
+        test('WinUpdatesService can be instantiated', () {
+          expect(() => const WinUpdatesServiceImpl(), returnsNormally);
+        });
 
-    group('Service Instance', () {
-      test('WinUpdatesService can be instantiated', () {
-        expect(() => const WinUpdatesServiceImpl(), returnsNormally);
-      });
+        test('WinUpdatesService is const constructible', () {
+          const service1 = WinUpdatesServiceImpl();
+          const service2 = WinUpdatesServiceImpl();
+          expect(identical(service1, service2), isTrue);
+        });
 
-      test('WinUpdatesService is const constructible', () {
-        const service1 = WinUpdatesServiceImpl();
-        const service2 = WinUpdatesServiceImpl();
-        expect(identical(service1, service2), isTrue);
-      });
+        test('Multiple instances behave identically', () {
+          const service1 = WinUpdatesServiceImpl();
+          const service2 = WinUpdatesServiceImpl();
 
-      test('Multiple instances behave identically', () {
-        const service1 = WinUpdatesServiceImpl();
-        const service2 = WinUpdatesServiceImpl();
-
-        expect(
-          service1.statusPauseUpdatesWU,
-          equals(service2.statusPauseUpdatesWU),
-        );
-        expect(
-          service1.statusVisibilityWU,
-          equals(service2.statusVisibilityWU),
-        );
-        expect(service1.statusDriversWU, equals(service2.statusDriversWU));
-      });
-    });
-
-    group('Method Return Types', () {
-      test('All status getters return boolean', () {
-        expect(service.statusPauseUpdatesWU, isA<bool>());
-        expect(service.statusVisibilityWU, isA<bool>());
-        expect(service.statusDriversWU, isA<bool>());
+          expect(
+            service1.statusPauseUpdatesWU,
+            equals(service2.statusPauseUpdatesWU),
+          );
+          expect(
+            service1.statusVisibilityWU,
+            equals(service2.statusVisibilityWU),
+          );
+          expect(service1.statusDriversWU, equals(service2.statusDriversWU));
+        });
       });
 
-      test('All methods return void', () {
-        expect(() => service.enablePauseUpdatesWU(), returnsNormally);
-        expect(() => service.disablePauseUpdatesWU(), returnsNormally);
-        expect(() => service.enableVisibilityWU(), returnsNormally);
-        expect(() => service.disableVisibilityWU(), returnsNormally);
-        expect(() => service.enableDriversWU(), returnsNormally);
-        expect(() => service.disableDriversWU(), returnsNormally);
-      });
-    });
+      group('Method Return Types', () {
+        test('All status getters return boolean', () {
+          expect(service.statusPauseUpdatesWU, isA<bool>());
+          expect(service.statusVisibilityWU, isA<bool>());
+          expect(service.statusDriversWU, isA<bool>());
+        });
 
-    group('Feature Coverage', () {
-      test('All enable methods are callable', () {
-        expect(() => service.enablePauseUpdatesWU(), returnsNormally);
-        expect(() => service.enableVisibilityWU(), returnsNormally);
-        expect(() => service.enableDriversWU(), returnsNormally);
-      });
-
-      test('All disable methods are callable', () {
-        expect(() => service.disablePauseUpdatesWU(), returnsNormally);
-        expect(() => service.disableVisibilityWU(), returnsNormally);
-        expect(() => service.disableDriversWU(), returnsNormally);
+        test('All methods return Future<void>', () async {
+          await expectLater(service.enablePauseUpdatesWU(), completes);
+          await expectLater(service.disablePauseUpdatesWU(), completes);
+          await expectLater(service.enableVisibilityWU(), completes);
+          await expectLater(service.disableVisibilityWU(), completes);
+          await expectLater(service.enableDriversWU(), completes);
+          await expectLater(service.disableDriversWU(), completes);
+        });
       });
 
-      test('All status getters are readable', () {
-        expect(() => service.statusPauseUpdatesWU, returnsNormally);
-        expect(() => service.statusVisibilityWU, returnsNormally);
-        expect(() => service.statusDriversWU, returnsNormally);
+      group('Feature Coverage', () {
+        test('All enable methods are callable', () async {
+          await expectLater(service.enablePauseUpdatesWU(), completes);
+          await expectLater(service.enableVisibilityWU(), completes);
+          await expectLater(service.enableDriversWU(), completes);
+        });
+
+        test('All disable methods are callable', () async {
+          await expectLater(service.disablePauseUpdatesWU(), completes);
+          await expectLater(service.disableVisibilityWU(), completes);
+          await expectLater(service.disableDriversWU(), completes);
+        });
+
+        test('All status getters are readable', () {
+          expect(() => service.statusPauseUpdatesWU, returnsNormally);
+          expect(() => service.statusVisibilityWU, returnsNormally);
+          expect(() => service.statusDriversWU, returnsNormally);
+        });
       });
-    });
-  });
+    },
+  );
 
   group('WinUpdatesService - Mocked (CI Safe)', () {
     late MockWinUpdatesService mockService;
@@ -133,19 +144,29 @@ void main() {
         verify(() => mockService.statusPauseUpdatesWU).called(1);
       });
 
-      test('enablePauseUpdatesWU can be called without system changes', () {
-        when(() => mockService.enablePauseUpdatesWU()).thenReturn(null);
+      test(
+        'enablePauseUpdatesWU can be called without system changes',
+        () async {
+          when(
+            () => mockService.enablePauseUpdatesWU(),
+          ).thenAnswer((_) async => Future.value());
 
-        mockService.enablePauseUpdatesWU();
-        verify(() => mockService.enablePauseUpdatesWU()).called(1);
-      });
+          await mockService.enablePauseUpdatesWU();
+          verify(() => mockService.enablePauseUpdatesWU()).called(1);
+        },
+      );
 
-      test('disablePauseUpdatesWU can be called without system changes', () {
-        when(() => mockService.disablePauseUpdatesWU()).thenReturn(null);
+      test(
+        'disablePauseUpdatesWU can be called without system changes',
+        () async {
+          when(
+            () => mockService.disablePauseUpdatesWU(),
+          ).thenAnswer((_) async => Future.value());
 
-        mockService.disablePauseUpdatesWU();
-        verify(() => mockService.disablePauseUpdatesWU()).called(1);
-      });
+          await mockService.disablePauseUpdatesWU();
+          verify(() => mockService.disablePauseUpdatesWU()).called(1);
+        },
+      );
     });
 
     group('Visibility', () {
@@ -154,19 +175,26 @@ void main() {
         expect(mockService.statusVisibilityWU, isFalse);
       });
 
-      test('enableVisibilityWU can be called without system changes', () {
-        when(() => mockService.enableVisibilityWU()).thenReturn(null);
+      test('enableVisibilityWU can be called without system changes', () async {
+        when(
+          () => mockService.enableVisibilityWU(),
+        ).thenAnswer((_) async => Future.value());
 
-        mockService.enableVisibilityWU();
+        await mockService.enableVisibilityWU();
         verify(() => mockService.enableVisibilityWU()).called(1);
       });
 
-      test('disableVisibilityWU can be called without system changes', () {
-        when(() => mockService.disableVisibilityWU()).thenReturn(null);
+      test(
+        'disableVisibilityWU can be called without system changes',
+        () async {
+          when(
+            () => mockService.disableVisibilityWU(),
+          ).thenAnswer((_) async => Future.value());
 
-        mockService.disableVisibilityWU();
-        verify(() => mockService.disableVisibilityWU()).called(1);
-      });
+          await mockService.disableVisibilityWU();
+          verify(() => mockService.disableVisibilityWU()).called(1);
+        },
+      );
     });
 
     group('Drivers', () {
@@ -175,29 +203,35 @@ void main() {
         expect(mockService.statusDriversWU, isTrue);
       });
 
-      test('enableDriversWU can be called without system changes', () {
-        when(() => mockService.enableDriversWU()).thenReturn(null);
+      test('enableDriversWU can be called without system changes', () async {
+        when(
+          () => mockService.enableDriversWU(),
+        ).thenAnswer((_) async => Future.value());
 
-        mockService.enableDriversWU();
+        await mockService.enableDriversWU();
         verify(() => mockService.enableDriversWU()).called(1);
       });
 
-      test('disableDriversWU can be called without system changes', () {
-        when(() => mockService.disableDriversWU()).thenReturn(null);
+      test('disableDriversWU can be called without system changes', () async {
+        when(
+          () => mockService.disableDriversWU(),
+        ).thenAnswer((_) async => Future.value());
 
-        mockService.disableDriversWU();
+        await mockService.disableDriversWU();
         verify(() => mockService.disableDriversWU()).called(1);
       });
     });
 
     group('Call Order Verification', () {
-      test('can verify method call order', () {
+      test('can verify method call order', () async {
         when(() => mockService.statusPauseUpdatesWU).thenReturn(true);
-        when(() => mockService.disableVisibilityWU()).thenReturn(null);
+        when(
+          () => mockService.disableVisibilityWU(),
+        ).thenAnswer((_) async => Future.value());
         when(() => mockService.statusDriversWU).thenReturn(false);
 
         final pauseStatus = mockService.statusPauseUpdatesWU;
-        mockService.disableVisibilityWU();
+        await mockService.disableVisibilityWU();
         final driverStatus = mockService.statusDriversWU;
 
         expect(pauseStatus, isTrue);
@@ -211,7 +245,9 @@ void main() {
       });
 
       test('can verify a method was never called', () {
-        when(() => mockService.enablePauseUpdatesWU()).thenReturn(null);
+        when(
+          () => mockService.enablePauseUpdatesWU(),
+        ).thenAnswer((_) async => Future.value());
 
         verifyNever(() => mockService.disablePauseUpdatesWU());
       });
@@ -228,34 +264,40 @@ void main() {
     });
 
     group('State Transitions', () {
-      test('can simulate enable/disable cycle for pause updates', () {
+      test('can simulate enable/disable cycle for pause updates', () async {
         when(() => mockService.statusPauseUpdatesWU).thenReturn(false);
-        when(() => mockService.enablePauseUpdatesWU()).thenReturn(null);
+        when(
+          () => mockService.enablePauseUpdatesWU(),
+        ).thenAnswer((_) async => Future.value());
 
         expect(mockService.statusPauseUpdatesWU, isFalse);
-        mockService.enablePauseUpdatesWU();
+        await mockService.enablePauseUpdatesWU();
 
         when(() => mockService.statusPauseUpdatesWU).thenReturn(true);
         expect(mockService.statusPauseUpdatesWU, isTrue);
       });
 
-      test('can simulate enable/disable cycle for visibility', () {
+      test('can simulate enable/disable cycle for visibility', () async {
         when(() => mockService.statusVisibilityWU).thenReturn(true);
-        when(() => mockService.disableVisibilityWU()).thenReturn(null);
+        when(
+          () => mockService.disableVisibilityWU(),
+        ).thenAnswer((_) async => Future.value());
 
         expect(mockService.statusVisibilityWU, isTrue);
-        mockService.disableVisibilityWU();
+        await mockService.disableVisibilityWU();
 
         when(() => mockService.statusVisibilityWU).thenReturn(false);
         expect(mockService.statusVisibilityWU, isFalse);
       });
 
-      test('can simulate enable/disable cycle for drivers', () {
+      test('can simulate enable/disable cycle for drivers', () async {
         when(() => mockService.statusDriversWU).thenReturn(false);
-        when(() => mockService.enableDriversWU()).thenReturn(null);
+        when(
+          () => mockService.enableDriversWU(),
+        ).thenAnswer((_) async => Future.value());
 
         expect(mockService.statusDriversWU, isFalse);
-        mockService.enableDriversWU();
+        await mockService.enableDriversWU();
 
         when(() => mockService.statusDriversWU).thenReturn(true);
         expect(mockService.statusDriversWU, isTrue);

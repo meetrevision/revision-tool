@@ -116,8 +116,10 @@ class WindowsPackageCommand extends Command<String> {
       }
 
       if (mode == WinPackageType.aiRemoval) {
-        WinRegistryService.hidePageVisibilitySettings("aicomponents");
-        WinRegistryService.hidePageVisibilitySettings("privacy-systemaimodels");
+        await WinRegistryService.hidePageVisibilitySettings("aicomponents");
+        await WinRegistryService.hidePageVisibilitySettings(
+          "privacy-systemaimodels",
+        );
         await runPSCommand(
           'Disable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart',
         );
@@ -155,8 +157,8 @@ class WindowsPackageCommand extends Command<String> {
       }
 
       if (packageType == WinPackageType.aiRemoval) {
-        WinRegistryService.unhidePageVisibilitySettings("aicomponents");
-        WinRegistryService.unhidePageVisibilitySettings(
+        await WinRegistryService.unhidePageVisibilitySettings("aicomponents");
+        await WinRegistryService.unhidePageVisibilitySettings(
           "privacy-systemaimodels",
         );
         await runPSCommand(

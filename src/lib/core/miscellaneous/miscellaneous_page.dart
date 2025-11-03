@@ -68,10 +68,12 @@ class _FastStartupCard extends ConsumerWidget {
       action: CardToggleSwitch(
         value: status,
         requiresRestart: true,
-        onChanged: (value) {
+        onChanged: (value) async {
           value
               ? ref.read(miscellaneousServiceProvider).enableFastStartup()
-              : ref.read(miscellaneousServiceProvider).disableFastStartup();
+              : await ref
+                    .read(miscellaneousServiceProvider)
+                    .disableFastStartup();
           ref.invalidate(fastStartupStatusProvider);
         },
       ),
@@ -97,7 +99,9 @@ class _TMMonitoringCard extends ConsumerWidget {
               ? await ref
                     .read(miscellaneousServiceProvider)
                     .enableTMMonitoring()
-              : ref.read(miscellaneousServiceProvider).disableTMMonitoring();
+              : await ref
+                    .read(miscellaneousServiceProvider)
+                    .disableTMMonitoring();
           ref.invalidate(tmMonitoringStatusProvider);
         },
       ),
@@ -117,10 +121,10 @@ class _MPOCard extends ConsumerWidget {
       codeSnippet: context.l10n.miscMpoCodeSnippet,
       action: CardToggleSwitch(
         value: status,
-        onChanged: (value) {
+        onChanged: (value) async {
           value
               ? ref.read(miscellaneousServiceProvider).enableMPO()
-              : ref.read(miscellaneousServiceProvider).disableMPO();
+              : await ref.read(miscellaneousServiceProvider).disableMPO();
           ref.invalidate(mpoStatusProvider);
         },
       ),

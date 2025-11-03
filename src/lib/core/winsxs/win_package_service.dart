@@ -64,7 +64,6 @@ abstract final class WinPackageService {
         lastError == null;
   }
 
-  /// Check if a bundled package exists for the given package type
   static String? getBundledPackagePath(final WinPackageType packageType) {
     try {
       final bundledDir = Directory(bundledPackagesPath);

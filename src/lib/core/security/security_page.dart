@@ -58,7 +58,6 @@ class _DefenderCard extends ConsumerWidget {
               if (!context.mounted) return;
               context.pop();
 
-              // Invalidate both providers since they're related
               ref.invalidate(defenderStatusProvider);
               ref.invalidate(defenderProtectionsStatusProvider);
 
@@ -103,7 +102,9 @@ class _DefenderCard extends ConsumerWidget {
           child: Button(
             onPressed: () async {
               Future.delayed(const Duration(seconds: 1), () async {
-                await ref.read(securityServiceProvider).openDefenderThreatSettings();
+                await ref
+                    .read(securityServiceProvider)
+                    .openDefenderThreatSettings();
               });
 
               showDialog(
@@ -116,14 +117,15 @@ class _DefenderCard extends ConsumerWidget {
                       Button(
                         child: Text(context.l10n.okButton),
                         onPressed: () async {
-                          // Update status and check if protections are still enabled
                           ref.invalidate(defenderProtectionsStatusProvider);
                           final updatedStatus = ref.read(
                             defenderProtectionsStatusProvider,
                           );
 
                           if (updatedStatus) {
-                            await ref.read(securityServiceProvider).openDefenderThreatSettings();
+                            await ref
+                                .read(securityServiceProvider)
+                                .openDefenderThreatSettings();
                           } else {
                             Navigator.pop(context);
                           }
@@ -155,8 +157,10 @@ class _UACCard extends ConsumerWidget {
       action: CardToggleSwitch(
         value: status,
         requiresRestart: true,
-        onChanged: (value) {
-          value ? ref.read(securityServiceProvider).enableUAC() : ref.read(securityServiceProvider).disableUAC();
+        onChanged: (value) async {
+          value
+              ? await ref.read(securityServiceProvider).enableUAC()
+              : await ref.read(securityServiceProvider).disableUAC();
           ref.invalidate(uacStatusProvider);
         },
       ),
@@ -177,10 +181,14 @@ class _MeltdownSpectreCard extends ConsumerWidget {
       action: CardToggleSwitch(
         value: status,
         requiresRestart: true,
-        onChanged: (value) {
+        onChanged: (value) async {
           value
-              ? ref.read(securityServiceProvider).enableMitigation(Mitigation.meltdownSpectre)
-              : ref.read(securityServiceProvider).disableMitigation(Mitigation.meltdownSpectre);
+              ? await ref
+                    .read(securityServiceProvider)
+                    .enableMitigation(Mitigation.meltdownSpectre)
+              : await ref
+                    .read(securityServiceProvider)
+                    .disableMitigation(Mitigation.meltdownSpectre);
           ref.invalidate(meltdownSpectreStatusProvider);
         },
       ),
@@ -202,10 +210,14 @@ class _DownfallCard extends ConsumerWidget {
       action: CardToggleSwitch(
         value: status,
         requiresRestart: true,
-        onChanged: (value) {
+        onChanged: (value) async {
           value
-              ? ref.read(securityServiceProvider).enableMitigation(Mitigation.downfall)
-              : ref.read(securityServiceProvider).disableMitigation(Mitigation.downfall);
+              ? await ref
+                    .read(securityServiceProvider)
+                    .enableMitigation(Mitigation.downfall)
+              : await ref
+                    .read(securityServiceProvider)
+                    .disableMitigation(Mitigation.downfall);
           ref.invalidate(downfallStatusProvider);
         },
       ),

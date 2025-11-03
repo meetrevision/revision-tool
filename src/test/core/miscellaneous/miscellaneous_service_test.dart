@@ -5,141 +5,169 @@ import 'package:revitool/core/miscellaneous/miscellaneous_service.dart';
 class MockMiscellaneousService extends Mock implements MiscellaneousService {}
 
 void main() {
-  group('MiscellaneousService - Real Implementation', () {
-    late MiscellaneousService service;
+  const skipIntegration = bool.fromEnvironment(
+    'SKIP_INTEGRATION',
+    defaultValue: true,
+  );
 
-    setUp(() {
-      service = const MiscellaneousServiceImpl();
-    });
+  group(
+    'MiscellaneousService - Real Implementation',
+    skip: skipIntegration
+        ? 'Skipped in CI (use --dart-define=SKIP_INTEGRATION=false to run)'
+        : false,
+    () {
+      late MiscellaneousService service;
 
-    group('Hibernation', () {
-      test('statusHibernation returns a boolean', () {
-        expect(service.statusHibernation, isA<bool>());
+      setUp(() {
+        service = const MiscellaneousServiceImpl();
       });
 
-      test('enableHibernation completes without error', () async {
-        expect(() => service.enableHibernation(), returnsNormally);
+      group('Hibernation', () {
+        test('statusHibernation returns a boolean', () {
+          expect(service.statusHibernation, isA<bool>());
+        });
+
+        test('enableHibernation completes without error', () async {
+          await expectLater(service.enableHibernation(), completes);
+        });
+
+        test('disableHibernation completes without error', () async {
+          await expectLater(service.disableHibernation(), completes);
+        });
       });
 
-      test('disableHibernation completes without error', () async {
-        expect(() => service.disableHibernation(), returnsNormally);
-      });
-    });
+      group('Fast Startup', () {
+        test('statusFastStartup returns a boolean', () {
+          expect(service.statusFastStartup, isA<bool>());
+        });
 
-    group('Fast Startup', () {
-      test('statusFastStartup returns a boolean', () {
-        expect(service.statusFastStartup, isA<bool>());
-      });
+        test('enableFastStartup completes without error', () async {
+          await expectLater(service.enableFastStartup(), completes);
+        });
 
-      test('enableFastStartup completes without error', () {
-        expect(() => service.enableFastStartup(), returnsNormally);
-      });
-
-      test('disableFastStartup completes without error', () {
-        expect(() => service.disableFastStartup(), returnsNormally);
-      });
-    });
-
-    group('Task Manager Monitoring', () {
-      test('statusTMMonitoring returns a boolean', () {
-        expect(service.statusTMMonitoring, isA<bool>());
+        test('disableFastStartup completes without error', () async {
+          await expectLater(service.disableFastStartup(), completes);
+        });
       });
 
-      test('enableTMMonitoring completes without error', () async {
-        expect(() => service.enableTMMonitoring(), returnsNormally);
+      group('Task Manager Monitoring', () {
+        test('statusTMMonitoring returns a boolean', () {
+          expect(service.statusTMMonitoring, isA<bool>());
+        });
+
+        test('enableTMMonitoring completes without error', () async {
+          await expectLater(service.enableTMMonitoring(), completes);
+        });
+
+        test('disableTMMonitoring completes without error', () {
+          expect(() => service.disableTMMonitoring(), returnsNormally);
+        });
       });
 
-      test('disableTMMonitoring completes without error', () {
-        expect(() => service.disableTMMonitoring(), returnsNormally);
-      });
-    });
+      group('MPO (Multi-Plane Overlay)', () {
+        test('statusMPO returns a boolean', () {
+          expect(service.statusMPO, isA<bool>());
+        });
 
-    group('MPO (Multi-Plane Overlay)', () {
-      test('statusMPO returns a boolean', () {
-        expect(service.statusMPO, isA<bool>());
-      });
+        test('enableMPO completes without error', () async {
+          await expectLater(service.enableMPO(), completes);
+        });
 
-      test('enableMPO completes without error', () {
-        expect(() => service.enableMPO(), returnsNormally);
-      });
-
-      test('disableMPO completes without error', () {
-        expect(() => service.disableMPO(), returnsNormally);
-      });
-    });
-
-    group('Usage Reporting', () {
-      test('statusUsageReporting returns a boolean', () {
-        expect(service.statusUsageReporting, isA<bool>());
+        test('disableMPO completes without error', () async {
+          await expectLater(service.disableMPO(), completes);
+        });
       });
 
-      test('enableUsageReporting completes without error', () async {
-        expect(() => service.enableUsageReporting(), returnsNormally);
+      group('Usage Reporting', () {
+        test('statusUsageReporting returns a boolean', () {
+          expect(service.statusUsageReporting, isA<bool>());
+        });
+
+        test('enableUsageReporting completes without error', () async {
+          await expectLater(service.enableUsageReporting(), completes);
+        });
+
+        test('disableUsageReporting completes without error', () async {
+          await expectLater(service.disableUsageReporting(), completes);
+        });
       });
 
-      test('disableUsageReporting completes without error', () async {
-        expect(() => service.disableUsageReporting(), returnsNormally);
-      });
-    });
-
-    group('KGL Update', () {
-      test('updateKGL returns Future', () {
-        expect(service.updateKGL(), isA<Future<void>>());
-      });
-    });
-
-    group('Service Instance', () {
-      test('MiscellaneousService can be instantiated', () {
-        expect(() => const MiscellaneousServiceImpl(), returnsNormally);
+      group('KGL Update', () {
+        test('updateKGL returns Future', () {
+          expect(service.updateKGL(), isA<Future<void>>());
+        });
       });
 
-      test('MiscellaneousService is const constructible', () {
-        const service1 = MiscellaneousServiceImpl();
-        const service2 = MiscellaneousServiceImpl();
-        expect(identical(service1, service2), isTrue);
+      group('Service Instance', () {
+        test('MiscellaneousService can be instantiated', () {
+          expect(() => const MiscellaneousServiceImpl(), returnsNormally);
+        });
+
+        test('MiscellaneousService is const constructible', () {
+          const service1 = MiscellaneousServiceImpl();
+          const service2 = MiscellaneousServiceImpl();
+          expect(identical(service1, service2), isTrue);
+        });
+
+        test('Multiple instances behave identically', () {
+          const service1 = MiscellaneousServiceImpl();
+          const service2 = MiscellaneousServiceImpl();
+
+          expect(
+            service1.statusHibernation,
+            equals(service2.statusHibernation),
+          );
+          expect(
+            service1.statusFastStartup,
+            equals(service2.statusFastStartup),
+          );
+          expect(
+            service1.statusTMMonitoring,
+            equals(service2.statusTMMonitoring),
+          );
+          expect(service1.statusMPO, equals(service2.statusMPO));
+        });
       });
 
-      test('Multiple instances behave identically', () {
-        const service1 = MiscellaneousServiceImpl();
-        const service2 = MiscellaneousServiceImpl();
+      group('Method Return Types', () {
+        test('All status getters return boolean', () {
+          expect(service.statusHibernation, isA<bool>());
+          expect(service.statusFastStartup, isA<bool>());
+          expect(service.statusTMMonitoring, isA<bool>());
+          expect(service.statusMPO, isA<bool>());
+          expect(service.statusUsageReporting, isA<bool>());
+        });
 
-        expect(service1.statusHibernation, equals(service2.statusHibernation));
-        expect(service1.statusFastStartup, equals(service2.statusFastStartup));
-        expect(
-          service1.statusTMMonitoring,
-          equals(service2.statusTMMonitoring),
-        );
-        expect(service1.statusMPO, equals(service2.statusMPO));
-      });
-    });
+        test('Async methods return Future', () async {
+          expect(service.enableHibernation(), isA<Future<void>>());
+          expect(service.disableHibernation(), isA<Future<void>>());
+          expect(service.enableTMMonitoring(), isA<Future<void>>());
+          expect(service.enableUsageReporting(), isA<Future<void>>());
+          expect(service.disableUsageReporting(), isA<Future<void>>());
+          expect(service.updateKGL(), isA<Future<void>>());
 
-    group('Method Return Types', () {
-      test('All status getters return boolean', () {
-        expect(service.statusHibernation, isA<bool>());
-        expect(service.statusFastStartup, isA<bool>());
-        expect(service.statusTMMonitoring, isA<bool>());
-        expect(service.statusMPO, isA<bool>());
-        expect(service.statusUsageReporting, isA<bool>());
-      });
+          // Wait for all futures to complete
+          await Future.wait([
+            service.enableHibernation(),
+            service.disableHibernation(),
+            service.enableTMMonitoring(),
+            service.enableUsageReporting(),
+            service.disableUsageReporting(),
+            service.updateKGL(),
+          ]);
+        });
 
-      test('Async methods return Future', () {
-        expect(service.enableHibernation(), isA<Future<void>>());
-        expect(service.disableHibernation(), isA<Future<void>>());
-        expect(service.enableTMMonitoring(), isA<Future<void>>());
-        expect(service.enableUsageReporting(), isA<Future<void>>());
-        expect(service.disableUsageReporting(), isA<Future<void>>());
-        expect(service.updateKGL(), isA<Future<void>>());
+        test('Sync methods return void', () async {
+          // All methods are now async, so this test verifies they complete
+          await expectLater(service.enableFastStartup(), completes);
+          await expectLater(service.disableFastStartup(), completes);
+          await expectLater(service.disableTMMonitoring(), completes);
+          await expectLater(service.enableMPO(), completes);
+          await expectLater(service.disableMPO(), completes);
+        });
       });
-
-      test('Sync methods return void', () {
-        expect(() => service.enableFastStartup(), returnsNormally);
-        expect(() => service.disableFastStartup(), returnsNormally);
-        expect(() => service.disableTMMonitoring(), returnsNormally);
-        expect(() => service.enableMPO(), returnsNormally);
-        expect(() => service.disableMPO(), returnsNormally);
-      });
-    });
-  });
+    },
+  );
 
   group('MiscellaneousService - Mocked (CI Safe)', () {
     late MockMiscellaneousService mockService;
@@ -180,17 +208,21 @@ void main() {
         expect(mockService.statusFastStartup, isFalse);
       });
 
-      test('enableFastStartup can be called without system changes', () {
-        when(() => mockService.enableFastStartup()).thenReturn(null);
+      test('enableFastStartup can be called without system changes', () async {
+        when(
+          () => mockService.enableFastStartup(),
+        ).thenAnswer((_) async => Future.value());
 
-        mockService.enableFastStartup();
+        await mockService.enableFastStartup();
         verify(() => mockService.enableFastStartup()).called(1);
       });
 
-      test('disableFastStartup can be called without system changes', () {
-        when(() => mockService.disableFastStartup()).thenReturn(null);
+      test('disableFastStartup can be called without system changes', () async {
+        when(
+          () => mockService.disableFastStartup(),
+        ).thenAnswer((_) async => Future.value());
 
-        mockService.disableFastStartup();
+        await mockService.disableFastStartup();
         verify(() => mockService.disableFastStartup()).called(1);
       });
     });
@@ -210,12 +242,17 @@ void main() {
         verify(() => mockService.enableTMMonitoring()).called(1);
       });
 
-      test('disableTMMonitoring can be called without system changes', () {
-        when(() => mockService.disableTMMonitoring()).thenReturn(null);
+      test(
+        'disableTMMonitoring can be called without system changes',
+        () async {
+          when(
+            () => mockService.disableTMMonitoring(),
+          ).thenAnswer((_) async => Future.value());
 
-        mockService.disableTMMonitoring();
-        verify(() => mockService.disableTMMonitoring()).called(1);
-      });
+          await mockService.disableTMMonitoring();
+          verify(() => mockService.disableTMMonitoring()).called(1);
+        },
+      );
     });
 
     group('MPO', () {
@@ -224,17 +261,21 @@ void main() {
         expect(mockService.statusMPO, isTrue);
       });
 
-      test('enableMPO can be called without system changes', () {
-        when(() => mockService.enableMPO()).thenReturn(null);
+      test('enableMPO can be called without system changes', () async {
+        when(
+          () => mockService.enableMPO(),
+        ).thenAnswer((_) async => Future.value());
 
-        mockService.enableMPO();
+        await mockService.enableMPO();
         verify(() => mockService.enableMPO()).called(1);
       });
 
-      test('disableMPO can be called without system changes', () {
-        when(() => mockService.disableMPO()).thenReturn(null);
+      test('disableMPO can be called without system changes', () async {
+        when(
+          () => mockService.disableMPO(),
+        ).thenAnswer((_) async => Future.value());
 
-        mockService.disableMPO();
+        await mockService.disableMPO();
         verify(() => mockService.disableMPO()).called(1);
       });
     });
@@ -282,13 +323,15 @@ void main() {
     });
 
     group('Call Order Verification', () {
-      test('can verify method call order', () {
+      test('can verify method call order', () async {
         when(() => mockService.statusHibernation).thenReturn(false);
-        when(() => mockService.enableFastStartup()).thenReturn(null);
+        when(
+          () => mockService.enableFastStartup(),
+        ).thenAnswer((_) async => Future.value());
         when(() => mockService.statusFastStartup).thenReturn(true);
 
         final hibernationStatus = mockService.statusHibernation;
-        mockService.enableFastStartup();
+        await mockService.enableFastStartup();
         final fastStartupStatus = mockService.statusFastStartup;
 
         expect(hibernationStatus, isFalse);

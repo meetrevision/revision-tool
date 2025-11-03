@@ -68,7 +68,7 @@ jobs:
       
       - name: Run tests
         continue-on-error: true
-        run: flutter test --reporter=expanded
+        run: flutter test --reporter=expanded --dart-define=SKIP_INTEGRATION=true
         working-directory: src
 
       - name: Enable Administrator Privileges for revitool CLI app

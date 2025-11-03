@@ -153,10 +153,10 @@ class Win32TokenHelper {
 
       try {
         tkp.cast<Uint32>().value = 1; // PrivilegeCount
-        final luidPtr = tkp.elementAt(4).cast<LUID>();
+        final luidPtr = (tkp + 4).cast<LUID>();
         luidPtr.ref.LowPart = luidDebug.ref.LowPart;
         luidPtr.ref.HighPart = luidDebug.ref.HighPart;
-        tkp.elementAt(12).cast<Uint32>().value = SE_PRIVILEGE_ENABLED;
+        (tkp + 12).cast<Uint32>().value = SE_PRIVILEGE_ENABLED;
 
         final result = _adjustTokenPrivileges(
           tokenHandle.value,

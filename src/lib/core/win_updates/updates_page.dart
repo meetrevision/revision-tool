@@ -31,10 +31,12 @@ class _PauseUpdatesCard extends ConsumerWidget {
       description: context.l10n.wuPauseDescription,
       action: CardToggleSwitch(
         value: status,
-        onChanged: (value) {
+        onChanged: (value) async {
           value
-              ? ref.read(winUpdatesServiceProvider).enablePauseUpdatesWU()
-              : ref.read(winUpdatesServiceProvider).disablePauseUpdatesWU();
+              ? await ref.read(winUpdatesServiceProvider).enablePauseUpdatesWU()
+              : await ref
+                    .read(winUpdatesServiceProvider)
+                    .disablePauseUpdatesWU();
           ref.invalidate(pauseUpdatesWUStatusProvider);
         },
       ),
@@ -54,10 +56,10 @@ class _VisibilityCard extends ConsumerWidget {
       description: context.l10n.wuPageDescription,
       action: CardToggleSwitch(
         value: status,
-        onChanged: (value) {
+        onChanged: (value) async {
           value
-              ? ref.read(winUpdatesServiceProvider).disableVisibilityWU()
-              : ref.read(winUpdatesServiceProvider).enableVisibilityWU();
+              ? await ref.read(winUpdatesServiceProvider).disableVisibilityWU()
+              : await ref.read(winUpdatesServiceProvider).enableVisibilityWU();
           ref.invalidate(visibilityWUStatusProvider);
         },
       ),
@@ -77,10 +79,10 @@ class _DriversCard extends ConsumerWidget {
       description: context.l10n.wuDriversDescription,
       action: CardToggleSwitch(
         value: status,
-        onChanged: (value) {
+        onChanged: (value) async {
           value
-              ? ref.read(winUpdatesServiceProvider).enableDriversWU()
-              : ref.read(winUpdatesServiceProvider).disableDriversWU();
+              ? await ref.read(winUpdatesServiceProvider).enableDriversWU()
+              : await ref.read(winUpdatesServiceProvider).disableDriversWU();
           ref.invalidate(driversWUStatusProvider);
         },
       ),

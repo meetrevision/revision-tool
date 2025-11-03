@@ -5,167 +5,178 @@ import 'package:revitool/core/usability/usability_service.dart';
 class MockUsabilityService extends Mock implements UsabilityService {}
 
 void main() {
-  group('UsabilityService - Real Implementation', () {
-    late UsabilityService service;
+  const skipIntegration = bool.fromEnvironment(
+    'SKIP_INTEGRATION',
+    defaultValue: true,
+  );
 
-    setUp(() {
-      service = const UsabilityServiceImpl();
-    });
+  group(
+    'UsabilityService (Real Implementation)',
+    skip: skipIntegration
+        ? 'Skipped in CI (use --dart-define=SKIP_INTEGRATION=false to run)'
+        : false,
+    () {
+      late UsabilityService service;
 
-    group('Notifications', () {
-      test('statusNotification returns NotificationMode', () {
-        expect(service.statusNotification, isA<NotificationMode>());
+      setUp(() {
+        service = const UsabilityServiceImpl();
       });
 
-      test('enableNotification completes without error', () async {
-        expect(() => service.enableNotification(), returnsNormally);
+      group('Notifications', () {
+        test('statusNotification returns NotificationMode', () {
+          expect(service.statusNotification, isA<NotificationMode>());
+        });
+
+        test('enableNotification completes without error', () async {
+          await expectLater(service.enableNotification(), completes);
+        });
+
+        test('disableNotification completes without error', () async {
+          await expectLater(service.disableNotification(), completes);
+        });
+
+        test('disableNotificationAggressive completes without error', () async {
+          await expectLater(service.disableNotificationAggressive(), completes);
+        });
       });
 
-      test('disableNotification completes without error', () async {
-        expect(() => service.disableNotification(), returnsNormally);
+      group('Legacy Balloon', () {
+        test('statusLegacyBalloon returns a boolean', () {
+          expect(service.statusLegacyBalloon, isA<bool>());
+        });
+
+        test('enableLegacyBalloon completes without error', () async {
+          await expectLater(service.enableLegacyBalloon(), completes);
+        });
+
+        test('disableLegacyBalloon completes without error', () async {
+          await expectLater(service.disableLegacyBalloon(), completes);
+        });
       });
 
-      test('disableNotificationAggressive completes without error', () async {
-        expect(() => service.disableNotificationAggressive(), returnsNormally);
-      });
-    });
+      group('Input Personalization', () {
+        test('statusInputPersonalization returns a boolean', () {
+          expect(service.statusInputPersonalization, isA<bool>());
+        });
 
-    group('Legacy Balloon', () {
-      test('statusLegacyBalloon returns a boolean', () {
-        expect(service.statusLegacyBalloon, isA<bool>());
-      });
+        test('enableInputPersonalization completes without error', () async {
+          await expectLater(service.enableInputPersonalization(), completes);
+        });
 
-      test('enableLegacyBalloon completes without error', () async {
-        expect(() => service.enableLegacyBalloon(), returnsNormally);
-      });
-
-      test('disableLegacyBalloon completes without error', () async {
-        expect(() => service.disableLegacyBalloon(), returnsNormally);
-      });
-    });
-
-    group('Input Personalization', () {
-      test('statusInputPersonalization returns a boolean', () {
-        expect(service.statusInputPersonalization, isA<bool>());
+        test('disableInputPersonalization completes without error', () async {
+          await expectLater(service.disableInputPersonalization(), completes);
+        });
       });
 
-      test('enableInputPersonalization completes without error', () {
-        expect(() => service.enableInputPersonalization(), returnsNormally);
+      group('Caps Lock', () {
+        test('statusCapsLock returns a boolean', () {
+          expect(service.statusCapsLock, isA<bool>());
+        });
+
+        test('enableCapsLock completes without error', () async {
+          await expectLater(service.enableCapsLock(), completes);
+        });
+
+        test('disableCapsLock completes without error', () async {
+          await expectLater(service.disableCapsLock(), completes);
+        });
       });
 
-      test('disableInputPersonalization completes without error', () {
-        expect(() => service.disableInputPersonalization(), returnsNormally);
-      });
-    });
+      group('Screen Edge Swipe', () {
+        test('statusScreenEdgeSwipe returns a boolean', () {
+          expect(service.statusScreenEdgeSwipe, isA<bool>());
+        });
 
-    group('Caps Lock', () {
-      test('statusCapsLock returns a boolean', () {
-        expect(service.statusCapsLock, isA<bool>());
-      });
+        test('enableScreenEdgeSwipe completes without error', () async {
+          await expectLater(service.enableScreenEdgeSwipe(), completes);
+        });
 
-      test('enableCapsLock completes without error', () {
-        expect(() => service.enableCapsLock(), returnsNormally);
-      });
-
-      test('disableCapsLock completes without error', () {
-        expect(() => service.disableCapsLock(), returnsNormally);
-      });
-    });
-
-    group('Screen Edge Swipe', () {
-      test('statusScreenEdgeSwipe returns a boolean', () {
-        expect(service.statusScreenEdgeSwipe, isA<bool>());
+        test('disableScreenEdgeSwipe completes without error', () async {
+          await expectLater(service.disableScreenEdgeSwipe(), completes);
+        });
       });
 
-      test('enableScreenEdgeSwipe completes without error', () {
-        expect(() => service.enableScreenEdgeSwipe(), returnsNormally);
+      group('New Context Menu', () {
+        test('statusNewContextMenu returns a boolean', () {
+          expect(service.statusNewContextMenu, isA<bool>());
+        });
+
+        test('enableNewContextMenu completes without error', () async {
+          await expectLater(service.enableNewContextMenu(), completes);
+        });
+
+        test('disableNewContextMenu completes without error', () async {
+          await expectLater(service.disableNewContextMenu(), completes);
+        });
       });
 
-      test('disableScreenEdgeSwipe completes without error', () {
-        expect(() => service.disableScreenEdgeSwipe(), returnsNormally);
-      });
-    });
+      group('Service Instance', () {
+        test('UsabilityService can be instantiated', () {
+          expect(() => const UsabilityServiceImpl(), returnsNormally);
+        });
 
-    group('New Context Menu', () {
-      test('statusNewContextMenu returns a boolean', () {
-        expect(service.statusNewContextMenu, isA<bool>());
-      });
+        test('UsabilityService is const constructible', () {
+          const service1 = UsabilityServiceImpl();
+          const service2 = UsabilityServiceImpl();
+          expect(identical(service1, service2), isTrue);
+        });
 
-      test('enableNewContextMenu completes without error', () async {
-        expect(() => service.enableNewContextMenu(), returnsNormally);
-      });
+        test('Multiple instances behave identically', () {
+          const service1 = UsabilityServiceImpl();
+          const service2 = UsabilityServiceImpl();
 
-      test('disableNewContextMenu completes without error', () async {
-        expect(() => service.disableNewContextMenu(), returnsNormally);
-      });
-    });
-
-    group('Service Instance', () {
-      test('UsabilityService can be instantiated', () {
-        expect(() => const UsabilityServiceImpl(), returnsNormally);
-      });
-
-      test('UsabilityService is const constructible', () {
-        const service1 = UsabilityServiceImpl();
-        const service2 = UsabilityServiceImpl();
-        expect(identical(service1, service2), isTrue);
+          expect(
+            service1.statusNotification,
+            equals(service2.statusNotification),
+          );
+          expect(
+            service1.statusLegacyBalloon,
+            equals(service2.statusLegacyBalloon),
+          );
+          expect(service1.statusCapsLock, equals(service2.statusCapsLock));
+        });
       });
 
-      test('Multiple instances behave identically', () {
-        const service1 = UsabilityServiceImpl();
-        const service2 = UsabilityServiceImpl();
+      group('Method Return Types', () {
+        test('All status getters return correct types', () {
+          expect(service.statusNotification, isA<NotificationMode>());
+          expect(service.statusLegacyBalloon, isA<bool>());
+          expect(service.statusInputPersonalization, isA<bool>());
+          expect(service.statusCapsLock, isA<bool>());
+          expect(service.statusScreenEdgeSwipe, isA<bool>());
+          expect(service.statusNewContextMenu, isA<bool>());
+        });
 
-        expect(
-          service1.statusNotification,
-          equals(service2.statusNotification),
-        );
-        expect(
-          service1.statusLegacyBalloon,
-          equals(service2.statusLegacyBalloon),
-        );
-        expect(service1.statusCapsLock, equals(service2.statusCapsLock));
-      });
-    });
-
-    group('Method Return Types', () {
-      test('All status getters return correct types', () {
-        expect(service.statusNotification, isA<NotificationMode>());
-        expect(service.statusLegacyBalloon, isA<bool>());
-        expect(service.statusInputPersonalization, isA<bool>());
-        expect(service.statusCapsLock, isA<bool>());
-        expect(service.statusScreenEdgeSwipe, isA<bool>());
-        expect(service.statusNewContextMenu, isA<bool>());
-      });
-
-      test('Async methods return Future', () {
-        expect(service.enableNotification(), isA<Future<void>>());
-        expect(service.disableNotification(), isA<Future<void>>());
-        expect(service.disableNotificationAggressive(), isA<Future<void>>());
-        expect(service.enableLegacyBalloon(), isA<Future<void>>());
-        expect(service.disableLegacyBalloon(), isA<Future<void>>());
-        expect(service.enableNewContextMenu(), isA<Future<void>>());
-        expect(service.disableNewContextMenu(), isA<Future<void>>());
+        test('All methods return Future', () {
+          expect(service.enableNotification(), isA<Future<void>>());
+          expect(service.disableNotification(), isA<Future<void>>());
+          expect(service.disableNotificationAggressive(), isA<Future<void>>());
+          expect(service.enableLegacyBalloon(), isA<Future<void>>());
+          expect(service.disableLegacyBalloon(), isA<Future<void>>());
+          expect(service.enableNewContextMenu(), isA<Future<void>>());
+          expect(service.disableNewContextMenu(), isA<Future<void>>());
+          expect(service.enableInputPersonalization(), isA<Future<void>>());
+          expect(service.disableInputPersonalization(), isA<Future<void>>());
+          expect(service.enableCapsLock(), isA<Future<void>>());
+          expect(service.disableCapsLock(), isA<Future<void>>());
+          expect(service.enableScreenEdgeSwipe(), isA<Future<void>>());
+          expect(service.disableScreenEdgeSwipe(), isA<Future<void>>());
+        });
       });
 
-      test('Sync methods return void', () {
-        expect(() => service.enableInputPersonalization(), returnsNormally);
-        expect(() => service.disableInputPersonalization(), returnsNormally);
-        expect(() => service.enableCapsLock(), returnsNormally);
-        expect(() => service.disableCapsLock(), returnsNormally);
-        expect(() => service.enableScreenEdgeSwipe(), returnsNormally);
-        expect(() => service.disableScreenEdgeSwipe(), returnsNormally);
+      group('NotificationMode Enum', () {
+        test('NotificationMode has all expected values', () {
+          expect(NotificationMode.values.length, equals(3));
+          expect(NotificationMode.values, contains(NotificationMode.on));
+          expect(
+            NotificationMode.values,
+            contains(NotificationMode.offMinimal),
+          );
+          expect(NotificationMode.values, contains(NotificationMode.offFull));
+        });
       });
-    });
-
-    group('NotificationMode Enum', () {
-      test('NotificationMode has all expected values', () {
-        expect(NotificationMode.values.length, equals(3));
-        expect(NotificationMode.values, contains(NotificationMode.on));
-        expect(NotificationMode.values, contains(NotificationMode.offMinimal));
-        expect(NotificationMode.values, contains(NotificationMode.offFull));
-      });
-    });
-  });
+    },
+  );
 
   group('UsabilityService - Mocked (CI Safe)', () {
     late MockUsabilityService mockService;
@@ -256,22 +267,24 @@ void main() {
 
       test(
         'enableInputPersonalization can be called without system changes',
-        () {
-          when(() => mockService.enableInputPersonalization()).thenReturn(null);
+        () async {
+          when(
+            () => mockService.enableInputPersonalization(),
+          ).thenAnswer((_) async => Future.value());
 
-          mockService.enableInputPersonalization();
+          await mockService.enableInputPersonalization();
           verify(() => mockService.enableInputPersonalization()).called(1);
         },
       );
 
       test(
         'disableInputPersonalization can be called without system changes',
-        () {
+        () async {
           when(
             () => mockService.disableInputPersonalization(),
-          ).thenReturn(null);
+          ).thenAnswer((_) async => Future.value());
 
-          mockService.disableInputPersonalization();
+          await mockService.disableInputPersonalization();
           verify(() => mockService.disableInputPersonalization()).called(1);
         },
       );
@@ -283,17 +296,21 @@ void main() {
         expect(mockService.statusCapsLock, isTrue);
       });
 
-      test('enableCapsLock can be called without system changes', () {
-        when(() => mockService.enableCapsLock()).thenReturn(null);
+      test('enableCapsLock can be called without system changes', () async {
+        when(
+          () => mockService.enableCapsLock(),
+        ).thenAnswer((_) async => Future.value());
 
-        mockService.enableCapsLock();
+        await mockService.enableCapsLock();
         verify(() => mockService.enableCapsLock()).called(1);
       });
 
-      test('disableCapsLock can be called without system changes', () {
-        when(() => mockService.disableCapsLock()).thenReturn(null);
+      test('disableCapsLock can be called without system changes', () async {
+        when(
+          () => mockService.disableCapsLock(),
+        ).thenAnswer((_) async => Future.value());
 
-        mockService.disableCapsLock();
+        await mockService.disableCapsLock();
         verify(() => mockService.disableCapsLock()).called(1);
       });
     });
@@ -304,19 +321,29 @@ void main() {
         expect(mockService.statusScreenEdgeSwipe, isFalse);
       });
 
-      test('enableScreenEdgeSwipe can be called without system changes', () {
-        when(() => mockService.enableScreenEdgeSwipe()).thenReturn(null);
+      test(
+        'enableScreenEdgeSwipe can be called without system changes',
+        () async {
+          when(
+            () => mockService.enableScreenEdgeSwipe(),
+          ).thenAnswer((_) async => Future.value());
 
-        mockService.enableScreenEdgeSwipe();
-        verify(() => mockService.enableScreenEdgeSwipe()).called(1);
-      });
+          await mockService.enableScreenEdgeSwipe();
+          verify(() => mockService.enableScreenEdgeSwipe()).called(1);
+        },
+      );
 
-      test('disableScreenEdgeSwipe can be called without system changes', () {
-        when(() => mockService.disableScreenEdgeSwipe()).thenReturn(null);
+      test(
+        'disableScreenEdgeSwipe can be called without system changes',
+        () async {
+          when(
+            () => mockService.disableScreenEdgeSwipe(),
+          ).thenAnswer((_) async => Future.value());
 
-        mockService.disableScreenEdgeSwipe();
-        verify(() => mockService.disableScreenEdgeSwipe()).called(1);
-      });
+          await mockService.disableScreenEdgeSwipe();
+          verify(() => mockService.disableScreenEdgeSwipe()).called(1);
+        },
+      );
     });
 
     group('New Context Menu', () {
@@ -351,15 +378,17 @@ void main() {
     });
 
     group('Call Order Verification', () {
-      test('can verify method call order', () {
+      test('can verify method call order', () async {
         when(
           () => mockService.statusNotification,
         ).thenReturn(NotificationMode.offMinimal);
-        when(() => mockService.enableCapsLock()).thenReturn(null);
+        when(
+          () => mockService.enableCapsLock(),
+        ).thenAnswer((_) async => Future.value());
         when(() => mockService.statusCapsLock).thenReturn(true);
 
         final notificationStatus = mockService.statusNotification;
-        mockService.enableCapsLock();
+        await mockService.enableCapsLock();
         final capsLockStatus = mockService.statusCapsLock;
 
         expect(notificationStatus, NotificationMode.offMinimal);
