@@ -51,8 +51,8 @@ class _SuperfetchCard extends ConsumerWidget {
 
     return CardHighlight(
       icon: msicons.FluentIcons.top_speed_20_regular,
-      label: context.l10n.perfSuperfetchLabel,
-      description: context.l10n.perfSuperfetchDescription,
+      label: context.l10n.perfRdyBoostLabel,
+      description: context.l10n.perfRdyBoostDescription,
       action: CardToggleSwitch(
         value: status,
         requiresRestart: true,
