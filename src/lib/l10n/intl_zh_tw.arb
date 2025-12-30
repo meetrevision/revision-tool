@@ -113,5 +113,7 @@
   "securityDownfallMitCodeSnippet": "在啟用 Hyper-V（虛擬化）時禁用緩解措施不在此當前實現的範圍內",
   "perfSGMLabel": "服務分組模式",
   "perfSGMDescription": "「Recommended」是 ReviOS 中的預設選項，建議大多數用戶使用。\n「Forced」可大幅減少記憶體使用量，但會導致某些服務無法正常運作，例如 Xbox",
-  "perfSGMDialog": "此選項可能會破壞某些服務，例如 Xbox。使用它需要您自擔風險。可以透過將其改回「Recommended」來恢復"
+  "perfSGMDialog": "此選項可能會破壞某些服務，例如 Xbox。使用它需要您自擔風險。可以透過將其改回「Recommended」來恢復",
+  "perfBWMRLabel": "後台視窗訊息速率限制",
+  "perfBWMRDescription": "控制後台應用程式接收滑鼠和鍵盤輸入更新的頻率。較高的頻率（125 Hz）可提供最佳響應速度，而較低的頻率（50 Hz）可透過減少背景處理來提高效能，但可能會導致熱鍵或空閒偵測出現問題。",
 }
