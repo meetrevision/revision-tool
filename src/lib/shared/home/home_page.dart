@@ -13,11 +13,11 @@ import 'package:revitool/core/security/security_page.dart';
 import 'package:revitool/core/win_updates/updates_page.dart';
 import 'package:revitool/shared/home/navigation_notifier.dart';
 import 'package:revitool/shared/settings/settings_page.dart';
+import 'package:revitool/shared/widgets/card_highlight.dart';
 import 'package:revitool/utils_gui.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:window_plus/window_plus.dart';
 
-import '../widgets/card_button.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -223,29 +223,32 @@ class _HomePageState extends ConsumerState<HomePage> {
 }
 
 final _homeCardButtons = [
-  CardButtonWidget(
+  CardHighlight(
     icon: FluentIcons.git_graph,
-    title: "GitHub",
-    subtitle: "Source Code",
+    label: "GitHub",
+    description: "Source Code",
     onPressed: () async => await run(
       "rundll32 url.dll,FileProtocolHandler https://github.com/meetrevision",
     ),
+    action: const ChevronRightAction(),
   ),
-  CardButtonWidget(
+  CardHighlight(
     icon: msicons.FluentIcons.drink_coffee_20_regular,
-    title: "Donation",
-    subtitle: "Support the project",
+    label: "Donation",
+    description: "Support the project",
     onPressed: () async => await run(
       "rundll32 url.dll,FileProtocolHandler https://revi.cc/donate",
     ),
+    action: const ChevronRightAction(),
   ),
-  CardButtonWidget(
+  CardHighlight(
     icon: msicons.FluentIcons.chat_help_20_regular,
-    title: "Discord",
-    subtitle: "Join our server",
+    label: "Discord",
+    description: "Join our server",
     onPressed: () async => await run(
       "rundll32 url.dll,FileProtocolHandler https://discord.gg/962y4pU",
     ),
+    action: const ChevronRightAction(),
   ),
 ];
 
@@ -261,13 +264,10 @@ class _Home extends StatelessWidget {
           content: const _HomePageContent(),
           bottomBar: Padding(
             padding: const EdgeInsets.only(top: 5.0),
-            child: Flex(
-              direction: Axis.horizontal,
+            child: Row(
               spacing: 5,
               children: _homeCardButtons
-                  .map(
-                    (e) => Expanded(child: LimitedBox(maxHeight: 90, child: e)),
-                  )
+                  .map((e) => Expanded(child: e))
                   .toList(),
             ),
           ),

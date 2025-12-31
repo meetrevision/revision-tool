@@ -37,7 +37,7 @@ class PerformancePage extends ConsumerWidget {
           const _Dot3NamingCard(),
           const _MemoryUsageCard(),
         ],
-      ],
+      ].withSpacing(5),
     );
   }
 }

@@ -28,7 +28,7 @@ class SecurityPage extends ConsumerWidget {
         const _MeltdownSpectreCard(),
         if (WinRegistryService.isIntelCpu || kDebugMode) const _DownfallCard(),
         const _CertificatesCard(),
-      ],
+      ].withSpacing(5),
     );
   }
 }
@@ -206,7 +206,6 @@ class _DownfallCard extends ConsumerWidget {
       icon: msicons.FluentIcons.shield_badge_20_regular,
       label: context.l10n.securityDownfallMitLabel,
       description: context.l10n.securityDownfallMitDescription,
-      codeSnippet: context.l10n.securityDownfallMitCodeSnippet,
       action: CardToggleSwitch(
         value: status,
         requiresRestart: true,
@@ -221,6 +220,9 @@ class _DownfallCard extends ConsumerWidget {
           ref.invalidate(downfallStatusProvider);
         },
       ),
+      children: [
+        Text(context.l10n.securityDownfallMitCodeSnippet),
+      ],
     );
   }
 }

@@ -14,3 +14,25 @@ extension BuildContextExtensions on BuildContext {
     return Navigator.of(this).pop(result);
   }
 }
+
+extension WidgetListSpacing on List<Widget> {
+  /// Adds spacing between widgets in a list.
+  /// 
+  /// Use [direction] to specify Axis.vertical (Column) or Axis.horizontal (Row).
+  List<Widget> withSpacing(double spacing, {Axis direction = Axis.vertical}) {
+    if (isEmpty || spacing == 0) return this;
+    
+    final spacedChildren = <Widget>[];
+    for (int i = 0; i < length; i++) {
+      spacedChildren.add(this[i]);
+      if (i < length - 1) {
+        spacedChildren.add(
+          direction == Axis.vertical
+              ? SizedBox(height: spacing)
+              : SizedBox(width: spacing),
+        );
+      }
+    }
+    return spacedChildren;
+  }
+}
