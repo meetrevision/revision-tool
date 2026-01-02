@@ -1,4 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
+import 'package:flutter/gestures.dart';
+import 'package:process_run/shell_run.dart';
 import 'package:revitool/extensions.dart';
 
 // const cardBorderColorForDark = Color.fromARGB(255, 29, 29, 29);
@@ -24,11 +27,11 @@ class CardHighlight extends StatelessWidget {
     this.icon,
     required this.label,
     this.description,
-    this.codeSnippet,
-    this.backgroundColor,
-    this.borderColor,
+    this.descriptionLink,
     this.image,
     required this.action,
+    this.children,
+    this.onPressed,
   }) : assert(
          icon == null || image == null,
          'Cannot provide both icon and image',
@@ -36,92 +39,150 @@ class CardHighlight extends StatelessWidget {
 
   final IconData? icon;
   final String label;
+
   final String? description;
-  final String? codeSnippet;
-  final Color? backgroundColor;
-  final Color? borderColor;
+  final String? descriptionLink;
+
   final String? image;
   final Widget action;
+  final List<Widget>? children;
+
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
     // Use label hash for stable PageStorageKey to prevent unnecessary rebuilds
     final pageStorageKey = label.hashCode;
 
-    return Column(
+    final expanderWidget = Expander(
       key: PageStorageKey(pageStorageKey),
-      children: [
-        Card(
-          backgroundColor: backgroundColor,
-          borderRadius: _cardBorderRadius,
-          borderColor: borderColor,
-          child: SizedBox(
-            width: double.infinity,
-            child: Align(
-              heightFactor: 1.18,
-              alignment: AlignmentDirectional.center,
-              child: Row(
-                children: [
-                  if (image != null) ...[
-                    const SizedBox(width: 5.0),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(5),
-                      child: Image.network(
-                        image!,
-                        width: _imgXY,
-                        height: _imgXY,
-                        cacheHeight:
-                            (_imgXY * MediaQuery.devicePixelRatioOf(context))
-                                .toInt(),
-                        cacheWidth:
-                            (_imgXY * MediaQuery.devicePixelRatioOf(context))
-                                .toInt(),
-                        filterQuality: FilterQuality.high,
-                      ),
-                    ),
-                    const SizedBox(width: 15.0),
-                  ] else if (icon != null) ...[
-                    const SizedBox(width: 5.0),
-                    Icon(icon, size: 24),
-                    const SizedBox(width: 15.0),
-                  ],
-                  Expanded(
-                    child: InfoLabel(
-                      label: label,
-                      labelStyle: const TextStyle(
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      child: description != null
-                          ? Text(
-                              description!,
-                              style: context.theme.brightness.isDark
-                                  ? _cardDescStyleForDark
-                                  : _cardDescStyleForLight,
-                              overflow: TextOverflow.ellipsis,
-                            )
-                          : const SizedBox(),
-                    ),
-                  ),
-                  const SizedBox(width: 10.0),
 
-                  RepaintBoundary(child: action),
-                ],
+      enabled: children != null,
+      icon: children != null
+          ? null
+          : RepaintBoundary(
+              child: action,
+            ), // action replaces chevron if no children
+      trailing: children != null
+          ? RepaintBoundary(child: action)
+          : null, // when there are children, action goes to trailing and chevron shows up
+
+      leading: image != null
+          ? ClipRRect(
+              borderRadius: _cardBorderRadius,
+              child: Image.network(
+                image!,
+                width: _imgXY,
+                height: _imgXY,
+                cacheHeight: (_imgXY * MediaQuery.devicePixelRatioOf(context))
+                    .toInt(),
+                cacheWidth: (_imgXY * MediaQuery.devicePixelRatioOf(context))
+                    .toInt(),
+                filterQuality: FilterQuality.high,
               ),
+            )
+          : Icon(icon, size: 24),
+      headerShape: (open) => RoundedRectangleBorder(
+        borderRadius: open
+            ? const BorderRadius.only(
+                topLeft: Radius.circular(5.0),
+                topRight: Radius.circular(5.0),
+              )
+            : _cardBorderRadius,
+        side: BorderSide(color: context.theme.resources.cardStrokeColorDefault),
+      ),
+      headerBackgroundColor: WidgetStateProperty.resolveWith((states) {
+        if (states.isHovered) {
+          return context.theme.resources.cardBackgroundFillColorSecondary;
+        }
+        return context.theme.cardColor;
+      }),
+      contentShape: (open) => RoundedRectangleBorder(
+        borderRadius: open
+            ? const BorderRadius.only(
+                bottomLeft: Radius.circular(5.0),
+                bottomRight: Radius.circular(5.0),
+              )
+            : _cardBorderRadius,
+        side: BorderSide(
+          color: context.theme.resources.cardStrokeColorDefault,
+          width: 0.5,
+        ),
+      ),
+      contentBackgroundColor: context.theme.cardColor,
+      header: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 15.2), //102px
+        child: InfoLabel(
+          label: label,
+          labelStyle: const TextStyle(overflow: TextOverflow.ellipsis),
+          child: description != null
+              ? RichText(
+                  text: TextSpan(
+                    text: description!,
+                    style: context.theme.brightness.isDark
+                        ? _cardDescStyleForDark
+                        : _cardDescStyleForLight,
+                    children: descriptionLink != null
+                        ? [
+                            const TextSpan(text: ' '),
+
+                            TextSpan(
+                              text: 'More about ${label.toLowerCase()}',
+                              style: TextStyle(
+                                color: context.theme.accentColor.lightest,
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () async {
+                                  await run(
+                                    "rundll32 url.dll,FileProtocolHandler $descriptionLink",
+                                  );
+                                },
+                            ),
+                          ]
+                        : [],
+                  ),
+                )
+              : const SizedBox(),
+        ),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 50, vertical: 9),
+      content: children != null
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: children!,
+            )
+          : const SizedBox.shrink(),
+    );
+
+    // Only wrap in HoverButton when non-expandable
+    if (children == null && action is ChevronRightAction) {
+      return HoverButton(
+        key: PageStorageKey(pageStorageKey),
+        onPressed: onPressed,
+        hitTestBehavior: HitTestBehavior.deferToChild,
+        builder: (_, states) => FocusBorder(
+          focused: states.isFocused,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: states.isHovered
+                  ? context.theme.resources.cardBackgroundFillColorSecondary
+                  : null,
+              borderRadius: _cardBorderRadius,
             ),
+            child: IgnorePointer(
+              child: expanderWidget,
+            ), // disabled Expander inside is absorbing pointer events, preventing the HoverButton's onPressed execution. IgnorePointer fixes this.
           ),
         ),
-        if (codeSnippet != null) ...[
-          _CardHighlightCodeSnippet(
-            pageStorageKey: pageStorageKey,
-            codeSnippet: codeSnippet!,
-          ),
-        ],
-        const SizedBox(height: 5.0),
-      ],
-    );
+      );
+    }
+
+    return expanderWidget;
   }
 }
 
+/// A toggle switch widget used in [CardHighlight] for actions.
 class CardToggleSwitch extends StatelessWidget {
   const CardToggleSwitch({
     super.key,
@@ -152,6 +213,15 @@ class CardToggleSwitch extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class ChevronRightAction extends StatelessWidget {
+  const ChevronRightAction({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Icon(msicons.FluentIcons.chevron_right_20_regular);
   }
 }
 
@@ -231,36 +301,3 @@ const _fluentHighlightTheme = {
   'strong': TextStyle(fontWeight: FontWeight.bold),
   'emphasis': TextStyle(fontStyle: FontStyle.italic),
 };
-
-class _CardHighlightCodeSnippet extends StatelessWidget {
-  const _CardHighlightCodeSnippet({
-    required this.pageStorageKey,
-    required this.codeSnippet,
-  });
-
-  final int pageStorageKey;
-  final String codeSnippet;
-
-  @override
-  Widget build(BuildContext context) {
-    return StatefulBuilder(
-      builder: (context, setState) {
-        return Card(
-          padding: const EdgeInsets.all(0),
-          backgroundColor: Colors.transparent,
-          child: Expander(
-            key: PageStorageKey(pageStorageKey),
-            headerShape: (open) => const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(4.0)),
-            ),
-            onStateChanged: (state) {
-              setState(() {});
-            },
-            header: Text(context.l10n.moreInformation),
-            content: Text(codeSnippet),
-          ),
-        );
-      },
-    );
-  }
-}

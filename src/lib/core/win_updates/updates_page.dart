@@ -14,7 +14,11 @@ class WinUpdatesPage extends ConsumerWidget {
     return ScaffoldPage.scrollable(
       padding: kScaffoldPagePadding,
       header: PageHeader(title: Text(context.l10n.pageUpdates)),
-      children: const [_PauseUpdatesCard(), _VisibilityCard(), _DriversCard()],
+      children: const [
+        _PauseUpdatesCard(),
+        _VisibilityCard(),
+        _DriversCard(),
+      ].withSpacing(5),
     );
   }
 }

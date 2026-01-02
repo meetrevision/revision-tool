@@ -27,7 +27,7 @@ class UsabilityPage extends ConsumerWidget {
           const Subtitle(content: Text("Windows 11")),
           const _NewContextMenuCard(),
         ],
-      ],
+      ].withSpacing(5),
     );
   }
 }

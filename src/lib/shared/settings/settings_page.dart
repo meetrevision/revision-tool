@@ -40,7 +40,7 @@ class SettingsPage extends ConsumerWidget {
         _ExperimentalCard(),
         _UpdateCard(),
         _LanguageCard(),
-      ],
+      ].withSpacing(5),
     );
   }
 }

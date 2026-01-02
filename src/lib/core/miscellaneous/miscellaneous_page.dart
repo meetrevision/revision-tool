@@ -25,7 +25,7 @@ class MiscellaneousPage extends ConsumerWidget {
         const _MPOCard(),
         const _UsageReportingCard(),
         const _UpdateKGLCard(),
-      ],
+      ].withSpacing(5),
     );
   }
 }
@@ -118,7 +118,6 @@ class _MPOCard extends ConsumerWidget {
     return CardHighlight(
       icon: msicons.FluentIcons.window_settings_20_regular,
       label: context.l10n.miscMpoLabel,
-      codeSnippet: context.l10n.miscMpoCodeSnippet,
       action: CardToggleSwitch(
         value: status,
         onChanged: (value) async {
@@ -128,6 +127,7 @@ class _MPOCard extends ConsumerWidget {
           ref.invalidate(mpoStatusProvider);
         },
       ),
+      children: [Text(context.l10n.miscMpoCodeSnippet)],
     );
   }
 }

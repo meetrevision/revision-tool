@@ -144,11 +144,12 @@ class MyApp extends ConsumerWidget {
             cardStrokeColorDefault: ref
                 .watch(appSettingsProvider.notifier)
                 .effectColor(
-                  const Color.fromARGB(255, 29, 29, 29),
+                  const Color(0xFF1D1D1D),
                   modifyColors: true,
                 )!,
+           cardBackgroundFillColorSecondary: const Color(0xFF323232),
           ),
-        ),
+        ),  
         theme: FluentThemeData(
           accentColor: getSystemAccentColor(accent),
           visualDensity: VisualDensity.standard,
@@ -165,6 +166,7 @@ class MyApp extends ConsumerWidget {
           ),
           resources: const ResourceDictionary.light(
             cardStrokeColorDefault: Color.fromARGB(255, 229, 229, 229),
+            cardBackgroundFillColorSecondary: Color(0xFFF6F6F6),
           ),
         ), // TODO: make it compatible with windoweffect
         home: _isSupported ? const HomePage() : const _UnsupportedError(),
