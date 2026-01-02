@@ -29,6 +29,7 @@ abstract class SecurityService {
   bool get statusDefenderProtectionTamper;
   bool get statusDefenderProtectionRealtime;
   bool get statusUAC;
+  bool get statusHVCI;
 
   Future<ProcessResult> openDefenderThreatSettings();
   Future<void> enableDefender();
@@ -39,6 +40,8 @@ abstract class SecurityService {
   Future<void> enableMitigation(Mitigation mitigation);
   Future<void> disableMitigation(Mitigation mitigation);
   Future<void> updateCertificates();
+  Future<void> enableHVCI();
+  Future<void> disableHVCI();
 }
 
 /// Implementation of SecurityService
@@ -119,6 +122,57 @@ class SecurityServiceImpl implements SecurityService {
     return await Process.run('start', [
       'windowsdefender://threatsettings',
     ], runInShell: true);
+  }
+
+  @override
+  bool get statusHVCI {
+    final hvci = WinRegistryService.readInt(
+      RegistryHive.localMachine,
+      r'SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity',
+      'Enabled',
+    );
+
+    final vbs = WinRegistryService.readInt(
+      RegistryHive.localMachine,
+      r'SYSTEM\CurrentControlSet\Control\DeviceGuard',
+      'EnableVirtualizationBasedSecurity',
+    );
+
+    return hvci == 1 && vbs == 1;
+  }
+
+  @override
+  Future<void> enableHVCI() async {
+    await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\CurrentControlSet\Control\DeviceGuard',
+        'EnableVirtualizationBasedSecurity',
+        1,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity',
+        'Enabled',
+        1,
+      ),
+    ]);
+  }
+
+  @override
+  Future<void> disableHVCI() async {
+    await WinRegistryService.writeRegistryValue(
+      Registry.localMachine,
+      r'SYSTEM\CurrentControlSet\Control\DeviceGuard',
+      'EnableVirtualizationBasedSecurity',
+      0,
+    );
+    await WinRegistryService.writeRegistryValue(
+      Registry.localMachine,
+      r'SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity',
+      'Enabled',
+      0,
+    );
   }
 
   @override
@@ -298,11 +352,6 @@ class SecurityServiceImpl implements SecurityService {
           Registry.localMachine,
           r'SYSTEM\ControlSet001\Control\CI\Config',
           'VulnerableDriverBlocklistEnable',
-        ),
-        WinRegistryService.deleteValue(
-          Registry.localMachine,
-          r'SYSTEM\ControlSet001\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity',
-          'Enabled',
         ),
         WinRegistryService.writeRegistryValue(
           Registry.localMachine,
@@ -664,4 +713,9 @@ bool downfallStatus(Ref ref) {
   return ref
       .watch(securityServiceProvider)
       .isMitigationEnabled(Mitigation.downfall);
+}
+
+@riverpod
+bool hvciStatus(Ref ref) {
+  return ref.watch(securityServiceProvider).statusHVCI;
 }

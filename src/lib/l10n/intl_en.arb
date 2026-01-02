@@ -113,5 +113,8 @@
   "msstoreSearchingPackages": "Searching for packages",
   "msstoreWait": "Please wait...",
   "msstorePackagesPrompt": "Would you like to install the following packages?",
-  "msstorePackagesNotFound": "No packages were found"
+  "msstorePackagesNotFound": "No packages were found",
+  "securityHVCILabel": "Memory Integrity",
+  "securityHVCIDescription": "Protects your system preventing malicious code from running in memory, disabling this may lead to better performance",
+  "securityDownfallHVCISnippet": "Enabled can fix compatibility issues with some anti-cheat systems, such as Riot Vanguard"
 }

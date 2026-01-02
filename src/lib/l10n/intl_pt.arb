@@ -102,5 +102,8 @@
   "msstoreSearchingPackages": "Procurando por pacotes",
   "msstoreWait": "Por favor, aguarde...",
   "msstorePackagesPrompt": "Você gostaria de instalar os seguintes pacotes?",
-  "msstorePackagesNotFound": "Nenhum pacote foi encontrado"
+  "msstorePackagesNotFound": "Nenhum pacote foi encontrado",
+  "securityHVCILabel": "Integridade da memória",
+  "securityHVCIDescription": "Impede a execução de código malicioso na memória. Desativar essa função pode resultar em melhor desempenho",
+  "securityDownfallHVCISnippet": "Ativar essa opção pode corrigir problemas de compatibilidade com alguns anti-cheat, como o Riot Vanguard"
 }

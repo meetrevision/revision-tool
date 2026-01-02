@@ -25,6 +25,7 @@ class SecurityPage extends ConsumerWidget {
       children: [
         const _DefenderCard(),
         const _UACCard(),
+        const _HVCICard(),
         const _MeltdownSpectreCard(),
         if (WinRegistryService.isIntelCpu || kDebugMode) const _DownfallCard(),
         const _CertificatesCard(),
@@ -164,6 +165,33 @@ class _UACCard extends ConsumerWidget {
           ref.invalidate(uacStatusProvider);
         },
       ),
+    );
+  }
+}
+
+class _HVCICard extends ConsumerWidget {
+  const _HVCICard();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final status = ref.watch(hvciStatusProvider);
+
+    return CardHighlight(
+      icon: msicons.FluentIcons.shield_lock_20_regular,
+      label: context.l10n.securityHVCILabel,
+      description: context.l10n.securityHVCIDescription,
+      action: CardToggleSwitch(
+        value: status,
+        requiresRestart: true,
+        onChanged: (value) async {
+          value
+              ? await ref.read(securityServiceProvider).enableHVCI()
+              : await ref.read(securityServiceProvider).disableHVCI();
+          ref.invalidate(hvciStatusProvider);
+        },
+      ),
+      children: [
+        Text(context.l10n.securityDownfallHVCISnippet),
+      ],
     );
   }
 }

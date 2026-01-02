@@ -9,7 +9,10 @@
     "perfBWMRDescription",
     "perfSGMDialog",
     "miscUpdateKGL",
-    "miscUpdateKGLDescription"
+    "miscUpdateKGLDescription",
+    "securityHVCILabel",
+    "securityHVCIDescription",
+    "securityDownfallHVCISnippet"
   ],
 
   "de": [
@@ -23,7 +26,10 @@
     "perfBWMRDescription",
     "perfSGMDialog",
     "miscUpdateKGL",
-    "miscUpdateKGLDescription"
+    "miscUpdateKGLDescription",
+    "securityHVCILabel",
+    "securityHVCIDescription",
+    "securityDownfallHVCISnippet"
   ],
 
   "fr": [
@@ -37,7 +43,10 @@
     "perfBWMRDescription",
     "perfSGMDialog",
     "miscUpdateKGL",
-    "miscUpdateKGLDescription"
+    "miscUpdateKGLDescription",
+    "securityHVCILabel",
+    "securityHVCIDescription",
+    "securityDownfallHVCISnippet"
   ],
 
   "hu": [
@@ -51,7 +60,10 @@
     "perfBWMRDescription",
     "perfSGMDialog",
     "miscUpdateKGL",
-    "miscUpdateKGLDescription"
+    "miscUpdateKGLDescription",
+    "securityHVCILabel",
+    "securityHVCIDescription",
+    "securityDownfallHVCISnippet"
   ],
 
   "it": [
@@ -65,7 +77,10 @@
     "perfBWMRDescription",
     "perfSGMDialog",
     "miscUpdateKGL",
-    "miscUpdateKGLDescription"
+    "miscUpdateKGLDescription",
+    "securityHVCILabel",
+    "securityHVCIDescription",
+    "securityDownfallHVCISnippet"
   ],
 
   "pt": [
@@ -84,7 +99,10 @@
 
   "pt_BR": [
     "perfBWMRLabel",
-    "perfBWMRDescription"
+    "perfBWMRDescription",
+    "securityHVCILabel",
+    "securityHVCIDescription",
+    "securityDownfallHVCISnippet"
   ],
 
   "ro": [
@@ -98,7 +116,10 @@
     "perfBWMRDescription",
     "perfSGMDialog",
     "miscUpdateKGL",
-    "miscUpdateKGLDescription"
+    "miscUpdateKGLDescription",
+    "securityHVCILabel",
+    "securityHVCIDescription",
+    "securityDownfallHVCISnippet"
   ],
 
   "ru": [
@@ -112,7 +133,10 @@
     "perfBWMRDescription",
     "perfSGMDialog",
     "miscUpdateKGL",
-    "miscUpdateKGLDescription"
+    "miscUpdateKGLDescription",
+    "securityHVCILabel",
+    "securityHVCIDescription",
+    "securityDownfallHVCISnippet"
   ],
 
   "tr": [
@@ -120,7 +144,10 @@
     "perfSGMDescription",
     "perfBWMRLabel",
     "perfBWMRDescription",
-    "perfSGMDialog"
+    "perfSGMDialog",
+    "securityHVCILabel",
+    "securityHVCIDescription",
+    "securityDownfallHVCISnippet"
   ],
 
   "uk": [
@@ -134,16 +161,25 @@
     "perfBWMRDescription",
     "perfSGMDialog",
     "miscUpdateKGL",
-    "miscUpdateKGLDescription"
+    "miscUpdateKGLDescription",
+    "securityHVCILabel",
+    "securityHVCIDescription",
+    "securityDownfallHVCISnippet"
   ],
 
   "zh": [
     "perfBWMRLabel",
-    "perfBWMRDescription"
+    "perfBWMRDescription",
+    "securityHVCILabel",
+    "securityHVCIDescription",
+    "securityDownfallHVCISnippet"
   ],
 
   "zh_TW": [
     "perfBWMRLabel",
-    "perfBWMRDescription"
+    "perfBWMRDescription",
+    "securityHVCILabel",
+    "securityHVCIDescription",
+    "securityDownfallHVCISnippet"
   ]
 }
