@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:revitool/core/miscellaneous/miscellaneous_command.dart';
+import 'package:revitool/features/tweaks/utilities/miscellaneous_command.dart';
 
-import 'package:revitool/core/ms_store/ms_store_command.dart';
-import 'package:revitool/core/miscellaneous/playbook_patches_command.dart';
-import 'package:revitool/core/security/security_command.dart';
-import 'package:revitool/core/winsxs/win_package_command.dart';
-import 'package:revitool/shared/win_registry_service.dart';
+import 'package:revitool/features/ms_store/ms_store_command.dart';
+import 'package:revitool/features/tweaks/utilities/playbook_patches_command.dart';
+import 'package:revitool/features/tweaks/security/security_command.dart';
+import 'package:revitool/features/winsxs/win_package_command.dart';
+import 'package:revitool/core/services/win_registry_service.dart';
 import 'package:revitool/utils.dart';
 
 Future<void> main(List<String> args) async {

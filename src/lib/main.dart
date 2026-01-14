@@ -5,19 +5,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:revitool/core/routing/app_router.dart';
 import 'package:revitool/l10n/generated/localizations.dart';
 
-import 'package:revitool/shared/home/home_page.dart';
-
-import 'package:revitool/shared/settings/app_settings_provider.dart';
-import 'package:revitool/shared/trusted_installer/trusted_installer_service.dart';
-import 'package:revitool/shared/win_registry_service.dart';
+import 'package:revitool/core/settings/app_settings_provider.dart';
+import 'package:revitool/core/trusted_installer/trusted_installer_service.dart';
+import 'package:revitool/core/services/win_registry_service.dart';
 import 'package:revitool/utils.dart';
 import 'package:system_theme/system_theme.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:window_plus/window_plus.dart';
 
-Future<void> main() async {
+String? initialRoute;
+
+Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   const tag = 'gui_main:';
 
@@ -45,6 +46,10 @@ Future<void> main() async {
   if (WinRegistryService.isSupported) {
     _isSupported = true;
     logger.i('$tag supported=$_isSupported');
+  }
+
+  if (args.isNotEmpty && args[0].startsWith('--route=')) {
+    initialRoute = args[0].replaceFirst('--route=', '');
   }
 
   if (WinRegistryService.readString(
@@ -100,7 +105,8 @@ class MyApp extends ConsumerWidget {
     final appSettings = ref.watch(appSettingsProvider);
 
     return SystemThemeBuilder(
-      builder: (context, accent) => FluentApp(
+      builder: (context, accent) => FluentApp.router(
+        routerConfig: appRouter,
         title: 'Revision Tool',
         debugShowCheckedModeBanner: false,
         localizationsDelegates: const [
@@ -143,13 +149,10 @@ class MyApp extends ConsumerWidget {
           resources: ResourceDictionary.dark(
             cardStrokeColorDefault: ref
                 .watch(appSettingsProvider.notifier)
-                .effectColor(
-                  const Color(0xFF1D1D1D),
-                  modifyColors: true,
-                )!,
-           cardBackgroundFillColorSecondary: const Color(0xFF323232),
+                .effectColor(const Color(0xFF1D1D1D), modifyColors: true)!,
+            cardBackgroundFillColorSecondary: const Color(0xFF323232),
           ),
-        ),  
+        ),
         theme: FluentThemeData(
           accentColor: getSystemAccentColor(accent),
           visualDensity: VisualDensity.standard,
@@ -169,7 +172,6 @@ class MyApp extends ConsumerWidget {
             cardBackgroundFillColorSecondary: Color(0xFFF6F6F6),
           ),
         ), // TODO: make it compatible with windoweffect
-        home: _isSupported ? const HomePage() : const _UnsupportedError(),
         builder: (context, child) {
           ref
               .watch(appSettingsProvider.notifier)
@@ -183,28 +185,6 @@ class MyApp extends ConsumerWidget {
             child: child!,
           );
         },
-      ),
-    );
-  }
-}
-
-class _UnsupportedError extends StatelessWidget {
-  const _UnsupportedError();
-
-  @override
-  Widget build(BuildContext context) {
-    return ScaffoldPage(
-      content: ContentDialog(
-        title: const Text("Error"),
-        content: const Text("Unsupported build detected"),
-        actions: [
-          Button(
-            child: const Text('OK'),
-            onPressed: () {
-              WindowPlus.instance.close();
-            },
-          ),
-        ],
       ),
     );
   }

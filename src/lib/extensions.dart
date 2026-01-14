@@ -10,18 +10,18 @@ extension BuildContextExtensions on BuildContext {
 
   FluentThemeData get theme => FluentTheme.of(this);
 
-  void pop<T extends Object?>([T? result]) {
-    return Navigator.of(this).pop(result);
-  }
+  // void pop<T extends Object?>([T? result]) {
+  //   return Navigator.of(this).pop(result);
+  // }
 }
 
 extension WidgetListSpacing on List<Widget> {
   /// Adds spacing between widgets in a list.
-  /// 
+  ///
   /// Use [direction] to specify Axis.vertical (Column) or Axis.horizontal (Row).
   List<Widget> withSpacing(double spacing, {Axis direction = Axis.vertical}) {
     if (isEmpty || spacing == 0) return this;
-    
+
     final spacedChildren = <Widget>[];
     for (int i = 0; i < length; i++) {
       spacedChildren.add(this[i]);

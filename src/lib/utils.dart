@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
 import 'package:ffi/ffi.dart';
-import 'package:revitool/shared/win_registry_service.dart';
+import 'package:revitool/core/services/win_registry_service.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:process_run/shell_run.dart';
 
