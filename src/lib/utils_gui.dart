@@ -1,8 +1,6 @@
-import 'dart:developer' as developer;
-
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:process_run/shell_run.dart';
 import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 import 'package:win32_registry/win32_registry.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,17 +22,7 @@ const kScaffoldPagePadding = EdgeInsets.only(
 );
 
 Future<void> launchURL(String url) async {
-  if (await UrlLauncherPlatform.instance.canLaunch(url)) {
-    await UrlLauncherPlatform.instance.launch(
-      url,
-      useSafariVC: false,
-      useWebView: false,
-      enableJavaScript: false,
-      enableDomStorage: false,
-      universalLinksOnly: false,
-      headers: <String, String>{},
-    );
-  } else {
-    developer.log('Could not launch $url');
-  }
+  if (url.isEmpty) throw ArgumentError('URL cannot be empty');
+  if (Uri.tryParse(url) == null) throw FormatException('Invalid URL: $url');
+  await run("rundll32 url.dll,FileProtocolHandler $url");
 }
