@@ -4,8 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:revitool/core/widgets/card_highlight.dart';
 import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:revitool/extensions.dart';
 import 'package:revitool/features/tweaks/performance/performance_service.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 
 class PresentationSection extends ConsumerWidget {
   const PresentationSection({super.key});
@@ -14,7 +14,7 @@ class PresentationSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CardHighlight(
       icon: msicons.FluentIcons.window_shield_24_regular,
-      label: context.l10n.tweaksPerformancePresentation,
+      label: t.tweaksPerformancePresentation,
       descriptionLink: "https://wiki.special-k.info/en/SwapChain",
       children: const [
         _FullscreenOptimizationCard(),
@@ -33,8 +33,8 @@ class _FullscreenOptimizationCard extends ConsumerWidget {
 
     return CardListTile(
       // icon: msicons.FluentIcons.desktop_20_regular,
-      title: context.l10n.tweaksPerformanceFSO,
-      description: context.l10n.tweaksPerformanceFSODescription,
+      title: t.tweaksPerformanceFSO,
+      description: t.tweaksPerformanceFSODescription,
       trailing: CardToggleSwitch(
         value: status,
         onChanged: (value) async {
@@ -59,8 +59,8 @@ class _WindowedOptimizationCard extends ConsumerWidget {
     final status = ref.watch(windowedOptimizationStatusProvider);
 
     return CardListTile(
-      title: context.l10n.tweaksPerformanceOWG,
-      description: context.l10n.tweaksPerformanceOWGDescription,
+      title: t.tweaksPerformanceOWG,
+      description: t.tweaksPerformanceOWGDescription,
       trailing: CardToggleSwitch(
         enabled: !WinRegistryService.isW11 || kDebugMode,
         value: !WinRegistryService.isW11 ? false : status,
@@ -86,9 +86,9 @@ class _MPOCard extends ConsumerWidget {
     final status = ref.watch(mpoStatusProvider);
 
     return CardListTile(
-      title: context.l10n.tweaksPerformanceMPO,
-      // description: context.l10n.miscMpoCodeSnippet,
-      description: context.l10n.tweaksPerformanceMPODescription,
+      title: t.tweaksPerformanceMPO,
+      // description: t.miscMpoCodeSnippet,
+      description: t.tweaksPerformanceMPODescription,
       trailing: CardToggleSwitch(
         value: status,
         onChanged: (value) async {

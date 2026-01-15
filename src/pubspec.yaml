@@ -13,9 +13,8 @@ dependencies:
     sdk: flutter
 
   # Localization
-  flutter_localizations:
-    sdk: flutter
-  intl: any
+  slang: ^4.11.2
+  slang_flutter: ^4.11.0
 
   # UI
   fluent_ui: ^4.13.0
@@ -74,10 +73,10 @@ dev_dependencies:
   riverpod_generator: ^3.0.3
   mocktail: ^1.0.4
   analysis_server_plugin: ^0.3.3
+  slang_build_runner: ^4.11.0
   
 
 flutter:
-  generate: true
   uses-material-design: true
 
   assets:

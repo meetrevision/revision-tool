@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:revitool/core/routing/app_routes.dart';
 import 'package:revitool/extensions.dart';
 import 'package:revitool/core/widgets/card_highlight.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 import 'package:revitool/utils_gui.dart';
 
 class TweaksPage extends ConsumerWidget {
@@ -17,40 +18,40 @@ class TweaksPage extends ConsumerWidget {
       children: [
         CardHighlight(
           icon: msicons.FluentIcons.shield_lock_20_regular,
-          label: context.l10n.pageTweaksSecurity,
-          description: context.l10n.pageTweaksSecurityDescription,
+          label: t.pageTweaksSecurity,
+          description: t.pageTweaksSecurityDescription,
           onPressed: () => context.push(AppRoutes.security),
           action: const ChevronRightAction(),
         ),
 
         CardHighlight(
           icon: msicons.FluentIcons.top_speed_20_filled,
-          label: context.l10n.pageTweaksPerformance,
-          description: context.l10n.pageTweaksPerformanceDescription,
+          label: t.pageTweaksPerformance,
+          description: t.pageTweaksPerformanceDescription,
           onPressed: () => context.push(AppRoutes.performance),
           action: const ChevronRightAction(),
         ),
 
         CardHighlight(
           icon: msicons.FluentIcons.color_line_20_regular,
-          label: context.l10n.pageTweaksPersonalization,
-          description: context.l10n.pageTweaksPersonalizationDescription,
+          label: t.pageTweaksPersonalization,
+          description: t.pageTweaksPersonalizationDescription,
           onPressed: () => context.push(AppRoutes.personalization),
           action: const ChevronRightAction(),
         ),
 
         CardHighlight(
           icon: msicons.FluentIcons.data_usage_toolbox_20_regular,
-          label: context.l10n.pageTweaksUtilities,
-          description: context.l10n.pageTweaksUtilitiesDescription,
+          label: t.pageTweaksUtilities,
+          description: t.pageTweaksUtilitiesDescription,
           onPressed: () => context.push(AppRoutes.utilities),
           action: const ChevronRightAction(),
         ),
 
         CardHighlight(
           icon: msicons.FluentIcons.arrow_download_20_regular,
-          label: context.l10n.pageTweaksUpdates,
-          description: context.l10n.pageTweaksUpdatesDescription,
+          label: t.pageTweaksUpdates,
+          description: t.pageTweaksUpdatesDescription,
           onPressed: () => context.push(AppRoutes.updates),
           action: const ChevronRightAction(),
         ),

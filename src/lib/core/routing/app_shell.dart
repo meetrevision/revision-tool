@@ -10,6 +10,7 @@ import 'package:revitool/core/widgets/page_header_with_breadcrumbs.dart';
 import 'package:revitool/extensions.dart';
 import 'package:revitool/core/routing/app_routes.dart';
 import 'package:revitool/core/routing/app_router.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:window_plus/window_plus.dart';
 
@@ -79,7 +80,6 @@ class _AppShellState extends ConsumerState<AppShell> {
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasFluentTheme(context));
-    final localizations = FluentLocalizations.of(context);
     final imgCacheSize = (imgXY * MediaQuery.devicePixelRatioOf(context))
         .toInt();
 
@@ -94,13 +94,13 @@ class _AppShellState extends ConsumerState<AppShell> {
           PaneItem(
             key: const ValueKey(AppRoutes.home),
             icon: const Icon(msicons.FluentIcons.home_24_regular, size: 20),
-            title: Text(context.l10n.pageHome),
+            title: Text(t.pageHome),
             body: const SizedBox.shrink(),
           ),
           PaneItem(
             key: const ValueKey(AppRoutes.tweaks),
             icon: const Icon(msicons.FluentIcons.wrench_24_regular, size: 20),
-            title: Text(context.l10n.pageTweaks),
+            title: Text(t.pageTweaks),
             body: const SizedBox.shrink(),
           ),
           PaneItem(
@@ -109,7 +109,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               msicons.FluentIcons.store_microsoft_24_regular,
               size: 20,
             ),
-            title: Text(context.l10n.pageMSStore),
+            title: Text(t.pageMSStore),
             body: const SizedBox.shrink(),
           ),
         ].map<NavigationPaneItem>((e) {
@@ -149,7 +149,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       PaneItem(
         key: const ValueKey(AppRoutes.settings),
         icon: const Icon(msicons.FluentIcons.settings_24_regular, size: 20),
-        title: Text(context.l10n.pageSettings),
+        title: Text(t.pageSettings),
         body: const SizedBox.shrink(),
         onTap: () {
           if (GoRouterState.of(context).uri.toString() != AppRoutes.settings) {
@@ -197,20 +197,12 @@ class _AppShellState extends ConsumerState<AppShell> {
                 ),
               ),
               child: Builder(
-                builder: (context) =>
-                    PaneItem(
-                      icon: const Center(
-                        child: Icon(FluentIcons.back, size: 12.0),
-                      ),
-                      title: Text(localizations.backButtonTooltip),
-                      body: const SizedBox.shrink(),
-                      enabled: enabled,
-                    ).build(
-                      context,
-                      false,
-                      onPressed,
-                      displayMode: PaneDisplayMode.compact,
-                    ),
+                builder: (context) => PaneItem(
+                  icon: const Center(child: Icon(FluentIcons.back, size: 12.0)),
+                  title: const Text("Back"),
+                  body: const SizedBox.shrink(),
+                  enabled: enabled,
+                ).build(context, false, onPressed, displayMode: .compact),
               ),
             );
           }(),
@@ -280,7 +272,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               ),
               focusNode: _searchFocusNode,
               controller: _searchController,
-              placeholder: context.l10n.suggestionBoxPlaceholder,
+              placeholder: t.suggestionBoxPlaceholder,
               items: items.whereType<PaneItem>().map((page) {
                 assert(page.title is Text);
                 final text = (page.title as Text).data!;

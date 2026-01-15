@@ -9,6 +9,7 @@ import 'package:revitool/features/ms_store/widgets/msstore_dialogs.dart';
 import 'package:revitool/features/tweaks/security/sections/hw_mitigation_section.dart';
 import 'package:revitool/features/tweaks/security/sections/system_safeguard_section.dart';
 import 'package:revitool/features/tweaks/security/security_service.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 import 'package:revitool/utils_gui.dart';
 
 class SecurityPage extends ConsumerWidget {
@@ -55,10 +56,10 @@ class _DefenderCard extends ConsumerWidget {
                 await showDialog(
                   context: context,
                   builder: (context) => ContentDialog(
-                    content: Text(context.l10n.restartDialog),
+                    content: Text(t.restartDialog),
                     actions: [
                       Button(
-                        child: Text(context.l10n.okButton),
+                        child: Text(t.okButton),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ],
@@ -73,7 +74,7 @@ class _DefenderCard extends ConsumerWidget {
                     content: Text(e.toString()),
                     actions: [
                       Button(
-                        child: Text(context.l10n.okButton),
+                        child: Text(t.okButton),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ],
@@ -97,10 +98,10 @@ class _DefenderCard extends ConsumerWidget {
                   context: context,
                   builder: (context) {
                     return ContentDialog(
-                      content: Text(context.l10n.securityDialog),
+                      content: Text(t.securityDialog),
                       actions: [
                         Button(
-                          child: Text(context.l10n.okButton),
+                          child: Text(t.okButton),
                           onPressed: () async {
                             ref.invalidate(defenderProtectionsStatusProvider);
                             final updatedStatus = ref.read(
@@ -121,14 +122,14 @@ class _DefenderCard extends ConsumerWidget {
                   },
                 );
               },
-              child: Text(context.l10n.securityWDButton),
+              child: Text(t.securityWDButton),
             ),
           );
 
     return CardHighlight(
       icon: msicons.FluentIcons.shield_20_regular,
-      label: context.l10n.tweaksSecurityDefender,
-      description: context.l10n.tweaksSecurityDefenderDescription,
+      label: t.tweaksSecurityDefender,
+      description: t.tweaksSecurityDefenderDescription,
       action: action,
     );
   }

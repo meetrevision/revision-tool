@@ -1,6 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:go_router/go_router.dart';
-import 'package:revitool/extensions.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 
 class AppRoutes {
   static const String home = '/';
@@ -20,13 +20,13 @@ class AppRoutes {
   static String getRouteName(String path, BuildContext context) {
     switch (path) {
       case home:
-        return context.l10n.pageHome;
+        return t.pageHome;
       case tweaks:
-        return context.l10n.pageTweaks;
+        return t.pageTweaks;
       case msStore:
-        return context.l10n.pageMSStore;
+        return t.pageMSStore;
       case settings:
-        return context.l10n.pageSettings;
+        return t.pageSettings;
       default:
         final segment = path.split('/').last;
         return segment.isEmpty ? 'Home' : segment.capitalize();

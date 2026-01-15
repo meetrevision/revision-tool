@@ -5,6 +5,7 @@ import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
 import 'package:ffi/ffi.dart';
 import 'package:revitool/core/services/win_registry_service.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:process_run/shell_run.dart';
 
@@ -27,7 +28,7 @@ String appLanguage =
       r'SOFTWARE\Revision\Revision Tool',
       'Language',
     ) ??
-    'en_US';
+    AppLocale.en.name;
 
 final ameTemp = path.join(
   Directory.systemTemp.path,

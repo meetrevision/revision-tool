@@ -9,6 +9,7 @@ import 'package:revitool/features/tweaks/performance/performance_service.dart';
 import 'package:revitool/features/tweaks/performance/sections/background_priority_section.dart';
 import 'package:revitool/features/tweaks/performance/sections/memory_storage_section.dart';
 import 'package:revitool/features/tweaks/performance/sections/presentation_section.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 import 'package:revitool/utils_gui.dart';
 
 class PerformancePage extends ConsumerWidget {
@@ -40,8 +41,8 @@ class _IntelTSXCard extends ConsumerWidget {
 
     return CardHighlight(
       icon: msicons.FluentIcons.transmission_20_regular,
-      label: context.l10n.tweaksPerformanceIntelTSX,
-      description: context.l10n.tweaksPerformanceIntelTSXDescription,
+      label: t.tweaksPerformanceIntelTSX,
+      description: t.tweaksPerformanceIntelTSXDescription,
       action: CardToggleSwitch(
         value: status,
         requiresRestart: true,
@@ -64,8 +65,8 @@ class _CStatesCard extends ConsumerWidget {
 
     return CardHighlight(
       icon: msicons.FluentIcons.sleep_20_regular,
-      label: context.l10n.tweaksPerformanceCStates,
-      description: context.l10n.tweaksPerformanceCStatesDescription,
+      label: t.tweaksPerformanceCStates,
+      description: t.tweaksPerformanceCStatesDescription,
       action: CardToggleSwitch(
         value: status,
         onChanged: (value) async {

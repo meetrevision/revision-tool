@@ -1,10 +1,10 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
-import 'package:revitool/extensions.dart';
 import 'package:revitool/features/tweaks/personalization/personalization_service.dart';
 
 import 'package:revitool/core/widgets/card_highlight.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 
 class DesktopSection extends StatelessWidget {
   const DesktopSection({super.key});
@@ -13,8 +13,8 @@ class DesktopSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return CardHighlight(
       icon: msicons.FluentIcons.desktop_20_regular,
-      label: context.l10n.pageTweaksDesktop,
-      description: context.l10n.pageTweaksDesktopDescription,
+      label: t.pageTweaksDesktop,
+      description: t.pageTweaksDesktopDescription,
       children: const [
         _NotificationCard(),
         _LegacyBalloonCard(),
@@ -33,8 +33,8 @@ class _NotificationCard extends ConsumerWidget {
 
     return CardListTile(
       // icon: msicons.FluentIcons.alert_20_regular,
-      title: context.l10n.tweaksPersonalizationNotifications,
-      description: context.l10n.tweaksPersonalizationNotificationsDescription,
+      title: t.tweaksPersonalizationNotifications,
+      description: t.tweaksPersonalizationNotificationsDescription,
       trailing: ComboBox<NotificationMode>(
         value: status,
         onChanged: (value) async {
@@ -86,10 +86,8 @@ class _LegacyBalloonCard extends ConsumerWidget {
 
     return CardListTile(
       // icon: msicons.FluentIcons.balloon_20_regular,
-      title: context.l10n.tweaksPersonalizationLegacyNotificationBalloons,
-      description: context
-          .l10n
-          .tweaksPersonalizationLegacyNotificationBalloonsDescription,
+      title: t.tweaksPersonalizationLegacyNotificationBalloons,
+      description: t.tweaksPersonalizationLegacyNotificationBalloonsDescription,
       trailing: CardToggleSwitch(
         value: status,
         onChanged: (value) async {
@@ -114,8 +112,8 @@ class _ScreenEdgeSwipeCard extends ConsumerWidget {
     final status = ref.watch(screenEdgeSwipeStatusProvider);
 
     return CardListTile(
-      title: context.l10n.tweaksPersonalizationScreenEdgeSwipe,
-      description: context.l10n.tweaksPersonalizationScreenEdgeSwipeDescription,
+      title: t.tweaksPersonalizationScreenEdgeSwipe,
+      description: t.tweaksPersonalizationScreenEdgeSwipeDescription,
       trailing: CardToggleSwitch(
         value: status,
         onChanged: (value) async {
@@ -140,7 +138,7 @@ class _NewContextMenuCard extends ConsumerWidget {
     final status = ref.watch(newContextMenuStatusProvider);
 
     return CardListTile(
-      title: context.l10n.tweaksPersonalizationNewContextMenu,
+      title: t.tweaksPersonalizationNewContextMenu,
       trailing: CardToggleSwitch(
         value: status,
         onChanged: (value) async {

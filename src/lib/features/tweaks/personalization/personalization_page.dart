@@ -6,6 +6,7 @@ import 'package:revitool/core/widgets/card_highlight.dart';
 import 'package:revitool/extensions.dart';
 import 'package:revitool/features/tweaks/personalization/personalization_service.dart';
 import 'package:revitool/features/tweaks/personalization/sections/desktop_section.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 import 'package:revitool/utils_gui.dart';
 
 class PersonalizationPage extends ConsumerWidget {
@@ -32,10 +33,9 @@ class _InputPersonalizationCard extends ConsumerWidget {
 
     return CardHighlight(
       icon: msicons.FluentIcons.keyboard_20_regular,
-      label: context.l10n.tweaksPersonalizationInkingAndTypingPersonalization,
-      description: context
-          .l10n
-          .tweaksPersonalizationInkingAndTypingPersonalizationDescription,
+      label: t.tweaksPersonalizationInkingAndTypingPersonalization,
+      description:
+          t.tweaksPersonalizationInkingAndTypingPersonalizationDescription,
       action: CardToggleSwitch(
         value: status,
         onChanged: (value) async {
@@ -61,7 +61,7 @@ class _CapsLockCard extends ConsumerWidget {
 
     return CardHighlight(
       icon: WindowsIcons.keyboard_left_dock,
-      label: context.l10n.tweaksPersonalizationCapsLock,
+      label: t.tweaksPersonalizationCapsLock,
       action: CardToggleSwitch(
         value: status,
         onChanged: (value) async {

@@ -2,12 +2,12 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:revitool/features/ms_store/msstore_service.dart';
 import 'package:revitool/features/ms_store/packages_info_dto.dart';
 import 'package:revitool/features/ms_store/search_response_dto.dart';
-import 'package:revitool/extensions.dart';
 import 'package:revitool/core/services/win_registry_service.dart';
 
 import 'package:revitool/core/widgets/card_highlight.dart';
 import 'package:revitool/features/ms_store/widgets/msstore_dialogs.dart';
 import 'package:revitool/features/ms_store/widgets/ms_store_packages_download_widget.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 import 'package:revitool/utils_gui.dart';
 
 class MSStorePage extends StatefulWidget {
@@ -35,7 +35,7 @@ class _MSStorePageState extends State<MSStorePage> {
     if (query.startsWith("9") || query.startsWith("XP")) {
       await showInstallDialog(
         context,
-        context.l10n.msstoreSearchingPackages,
+        t.msstoreSearchingPackages,
         query,
         _selectedRing,
       );
@@ -46,7 +46,7 @@ class _MSStorePageState extends State<MSStorePage> {
       // debugPrint(productId);
       await showInstallDialog(
         context,
-        context.l10n.msstoreSearchingPackages,
+        t.msstoreSearchingPackages,
         productId,
         _selectedRing,
       );
@@ -76,7 +76,7 @@ class _MSStorePageState extends State<MSStorePage> {
             Expanded(
               child: TextBox(
                 controller: _textEditingController,
-                placeholder: context.l10n.search,
+                placeholder: t.search,
                 expands: false,
                 onSubmitted: (value) async => await _onSearchButtonPressed(),
               ),
@@ -97,11 +97,11 @@ class _MSStorePageState extends State<MSStorePage> {
               image: product.iconUrl!,
               description: product.description,
               action: FilledButton(
-                child: Text(context.l10n.install),
+                child: Text(t.install),
                 onPressed: () async {
                   await showInstallDialog(
                     context,
-                    context.l10n.msstoreSearchingPackages,
+                    t.msstoreSearchingPackages,
                     product.productId!,
                     _selectedRing,
                   );
@@ -121,7 +121,7 @@ class _MSStorePageState extends State<MSStorePage> {
     String ring,
   ) async {
     try {
-      showLoadingDialog(context, context.l10n.msstoreSearchingPackages);
+      showLoadingDialog(context, t.msstoreSearchingPackages);
 
       await _msStoreService.startProcess(productID, _selectedRing);
 
@@ -143,7 +143,7 @@ class _MSStorePageState extends State<MSStorePage> {
             content: Text("$e"),
             actions: [
               Button(
-                child: Text(context.l10n.close),
+                child: Text(t.close),
                 onPressed: () => Navigator.pop(context),
               ),
             ],
@@ -183,7 +183,7 @@ class _MSStorePageState extends State<MSStorePage> {
       context: context,
       builder: (context) => ContentDialog(
         constraints: const BoxConstraints(maxWidth: 600),
-        title: Text(context.l10n.msstorePackagesPrompt),
+        title: Text(t.msstorePackagesPrompt),
         content: TreeView(
           selectionMode: TreeViewSelectionMode.multiple,
           shrinkWrap: true,
@@ -191,7 +191,7 @@ class _MSStorePageState extends State<MSStorePage> {
         ),
         actions: [
           FilledButton(
-            child: Text(context.l10n.okButton),
+            child: Text(t.okButton),
             onPressed: () async {
               final downloadList = <MSStorePackagesInfoDTO>[];
               for (final item in items) {
@@ -223,7 +223,7 @@ class _MSStorePageState extends State<MSStorePage> {
             },
           ),
           Button(
-            child: Text(context.l10n.close),
+            child: Text(t.close),
             onPressed: () => Navigator.pop(context, 'User canceled dialog'),
           ),
         ],

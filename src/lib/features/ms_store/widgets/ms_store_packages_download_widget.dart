@@ -6,7 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:revitool/features/ms_store/msstore_service.dart';
 import 'package:revitool/features/ms_store/packages_info_dto.dart';
 import 'package:revitool/features/ms_store/widgets/msstore_dialogs.dart';
-import 'package:revitool/extensions.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 
 class MsStorePackagesDownloadWidget extends StatefulWidget {
   final List<MSStorePackagesInfoDTO> items;
@@ -101,9 +101,9 @@ class _MsStorePackagesDownloadWidgetState
           actions: [
             if (_completedDownloadsCount == itemsLength) ...[
               FilledButton(
-                child: Text(context.l10n.install),
+                child: Text(t.install),
                 onPressed: () async {
-                  showLoadingDialog(context, context.l10n.installing);
+                  showLoadingDialog(context, t.installing);
 
                   final processResult = <ProcessResult>[];
                   processResult.addAll(
@@ -121,16 +121,13 @@ class _MsStorePackagesDownloadWidgetState
                 },
               ),
               Button(
-                child: Text(context.l10n.close),
+                child: Text(t.close),
                 onPressed: () => Navigator.pop(context),
               ),
             ] else ...[
               MouseRegion(
                 cursor: SystemMouseCursors.forbidden,
-                child: Button(
-                  child: Text(context.l10n.install),
-                  onPressed: () {},
-                ),
+                child: Button(child: Text(t.install), onPressed: () {}),
               ),
             ],
           ],

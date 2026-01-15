@@ -4,8 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:revitool/core/widgets/card_highlight.dart';
 import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:revitool/extensions.dart';
 import 'package:revitool/features/tweaks/security/security_service.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 
 class HardwareMitigationsSection extends StatelessWidget {
   const HardwareMitigationsSection({super.key});
@@ -14,8 +14,8 @@ class HardwareMitigationsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return CardHighlight(
       icon: msicons.FluentIcons.shield_badge_20_regular,
-      label: context.l10n.tweaksSecurityHWMitigation,
-      description: context.l10n.tweaksSecurityHWMitigationDescription,
+      label: t.tweaksSecurityHWMitigation,
+      description: t.tweaksSecurityHWMitigationDescription,
       initiallyExpanded: true,
       children: const [_MeltdownSpectreCard(), _DownfallCard()],
     );
@@ -30,8 +30,8 @@ class _MeltdownSpectreCard extends ConsumerWidget {
 
     return CardListTile(
       // icon: msicons.FluentIcons.shield_badge_20_regular,
-      title: context.l10n.tweaksSecuritySMitigation,
-      description: context.l10n.tweaksSecuritySMitigationDescription,
+      title: t.tweaksSecuritySMitigation,
+      description: t.tweaksSecuritySMitigationDescription,
 
       trailing: CardToggleSwitch(
         value: status,
@@ -59,8 +59,8 @@ class _DownfallCard extends ConsumerWidget {
 
     return CardListTile(
       // icon: msicons.FluentIcons.shield_badge_20_regular,
-      title: context.l10n.tweaksSecurityDownfallMitigation,
-      description: context.l10n.tweaksSecurityDownfallMitigationDescription,
+      title: t.tweaksSecurityDownfallMitigation,
+      description: t.tweaksSecurityDownfallMitigationDescription,
       trailing: CardToggleSwitch(
         enabled: WinRegistryService.isIntelCpu || kDebugMode,
         value: WinRegistryService.isAmdCpu ? false : status,

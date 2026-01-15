@@ -3,6 +3,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter/gestures.dart';
 import 'package:revitool/extensions.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 import 'package:revitool/utils_gui.dart';
 
 // const cardBorderColorForDark = Color.fromARGB(255, 29, 29, 29);
@@ -217,8 +218,7 @@ class CardListTile extends StatelessWidget {
                   ? [
                       if (description != null) const TextSpan(text: '. '),
                       TextSpan(
-                        text:
-                            '${context.l10n.moreAbout} ${title.toLowerCase()}',
+                        text: '${t.moreAbout} ${title.toLowerCase()}',
                         style: TextStyle(
                           color: context.theme.accentColor.lightest,
                         ),
@@ -279,7 +279,7 @@ class CardToggleSwitch extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          value ? context.l10n.onStatus : context.l10n.offStatus,
+          value ? t.onStatus : t.offStatus,
           style: enabled
               ? null
               : TextStyle(color: context.theme.resources.textFillColorDisabled),
@@ -321,7 +321,7 @@ class CardStatusText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(value ? context.l10n.onStatus : context.l10n.offStatus);
+    return Text(value ? t.onStatus : t.offStatus);
   }
 }
 
@@ -335,10 +335,10 @@ void showRestartDialog(
     context: context,
     builder: (context) => ContentDialog(
       title: title.isEmpty ? null : Text(title),
-      content: Text(content.isEmpty ? context.l10n.restartDialog : content),
+      content: Text(content.isEmpty ? t.restartDialog : content),
       actions: [
         Button(
-          child: Text(context.l10n.okButton),
+          child: Text(t.okButton),
           onPressed: () {
             Navigator.pop(context);
           },

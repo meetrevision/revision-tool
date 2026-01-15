@@ -8,6 +8,7 @@ import 'package:revitool/features/tweaks/updates/updates_service.dart';
 import 'package:revitool/extensions.dart';
 import 'package:revitool/core/widgets/card_highlight.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
+import 'package:revitool/i18n/generated/strings.g.dart';
 import 'package:revitool/utils_gui.dart';
 
 class UpdatesPage extends ConsumerWidget {
@@ -21,7 +22,7 @@ class UpdatesPage extends ConsumerWidget {
       children: [
         const _CertificatesCard(),
         const _UpdateKGLCard(),
-        Subtitle(content: Text(context.l10n.subtitleWindowsUpdates)),
+        Subtitle(content: Text(t.subtitleWindowsUpdates)),
         const _PauseUpdatesCard(),
         const _VisibilityCard(),
         const _DriversCard(),
@@ -37,8 +38,8 @@ class _CertificatesCard extends ConsumerWidget {
     // TODO: move to troubleshooting page
     return CardHighlight(
       icon: msicons.FluentIcons.certificate_20_regular,
-      label: context.l10n.tweaksSecurityCerts,
-      description: context.l10n.tweaksSecurityCertsDescription,
+      label: t.tweaksSecurityCerts,
+      description: t.tweaksSecurityCertsDescription,
       action: SizedBox(
         width: 150,
         child: Button(
@@ -51,17 +52,17 @@ class _CertificatesCard extends ConsumerWidget {
             showDialog(
               context: context,
               builder: (context) => ContentDialog(
-                content: Text(context.l10n.tweaksSecurityCertsUpdateDialog),
+                content: Text(t.tweaksSecurityCertsUpdateDialog),
                 actions: [
                   Button(
-                    child: Text(context.l10n.okButton),
+                    child: Text(t.okButton),
                     onPressed: () => context.pop(),
                   ),
                 ],
               ),
             );
           },
-          child: Text(context.l10n.updateButton),
+          child: Text(t.updateButton),
         ),
       ),
     );
@@ -74,33 +75,30 @@ class _UpdateKGLCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CardHighlight(
       icon: msicons.FluentIcons.xbox_controller_20_regular,
-      label: context.l10n.tweaksUtilitiesUpdateKGL,
-      description: context.l10n.tweaksUtilitiesUpdateKGLDescription,
+      label: t.tweaksUtilitiesUpdateKGL,
+      description: t.tweaksUtilitiesUpdateKGLDescription,
       action: SizedBox(
         width: 150,
         child: Button(
           onPressed: () async {
             String message = "";
             try {
-              showLoadingDialog(
-                context,
-                "${context.l10n.settingsUpdatingStatus} KGL",
-              );
+              showLoadingDialog(context, "${t.settingsUpdatingStatus} KGL");
               await ref.read(updatesServiceProvider).updateKGL();
               if (!context.mounted) return;
-              message = context.l10n.restartDialog;
+              message = t.restartDialog;
             } catch (e) {
               message = e.toString();
             } finally {
               context.pop();
               showRestartDialog(
                 context,
-                title: context.l10n.settingsUpdatingStatusSuccess,
+                title: t.settingsUpdatingStatusSuccess,
                 content: message,
               );
             }
           },
-          child: Text(context.l10n.updateButton),
+          child: Text(t.updateButton),
         ),
       ),
     );
@@ -115,8 +113,8 @@ class _PauseUpdatesCard extends ConsumerWidget {
 
     return CardHighlight(
       icon: msicons.FluentIcons.pause_20_regular,
-      label: context.l10n.tweaksUpdatesWUPause,
-      description: context.l10n.tweaksUpdatesWUPauseDescription,
+      label: t.tweaksUpdatesWUPause,
+      description: t.tweaksUpdatesWUPauseDescription,
       action: CardToggleSwitch(
         value: status,
         onChanged: (value) async {
@@ -138,8 +136,8 @@ class _VisibilityCard extends ConsumerWidget {
 
     return CardHighlight(
       icon: msicons.FluentIcons.arrow_sync_20_regular,
-      label: context.l10n.tweaksUpdatesWUPage,
-      description: context.l10n.tweaksUpdatesWUPageDescription,
+      label: t.tweaksUpdatesWUPage,
+      description: t.tweaksUpdatesWUPageDescription,
       action: CardToggleSwitch(
         value: status,
         onChanged: (value) async {
@@ -161,8 +159,8 @@ class _DriversCard extends ConsumerWidget {
 
     return CardHighlight(
       icon: FluentIcons.devices4,
-      label: context.l10n.tweaksUpdatesWUDrivers,
-      description: context.l10n.tweaksUpdatesWUDriversDescription,
+      label: t.tweaksUpdatesWUDrivers,
+      description: t.tweaksUpdatesWUDriversDescription,
       action: CardToggleSwitch(
         value: status,
         onChanged: (value) async {

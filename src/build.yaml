@@ -1,0 +1,7 @@
+targets:
+  $default:
+    builders:
+      slang_build_runner:
+        enabled: true
+        generate_for:
+          - lib/i18n/*.i18n.json

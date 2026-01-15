@@ -1,10 +1,8 @@
-{
-    "@@locale": "zh",
+﻿{
     "okButton": "确定",
     "notNowButton": "暂不",
     "restartDialog": "您必须重新启动计算机才能使更改生效",
     "moreAbout": "更多关于",
-    "moreInformation": "更多信息",
     "onStatus": "开启",
     "offStatus": "关闭",
     "experimental": "实验性",
@@ -68,7 +66,7 @@
     "securityDialog": "请在完全禁用 Windows Defender 之前禁用所有保护",
     "tweaksSecurityHWMitigation": "内核和硬件缓解措施",
     "tweaksSecurityHWMitigationDescription": "推测执行漏洞缓解措施。性能影响因 CPU 代数而异。",
-    "tweaksSecuritySMitigation": "Spectre & Meltdown 缓解",
+    "tweaksSecuritySMitigation": "Spectre \u0026 Meltdown 缓解",
     "tweaksSecuritySMitigationDescription": "针对可能允许未经授权访问系统内存的推测执行漏洞的防御性补丁",
     "tweaksSecurityDownfallMitigation": "Downfall 缓解",
     "tweaksSecurityDownfallMitigationDescription": "针对某些 Intel 处理器中可能暴露敏感数据的漏洞的保护。目前不支持在启用 Hyper-V（虚拟化）时禁用此保护。",

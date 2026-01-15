@@ -6,6 +6,7 @@ import 'package:revitool/core/widgets/card_highlight.dart';
 
 import 'package:revitool/extensions.dart';
 import 'package:revitool/features/tweaks/utilities/utilities_service.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 import 'package:revitool/utils_gui.dart';
 
 class UtilitiesPage extends ConsumerWidget {
@@ -37,8 +38,8 @@ class _HibernationCard extends ConsumerWidget {
 
     return CardHighlight(
       icon: msicons.FluentIcons.sleep_20_regular,
-      label: context.l10n.tweaksUtilitiesHibernate,
-      description: context.l10n.tweaksUtilitiesHibernateDescription,
+      label: t.tweaksUtilitiesHibernate,
+      description: t.tweaksUtilitiesHibernateDescription,
       action: CardToggleSwitch(
         value: status,
         onChanged: (value) async {
@@ -60,8 +61,8 @@ class _FastStartupCard extends ConsumerWidget {
 
     return CardHighlight(
       icon: msicons.FluentIcons.flash_20_regular,
-      label: context.l10n.tweaksUtilitiesFastStartup,
-      description: context.l10n.tweaksUtilitiesFastStartupDescription,
+      label: t.tweaksUtilitiesFastStartup,
+      description: t.tweaksUtilitiesFastStartupDescription,
       action: CardToggleSwitch(
         value: status,
         requiresRestart: true,
@@ -84,8 +85,8 @@ class _TMMonitoringCard extends ConsumerWidget {
 
     return CardHighlight(
       icon: FluentIcons.task_manager,
-      label: context.l10n.tweaksUtilitiesTMMonitoring,
-      description: context.l10n.tweaksUtilitiesTMMonitoringDescription,
+      label: t.tweaksUtilitiesTMMonitoring,
+      description: t.tweaksUtilitiesTMMonitoringDescription,
       action: CardToggleSwitch(
         value: status,
         requiresRestart: true,
@@ -108,8 +109,8 @@ class _UsageReportingCard extends ConsumerWidget {
 
     return CardHighlight(
       icon: msicons.FluentIcons.battery_checkmark_20_regular,
-      label: context.l10n.tweaksUtilitiesUsageReporting,
-      description: context.l10n.tweaksUtilitiesUsageReportingDescription,
+      label: t.tweaksUtilitiesUsageReporting,
+      description: t.tweaksUtilitiesUsageReportingDescription,
       action: CardToggleSwitch(
         value: status,
         onChanged: (value) async {

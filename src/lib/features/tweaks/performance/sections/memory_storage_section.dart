@@ -3,9 +3,9 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:revitool/core/widgets/card_highlight.dart';
-import 'package:revitool/extensions.dart';
 
 import 'package:revitool/features/tweaks/performance/performance_service.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 
 class MemoryStorageSection extends StatelessWidget {
   const MemoryStorageSection({super.key});
@@ -14,8 +14,8 @@ class MemoryStorageSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return CardHighlight(
       icon: msicons.FluentIcons.memory_16_regular,
-      label: context.l10n.tweaksPerformanceMemory,
-      description: context.l10n.tweaksPerformanceMemoryDescription,
+      label: t.tweaksPerformanceMemory,
+      description: t.tweaksPerformanceMemoryDescription,
       children: const [
         _SuperfetchCard(),
         _MemoryCompressionCard(),
@@ -37,8 +37,8 @@ class _SuperfetchCard extends ConsumerWidget {
 
     return CardListTile(
       // icon: msicons.FluentIcons.top_speed_20_regular,
-      title: context.l10n.tweaksPerformanceRdyBoost,
-      description: context.l10n.tweaksPerformanceRdyBoostDescription,
+      title: t.tweaksPerformanceRdyBoost,
+      description: t.tweaksPerformanceRdyBoostDescription,
       trailing: CardToggleSwitch(
         value: status,
         requiresRestart: true,
@@ -68,8 +68,8 @@ class _MemoryCompressionCard extends ConsumerWidget {
 
     return CardListTile(
       // icon: msicons.FluentIcons.ram_20_regular,
-      title: context.l10n.tweaksPerformanceMemoryCompression,
-      description: context.l10n.tweaksPerformanceMemoryCompressionDescription,
+      title: t.tweaksPerformanceMemoryCompression,
+      description: t.tweaksPerformanceMemoryCompressionDescription,
       trailing: CardToggleSwitch(
         value: memoryCompressionStatus,
         requiresRestart: true,
@@ -96,8 +96,8 @@ class _ServicesGroupingCard extends ConsumerWidget {
 
     return CardListTile(
       // icon: msicons.FluentIcons.group_20_regular,
-      title: context.l10n.tweaksPerformanceServiceGrouping,
-      description: context.l10n.tweaksPerformanceServiceGroupingDescription,
+      title: t.tweaksPerformanceServiceGrouping,
+      description: t.tweaksPerformanceServiceGroupingDescription,
       trailing: ComboBox<ServiceGrouping>(
         value: status,
         onChanged: (value) async {
@@ -139,13 +139,10 @@ class _ServicesGroupingCard extends ConsumerWidget {
       context: context,
       builder: (context) => ContentDialog(
         constraints: const BoxConstraints(maxWidth: 500, maxHeight: 300),
-        title: Text(context.l10n.warning),
-        content: Text(context.l10n.tweaksPerformanceServiceGroupingDialog),
+        title: Text(t.warning),
+        content: Text(t.tweaksPerformanceServiceGroupingDialog),
         actions: [
-          FilledButton(
-            child: Text(context.l10n.close),
-            onPressed: () => context.pop(),
-          ),
+          FilledButton(child: Text(t.close), onPressed: () => context.pop()),
         ],
       ),
     );
@@ -160,8 +157,8 @@ class _LastTimeAccessCard extends ConsumerWidget {
 
     return CardListTile(
       // icon: msicons.FluentIcons.document_bullet_list_clock_20_regular,
-      title: context.l10n.tweaksPerformanceLastTimeAccess,
-      description: context.l10n.tweaksPerformanceLastTimeAccessDescription,
+      title: t.tweaksPerformanceLastTimeAccess,
+      description: t.tweaksPerformanceLastTimeAccessDescription,
       trailing: CardToggleSwitch(
         value: status,
         requiresRestart: true,
@@ -188,8 +185,8 @@ class _Dot3NamingCard extends ConsumerWidget {
 
     return CardListTile(
       // icon: msicons.FluentIcons.hard_drive_20_regular,
-      title: context.l10n.tweaksPerformance8dot3Naming,
-      description: context.l10n.tweaksPerformance8dot3NamingDescription,
+      title: t.tweaksPerformance8dot3Naming,
+      description: t.tweaksPerformance8dot3NamingDescription,
       trailing: CardToggleSwitch(
         value: status,
         requiresRestart: true,
@@ -216,8 +213,8 @@ class _MemoryUsageCard extends ConsumerWidget {
 
     return CardListTile(
       // icon: msicons.FluentIcons.memory_16_regular,
-      title: context.l10n.tweaksPerformancePagedPoolLimit,
-      description: context.l10n.tweaksPerformancePagedPoolLimitDescription,
+      title: t.tweaksPerformancePagedPoolLimit,
+      description: t.tweaksPerformancePagedPoolLimitDescription,
       trailing: CardToggleSwitch(
         value: status,
         requiresRestart: true,

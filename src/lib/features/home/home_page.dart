@@ -3,6 +3,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:process_run/shell_run.dart';
 import 'package:revitool/extensions.dart';
 import 'package:revitool/core/widgets/card_highlight.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 import 'package:revitool/utils_gui.dart';
 
 class HomePage extends StatelessWidget {
@@ -13,8 +14,8 @@ class HomePage extends StatelessWidget {
     final homeCardButtons = [
       CardHighlight(
         icon: FluentIcons.git_graph,
-        label: context.l10n.homeCardGithub,
-        description: context.l10n.homeCardGithubDescription,
+        label: t.homeCardGithub,
+        description: t.homeCardGithubDescription,
         onPressed: () async =>
             await launchURL("https://github.com/meetrevision"),
 
@@ -22,15 +23,15 @@ class HomePage extends StatelessWidget {
       ),
       CardHighlight(
         icon: msicons.FluentIcons.drink_coffee_20_regular,
-        label: context.l10n.homeCardDonate,
-        description: context.l10n.homeCardDonateDescription,
+        label: t.homeCardDonate,
+        description: t.homeCardDonateDescription,
         onPressed: () async => await launchURL("https://revi.cc/donate"),
         action: const ChevronRightAction(),
       ),
       CardHighlight(
         icon: msicons.FluentIcons.chat_help_20_regular,
-        label: context.l10n.homeCardDiscord,
-        description: context.l10n.homeCardDiscordDescription,
+        label: t.homeCardDiscord,
+        description: t.homeCardDiscordDescription,
         onPressed: () async => await launchURL("https://discord.gg/962y4pU"),
         action: const ChevronRightAction(),
       ),
@@ -97,7 +98,7 @@ class _HomePageContent extends StatelessWidget {
           crossAxisAlignment: .start,
           children: [
             Text(
-              context.l10n.homeWelcome,
+              t.homeWelcome,
               style: const TextStyle(fontSize: 16, color: Color(0xB7FFFFFF)),
             ),
             const Text(
@@ -107,7 +108,7 @@ class _HomePageContent extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
               child: Text(
-                context.l10n.homeDescription,
+                t.homeDescription,
                 style: const TextStyle(fontSize: 16, color: Color(0xB7FFFFFF)),
               ),
             ),
@@ -116,7 +117,7 @@ class _HomePageContent extends StatelessWidget {
               child: SizedBox(
                 width: 175,
                 child: Button(
-                  child: Text(context.l10n.homeReviLink),
+                  child: Text(t.homeReviLink),
                   onPressed: () async => await run(
                     "rundll32 url.dll,FileProtocolHandler https://revi.cc",
                   ),
@@ -128,7 +129,7 @@ class _HomePageContent extends StatelessWidget {
               child: SizedBox(
                 width: 175,
                 child: FilledButton(
-                  child: Text(context.l10n.homeReviFAQLink),
+                  child: Text(t.homeReviFAQLink),
                   onPressed: () async => await run(
                     "rundll32 url.dll,FileProtocolHandler https://revi.cc/docs",
                   ),

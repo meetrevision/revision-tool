@@ -201,6 +201,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.7"
+  csv:
+    dependency: transitive
+    description:
+      name: csv
+      sha256: c6aa2679b2a18cb57652920f674488d89712efaf4d3fdf2e537215b35fc19d6c
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.0"
   custom_lint:
     dependency: transitive
     description:
@@ -327,7 +335,7 @@ packages:
     source: hosted
     version: "6.0.0"
   flutter_localizations:
-    dependency: "direct main"
+    dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"
@@ -422,7 +430,7 @@ packages:
     source: hosted
     version: "4.1.2"
   intl:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: intl
       sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"
@@ -754,6 +762,30 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  slang:
+    dependency: "direct main"
+    description:
+      name: slang
+      sha256: e97bbb72af7882e4f714b90a8a07f787ed2e5b6c901a1e2b7f73c11772247fa9
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.11.2"
+  slang_build_runner:
+    dependency: "direct dev"
+    description:
+      name: slang_build_runner
+      sha256: e2433fd4eebed4e701c369afbd851a8e2d39a46bcb4c5e2e720ff11a3640a32c
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.11.0"
+  slang_flutter:
+    dependency: "direct main"
+    description:
+      name: slang_flutter
+      sha256: a6ebc0a855faa62053f44d333ae3b3cde24945357e88506d1d3e7fb0d3fc0c70
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.11.0"
   source_gen:
     dependency: transitive
     description:

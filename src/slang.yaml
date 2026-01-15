@@ -1,0 +1,9 @@
+# Slang configuration
+# See https://pub.dev/packages/slang for documentation
+
+base_locale: en
+fallback_strategy: base_locale
+input_directory: lib/i18n
+input_file_pattern: .i18n.json
+output_directory: lib/i18n/generated
+translation_class_visibility: public

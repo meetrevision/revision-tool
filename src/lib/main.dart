@@ -6,11 +6,12 @@ import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:revitool/core/routing/app_router.dart';
-import 'package:revitool/l10n/generated/localizations.dart';
 
 import 'package:revitool/core/settings/app_settings_provider.dart';
+import 'package:revitool/core/settings/locale_config.dart';
 import 'package:revitool/core/trusted_installer/trusted_installer_service.dart';
 import 'package:revitool/core/services/win_registry_service.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 import 'package:revitool/utils.dart';
 import 'package:system_theme/system_theme.dart';
 import 'package:win32_registry/win32_registry.dart';
@@ -75,8 +76,18 @@ Future<void> main(List<String> args) async {
       Registry.localMachine,
       r'SOFTWARE\Revision\Revision Tool',
       'Language',
-      'en_US',
+      AppLocale.en.name,
     );
+  }
+
+  // Initialize locale from registry
+  logger.i('$tag Initializing locale');
+  try {
+    final savedLocale = LocaleConfig.parse(appLanguage);
+    LocaleSettings.setLocale(savedLocale);
+  } catch (e) {
+    logger.w('$tag Failed to set locale: $e');
+    LocaleSettings.setLocale(AppLocale.en);
   }
 
   logger.i('$tag Initializing settings controller');
@@ -92,7 +103,7 @@ Future<void> main(List<String> args) async {
   );
   await WindowPlus.instance.setMinimumSize(const Size(515, 330));
 
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(TranslationProvider(child: const ProviderScope(child: MyApp())));
 }
 
 bool _isSupported = false;
@@ -109,13 +120,13 @@ class MyApp extends ConsumerWidget {
         routerConfig: appRouter,
         title: 'Revision Tool',
         debugShowCheckedModeBanner: false,
+        locale: TranslationProvider.of(context).flutterLocale,
+        supportedLocales: AppLocaleUtils.supportedLocales,
         localizationsDelegates: const [
-          FluentLocalizations.delegate,
-          ReviLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
+          FluentLocalizations.delegate,
         ],
-        locale: appSettings.locale,
-        supportedLocales: ReviLocalizations.supportedLocales,
         themeMode: appSettings.themeMode,
         color: getSystemAccentColor(accent),
         darkTheme: FluentThemeData(

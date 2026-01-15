@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:revitool/core/services/win_registry_service.dart';
+import 'package:revitool/core/settings/locale_config.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 import 'package:revitool/utils.dart';
 import 'package:system_theme/system_theme.dart';
 import 'package:win32_registry/win32_registry.dart';
@@ -17,17 +19,22 @@ enum NavigationIndicators { sticky, end }
 @riverpod
 class AppSettingsNotifier extends _$AppSettingsNotifier {
   @override
-  AppSettings build() => AppSettings(
-    accentColor: getSystemAccentColor(SystemTheme.accentColor),
-    themeMode: SettingsService.themeMode(),
-    displayMode: PaneDisplayMode.auto,
-    indicator: NavigationIndicators.sticky,
-    windowEffect: WinRegistryService.themeTransparencyEffect
-        ? (WinRegistryService.isW11 ? WindowEffect.mica : WindowEffect.disabled)
-        : WindowEffect.disabled,
-    textDirection: TextDirection.ltr,
-    locale: _localeFromString(appLanguage),
-  );
+  AppSettings build() {
+    final appLocale = LocaleConfig.parse(appLanguage);
+    return AppSettings(
+      accentColor: getSystemAccentColor(SystemTheme.accentColor),
+      themeMode: SettingsService.themeMode(),
+      displayMode: PaneDisplayMode.auto,
+      indicator: NavigationIndicators.sticky,
+      windowEffect: WinRegistryService.themeTransparencyEffect
+          ? (WinRegistryService.isW11
+                ? WindowEffect.mica
+                : WindowEffect.disabled)
+          : WindowEffect.disabled,
+      textDirection: TextDirection.ltr,
+      locale: appLocale.flutterLocale,
+    );
+  }
 
   void setAccentColor(SystemAccentColor accentColor) {
     state = state.copyWith(accentColor: getSystemAccentColor(accentColor));
@@ -76,12 +83,17 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     state = state.copyWith(textDirection: direction);
   }
 
-  Locale _localeFromString(String s) {
-    return Locale(s.split("_")[0], s.split("_")[1]);
-  }
+  void updateLocale(String localeName) {
+    try {
+      final appLocale = LocaleConfig.parse(localeName);
+      LocaleSettings.setLocale(appLocale);
 
-  void updateLocale(String locale) {
-    state = state.copyWith(locale: _localeFromString(locale));
+      state = state.copyWith(locale: appLocale.flutterLocale);
+    } catch (e) {
+      logger.w('Failed to update locale: $e');
+      LocaleSettings.setLocale(AppLocale.en);
+      state = state.copyWith(locale: AppLocale.en.flutterLocale);
+    }
   }
 }
 

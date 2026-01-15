@@ -1,31 +1,25 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:revitool/extensions.dart';
 
 import 'package:revitool/core/settings/app_settings_provider.dart';
+import 'package:revitool/core/settings/locale_config.dart';
 import 'package:revitool/core/settings/tool_update_service.dart';
-import 'package:revitool/utils.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 import 'package:revitool/utils_gui.dart';
 import 'package:revitool/core/services/win_registry_service.dart';
 import 'package:revitool/core/widgets/card_highlight.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
-const languageList = [
-  ComboBoxItem(value: 'en_US', child: Text('English')),
-  ComboBoxItem(value: 'pt_BR', child: Text('Portuguese (Brazil)')),
-  ComboBoxItem(value: 'zh_CN', child: Text('Chinese (Simplified)')),
-  ComboBoxItem(value: 'zh_TW', child: Text('Chinese (Traditional)')),
-  ComboBoxItem(value: 'de_DE', child: Text('German')),
-  ComboBoxItem(value: 'fr_FR', child: Text('French')),
-  ComboBoxItem(value: 'ru_RU', child: Text('Russian')),
-  ComboBoxItem(value: 'uk_UA', child: Text('Ukrainian')),
-  ComboBoxItem(value: 'hu_HU', child: Text('Hungarian')),
-  ComboBoxItem(value: 'tr_TR', child: Text('Turkish')),
-  ComboBoxItem(value: 'ar_SA', child: Text('Arabic')),
-  ComboBoxItem(value: 'it_IT', child: Text('Italian')),
-];
+final languageList = AppLocale.values
+    .map(
+      (locale) => ComboBoxItem(
+        value: locale.name,
+        child: Text(LocaleConfig.languageNames[locale.name] ?? locale.name),
+      ),
+    )
+    .toList();
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -53,8 +47,8 @@ class _ThemeModeCard extends ConsumerWidget {
 
     return CardHighlight(
       icon: msicons.FluentIcons.paint_brush_20_regular,
-      label: context.l10n.settingsCT,
-      description: context.l10n.settingsCTDescription,
+      label: t.settingsCT,
+      description: t.settingsCTDescription,
       action: ComboBox(
         value: appSettings.themeMode,
         onChanged: ref.read(appSettingsProvider.notifier).updateThemeMode,
@@ -83,11 +77,12 @@ class _ExperimentalCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(settingsExperimentalStatus);
+    ref.watch(appSettingsProvider);
 
     return CardHighlight(
       icon: msicons.FluentIcons.warning_20_regular,
-      label: context.l10n.settingsEPT,
-      // description: context.l10n.settingsEPTDescription,
+      label: t.settingsEPT,
+      // description: t.settingsEPTDescription,
       action: CardToggleSwitch(
         value: status,
         onChanged: (value) async {
@@ -117,8 +112,9 @@ class _UpdateCardState extends ConsumerState<_UpdateCard> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(appSettingsProvider);
     return CardHighlight(
-      label: context.l10n.settingsUpdate,
+      label: t.settingsUpdate,
       icon: msicons.FluentIcons.arrow_clockwise_20_regular,
       action: ValueListenableBuilder(
         valueListenable: _updateTitle,
@@ -133,22 +129,22 @@ class _UpdateCardState extends ConsumerState<_UpdateCard> {
 
               if (latestVersion > currentVersion) {
                 if (!context.mounted) return;
-                _updateTitle.value = context.l10n.settingsUpdateButton;
+                _updateTitle.value = t.settingsUpdateButton;
 
                 final shouldInstall = await showDialog<bool>(
                   context: context,
                   builder: (dialogCtx) => ContentDialog(
-                    title: Text(context.l10n.settingsUpdateButtonAvailable),
+                    title: Text(t.settingsUpdateButtonAvailable),
                     content: Text(
-                      "${context.l10n.settingsUpdateButtonAvailablePrompt} ${data["tag_name"]}?",
+                      "${t.settingsUpdateButtonAvailablePrompt} ${data["tag_name"]}?",
                     ),
                     actions: [
                       FilledButton(
-                        child: Text(context.l10n.okButton),
+                        child: Text(t.okButton),
                         onPressed: () => Navigator.pop(dialogCtx, true),
                       ),
                       Button(
-                        child: Text(context.l10n.notNowButton),
+                        child: Text(t.notNowButton),
                         onPressed: () => Navigator.pop(dialogCtx, false),
                       ),
                     ],
@@ -157,17 +153,15 @@ class _UpdateCardState extends ConsumerState<_UpdateCard> {
 
                 if (shouldInstall == true) {
                   if (!context.mounted) return;
-                  _updateTitle.value =
-                      "${context.l10n.settingsUpdatingStatus}...";
+                  _updateTitle.value = "${t.settingsUpdatingStatus}...";
                   try {
                     await _toolUpdateService.downloadNewVersion();
                     await _toolUpdateService.installUpdate();
                     if (!context.mounted) return;
-                    _updateTitle.value =
-                        context.l10n.settingsUpdatingStatusSuccess;
+                    _updateTitle.value = t.settingsUpdatingStatusSuccess;
                   } catch (e) {
                     if (!context.mounted) return;
-                    _updateTitle.value = context.l10n.updateFailed;
+                    _updateTitle.value = t.updateFailed;
                     await showDialog(
                       context: context,
                       builder: (c) => ContentDialog(
@@ -175,7 +169,7 @@ class _UpdateCardState extends ConsumerState<_UpdateCard> {
                         content: Text(e.toString()),
                         actions: [
                           Button(
-                            child: Text(context.l10n.okButton),
+                            child: Text(t.okButton),
                             onPressed: () => Navigator.pop(c),
                           ),
                         ],
@@ -185,8 +179,7 @@ class _UpdateCardState extends ConsumerState<_UpdateCard> {
                 }
               } else {
                 if (!context.mounted) return;
-                _updateTitle.value =
-                    context.l10n.settingsUpdatingStatusNotFound;
+                _updateTitle.value = t.settingsUpdatingStatusNotFound;
               }
             } catch (e) {
               if (!context.mounted) return;
@@ -197,7 +190,7 @@ class _UpdateCardState extends ConsumerState<_UpdateCard> {
                   content: Text(e.toString()),
                   actions: [
                     Button(
-                      child: Text(context.l10n.okButton),
+                      child: Text(t.okButton),
                       onPressed: () => Navigator.pop(c),
                     ),
                   ],
@@ -218,19 +211,19 @@ class _LanguageCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CardHighlight(
       icon: msicons.FluentIcons.local_language_20_regular,
-      label: context.l10n.settingsLanguage,
-      description: context.l10n.settingsLanguageDescription,
+      label: t.settingsLanguage,
+      description: t.settingsLanguageDescription,
       action: ComboBox(
-        value: appLanguage,
+        value: TranslationProvider.of(context).locale.name,
         onChanged: (value) async {
-          final newLanguage = value ?? 'en_US';
-          WinRegistryService.writeRegistryValue(
+          final localeName = value ?? AppLocale.en.name;
+          await WinRegistryService.writeRegistryValue(
             Registry.localMachine,
             r'SOFTWARE\Revision\Revision Tool',
             'Language',
-            newLanguage,
+            localeName,
           );
-          ref.read(appSettingsProvider.notifier).updateLocale(newLanguage);
+          ref.read(appSettingsProvider.notifier).updateLocale(localeName);
         },
         items: languageList,
       ),

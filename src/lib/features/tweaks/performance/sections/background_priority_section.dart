@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:revitool/core/widgets/card_highlight.dart';
 import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:revitool/extensions.dart';
 
 import 'package:revitool/features/tweaks/performance/performance_service.dart';
+import 'package:revitool/i18n/generated/strings.g.dart';
 
 class BackgroundManagementSection extends StatelessWidget {
   const BackgroundManagementSection({super.key});
@@ -16,8 +16,8 @@ class BackgroundManagementSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return CardHighlight(
       icon: msicons.FluentIcons.radar_rectangle_multiple_20_regular,
-      label: context.l10n.tweaksPerformanceBackground,
-      description: context.l10n.tweaksPerformanceBackgroundDescription,
+      label: t.tweaksPerformanceBackground,
+      description: t.tweaksPerformanceBackgroundDescription,
       children: [
         const _BackgroundAppsCard(),
         if (WinRegistryService.isW11 || kDebugMode) ...[
@@ -36,8 +36,8 @@ class _BackgroundAppsCard extends ConsumerWidget {
 
     return CardListTile(
       // icon: msicons.FluentIcons.bezier_curve_square_20_regular,
-      title: context.l10n.tweaksPerformanceBA,
-      description: context.l10n.tweaksPerformanceBADescription,
+      title: t.tweaksPerformanceBA,
+      description: t.tweaksPerformanceBADescription,
       trailing: CardToggleSwitch(
         value: status,
         onChanged: (value) async {
@@ -63,8 +63,8 @@ class _BackgroundWindowMessageRateCard extends ConsumerWidget {
 
     return CardListTile(
       // icon: msicons.FluentIcons.group_20_regular,
-      title: context.l10n.tweaksPerformanceBWMR,
-      description: context.l10n.tweaksPerformanceBWMRDescription,
+      title: t.tweaksPerformanceBWMR,
+      description: t.tweaksPerformanceBWMRDescription,
       trailing: ComboBox<int>(
         value: 1000 ~/ status,
 
@@ -79,11 +79,11 @@ class _BackgroundWindowMessageRateCard extends ConsumerWidget {
             showDialog(
               context: context,
               builder: (context) => ContentDialog(
-                title: Text(context.l10n.tweaksPerformanceBWMR),
+                title: Text(t.tweaksPerformanceBWMR),
                 content: Text(e.toString()),
                 actions: [
                   FilledButton(
-                    child: Text(context.l10n.close),
+                    child: Text(t.close),
                     onPressed: () => context.pop(),
                   ),
                 ],

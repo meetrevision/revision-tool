@@ -1,10 +1,8 @@
-{
-    "@@locale": "zh_TW",
+﻿{
     "okButton": "確定",
     "notNowButton": "暫不",
     "restartDialog": "您必須重新啟動電腦才能使變更生效",
     "moreAbout": "更多關於",
-    "moreInformation": "更多資訊",
     "onStatus": "開啟",
     "offStatus": "關閉",
     "experimental": "實驗性",
@@ -68,7 +66,7 @@
     "securityDialog": "請在完全停用 Windows Defender 之前停用所有保護",
     "tweaksSecurityHWMitigation": "內核和硬體緩解措施",
     "tweaksSecurityHWMitigationDescription": "推測執行漏洞緩解措施。效能影響因 CPU 代數而異。",
-    "tweaksSecuritySMitigation": "Spectre & Meltdown 緩解",
+    "tweaksSecuritySMitigation": "Spectre \u0026 Meltdown 緩解",
     "tweaksSecuritySMitigationDescription": "針對可能允許未經授權存取系統記憶體的推測執行漏洞的防禦性修補",
     "tweaksSecurityDownfallMitigation": "Downfall 緩解",
     "tweaksSecurityDownfallMitigationDescription": "針對某些 Intel 處理器中可能暴露敏感資料的漏洞的保護。目前不支援在啟用 Hyper-V（虛擬化）時停用此保護。",
