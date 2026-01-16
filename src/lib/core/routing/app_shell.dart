@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:go_router/go_router.dart';
+import 'package:revitool/core/services/win_registry_service.dart';
 import 'package:revitool/core/widgets/page_header_with_breadcrumbs.dart';
 
 import 'package:revitool/extensions.dart';
@@ -30,6 +31,16 @@ class _AppShellState extends ConsumerState<AppShell> {
   final _searchController = TextEditingController();
   static const imgXY = 60.0;
   AutoSuggestBoxItem? selectedPage;
+
+  final String? _username = WinRegistryService.readString(
+    RegistryHive.currentUser,
+    r'Volatile Environment',
+    'USERNAME',
+  );
+
+  static final File _userImageFile = File(
+    'C:\\ProgramData\\Microsoft\\User Account Pictures\\user-192.png',
+  );
 
   @override
   void initState() {
@@ -82,12 +93,6 @@ class _AppShellState extends ConsumerState<AppShell> {
     assert(debugCheckHasFluentTheme(context));
     final imgCacheSize = (imgXY * MediaQuery.devicePixelRatioOf(context))
         .toInt();
-
-    if (widget.shellContext != null) {
-      if (appRouter.canPop() == false) {
-        setState(() {});
-      }
-    }
 
     final items =
         <NavigationPaneItem>[
@@ -229,9 +234,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                       height: imgXY,
                       cacheWidth: imgCacheSize,
                       cacheHeight: imgCacheSize,
-                      File(
-                        'C:\\ProgramData\\Microsoft\\User Account Pictures\\user-192.png',
-                      ),
+                      _userImageFile,
                     ),
                   ),
                   const SizedBox(width: 13.0),
@@ -240,10 +243,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                     crossAxisAlignment: .start,
                     children: [
                       Text(
-                        Registry.openPath(
-                          RegistryHive.currentUser,
-                          path: r'Volatile Environment',
-                        ).getStringValue("USERNAME")!,
+                        _username ?? 'User',
                         style: const TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 14,

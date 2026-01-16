@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:revitool/core/routing/app_router.dart';
 
@@ -114,6 +113,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appSettings = ref.watch(appSettingsProvider);
+    final settingsNotifier = ref.read(appSettingsProvider.notifier);
 
     return SystemThemeBuilder(
       builder: (context, accent) => FluentApp.router(
@@ -122,11 +122,7 @@ class MyApp extends ConsumerWidget {
         debugShowCheckedModeBanner: false,
         locale: TranslationProvider.of(context).flutterLocale,
         supportedLocales: AppLocaleUtils.supportedLocales,
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          FluentLocalizations.delegate,
-        ],
+        localizationsDelegates: const [FluentLocalizations.delegate],
         themeMode: appSettings.themeMode,
         color: getSystemAccentColor(accent),
         darkTheme: FluentThemeData(
@@ -134,13 +130,11 @@ class MyApp extends ConsumerWidget {
           accentColor: getSystemAccentColor(accent),
 
           navigationPaneTheme: NavigationPaneThemeData(
-            backgroundColor: ref
-                .watch(appSettingsProvider.notifier)
-                .effectColor(null),
+            backgroundColor: settingsNotifier.effectColor(null),
           ),
-          scaffoldBackgroundColor: ref
-              .watch(appSettingsProvider.notifier)
-              .effectColor(const Color.fromARGB(255, 32, 32, 32)),
+          scaffoldBackgroundColor: settingsNotifier.effectColor(
+            const Color.fromARGB(255, 32, 32, 32),
+          ),
           // cardColor: Color(0xFF2B2B2B),
           cardColor: ref
               .watch(appSettingsProvider.notifier)
@@ -158,9 +152,10 @@ class MyApp extends ConsumerWidget {
             glowFactor: is10footScreen(context) ? 2.0 : 0.0,
           ),
           resources: ResourceDictionary.dark(
-            cardStrokeColorDefault: ref
-                .watch(appSettingsProvider.notifier)
-                .effectColor(const Color(0xFF1D1D1D), modifyColors: true)!,
+            cardStrokeColorDefault: settingsNotifier.effectColor(
+              const Color(0xFF1D1D1D),
+              modifyColors: true,
+            )!,
             cardBackgroundFillColorSecondary: const Color(0xFF323232),
           ),
         ),
@@ -168,13 +163,11 @@ class MyApp extends ConsumerWidget {
           accentColor: getSystemAccentColor(accent),
           visualDensity: VisualDensity.standard,
           navigationPaneTheme: NavigationPaneThemeData(
-            backgroundColor: ref
-                .watch(appSettingsProvider.notifier)
-                .effectColor(null),
+            backgroundColor: settingsNotifier.effectColor(null),
           ),
-          scaffoldBackgroundColor: ref
-              .watch(appSettingsProvider.notifier)
-              .effectColor(const Color.fromRGBO(243, 243, 243, 100)),
+          scaffoldBackgroundColor: settingsNotifier.effectColor(
+            const Color.fromRGBO(243, 243, 243, 100),
+          ),
           focusTheme: FocusThemeData(
             glowFactor: is10footScreen(context) ? 2.0 : 0.0,
           ),
@@ -184,12 +177,10 @@ class MyApp extends ConsumerWidget {
           ),
         ), // TODO: make it compatible with windoweffect
         builder: (context, child) {
-          ref
-              .watch(appSettingsProvider.notifier)
-              .setEffect(
-                FluentTheme.of(context).micaBackgroundColor,
-                FluentTheme.of(context).brightness.isDark,
-              );
+          settingsNotifier.setEffect(
+            FluentTheme.of(context).micaBackgroundColor,
+            FluentTheme.of(context).brightness.isDark,
+          );
 
           return Directionality(
             textDirection: appSettings.textDirection,

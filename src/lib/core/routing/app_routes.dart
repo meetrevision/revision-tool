@@ -16,7 +16,6 @@ class AppRoutes {
 
   static const String unsupported = '/unsupported';
 
-  /// Get localized route name
   static String getRouteName(String path, BuildContext context) {
     switch (path) {
       case home:
@@ -33,7 +32,6 @@ class AppRoutes {
     }
   }
 
-  /// Build breadcrumb items from current location
   static List<BreadcrumbItem<String>> buildBreadcrumbs(
     String location,
     BuildContext context,
