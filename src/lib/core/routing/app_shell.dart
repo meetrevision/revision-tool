@@ -2,14 +2,13 @@ import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:go_router/go_router.dart';
 import 'package:revitool/core/services/win_registry_service.dart';
 import 'package:revitool/core/widgets/page_header_with_breadcrumbs.dart';
-
 import 'package:revitool/extensions.dart';
 import 'package:revitool/core/routing/app_routes.dart';
+import 'package:revitool/core/routing/navigation_provider.dart';
 import 'package:revitool/core/routing/app_router.dart';
 import 'package:revitool/i18n/generated/strings.g.dart';
 import 'package:win32_registry/win32_registry.dart';
@@ -32,6 +31,23 @@ class _AppShellState extends ConsumerState<AppShell> {
   static const imgXY = 60.0;
   AutoSuggestBoxItem? selectedPage;
 
+  late final List<AutoSuggestBoxItem> _searchItems = AppRoutes.searchableItems
+      .map((e) {
+        final item = e as PaneItem;
+        return AutoSuggestBoxItem(
+          child: Row(spacing: 8, children: [e.icon, e.title!]),
+          value: (e.title as Text).data!,
+          label: (e.title as Text).data!,
+          onSelected: () async {
+            final path = (item.key as ValueKey).value.toString();
+            context.push(path);
+            await Future.delayed(const Duration(milliseconds: 17));
+            _searchController.clear();
+          },
+        );
+      })
+      .toList(growable: false);
+
   final String? _username = WinRegistryService.readString(
     RegistryHive.currentUser,
     r'Volatile Environment',
@@ -43,49 +59,10 @@ class _AppShellState extends ConsumerState<AppShell> {
   );
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     _searchController.dispose();
     _searchFocusNode.dispose();
     super.dispose();
-  }
-
-  /// Calculate the selected index based on current location
-  int _calculateSelectedIndex(
-    BuildContext context,
-    List<NavigationPaneItem> items,
-    List<NavigationPaneItem> footerItems,
-  ) {
-    final location = GoRouterState.of(context).uri.toString();
-    final itemsWithKeys = items.where((item) => item.key != null).toList();
-    final footerWithKeys = footerItems
-        .where((item) => item.key != null)
-        .toList();
-
-    int exactMatch = itemsWithKeys.indexWhere(
-      (item) => item.key == Key(location),
-    );
-    if (exactMatch != -1) return exactMatch;
-
-    for (int i = 0; i < itemsWithKeys.length; i++) {
-      final itemPath = (itemsWithKeys[i].key as ValueKey).value as String;
-      if (itemPath != '/' && location.startsWith(itemPath)) {
-        return i;
-      }
-    }
-
-    int footerMatch = footerWithKeys.indexWhere(
-      (item) => item.key == Key(location),
-    );
-    if (footerMatch != -1) {
-      return itemsWithKeys.length + footerMatch;
-    }
-
-    return 0;
   }
 
   @override
@@ -94,76 +71,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     final imgCacheSize = (imgXY * MediaQuery.devicePixelRatioOf(context))
         .toInt();
 
-    final items =
-        <NavigationPaneItem>[
-          PaneItem(
-            key: const ValueKey(AppRoutes.home),
-            icon: const Icon(msicons.FluentIcons.home_24_regular, size: 20),
-            title: Text(t.pageHome),
-            body: const SizedBox.shrink(),
-          ),
-          PaneItem(
-            key: const ValueKey(AppRoutes.tweaks),
-            icon: const Icon(msicons.FluentIcons.wrench_24_regular, size: 20),
-            title: Text(t.pageTweaks),
-            body: const SizedBox.shrink(),
-          ),
-          PaneItem(
-            key: const ValueKey(AppRoutes.msStore),
-            icon: const Icon(
-              msicons.FluentIcons.store_microsoft_24_regular,
-              size: 20,
-            ),
-            title: Text(t.pageMSStore),
-            body: const SizedBox.shrink(),
-          ),
-        ].map<NavigationPaneItem>((e) {
-          PaneItem buildPaneItem(PaneItem item) {
-            return PaneItem(
-              key: item.key,
-              icon: item.icon,
-              title: item.title,
-              body: item.body,
-              onTap: () {
-                final path = (item.key as ValueKey).value;
-                if (GoRouterState.of(context).uri.toString() != path) {
-                  context.push(path);
-                }
-                item.onTap?.call();
-              },
-            );
-          }
-
-          if (e is PaneItemExpander) {
-            return PaneItemExpander(
-              key: e.key,
-              icon: e.icon,
-              title: e.title,
-              body: e.body,
-              items: e.items.map((item) {
-                if (item is PaneItem) return buildPaneItem(item);
-                return item;
-              }).toList(),
-            );
-          }
-          if (e is PaneItem) return buildPaneItem(e);
-          return e;
-        }).toList();
-
-    final footerItems = <NavigationPaneItem>[
-      PaneItem(
-        key: const ValueKey(AppRoutes.settings),
-        icon: const Icon(msicons.FluentIcons.settings_24_regular, size: 20),
-        title: Text(t.pageSettings),
-        body: const SizedBox.shrink(),
-        onTap: () {
-          if (GoRouterState.of(context).uri.toString() != AppRoutes.settings) {
-            context.push(AppRoutes.settings);
-          }
-        },
-      ),
-      PaneItemSeparator(color: Colors.transparent),
-    ];
+    final localizations = FluentLocalizations.of(context);
 
     return SafeArea(
       child: NavigationView(
@@ -178,10 +86,21 @@ class _AppShellState extends ConsumerState<AppShell> {
             final enabled = widget.shellContext != null && appRouter.canPop();
             final onPressed = enabled
                 ? () {
-                    if (appRouter.canPop()) {
-                      context.pop();
-                      setState(() {});
-                    }
+                    context.pop();
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (!mounted) return;
+                      final location = GoRouterState.of(context).uri.toString();
+                      final route = RouteMeta.fromPath(
+                        location,
+                        allowPrefix: true,
+                      );
+                      final index = AppRoutes.getPaneIndexFromRoute(route);
+                      if (index != null) {
+                        ref
+                            .read(navigationIndexProvider.notifier)
+                            .setIndex(index);
+                      }
+                    });
                   }
                 : null;
 
@@ -204,7 +123,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               child: Builder(
                 builder: (context) => PaneItem(
                   icon: const Center(child: Icon(FluentIcons.back, size: 12.0)),
-                  title: const Text("Back"),
+                  title: Text(localizations.backButtonTooltip),
                   body: const SizedBox.shrink(),
                   enabled: enabled,
                 ).build(context, false, onPressed, displayMode: .compact),
@@ -216,7 +135,12 @@ class _AppShellState extends ConsumerState<AppShell> {
         ),
         pane: NavigationPane(
           size: const NavigationPaneSize(openWidth: 300),
-          selected: _calculateSelectedIndex(context, items, footerItems),
+          selected: ref.watch(navigationIndexProvider),
+          onItemPressed: (index) {
+            final route = AppRoutes.navigationRoutes[index];
+            ref.read(navigationIndexProvider.notifier).setIndex(index);
+            context.push(route.path);
+          },
           displayMode: context.mqSize.width >= 800
               ? PaneDisplayMode.open
               : PaneDisplayMode.minimal,
@@ -273,28 +197,15 @@ class _AppShellState extends ConsumerState<AppShell> {
               focusNode: _searchFocusNode,
               controller: _searchController,
               placeholder: t.suggestionBoxPlaceholder,
-              items: items.whereType<PaneItem>().map((page) {
-                assert(page.title is Text);
-                final text = (page.title as Text).data!;
-                return AutoSuggestBoxItem(
-                  value: text,
-                  label: text,
-                  onSelected: () async {
-                    // Use the page's key to navigate
-                    if (page.key is ValueKey) {
-                      final path = (page.key as ValueKey).value as String;
-                      context.push(path);
-                    }
-                    await Future.delayed(const Duration(milliseconds: 17));
-                    _searchController.clear();
-                  },
-                );
-              }).toList(),
+              items: _searchItems,
             ),
           ),
           autoSuggestBoxReplacement: const Icon(FluentIcons.search),
-          items: items,
-          footerItems: footerItems,
+          items: AppRoutes.mainPaneItems,
+          footerItems: [
+            ...AppRoutes.footerPaneItems,
+            PaneItemSeparator(color: Colors.transparent),
+          ],
         ),
         paneBodyBuilder: (item, child) {
           final name = item?.key is ValueKey

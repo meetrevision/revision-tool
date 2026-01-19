@@ -19,7 +19,6 @@ class SecurityPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ScaffoldPage.scrollable(
       padding: kScaffoldPagePadding,
-
       children: [
         const _DefenderCard(),
         const HardwareMitigationsSection(),

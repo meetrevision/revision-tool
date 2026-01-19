@@ -21,7 +21,7 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
 
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: initialRoute ?? AppRoutes.home,
+  initialLocation: initialRoute ?? RouteMeta.home.path,
   redirect: (context, state) {
     if (!WinRegistryService.isSupported) {
       return AppRoutes.unsupported;
@@ -36,12 +36,12 @@ final appRouter = GoRouter(
       },
       routes: [
         GoRoute(
-          path: AppRoutes.home,
+          path: RouteMeta.home.path,
           name: 'home',
           builder: (context, state) => const HomePage(),
         ),
         GoRoute(
-          path: AppRoutes.tweaks,
+          path: RouteMeta.tweaks.path,
           name: 'tweaks',
           builder: (context, state) => const TweaksPage(),
           routes: [
@@ -98,12 +98,12 @@ final appRouter = GoRouter(
           ],
         ),
         GoRoute(
-          path: AppRoutes.msStore,
+          path: RouteMeta.msStore.path,
           name: 'msstore',
           builder: (context, state) => const MSStorePage(),
         ),
         GoRoute(
-          path: AppRoutes.settings,
+          path: RouteMeta.settings.path,
           name: 'settings',
           builder: (context, state) => const SettingsPage(),
         ),

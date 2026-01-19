@@ -1,67 +1,157 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:go_router/go_router.dart';
 import 'package:revitool/i18n/generated/strings.g.dart';
 
-class AppRoutes {
-  static const String home = '/';
-  static const String tweaks = '/tweaks';
-  static const String msStore = '/msstore';
-  static const String settings = '/settings';
+enum RouteSection { main, footer, search }
 
-  static const String security = '/tweaks/security';
-  static const String performance = '/tweaks/performance';
-  static const String personalization = '/tweaks/personalization';
-  static const String utilities = '/tweaks/utilities';
-  static const String updates = '/tweaks/updates';
+enum RouteMeta {
+  home(
+    path: '/',
+    section: RouteSection.main,
+    icon: msicons.FluentIcons.home_24_regular,
+  ),
+  tweaks(
+    path: '/tweaks',
+    section: RouteSection.main,
+    icon: msicons.FluentIcons.wrench_24_regular,
+  ),
+  msStore(
+    path: '/msstore',
+    section: RouteSection.main,
+    icon: msicons.FluentIcons.store_microsoft_24_regular,
+  ),
+  settings(
+    path: '/settings',
+    section: RouteSection.footer,
+    icon: msicons.FluentIcons.settings_24_regular,
+  ),
+  tweaksSecurity(
+    path: '/tweaks/security',
+    section: RouteSection.search,
+    icon: msicons.FluentIcons.shield_lock_20_regular,
+  ),
+  tweaksPerformance(
+    path: '/tweaks/performance',
+    section: RouteSection.search,
+    icon: msicons.FluentIcons.top_speed_24_regular,
+  ),
+  tweaksPersonalization(
+    path: '/tweaks/personalization',
+    section: RouteSection.search,
+    icon: msicons.FluentIcons.color_24_regular,
+  ),
+  tweaksUtilities(
+    path: '/tweaks/utilities',
+    section: RouteSection.search,
+    icon: msicons.FluentIcons.toolbox_24_regular,
+  ),
+  tweaksUpdates(
+    path: '/tweaks/updates',
+    section: RouteSection.search,
+    icon: msicons.FluentIcons.arrow_download_24_regular,
+  );
 
-  static const String unsupported = '/unsupported';
+  const RouteMeta({
+    required this.path,
+    required this.section,
+    required this.icon,
+  });
 
-  static String getRouteName(String path, BuildContext context) {
-    switch (path) {
-      case home:
+  final String path;
+  final RouteSection section;
+  final IconData icon;
+
+  String get label {
+    switch (this) {
+      case RouteMeta.home:
         return t.pageHome;
-      case tweaks:
+      case RouteMeta.tweaks:
         return t.pageTweaks;
-      case msStore:
+      case RouteMeta.msStore:
         return t.pageMSStore;
-      case settings:
+      case RouteMeta.settings:
         return t.pageSettings;
-      default:
-        final segment = path.split('/').last;
-        return segment.isEmpty ? 'Home' : segment.capitalize();
+      case RouteMeta.tweaksSecurity:
+        return t.pageTweaksSecurity;
+      case RouteMeta.tweaksPerformance:
+        return t.pageTweaksPerformance;
+      case RouteMeta.tweaksPersonalization:
+        return t.pageTweaksPersonalization;
+      case RouteMeta.tweaksUtilities:
+        return t.pageTweaksUtilities;
+      case RouteMeta.tweaksUpdates:
+        return t.pageTweaksUpdates;
     }
   }
+
+  static final _pathLookup = {for (final r in values) r.path: r};
+
+  static RouteMeta? fromPath(String path, {bool allowPrefix = false}) {
+    if (!allowPrefix) return _pathLookup[path];
+    for (final route in _navigationRoutes) {
+      if (path == route.path ||
+          (route.path != '/' && path.startsWith('${route.path}/'))) {
+        return route;
+      }
+    }
+    return null;
+  }
+}
+
+class AppRoutes {
+  static const String unsupported = '/unsupported';
+
+  static const List<RouteMeta> navigationRoutes = _navigationRoutes;
+
+  static final mainPaneItems = _buildPaneItems(_mainNavigationRoutes);
+  static final footerPaneItems = _buildPaneItems(_footerNavigationRoutes);
+  static final searchableItems = _buildPaneItems(_searchableRoutes);
+
+  static String getRouteName(String path, BuildContext context) {
+    final meta = RouteMeta.fromPath(path);
+    if (meta != null) {
+      return meta.label;
+    }
+    final segment = path.split('/').last;
+    return segment.isEmpty ? t.pageHome : segment.capitalize();
+  }
+
+  static int? getPaneIndexFromRoute(RouteMeta? route) =>
+      route != null && route.section != RouteSection.search
+      ? route.index
+      : null;
+
+  static final _breadcrumbsCache = <String, List<BreadcrumbItem<String>>>{};
 
   static List<BreadcrumbItem<String>> buildBreadcrumbs(
     String location,
     BuildContext context,
   ) {
-    final segments = location.split('/').where((s) => s.isNotEmpty).toList();
-    final breadcrumbs = <BreadcrumbItem<String>>[];
-    final theme = FluentTheme.of(context);
+    return _breadcrumbsCache.putIfAbsent(location, () {
+      final segments = location.split('/').where((s) => s.isNotEmpty).toList();
+      final theme = FluentTheme.of(context);
 
-    String currentPath = '';
-    for (int i = 0; i < segments.length; i++) {
-      currentPath += '/${segments[i]}';
-      final name = getRouteName(currentPath, context);
-      final isLast = i == segments.length - 1;
-
-      breadcrumbs.add(
-        BreadcrumbItem(
-          label: Text(
-            name,
-            style: TextStyle(
-              color: isLast
-                  ? theme.typography.body?.color
-                  : theme.resources.textFillColorSecondary,
-            ),
-          ),
-          value: currentPath,
-        ),
-      );
-    }
-
-    return breadcrumbs;
+      String currentPath = '';
+      return [
+        for (int i = 0; i < segments.length; i++)
+          (() {
+            currentPath += '/${segments[i]}';
+            final isLast = i == segments.length - 1;
+            return BreadcrumbItem(
+              label: Text(
+                getRouteName(currentPath, context),
+                style: TextStyle(
+                  color: isLast
+                      ? theme.typography.body?.color
+                      : theme.resources.textFillColorSecondary,
+                ),
+              ),
+              value: currentPath,
+            );
+          })(),
+      ];
+    });
   }
 
   /// Creates a page with [HorizontalSlidePageTransition] for nested routes.
@@ -90,6 +180,41 @@ class AppRoutes {
       },
     );
   }
+}
+
+const List<RouteMeta> _mainNavigationRoutes = [
+  RouteMeta.home,
+  RouteMeta.tweaks,
+  RouteMeta.msStore,
+];
+
+const List<RouteMeta> _footerNavigationRoutes = [RouteMeta.settings];
+
+const List<RouteMeta> _searchableRoutes = [
+  RouteMeta.tweaksSecurity,
+  RouteMeta.tweaksPerformance,
+  RouteMeta.tweaksPersonalization,
+  RouteMeta.tweaksUtilities,
+  RouteMeta.tweaksUpdates,
+];
+
+const List<RouteMeta> _navigationRoutes = [
+  ..._mainNavigationRoutes,
+  ..._footerNavigationRoutes,
+];
+
+List<NavigationPaneItem> _buildPaneItems(List<RouteMeta> routes) {
+  return routes
+      .map(
+        (route) => PaneItem(
+          key: ValueKey(route.path),
+          icon: Icon(route.icon, size: 20),
+          title: Text(route.label),
+          body: const SizedBox.shrink(),
+        ),
+      )
+      .toList(growable: false)
+      .cast<NavigationPaneItem>();
 }
 
 extension _StringExtension on String {
