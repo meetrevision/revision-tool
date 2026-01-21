@@ -83,7 +83,9 @@ class _AppShellState extends ConsumerState<AppShell> {
         appBar: NavigationAppBar(
           automaticallyImplyLeading: false,
           leading: () {
-            final enabled = widget.shellContext != null && appRouter.canPop();
+            final enabled =
+                widget.shellContext != null &&
+                ref.read(appRouterProvider).canPop();
             final onPressed = enabled
                 ? () {
                     context.pop();

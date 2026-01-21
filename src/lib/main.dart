@@ -79,7 +79,6 @@ Future<void> main(List<String> args) async {
     );
   }
 
-  // Initialize locale from registry
   logger.i('$tag Initializing locale');
   try {
     final savedLocale = LocaleConfig.parse(appLanguage);
@@ -102,7 +101,7 @@ Future<void> main(List<String> args) async {
   );
   await WindowPlus.instance.setMinimumSize(const Size(515, 330));
 
-  runApp(TranslationProvider(child: const ProviderScope(child: MyApp())));
+  runApp(ProviderScope(child: TranslationProvider(child: const MyApp())));
 }
 
 bool _isSupported = false;
@@ -117,7 +116,7 @@ class MyApp extends ConsumerWidget {
 
     return SystemThemeBuilder(
       builder: (context, accent) => FluentApp.router(
-        routerConfig: appRouter,
+        routerConfig: ref.read(appRouterProvider),
         title: 'Revision Tool',
         debugShowCheckedModeBanner: false,
         locale: TranslationProvider.of(context).flutterLocale,
