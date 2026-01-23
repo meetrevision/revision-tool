@@ -57,6 +57,9 @@ jobs:
           Write-Host "Downloaded $($cabAssets.Count) packages successfully"
         shell: pwsh
 
+      - run: dart run slang
+        working-directory: src
+
       - run: dart run build_runner build --delete-conflicting-outputs
         working-directory: src
 
