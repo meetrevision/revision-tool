@@ -16,7 +16,7 @@ part 'app_settings_provider.freezed.dart';
 
 enum NavigationIndicators { sticky, end }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class AppSettingsNotifier extends _$AppSettingsNotifier {
   @override
   AppSettings build() {
