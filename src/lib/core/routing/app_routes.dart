@@ -174,6 +174,7 @@ class AppRoutes {
           reverseCurve: Curves.easeIn,
         );
         return HorizontalSlidePageTransition(
+          fromLeft: false,
           animation: curvedAnimation,
           child: child,
         );
