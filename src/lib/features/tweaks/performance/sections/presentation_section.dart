@@ -62,7 +62,7 @@ class _WindowedOptimizationCard extends ConsumerWidget {
       title: t.tweaksPerformanceOWG,
       description: t.tweaksPerformanceOWGDescription,
       trailing: CardToggleSwitch(
-        enabled: !WinRegistryService.isW11 || kDebugMode,
+        enabled: WinRegistryService.isW11 || kDebugMode,
         value: !WinRegistryService.isW11 ? false : status,
         onChanged: (value) async {
           value
