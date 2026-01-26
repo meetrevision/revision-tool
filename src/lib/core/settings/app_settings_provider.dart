@@ -95,6 +95,14 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
       state = state.copyWith(locale: AppLocale.en.flutterLocale);
     }
   }
+
+  Color? cardLightHoverBottomBorderColor() {
+    final color = const Color.fromARGB(255, 0, 0, 0).withValues(alpha: 0.11);
+    if (state.windowEffect != WindowEffect.disabled) {
+      return effectColor(color, modifyColors: true);
+    }
+    return color;
+  }
 }
 
 @freezed

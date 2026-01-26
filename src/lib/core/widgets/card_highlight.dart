@@ -1,7 +1,9 @@
-import 'package:collection/collection.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter/gestures.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:revitool/core/settings/app_settings_provider.dart';
 import 'package:revitool/extensions.dart';
 import 'package:revitool/i18n/generated/strings.g.dart';
 import 'package:revitool/utils_gui.dart';
@@ -59,123 +61,286 @@ class CardHighlight extends StatelessWidget {
     // Use label hash for stable PageStorageKey to prevent unnecessary rebuilds
     final pageStorageKey = label.hashCode;
 
-    final expanderWidget = Expander(
-      key: PageStorageKey(pageStorageKey),
-      initiallyExpanded: initiallyExpanded,
-      enabled: children != null,
-      icon: children != null
-          ? null
-          : RepaintBoundary(
-              child: action,
-            ), // action replaces chevron if no children
-      trailing: children != null
-          ? RepaintBoundary(child: action)
-          : null, // when there are children, action goes to trailing and chevron shows up
+    // Build the leading widget (icon or image)
+    final leadingWidget = image != null
+        ? ClipRRect(
+            borderRadius: _cardBorderRadius,
+            child: Image.network(
+              image!,
+              width: _imgXY,
+              height: _imgXY,
+              cacheHeight: (_imgXY * MediaQuery.devicePixelRatioOf(context))
+                  .toInt(),
+              cacheWidth: (_imgXY * MediaQuery.devicePixelRatioOf(context))
+                  .toInt(),
+              filterQuality: FilterQuality.high,
+            ),
+          )
+        : Icon(icon, size: 24);
 
-      leading: image != null
-          ? ClipRRect(
-              borderRadius: _cardBorderRadius,
-              child: Image.network(
-                image!,
-                width: _imgXY,
-                height: _imgXY,
-                cacheHeight: (_imgXY * MediaQuery.devicePixelRatioOf(context))
-                    .toInt(),
-                cacheWidth: (_imgXY * MediaQuery.devicePixelRatioOf(context))
-                    .toInt(),
-                filterQuality: FilterQuality.high,
-              ),
-            )
-          : Icon(icon, size: 24),
-      headerShape: (open) => RoundedRectangleBorder(
-        borderRadius: open
-            ? const BorderRadius.only(
-                topLeft: Radius.circular(5.0),
-                topRight: Radius.circular(5.0),
-              )
-            : _cardBorderRadius,
-        side: BorderSide(color: context.theme.resources.cardStrokeColorDefault),
-      ),
-      headerBackgroundColor: WidgetStateProperty.resolveWith((states) {
-        if (states.isHovered) {
-          return context.theme.resources.cardBackgroundFillColorSecondary;
-        }
-        return context.theme.cardColor;
-      }),
-      contentShape: (open) => RoundedRectangleBorder(
-        borderRadius: open
-            ? const BorderRadius.only(
-                bottomLeft: Radius.circular(5.0),
-                bottomRight: Radius.circular(5.0),
-              )
-            : _cardBorderRadius,
-        side: BorderSide(
-          color: context.theme.resources.cardStrokeColorDefault,
-          width: 0.5,
-        ),
-      ),
-      contentBackgroundColor: context.theme.cardColor,
-      header: CardListTile(
-        title: label,
+    // If it's a clickable card (no children, has ChevronRightAction), build custom HoverButton
+    if (children == null && action is ChevronRightAction) {
+      return _ClickableCardChevron(
+        pageStorageKey: pageStorageKey,
+        onPressed: onPressed,
+        leadingWidget: leadingWidget,
+        label: label,
         description: description,
         descriptionLink: descriptionLink,
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 6.5,
-          vertical: description != null ? 16.75 : 24.25,
-        ),
-      ),
-      // contentPadding: const EdgeInsets.symmetric(horizontal: 50, vertical: 9),
-      contentPadding: EdgeInsets.zero,
-      content: children != null
-          ? Column(
-              crossAxisAlignment: .start,
-              mainAxisSize: MainAxisSize.min,
-              children: children!.mapIndexed((index, element) {
-                return DecoratedBox(
-                  decoration: BoxDecoration(
-                    border: index < children!.length - 1
-                        ? Border(
-                            bottom: BorderSide(
-                              color: context
-                                  .theme
-                                  .resources
-                                  .cardStrokeColorDefault,
-                              width: 2,
-                            ),
-                          )
-                        : null,
-                  ),
-                  child: element,
-                );
-              }).toList(),
-            )
-          : const SizedBox.shrink(),
-    );
-
-    // Only wrap in HoverButton when non-expandable
-    if (children == null && action is ChevronRightAction) {
-      return HoverButton(
-        key: PageStorageKey(pageStorageKey),
-        onPressed: onPressed,
-        hitTestBehavior: HitTestBehavior.deferToChild,
-        builder: (_, states) => FocusBorder(
-          focused: states.isFocused,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: states.isHovered
-                  ? context.theme.resources.cardBackgroundFillColorSecondary
-                  : null,
-              borderRadius: _cardBorderRadius,
-            ),
-            child: IgnorePointer(
-              child: expanderWidget,
-            ), // disabled Expander inside is absorbing pointer events, preventing the HoverButton's onPressed execution. IgnorePointer fixes this.
-          ),
-        ),
+        action: action,
       );
     }
 
-    return expanderWidget;
+    // Otherwise, use Expander for expandable cards
+    return _ExpandableCard(
+      pageStorageKey: pageStorageKey,
+      initiallyExpanded: initiallyExpanded,
+      leadingWidget: leadingWidget,
+      label: label,
+      description: description,
+      descriptionLink: descriptionLink,
+      action: action,
+      children: children,
+    );
+  }
+}
+
+class _ExpandableCard extends ConsumerStatefulWidget {
+  const _ExpandableCard({
+    required this.pageStorageKey,
+    required this.initiallyExpanded,
+    required this.leadingWidget,
+    required this.label,
+    required this.description,
+    required this.descriptionLink,
+    required this.action,
+    required this.children,
+  });
+
+  final int pageStorageKey;
+  final bool initiallyExpanded;
+  final Widget leadingWidget;
+  final String label;
+  final String? description;
+  final String? descriptionLink;
+  final Widget? action;
+  final List<Widget>? children;
+
+  @override
+  ConsumerState<_ExpandableCard> createState() => _ExpandableCardState();
+}
+
+class _ExpandableCardState extends ConsumerState<_ExpandableCard> {
+  bool _isHovered = false;
+  bool _isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    final resources = theme.resources;
+    final isLight = theme.brightness == .light;
+    final defaultBorderColor = resources.cardStrokeColorDefault;
+    final hoverBottomBorderColor = isLight
+        ? ref
+              .read(appSettingsProvider.notifier)
+              .cardLightHoverBottomBorderColor()!
+        : defaultBorderColor;
+
+    return MouseRegion(
+      key: PageStorageKey(widget.pageStorageKey),
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: Stack(
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: theme.cardColor,
+              borderRadius: _cardBorderRadius,
+              border: .all(
+                color: isLight
+                    ? defaultBorderColor
+                    : widget.children != null && _isHovered && !_isExpanded
+                    ? resources.cardBackgroundFillColorSecondary
+                    : defaultBorderColor,
+                width: 1.5,
+              ),
+            ),
+            child: Padding(
+              padding: isLight ? const .all(1.5) : .zero,
+              child: Expander(
+                initiallyExpanded: widget.initiallyExpanded,
+                enabled: widget.children != null,
+                icon: widget.children != null
+                    ? null
+                    : RepaintBoundary(child: widget.action),
+                trailing: widget.children != null
+                    ? RepaintBoundary(child: widget.action)
+                    : null,
+                leading: widget.leadingWidget,
+                headerShape: (open) => RoundedRectangleBorder(
+                  borderRadius: open
+                      ? const .only(
+                          topLeft: Radius.circular(5.0),
+                          topRight: Radius.circular(5.0),
+                        )
+                      : _cardBorderRadius,
+                ),
+                headerBackgroundColor: .resolveWith((states) {
+                  if (states.isHovered) {
+                    return resources.cardBackgroundFillColorSecondary;
+                  }
+                  return Colors.transparent;
+                }),
+                onStateChanged: (expanded) {
+                  setState(() => _isExpanded = expanded);
+                },
+                contentShape: (open) => RoundedRectangleBorder(
+                  borderRadius: open
+                      ? const .only(
+                          bottomLeft: .circular(5.0),
+                          bottomRight: .circular(5.0),
+                        )
+                      : _cardBorderRadius,
+                ),
+                contentBackgroundColor: Colors.transparent,
+                header: CardListTile(
+                  title: widget.label,
+                  description: widget.description,
+                  descriptionLink: widget.descriptionLink,
+                  contentPadding: .symmetric(
+                    horizontal: 6.5,
+                    vertical: widget.description != null ? 16.75 : 24.25,
+                  ),
+                ),
+                contentPadding: .zero,
+                content: widget.children != null
+                    ? DecoratedBox(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              color: hoverBottomBorderColor,
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: .start,
+                          mainAxisSize: .min,
+                          children: [
+                            for (
+                              int index = 0;
+                              index < widget.children!.length;
+                              index++
+                            )
+                              DecoratedBox(
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: index == widget.children!.length - 1
+                                        ? .none
+                                        : BorderSide(
+                                            color: defaultBorderColor,
+                                            width: 2,
+                                          ),
+                                  ),
+                                ),
+                                child: widget.children![index],
+                              ),
+                          ],
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ),
+          ),
+          if (widget.children != null && isLight && _isHovered && !_isExpanded)
+            Positioned(
+              left: 3,
+              right: 3,
+              bottom: 0,
+              child: Divider(
+                style: DividerThemeData(
+                  horizontalMargin: .zero,
+                  decoration: BoxDecoration(
+                    color: hoverBottomBorderColor,
+                    borderRadius: _cardBorderRadius,
+                  ),
+                  thickness: 1.5,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ClickableCardChevron extends StatelessWidget {
+  const _ClickableCardChevron({
+    required this.pageStorageKey,
+    required this.onPressed,
+    required this.leadingWidget,
+    required this.label,
+    required this.description,
+    required this.descriptionLink,
+    required this.action,
+  });
+
+  final int pageStorageKey;
+  final VoidCallback? onPressed;
+  final Widget leadingWidget;
+  final String label;
+  final String? description;
+  final String? descriptionLink;
+  final Widget? action;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    final resources = theme.resources;
+    return HoverButton(
+      key: PageStorageKey(pageStorageKey),
+      onPressed: onPressed,
+      builder: (_, states) => FocusBorder(
+        focused: states.isFocused,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: _cardBorderRadius,
+            color: theme.cardColor,
+            border: .all(color: resources.cardStrokeColorDefault, width: 1.5),
+          ),
+          child: ClipRRect(
+            borderRadius: _cardBorderRadius,
+            child: Padding(
+              // Inset the hover fill so it does not paint over the stroke.
+              padding: const .all(1.5),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: states.isHovered
+                      ? resources.cardBackgroundFillColorSecondary
+                      : Colors.transparent,
+                ),
+                child: CardListTile(
+                  leading: leadingWidget,
+                  title: label,
+                  description: description,
+                  descriptionLink: descriptionLink,
+                  trailing: action != null
+                      ? RepaintBoundary(child: action!)
+                      : null,
+                  extraTrailingPadding: false,
+                  contentPadding: const .only(
+                    left: 17.0,
+                    top: 16.75,
+                    bottom: 16.75,
+                    right: 17.0,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -188,10 +353,8 @@ class CardListTile extends StatelessWidget {
     this.description,
     this.descriptionLink,
     this.trailing,
-    this.contentPadding = const EdgeInsets.symmetric(
-      horizontal: 17.0,
-      vertical: 9.0,
-    ),
+    this.contentPadding = const .symmetric(horizontal: 17.0, vertical: 9.0),
+    this.extraTrailingPadding = true,
   });
 
   final Widget? leading;
@@ -201,26 +364,33 @@ class CardListTile extends StatelessWidget {
   final Widget? trailing;
   final EdgeInsetsGeometry contentPadding;
 
+  /// Whether to add extra 28px padding on the right when trailing is present.
+  /// Set to false for standalone cards, true for Expander children.
+  final bool extraTrailingPadding;
+
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+    final isLight = theme.brightness == .light;
     final content = Column(
       crossAxisAlignment: .start,
       children: [
-        Text.rich(TextSpan(text: title), style: context.theme.typography.body),
+        Text.rich(TextSpan(text: title), style: theme.typography.body),
         if (description != null || descriptionLink != null) ...[
           RichText(
             text: TextSpan(
               text: description,
-              style: context.theme.brightness == Brightness.dark
-                  ? _cardDescStyleForDark
-                  : _cardDescStyleForLight,
+              style: isLight ? _cardDescStyleForLight : _cardDescStyleForDark,
               children: descriptionLink != null
                   ? [
                       if (description != null) const TextSpan(text: '. '),
                       TextSpan(
                         text: '${t.moreAbout} ${title.toLowerCase()}',
                         style: TextStyle(
-                          color: context.theme.accentColor.lightest,
+                          color: isLight
+                              ? theme.accentColor.darkest
+                              : theme.accentColor.lightest,
+                          fontWeight: .w500,
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () async =>
@@ -236,13 +406,14 @@ class CardListTile extends StatelessWidget {
 
     if (trailing != null) {
       return Padding(
-        padding: contentPadding
-            .add(
-              leading != null
-                  ? const EdgeInsets.only(left: 0)
-                  : const EdgeInsets.only(left: 40),
-            )
-            .add(const EdgeInsets.only(right: 28)),
+        padding: .only(
+          left: contentPadding.resolve(.ltr).left + (leading != null ? 0 : 40),
+          top: contentPadding.resolve(.ltr).top,
+          bottom: contentPadding.resolve(.ltr).bottom,
+          right:
+              contentPadding.resolve(.ltr).right +
+              (extraTrailingPadding ? 28 : 0),
+        ),
         child: Row(
           spacing: 16.0,
           children: [
@@ -276,7 +447,7 @@ class CardToggleSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: .min,
       children: [
         Text(
           value ? t.onStatus : t.offStatus,
@@ -337,12 +508,7 @@ void showRestartDialog(
       title: title.isEmpty ? null : Text(title),
       content: Text(content.isEmpty ? t.restartDialog : content),
       actions: [
-        Button(
-          child: Text(t.okButton),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        Button(child: Text(t.okButton), onPressed: () => context.pop()),
       ],
     ),
   );

@@ -127,35 +127,35 @@ class MyApp extends ConsumerWidget {
         darkTheme: FluentThemeData(
           brightness: Brightness.dark,
           accentColor: getSystemAccentColor(accent),
-
           navigationPaneTheme: NavigationPaneThemeData(
-            backgroundColor: settingsNotifier.effectColor(null),
+            backgroundColor: settingsNotifier.effectColor(
+              const Color.fromARGB(255, 32, 32, 32),
+            ),
+            overlayBackgroundColor: const .fromARGB(255, 32, 32, 32),
           ),
           scaffoldBackgroundColor: settingsNotifier.effectColor(
             const Color.fromARGB(255, 32, 32, 32),
           ),
-          // cardColor: Color(0xFF2B2B2B),
-          cardColor: ref
-              .watch(appSettingsProvider.notifier)
-              .effectColor(
-                const Color.fromARGB(
-                  255,
-                  255,
-                  255,
-                  255,
-                ).withValues(alpha: 0.05),
-                modifyColors: true,
-              ),
           visualDensity: VisualDensity.standard,
           focusTheme: FocusThemeData(
             glowFactor: is10footScreen(context) ? 2.0 : 0.0,
           ),
           resources: ResourceDictionary.dark(
             cardStrokeColorDefault: settingsNotifier.effectColor(
-              const Color(0xFF1D1D1D),
+              const Color.fromARGB(255, 0, 0, 0).withValues(alpha: 0.32),
+              // const Color(0xFF1D1D1D),
               modifyColors: true,
             )!,
-            cardBackgroundFillColorSecondary: const Color(0xFF323232),
+            cardBackgroundFillColorDefault: settingsNotifier.effectColor(
+              const Color.fromARGB(255, 255, 255, 255).withValues(alpha: 0.05),
+              // const Color(0xFF2B2B2B),
+              modifyColors: true,
+            )!,
+            cardBackgroundFillColorSecondary: settingsNotifier.effectColor(
+              const Color.fromARGB(255, 255, 255, 255).withValues(alpha: 0.03),
+              // const Color(0xFF323232),
+              modifyColors: true,
+            )!,
           ),
         ),
         theme: FluentThemeData(
@@ -163,6 +163,7 @@ class MyApp extends ConsumerWidget {
           visualDensity: VisualDensity.standard,
           navigationPaneTheme: NavigationPaneThemeData(
             backgroundColor: settingsNotifier.effectColor(null),
+            overlayBackgroundColor: const Color.fromRGBO(243, 243, 243, 100),
           ),
           scaffoldBackgroundColor: settingsNotifier.effectColor(
             const Color.fromRGBO(243, 243, 243, 100),
@@ -170,17 +171,31 @@ class MyApp extends ConsumerWidget {
           focusTheme: FocusThemeData(
             glowFactor: is10footScreen(context) ? 2.0 : 0.0,
           ),
-          resources: const ResourceDictionary.light(
-            cardStrokeColorDefault: Color.fromARGB(255, 229, 229, 229),
-            cardBackgroundFillColorSecondary: Color(0xFFF6F6F6),
+          resources: ResourceDictionary.light(
+            cardStrokeColorDefault: settingsNotifier.effectColor(
+              const Color.fromARGB(22, 0, 0, 0), // border color
+              modifyColors: true,
+            )!,
+            cardBackgroundFillColorDefault: settingsNotifier.effectColor(
+              const Color.fromARGB(255, 251, 251, 251), // card color
+              modifyColors: true,
+            )!,
+            cardBackgroundFillColorSecondary: settingsNotifier.effectColor(
+              const Color.fromARGB(
+                255,
+                0,
+                0,
+                0,
+              ).withValues(alpha: 0.02), // hover color
+              modifyColors: true,
+            )!,
           ),
         ), // TODO: make it compatible with windoweffect
         builder: (context, child) {
           settingsNotifier.setEffect(
             FluentTheme.of(context).micaBackgroundColor,
-            FluentTheme.of(context).brightness.isDark,
+            FluentTheme.of(context).brightness == .dark,
           );
-
           return Directionality(
             textDirection: appSettings.textDirection,
             child: child!,
