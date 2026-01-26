@@ -122,36 +122,32 @@ class AppRoutes {
       ? route.index
       : null;
 
-  static final _breadcrumbsCache = <String, List<BreadcrumbItem<String>>>{};
-
   static List<BreadcrumbItem<String>> buildBreadcrumbs(
     String location,
     BuildContext context,
   ) {
-    return _breadcrumbsCache.putIfAbsent(location, () {
-      final segments = location.split('/').where((s) => s.isNotEmpty).toList();
-      final theme = FluentTheme.of(context);
+    final segments = location.split('/').where((s) => s.isNotEmpty).toList();
+    final theme = FluentTheme.of(context);
 
-      String currentPath = '';
-      return [
-        for (int i = 0; i < segments.length; i++)
-          (() {
-            currentPath += '/${segments[i]}';
-            final isLast = i == segments.length - 1;
-            return BreadcrumbItem(
-              label: Text(
-                getRouteName(currentPath, context),
-                style: TextStyle(
-                  color: isLast
-                      ? theme.typography.body?.color
-                      : theme.resources.textFillColorSecondary,
-                ),
+    String currentPath = '';
+    return [
+      for (int i = 0; i < segments.length; i++)
+        (() {
+          currentPath += '/${segments[i]}';
+          final isLast = segments.last == segments[i];
+          return BreadcrumbItem(
+            label: Text(
+              getRouteName(currentPath, context),
+              style: TextStyle(
+                color: isLast
+                    ? theme.typography.body?.color
+                    : theme.resources.textFillColorSecondary,
               ),
-              value: currentPath,
-            );
-          })(),
-      ];
-    });
+            ),
+            value: currentPath,
+          );
+        })(),
+    ];
   }
 
   /// Creates a page with [HorizontalSlidePageTransition] for nested routes.
