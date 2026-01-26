@@ -153,8 +153,8 @@ class SecurityServiceImpl implements SecurityService {
 
       await WinPackageService.uninstallPackage(WinPackageType.defenderRemoval);
 
-      await shell.run(
-        'start /WAIT /MIN /B "" "%systemroot%\\System32\\gpupdate.exe" /Target:Computer /Force',
+      await runPSCommand(
+        "& \$env:SystemRoot\\System32\\gpupdate.exe /Target:Computer /Force",
       );
 
       await Future.wait([
@@ -347,8 +347,8 @@ class SecurityServiceImpl implements SecurityService {
         ),
       ]);
 
-      await shell.run(
-        'start /WAIT /MIN /B "" "%systemroot%\\System32\\gpupdate.exe" /Target:Computer /Force',
+      await runPSCommand(
+        "& \$env:SystemRoot\\System32\\gpupdate.exe /Target:Computer /Force",
       );
 
       if (File(_mpCmdRunString).existsSync()) {

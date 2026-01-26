@@ -85,7 +85,7 @@ bool isProcessRunning(String name) {
 }
 
 /// PowerShell helper for executing commands with faster startup time
-Future<String> runPSCommand(String command) async {
+Future<String> runPSCommand(String command, {bool stdout = false}) async {
   final result = await Process.run('powershell', [
     '-NoProfile',
     '-NonInteractive',
@@ -107,7 +107,7 @@ Future<String> runPSCommand(String command) async {
       result.exitCode,
     );
   }
-  logger.i('ps_command: $command');
+  logger.i('ps_command: $command; ${stdout ? result.stdout : ''}');
 
   return result.stdout.toString();
 }
