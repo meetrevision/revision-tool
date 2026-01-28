@@ -1,20 +1,33 @@
 
 
-<img align="left" src="src/windows/runner/resources/app_icon.ico" width="64" height="64" />
+<p align="center">
+  <img src="src/windows/runner/resources/app_icon.ico" width="64" height="64" />
+</p>
 
-# Revision Tool
-[![Releases](https://img.shields.io/github/v/release/MeetRevision/revision-tool.svg)](https://github.com/MeetRevision/revision-tool/releases)
-[![License](https://img.shields.io/github/license/MeetRevision/revision-tool.svg)](https://github.com/MeetRevision/revision-tool/blob/main/LICENSE)
-[![Made with Fluent Design](https://img.shields.io/badge/fluent-design-blue?style=flat-square&color=gray&labelColor=0078D7)](https://github.com/bdlukaa/fluent_ui)
+<h1 align="center">Revision Tool</h1>
+
+<p align="center">
+  <a href="https://github.com/MeetRevision/revision-tool/releases">
+    <img src="https://img.shields.io/github/v/release/MeetRevision/revision-tool.svg" />
+  </a>
+  <a href="https://github.com/MeetRevision/revision-tool/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/MeetRevision/revision-tool.svg" />
+  </a>
+  <a href="https://github.com/bdlukaa/fluent_ui">
+    <img src="https://img.shields.io/badge/fluent-design-blue?style=flat-square&color=gray&labelColor=0078D7" />
+  </a>
+</p>
+
 <br>
 
-A tool to personalize ReviOS to your needs. Rewritten in Dart with Fluent UI.
+A tool to personalize [ReviOS](https://www.revi.cc/) to your needs. Rewritten in Dart with Fluent UI.
 
-The program is meant to be only used on [ReviOS](https://www.revi.cc/) 22.10 or up.
+> [!WARNING]  
+> This program is strictly intended for **ReviOS (22.10 or higher)**. It is **not meant to run on non-ReviOS systems** and may cause issues if used elsewhere.
 
 ## License
 
-Revision Tool is licensed under GNU General Public License v3.0. 
+Revision Tool is licensed under the [GNU General Public License v3.0](LICENSE). 
 
 The tool also contains:
 * [NanaRun](https://github.com/M2Team/NanaRun) - MIT
