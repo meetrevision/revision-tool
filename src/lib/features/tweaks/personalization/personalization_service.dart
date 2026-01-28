@@ -2,9 +2,10 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
-import 'package:revitool/core/services/win_registry_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:win32_registry/win32_registry.dart';
+
+import '../../../core/services/win_registry_service.dart';
 
 part 'personalization_service.g.dart';
 
@@ -38,7 +39,7 @@ abstract class PersonalizationService {
 class PersonalizationServiceImpl implements PersonalizationService {
   const PersonalizationServiceImpl();
 
-  static const _listEquality = ListEquality();
+  static const ListEquality<dynamic> _listEquality = ListEquality();
   static final _cplValue = Uint8List.fromList([
     0,
     0,
@@ -170,11 +171,13 @@ class PersonalizationServiceImpl implements PersonalizationService {
       ),
     ]);
 
-    for (final page in ["notifications", "privacy-notifications"]) {
-      WinRegistryService.unhidePageVisibilitySettings(page);
+    for (final page in ['notifications', 'privacy-notifications']) {
+      await WinRegistryService.unhidePageVisibilitySettings(page);
     }
 
-    final wpnServices = WinRegistryService.getUserServices('Wpn');
+    final Iterable<String> wpnServices = WinRegistryService.getUserServices(
+      'Wpn',
+    );
     await Future.wait(
       wpnServices.map(
         (service) => WinRegistryService.writeRegistryValue(
@@ -293,7 +296,9 @@ class PersonalizationServiceImpl implements PersonalizationService {
       ),
     ]);
 
-    final wpnServices = WinRegistryService.getUserServices('Wpn');
+    final Iterable<String> wpnServices = WinRegistryService.getUserServices(
+      'Wpn',
+    );
     await Future.wait(
       wpnServices.map(
         (service) => WinRegistryService.writeRegistryValue(
@@ -305,8 +310,8 @@ class PersonalizationServiceImpl implements PersonalizationService {
       ),
     );
 
-    for (final page in ["notifications", "privacy-notifications"]) {
-      WinRegistryService.hidePageVisibilitySettings(page);
+    for (final page in ['notifications', 'privacy-notifications']) {
+      await WinRegistryService.hidePageVisibilitySettings(page);
     }
   }
 
@@ -359,7 +364,7 @@ class PersonalizationServiceImpl implements PersonalizationService {
     await WinRegistryService.deleteValue(
       Registry.localMachine,
       r'SOFTWARE\Policies\Microsoft\Windows\EdgeUI',
-      "AllowEdgeSwipe",
+      'AllowEdgeSwipe',
     );
   }
 
@@ -368,7 +373,7 @@ class PersonalizationServiceImpl implements PersonalizationService {
     await WinRegistryService.writeRegistryValue(
       Registry.localMachine,
       r'SOFTWARE\Policies\Microsoft\Windows\EdgeUI',
-      "AllowEdgeSwipe",
+      'AllowEdgeSwipe',
       0,
     );
   }
@@ -555,8 +560,8 @@ class PersonalizationServiceImpl implements PersonalizationService {
   Future<void> enableCapsLock() async {
     await WinRegistryService.deleteValue(
       Registry.localMachine,
-      r"SYSTEM\CurrentControlSet\Control\Keyboard Layout",
-      "Scancode Map",
+      r'SYSTEM\CurrentControlSet\Control\Keyboard Layout',
+      'Scancode Map',
     );
   }
 
@@ -564,8 +569,8 @@ class PersonalizationServiceImpl implements PersonalizationService {
   Future<void> disableCapsLock() async {
     await WinRegistryService.writeRegistryValue(
       Registry.localMachine,
-      r"SYSTEM\CurrentControlSet\Control\Keyboard Layout",
-      "Scancode Map",
+      r'SYSTEM\CurrentControlSet\Control\Keyboard Layout',
+      'Scancode Map',
       _cplValue,
     );
   }

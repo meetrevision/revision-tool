@@ -4,17 +4,17 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:revitool/core/routing/app_router.dart';
-
-import 'package:revitool/core/settings/app_settings_provider.dart';
-import 'package:revitool/core/settings/locale_config.dart';
-import 'package:revitool/core/trusted_installer/trusted_installer_service.dart';
-import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
-import 'package:revitool/utils.dart';
 import 'package:system_theme/system_theme.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:window_plus/window_plus.dart';
+
+import 'core/routing/app_router.dart';
+import 'core/services/win_registry_service.dart';
+import 'core/settings/app_settings_provider.dart';
+import 'core/settings/locale_config.dart';
+import 'core/trusted_installer/trusted_installer_service.dart';
+import 'i18n/generated/strings.g.dart';
+import 'utils.dart';
 
 String? initialRoute;
 
@@ -81,11 +81,11 @@ Future<void> main(List<String> args) async {
 
   logger.i('$tag Initializing locale');
   try {
-    final savedLocale = LocaleConfig.parse(appLanguage);
-    LocaleSettings.setLocale(savedLocale);
+    final AppLocale savedLocale = LocaleConfig.parse(appLanguage);
+    await LocaleSettings.setLocale(savedLocale);
   } catch (e) {
     logger.w('$tag Failed to set locale: $e');
-    LocaleSettings.setLocale(AppLocale.en);
+    await LocaleSettings.setLocale(AppLocale.en);
   }
 
   logger.i('$tag Initializing settings controller');
@@ -111,8 +111,10 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appSettings = ref.watch(appSettingsProvider);
-    final settingsNotifier = ref.read(appSettingsProvider.notifier);
+    final AppSettings appSettings = ref.watch(appSettingsProvider);
+    final AppSettingsNotifier settingsNotifier = ref.read(
+      appSettingsProvider.notifier,
+    );
 
     return SystemThemeBuilder(
       builder: (context, accent) => FluentApp.router(

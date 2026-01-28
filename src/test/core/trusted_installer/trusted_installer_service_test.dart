@@ -8,18 +8,17 @@ class MockTrustedInstallerService extends Mock
     implements TrustedInstallerService {}
 
 class FakeCommandResult extends Fake implements CommandResult {
+  FakeCommandResult({
+    required this.exitCode,
+    required this.output,
+    required this.error,
+  });
   @override
   final int exitCode;
   @override
   final String output;
   @override
   final String error;
-
-  FakeCommandResult({
-    required this.exitCode,
-    required this.output,
-    required this.error,
-  });
 }
 
 void main() {
@@ -38,11 +37,10 @@ void main() {
       ).thenAnswer((_) async => expectedResult);
 
       // Act
-      final result = await mockService.executeWithTrustedInstaller<String>(
-        () async {
-          return expectedResult;
-        },
-      );
+      final String result = await mockService
+          .executeWithTrustedInstaller<String>(() async {
+            return expectedResult;
+          });
 
       // Assert
       expect(result, expectedResult);
@@ -75,7 +73,7 @@ void main() {
       when(() => mockService.isTrustedInstallerAvailable()).thenReturn(true);
 
       // Act
-      final result = mockService.isTrustedInstallerAvailable();
+      final bool result = mockService.isTrustedInstallerAvailable();
 
       // Assert
       expect(result, isA<bool>());
@@ -89,7 +87,7 @@ void main() {
         () => mockService.executeWithTrustedInstaller<int>(any()),
       ).thenAnswer((_) async => 42);
 
-      final intResult = await mockService.executeWithTrustedInstaller<int>(
+      final int intResult = await mockService.executeWithTrustedInstaller<int>(
         () async => 42,
       );
       expect(intResult, 42);
@@ -99,9 +97,8 @@ void main() {
         () => mockService.executeWithTrustedInstaller<bool>(any()),
       ).thenAnswer((_) async => true);
 
-      final boolResult = await mockService.executeWithTrustedInstaller<bool>(
-        () async => true,
-      );
+      final bool boolResult = await mockService
+          .executeWithTrustedInstaller<bool>(() async => true);
       expect(boolResult, true);
 
       // Test with List
@@ -109,7 +106,7 @@ void main() {
         () => mockService.executeWithTrustedInstaller<List<String>>(any()),
       ).thenAnswer((_) async => ['a', 'b', 'c']);
 
-      final listResult = await mockService
+      final List<String> listResult = await mockService
           .executeWithTrustedInstaller<List<String>>(
             () async => ['a', 'b', 'c'],
           );
@@ -128,7 +125,9 @@ void main() {
       ).thenAnswer((_) async => expectedResult);
 
       // Act
-      final result = await mockService.executeCommand('whoami', ['/all']);
+      final CommandResult result = await mockService.executeCommand('whoami', [
+        '/all',
+      ]);
 
       // Assert
       expect(result.exitCode, 0);
@@ -149,7 +148,10 @@ void main() {
       ).thenAnswer((_) async => expectedResult);
 
       // Act
-      final result = await mockService.executeCommand('invalid', []);
+      final CommandResult result = await mockService.executeCommand(
+        'invalid',
+        [],
+      );
 
       // Assert
       expect(result.exitCode, 1);
@@ -164,17 +166,17 @@ void main() {
       ).thenAnswer((invocation) async {
         final callback =
             invocation.positionalArguments[0] as Future<int> Function();
-        return await callback();
+        return callback();
       });
 
       // Act
-      final result1 = await mockService.executeWithTrustedInstaller<int>(
+      final int result1 = await mockService.executeWithTrustedInstaller<int>(
         () async => 1,
       );
-      final result2 = await mockService.executeWithTrustedInstaller<int>(
+      final int result2 = await mockService.executeWithTrustedInstaller<int>(
         () async => 2,
       );
-      final result3 = await mockService.executeWithTrustedInstaller<int>(
+      final int result3 = await mockService.executeWithTrustedInstaller<int>(
         () async => 3,
       );
 
@@ -202,7 +204,7 @@ void main() {
 
     test('isTrustedInstallerAvailable checks service existence', () {
       // This should return true on Windows systems with TrustedInstaller service
-      final isAvailable = service.isTrustedInstallerAvailable();
+      final bool isAvailable = service.isTrustedInstallerAvailable();
       expect(isAvailable, isA<bool>());
       // On Windows, this should typically be true
       // expect(isAvailable, true); // Uncomment for local testing only
@@ -210,7 +212,7 @@ void main() {
 
     test('executeWithTrustedInstaller executes callback', () async {
       // Simple test that doesn't require actual TrustedInstaller operations
-      bool callbackExecuted = false;
+      var callbackExecuted = false;
 
       try {
         await service.executeWithTrustedInstaller(() async {
@@ -229,7 +231,7 @@ void main() {
       const testValue = 'test result';
 
       try {
-        final result = await service.executeWithTrustedInstaller<String>(
+        final String result = await service.executeWithTrustedInstaller<String>(
           () async {
             return testValue;
           },
@@ -260,25 +262,25 @@ void main() {
     test('TrustedInstallerException contains error information', () {
       final exception1 = TrustedInstallerException('Test message');
       expect(exception1.message, 'Test message');
-      expect(exception1.errorCode, isNull);
+      expect(exception1.reason, isNull);
       expect(exception1.toString(), contains('Test message'));
 
       final exception2 = TrustedInstallerException('Test with code', 123);
       expect(exception2.message, 'Test with code');
-      expect(exception2.errorCode, 123);
+      expect(exception2.reason, 123);
       expect(exception2.toString(), contains('Test with code'));
       expect(exception2.toString(), contains('123'));
     });
 
     test('multiple calls can be made sequentially', () async {
       try {
-        final result1 = await service.executeWithTrustedInstaller<int>(
+        final int result1 = await service.executeWithTrustedInstaller<int>(
           () async => 1,
         );
-        final result2 = await service.executeWithTrustedInstaller<int>(
+        final int result2 = await service.executeWithTrustedInstaller<int>(
           () async => 2,
         );
-        final result3 = await service.executeWithTrustedInstaller<int>(
+        final int result3 = await service.executeWithTrustedInstaller<int>(
           () async => 3,
         );
 
@@ -308,7 +310,7 @@ void main() {
 
     test('executeCommand can execute simple commands', () async {
       try {
-        final result = await service.executeCommand('whoami', []);
+        final CommandResult result = await service.executeCommand('whoami', []);
 
         expect(result, isA<CommandResult>());
         expect(result.exitCode, isA<int>());
@@ -322,7 +324,9 @@ void main() {
 
     test('executeCommand returns proper output', () async {
       try {
-        final result = await service.executeCommand('echo', ['test']);
+        final CommandResult result = await service.executeCommand('echo', [
+          'test',
+        ]);
 
         expect(result.exitCode, 0);
         expect(result.output, contains('test'));

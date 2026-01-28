@@ -1,18 +1,19 @@
 import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:revitool/core/widgets/page_header_with_breadcrumbs.dart';
-import 'package:revitool/extensions.dart';
-import 'package:revitool/core/routing/app_routes.dart';
-import 'package:revitool/core/routing/navigation_provider.dart';
-import 'package:revitool/core/routing/app_router.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:window_plus/window_plus.dart';
+
+import '../../extensions.dart';
+import '../../i18n/generated/strings.g.dart';
+import '../services/win_registry_service.dart';
+import '../widgets/page_header_with_breadcrumbs.dart';
+import 'app_router.dart';
+import 'app_routes.dart';
+import 'navigation_provider.dart';
 
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key, required this.child, required this.shellContext});
@@ -24,24 +25,29 @@ class AppShell extends ConsumerStatefulWidget {
 }
 
 class _AppShellState extends ConsumerState<AppShell> {
-  final _viewKey = GlobalKey(debugLabel: 'Navigation View Key');
-  final _searchKey = GlobalKey(debugLabel: 'Search Bar Key');
+  final GlobalKey<State<StatefulWidget>> _viewKey = GlobalKey(
+    debugLabel: 'Navigation View Key',
+  );
+  final GlobalKey<State<StatefulWidget>> _searchKey = GlobalKey(
+    debugLabel: 'Search Bar Key',
+  );
   final _searchFocusNode = FocusNode();
   final _searchController = TextEditingController();
   static const imgXY = 60.0;
-  AutoSuggestBoxItem? selectedPage;
+  AutoSuggestBoxItem<dynamic>? selectedPage;
 
-  late final List<AutoSuggestBoxItem> _searchItems = AppRoutes.searchableItems
+  late final List<AutoSuggestBoxItem<dynamic>> _searchItems = AppRoutes
+      .searchableItems
       .map((e) {
         final item = e as PaneItem;
         return AutoSuggestBoxItem(
           child: Row(spacing: 8, children: [e.icon, e.title!]),
-          value: (e.title as Text).data!,
-          label: (e.title as Text).data!,
+          value: (e.title! as Text).data,
+          label: (e.title! as Text).data!,
           onSelected: () async {
-            final path = (item.key as ValueKey).value.toString();
-            context.push(path);
-            await Future.delayed(const Duration(milliseconds: 17));
+            final path = (item.key! as ValueKey).value.toString();
+            await context.push(path);
+            await Future<void>.delayed(const Duration(milliseconds: 17));
             _searchController.clear();
           },
         );
@@ -55,7 +61,7 @@ class _AppShellState extends ConsumerState<AppShell> {
   );
 
   static final File _userImageFile = File(
-    'C:\\ProgramData\\Microsoft\\User Account Pictures\\user-192.png',
+    r'C:\ProgramData\Microsoft\User Account Pictures\user-192.png',
   );
 
   @override
@@ -68,10 +74,10 @@ class _AppShellState extends ConsumerState<AppShell> {
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasFluentTheme(context));
-    final imgCacheSize = (imgXY * MediaQuery.devicePixelRatioOf(context))
+    final int imgCacheSize = (imgXY * MediaQuery.devicePixelRatioOf(context))
         .toInt();
 
-    final localizations = FluentLocalizations.of(context);
+    final FluentLocalizations localizations = FluentLocalizations.of(context);
 
     return SafeArea(
       child: NavigationView(
@@ -83,24 +89,23 @@ class _AppShellState extends ConsumerState<AppShell> {
         appBar: NavigationAppBar(
           automaticallyImplyLeading: false,
           leading: () {
-            final enabled =
+            final bool enabled =
                 widget.shellContext != null &&
                 ref.read(appRouterProvider).canPop();
-            final onPressed = enabled
+            final Null Function()? onPressed = enabled
                 ? () {
                     context.pop();
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       if (!mounted) return;
                       final location = GoRouterState.of(context).uri.toString();
-                      final route = RouteMeta.fromPath(
+                      final RouteMeta? route = RouteMeta.fromPath(
                         location,
                         allowPrefix: true,
                       );
-                      final index = AppRoutes.getPaneIndexFromRoute(route);
+                      final int? index = AppRoutes.getPaneIndexFromRoute(route);
                       if (index != null) {
-                        ref
-                            .read(navigationIndexProvider.notifier)
-                            .setIndex(index);
+                        ref.read(navigationIndexProvider.notifier).index =
+                            index;
                       }
                     });
                   }
@@ -139,8 +144,8 @@ class _AppShellState extends ConsumerState<AppShell> {
           size: const NavigationPaneSize(openWidth: 300),
           selected: ref.watch(navigationIndexProvider),
           onItemPressed: (index) {
-            final route = AppRoutes.navigationRoutes[index];
-            ref.read(navigationIndexProvider.notifier).setIndex(index);
+            final RouteMeta route = AppRoutes.navigationRoutes[index];
+            ref.read(navigationIndexProvider.notifier).index = index;
             context.push(route.path);
           },
           displayMode: context.mqSize.width >= 800
@@ -176,7 +181,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                         ),
                       ),
                       const Text(
-                        "Proud ReviOS user",
+                        'Proud ReviOS user',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.normal,
@@ -210,21 +215,22 @@ class _AppShellState extends ConsumerState<AppShell> {
           ],
         ),
         paneBodyBuilder: (item, child) {
-          final name = item?.key is ValueKey
-              ? (item!.key as ValueKey).value
+          final String? name = item?.key is ValueKey
+              ? (item!.key! as ValueKey).value.toString()
               : null;
           return FocusTraversalGroup(
             key: ValueKey('body$name'),
             child: Builder(
               builder: (context) => Column(
                 children: [
-                  NavigationView.of(context).displayMode ==
-                          PaneDisplayMode.minimal
-                      ? const Padding(
-                          padding: EdgeInsets.only(left: 13),
-                          child: PageHeaderBreadcrumbs(),
-                        )
-                      : const PageHeaderBreadcrumbs(),
+                  if (NavigationView.of(context).displayMode ==
+                      PaneDisplayMode.minimal)
+                    const Padding(
+                      padding: EdgeInsets.only(left: 13),
+                      child: PageHeaderBreadcrumbs(),
+                    )
+                  else
+                    const PageHeaderBreadcrumbs(),
                   Expanded(child: widget.child),
                 ],
               ),

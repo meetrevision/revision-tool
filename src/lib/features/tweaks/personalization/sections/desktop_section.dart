@@ -1,10 +1,10 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
-import 'package:revitool/features/tweaks/personalization/personalization_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:revitool/core/widgets/card_highlight.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
+import '../../../../core/widgets/card_highlight.dart';
+import '../../../../i18n/generated/strings.g.dart';
+import '../personalization_service.dart';
 
 class DesktopSection extends StatelessWidget {
   const DesktopSection({super.key});
@@ -29,7 +29,7 @@ class _NotificationCard extends ConsumerWidget {
   const _NotificationCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(notificationStatusProvider);
+    final NotificationMode status = ref.watch(notificationStatusProvider);
 
     return CardListTile(
       // icon: msicons.FluentIcons.alert_20_regular,
@@ -47,30 +47,27 @@ class _NotificationCard extends ConsumerWidget {
                   .enableNotification();
               if (!context.mounted) return;
               showRestartDialog(context);
-              break;
             case NotificationMode.offMinimal:
               await ref
                   .read(personalizationServiceProvider)
                   .disableNotification();
-              break;
             case NotificationMode.offFull:
               await ref
                   .read(personalizationServiceProvider)
                   .disableNotificationAggressive();
-              break;
           }
 
           ref.invalidate(notificationStatusProvider);
         },
         items: const [
-          ComboBoxItem(value: NotificationMode.on, child: Text("On")),
+          ComboBoxItem(value: NotificationMode.on, child: Text('On')),
           ComboBoxItem(
             value: NotificationMode.offMinimal,
-            child: Text("Off (Minimal)"),
+            child: Text('Off (Minimal)'),
           ),
           ComboBoxItem(
             value: NotificationMode.offFull,
-            child: Text("Off (Full)"),
+            child: Text('Off (Full)'),
           ),
         ],
       ),
@@ -82,7 +79,7 @@ class _LegacyBalloonCard extends ConsumerWidget {
   const _LegacyBalloonCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(legacyBalloonStatusProvider);
+    final bool status = ref.watch(legacyBalloonStatusProvider);
 
     return CardListTile(
       // icon: msicons.FluentIcons.balloon_20_regular,
@@ -109,7 +106,7 @@ class _ScreenEdgeSwipeCard extends ConsumerWidget {
   const _ScreenEdgeSwipeCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(screenEdgeSwipeStatusProvider);
+    final bool status = ref.watch(screenEdgeSwipeStatusProvider);
 
     return CardListTile(
       title: t.tweaksPersonalizationScreenEdgeSwipe,
@@ -135,7 +132,7 @@ class _NewContextMenuCard extends ConsumerWidget {
   const _NewContextMenuCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(newContextMenuStatusProvider);
+    final bool status = ref.watch(newContextMenuStatusProvider);
 
     return CardListTile(
       title: t.tweaksPersonalizationNewContextMenu,

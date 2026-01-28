@@ -1,5 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:revitool/extensions.dart';
+import '../../extensions.dart';
 
 class Subtitle extends StatelessWidget {
   const Subtitle({super.key, required this.content});

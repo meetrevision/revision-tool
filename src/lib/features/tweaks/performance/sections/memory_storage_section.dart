@@ -2,10 +2,10 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:revitool/core/widgets/card_highlight.dart';
 
-import 'package:revitool/features/tweaks/performance/performance_service.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
+import '../../../../core/widgets/card_highlight.dart';
+import '../../../../i18n/generated/strings.g.dart';
+import '../performance_service.dart';
 
 class MemoryStorageSection extends StatelessWidget {
   const MemoryStorageSection({super.key});
@@ -33,7 +33,7 @@ class _SuperfetchCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(superfetchStatusProvider);
+    final bool status = ref.watch(superfetchStatusProvider);
 
     return CardListTile(
       // icon: msicons.FluentIcons.top_speed_20_regular,
@@ -59,8 +59,10 @@ class _MemoryCompressionCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final superfetchStatus = ref.watch(superfetchStatusProvider);
-    final memoryCompressionStatus = ref.watch(memoryCompressionStatusProvider);
+    final bool superfetchStatus = ref.watch(superfetchStatusProvider);
+    final bool memoryCompressionStatus = ref.watch(
+      memoryCompressionStatusProvider,
+    );
 
     if (!superfetchStatus) {
       return const SizedBox();
@@ -92,7 +94,7 @@ class _ServicesGroupingCard extends ConsumerWidget {
   const _ServicesGroupingCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(servicesGroupingStatusProvider);
+    final ServiceGrouping status = ref.watch(servicesGroupingStatusProvider);
 
     return CardListTile(
       // icon: msicons.FluentIcons.group_20_regular,
@@ -106,28 +108,29 @@ class _ServicesGroupingCard extends ConsumerWidget {
           switch (value) {
             case ServiceGrouping.forced:
               _showServicesGroupingWarning(context);
-              ref.read(performanceServiceProvider).forcedServicesGrouping();
-              break;
+              await ref
+                  .read(performanceServiceProvider)
+                  .forcedServicesGrouping();
             case ServiceGrouping.recommended:
-              ref
+              await ref
                   .read(performanceServiceProvider)
                   .recommendedServicesGrouping();
-              break;
             case ServiceGrouping.disabled:
-              ref.read(performanceServiceProvider).disableServicesGrouping();
-              break;
+              await ref
+                  .read(performanceServiceProvider)
+                  .disableServicesGrouping();
           }
           ref.invalidate(servicesGroupingStatusProvider);
         },
         items: const [
-          ComboBoxItem(value: ServiceGrouping.forced, child: Text("Forced")),
+          ComboBoxItem(value: ServiceGrouping.forced, child: Text('Forced')),
           ComboBoxItem(
             value: ServiceGrouping.recommended,
-            child: Text("Recommended"),
+            child: Text('Recommended'),
           ),
           ComboBoxItem(
             value: ServiceGrouping.disabled,
-            child: Text("Disabled"),
+            child: Text('Disabled'),
           ),
         ],
       ),
@@ -153,7 +156,7 @@ class _LastTimeAccessCard extends ConsumerWidget {
   const _LastTimeAccessCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(lastTimeAccessNTFSStatusProvider);
+    final bool status = ref.watch(lastTimeAccessNTFSStatusProvider);
 
     return CardListTile(
       // icon: msicons.FluentIcons.document_bullet_list_clock_20_regular,
@@ -181,7 +184,7 @@ class _Dot3NamingCard extends ConsumerWidget {
   const _Dot3NamingCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(dot3NamingNTFSStatusProvider);
+    final bool status = ref.watch(dot3NamingNTFSStatusProvider);
 
     return CardListTile(
       // icon: msicons.FluentIcons.hard_drive_20_regular,
@@ -209,7 +212,7 @@ class _MemoryUsageCard extends ConsumerWidget {
   const _MemoryUsageCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(memoryUsageNTFSStatusProvider);
+    final bool status = ref.watch(memoryUsageNTFSStatusProvider);
 
     return CardListTile(
       // icon: msicons.FluentIcons.memory_16_regular,

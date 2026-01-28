@@ -230,9 +230,9 @@ void main() {
         ).thenAnswer((_) async => Future.value());
         when(() => mockService.statusDriversWU).thenReturn(false);
 
-        final pauseStatus = mockService.statusPauseUpdatesWU;
+        final bool pauseStatus = mockService.statusPauseUpdatesWU;
         await mockService.disableVisibilityWU();
-        final driverStatus = mockService.statusDriversWU;
+        final bool driverStatus = mockService.statusDriversWU;
 
         expect(pauseStatus, isTrue);
         expect(driverStatus, isFalse);

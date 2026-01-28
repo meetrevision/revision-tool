@@ -9,8 +9,8 @@ part 'product.g.dart';
 @freezed
 sealed class Product with _$Product {
   const factory Product({
-    @JsonKey(name: "ExpiryUtc") DateTime? expiryUtc,
-    @JsonKey(name: "Payload") Payload? payload,
+    @JsonKey(name: 'ExpiryUtc') DateTime? expiryUtc,
+    @JsonKey(name: 'Payload') Payload? payload,
   }) = _Product;
 
   factory Product.fromJson(Map<String, Object?> json) =>
@@ -20,16 +20,16 @@ sealed class Product with _$Product {
 @freezed
 sealed class Payload with _$Payload {
   const factory Payload({
-    @JsonKey(name: "ProductId") String? productId,
-    @JsonKey(name: "Title") String? title,
-    @JsonKey(name: "Description") String? description,
-    @JsonKey(name: "Skus") List<Skus>? skus,
-    @JsonKey(name: "Platforms") List<String>? platforms,
-    @JsonKey(name: "PermissionsRequired") List<String>? permissionsRequired,
-    @JsonKey(name: "PackageAndDeviceCapabilities")
+    @JsonKey(name: 'ProductId') String? productId,
+    @JsonKey(name: 'Title') String? title,
+    @JsonKey(name: 'Description') String? description,
+    @JsonKey(name: 'Skus') List<Skus>? skus,
+    @JsonKey(name: 'Platforms') List<String>? platforms,
+    @JsonKey(name: 'PermissionsRequired') List<String>? permissionsRequired,
+    @JsonKey(name: 'PackageAndDeviceCapabilities')
     List<String>? packageAndDeviceCapabilities,
 
-    @JsonKey(name: "ContainsDownloadPackage") bool? containsDownloadPackage,
+    @JsonKey(name: 'ContainsDownloadPackage') bool? containsDownloadPackage,
   }) = _Payload;
 
   factory Payload.fromJson(Map<String, Object?> json) =>
@@ -37,8 +37,8 @@ sealed class Payload with _$Payload {
 }
 
 enum SkuType {
-  full(value: "full"),
-  trial(value: "trial");
+  full(value: 'full'),
+  trial(value: 'trial');
 
   const SkuType({required this.value});
 
@@ -48,12 +48,12 @@ enum SkuType {
 @freezed
 sealed class Skus with _$Skus {
   const factory Skus({
-    @JsonKey(name: "SkuId") String? skuId,
-    @JsonKey(name: "Title") String? title,
-    @JsonKey(name: "SkuType") SkuType? skuType,
-    @JsonKey(name: "Price") double? price,
-    @JsonKey(name: "DisplayPrice") String? displayPrice,
-    @JsonKey(name: "FulfillmentData")
+    @JsonKey(name: 'SkuId') String? skuId,
+    @JsonKey(name: 'Title') String? title,
+    @JsonKey(name: 'SkuType') SkuType? skuType,
+    @JsonKey(name: 'Price') double? price,
+    @JsonKey(name: 'DisplayPrice') String? displayPrice,
+    @JsonKey(name: 'FulfillmentData')
     @FulfillmentDataConverter()
     FulfillmentData? fulfillmentData,
   }) = _Skus;
@@ -64,11 +64,11 @@ sealed class Skus with _$Skus {
 @freezed
 sealed class FulfillmentData with _$FulfillmentData {
   const factory FulfillmentData({
-    @JsonKey(name: "ProductId") String? productId,
-    @JsonKey(name: "WuBundleId") String? wuBundleId,
-    @JsonKey(name: "WuCategoryId") String? wuCategoryId,
-    @JsonKey(name: "PackageFamilyName") String? packageFamilyName,
-    @JsonKey(name: "SkuId") String? skuId,
+    @JsonKey(name: 'ProductId') String? productId,
+    @JsonKey(name: 'WuBundleId') String? wuBundleId,
+    @JsonKey(name: 'WuCategoryId') String? wuCategoryId,
+    @JsonKey(name: 'PackageFamilyName') String? packageFamilyName,
+    @JsonKey(name: 'SkuId') String? skuId,
   }) = _FulfillmentData;
 
   factory FulfillmentData.fromJson(Map<String, Object?> json) =>
@@ -81,7 +81,7 @@ class FulfillmentDataConverter
 
   @override
   FulfillmentData fromJson(String data) {
-    return FulfillmentData.fromJson(json.decode(data));
+    return FulfillmentData.fromJson(json.decode(data) as Map<String, Object?>);
   }
 
   @override

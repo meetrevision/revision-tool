@@ -1,20 +1,20 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
-import 'package:revitool/core/widgets/card_highlight.dart';
 
-import 'package:revitool/extensions.dart';
-import 'package:revitool/features/tweaks/utilities/utilities_service.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
-import 'package:revitool/utils_gui.dart';
+import '../../../core/widgets/card_highlight.dart';
+import '../../../extensions.dart';
+import '../../../i18n/generated/strings.g.dart';
+import '../../../utils_gui.dart';
+import 'utilities_service.dart';
 
 class UtilitiesPage extends ConsumerWidget {
   const UtilitiesPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hibernationStatus = ref.watch(hibernationStatusProvider);
+    final bool hibernationStatus = ref.watch(hibernationStatusProvider);
 
     return ScaffoldPage.scrollable(
       padding: kScaffoldPagePadding,
@@ -34,7 +34,7 @@ class _HibernationCard extends ConsumerWidget {
   const _HibernationCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(hibernationStatusProvider);
+    final bool status = ref.watch(hibernationStatusProvider);
 
     return CardHighlight(
       icon: msicons.FluentIcons.sleep_20_regular,
@@ -57,7 +57,7 @@ class _FastStartupCard extends ConsumerWidget {
   const _FastStartupCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(fastStartupStatusProvider);
+    final bool status = ref.watch(fastStartupStatusProvider);
 
     return CardHighlight(
       icon: msicons.FluentIcons.flash_20_regular,
@@ -81,7 +81,7 @@ class _TMMonitoringCard extends ConsumerWidget {
   const _TMMonitoringCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(tmMonitoringStatusProvider);
+    final bool status = ref.watch(tmMonitoringStatusProvider);
 
     return CardHighlight(
       icon: FluentIcons.task_manager,
@@ -105,7 +105,7 @@ class _UsageReportingCard extends ConsumerWidget {
   const _UsageReportingCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(usageReportingStatusProvider);
+    final bool status = ref.watch(usageReportingStatusProvider);
 
     return CardHighlight(
       icon: msicons.FluentIcons.battery_checkmark_20_regular,

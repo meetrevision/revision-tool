@@ -8,12 +8,12 @@ class UnsupportedWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScaffoldPage(
       content: ContentDialog(
-        title: const Text("Error"),
-        content: const Text("Unsupported build detected"),
+        title: const Text('Error'),
+        content: const Text('Unsupported build detected'),
         actions: [
           Button(
             child: const Text('OK'),
-            onPressed: () async => await WindowPlus.instance.close(),
+            onPressed: () async => WindowPlus.instance.close(),
           ),
         ],
       ),

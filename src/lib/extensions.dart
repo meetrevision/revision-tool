@@ -20,7 +20,7 @@ extension WidgetListSpacing on List<Widget> {
     if (isEmpty || spacing == 0) return this;
 
     final spacedChildren = <Widget>[];
-    for (int i = 0; i < length; i++) {
+    for (var i = 0; i < length; i++) {
       spacedChildren.add(this[i]);
       if (i < length - 1) {
         spacedChildren.add(

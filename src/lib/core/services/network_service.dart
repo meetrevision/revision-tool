@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
-import 'package:revitool/utils.dart';
+import '../../utils.dart';
 
 enum ApiEndpoints {
   revisionTool(api: 'meetrevision/revision-tool'),
@@ -13,8 +13,6 @@ enum ApiEndpoints {
 }
 
 class NetworkService {
-  static const tag = 'NetworkService';
-  final _dio = Dio();
 
   NetworkService() {
     (_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () =>
@@ -22,6 +20,8 @@ class NetworkService {
           ..badCertificateCallback =
               (X509Certificate cert, String host, int port) => true;
   }
+  static const tag = 'NetworkService';
+  final _dio = Dio();
 
   Future<Response<T>> get<T>(
     String path, {
@@ -67,7 +67,7 @@ class NetworkService {
 
   Future<Map<String, dynamic>> getGHLatestRelease(ApiEndpoints endpoint) async {
     try {
-      final response = await _dio.get(
+      final Response<dynamic> response = await _dio.get(
         'https://api.github.com/repos/${endpoint.api}/releases/latest',
       );
       return response.data as Map<String, dynamic>;
@@ -87,7 +87,7 @@ class NetworkService {
   ) async {
     try {
       logger.i('$tag(downloadFile): Downloading $url to $downloadPath');
-      final response = await _dio.download(url, downloadPath);
+      final Response<dynamic> response = await _dio.download(url, downloadPath);
       logger.i('$tag(downloadFile): Download completed');
       return response;
     } on DioException catch (e) {

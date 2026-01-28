@@ -29,7 +29,7 @@ void main() {
         });
 
         test('statusNotification returns one of the valid enum values', () {
-          final status = service.statusNotification;
+          final NotificationMode status = service.statusNotification;
           expect(
             [
               NotificationMode.on,
@@ -410,9 +410,9 @@ void main() {
         ).thenAnswer((_) async => Future.value());
         when(() => mockService.statusLegacyBalloon).thenReturn(false);
 
-        final notificationStatus = mockService.statusNotification;
+        final NotificationMode notificationStatus = mockService.statusNotification;
         await mockService.disableNotification();
-        final balloonStatus = mockService.statusLegacyBalloon;
+        final bool balloonStatus = mockService.statusLegacyBalloon;
 
         expect(notificationStatus, NotificationMode.on);
         expect(balloonStatus, isFalse);

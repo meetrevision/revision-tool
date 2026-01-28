@@ -1,4 +1,4 @@
-import 'package:revitool/i18n/generated/strings.g.dart';
+import '../../i18n/generated/strings.g.dart';
 
 class LocaleConfig {
   LocaleConfig._();

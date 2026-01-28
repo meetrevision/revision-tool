@@ -6,7 +6,7 @@ part 'non_uwp_response_dto.g.dart';
 
 @freezed
 sealed class MSStoreNonUWPResponseDTO with _$MSStoreNonUWPResponseDTO {
-  const factory MSStoreNonUWPResponseDTO({@JsonKey(name: "Data") Data? data}) =
+  const factory MSStoreNonUWPResponseDTO({@JsonKey(name: 'Data') Data? data}) =
       _MSStoreNonUWPResponseDTO;
 
   factory MSStoreNonUWPResponseDTO.fromJson(Map<String, Object?> json) =>
@@ -16,8 +16,8 @@ sealed class MSStoreNonUWPResponseDTO with _$MSStoreNonUWPResponseDTO {
 @freezed
 sealed class Data with _$Data {
   const factory Data({
-    @JsonKey(name: "PackageIdentifier") String? packageIdentifier,
-    @JsonKey(name: "Versions") List<Versions>? versions,
+    @JsonKey(name: 'PackageIdentifier') String? packageIdentifier,
+    @JsonKey(name: 'Versions') List<Versions>? versions,
   }) = _Data;
 
   factory Data.fromJson(Map<String, Object?> json) => _$DataFromJson(json);
@@ -26,9 +26,9 @@ sealed class Data with _$Data {
 @freezed
 sealed class Versions with _$Versions {
   const factory Versions({
-    @JsonKey(name: "PackageVersion") String? packageVersion,
-    @JsonKey(name: "DefaultLocale") DefaultLocale? defaultLocale,
-    @JsonKey(name: "Installers") List<Installers>? installers,
+    @JsonKey(name: 'PackageVersion') String? packageVersion,
+    @JsonKey(name: 'DefaultLocale') DefaultLocale? defaultLocale,
+    @JsonKey(name: 'Installers') List<Installers>? installers,
   }) = _Versions;
 
   factory Versions.fromJson(Map<String, Object?> json) =>
@@ -48,13 +48,13 @@ sealed class DefaultLocale with _$DefaultLocale {
 @freezed
 sealed class Installers with _$Installers {
   const factory Installers({
-    @JsonKey(name: "InstallerSha256") String? installerSha256,
-    @JsonKey(name: "InstallerUrl") String? installerUrl,
-    @JsonKey(name: "InstallerLocale") String? installerLocale,
-    @JsonKey(name: "MinimumOSVersion") String? minimumOSVersion,
-    @JsonKey(name: "InstallerSwitches") InstallerSwitches? installerSwitches,
-    @JsonKey(name: "Architecture") String? architecture,
-    @JsonKey(name: "InstallerType") String? installerType,
+    @JsonKey(name: 'InstallerSha256') String? installerSha256,
+    @JsonKey(name: 'InstallerUrl') String? installerUrl,
+    @JsonKey(name: 'InstallerLocale') String? installerLocale,
+    @JsonKey(name: 'MinimumOSVersion') String? minimumOSVersion,
+    @JsonKey(name: 'InstallerSwitches') InstallerSwitches? installerSwitches,
+    @JsonKey(name: 'Architecture') String? architecture,
+    @JsonKey(name: 'InstallerType') String? installerType,
   }) = _Installers;
 
   factory Installers.fromJson(Map<String, Object?> json) =>
@@ -63,7 +63,7 @@ sealed class Installers with _$Installers {
 
 @freezed
 sealed class InstallerSwitches with _$InstallerSwitches {
-  const factory InstallerSwitches({@JsonKey(name: "Silent") String? silent}) =
+  const factory InstallerSwitches({@JsonKey(name: 'Silent') String? silent}) =
       _InstallerSwitches;
 
   factory InstallerSwitches.fromJson(Map<String, Object?> json) =>

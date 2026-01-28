@@ -1,11 +1,12 @@
-import 'package:revitool/core/services/network_service.dart';
-import 'package:revitool/features/tweaks/performance/performance_service.dart';
-import 'package:revitool/features/tweaks/updates/kgl_dto.dart';
-import 'package:revitool/utils.dart';
+import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:win32_registry/win32_registry.dart';
 
+import '../../../core/services/network_service.dart';
 import '../../../core/services/win_registry_service.dart';
+import '../../../utils.dart';
+import '../performance/performance_service.dart';
+import 'kgl_dto.dart';
 
 part 'updates_service.g.dart';
 
@@ -31,7 +32,7 @@ class UpdatesServiceImpl implements UpdatesService {
   @override
   Future<void> updateCertificates() async {
     await shell.run(
-      'PowerShell -NonInteractive -NoLogo -NoP -C "& {\$tmp = (New-TemporaryFile).FullName; CertUtil -generateSSTFromWU -f \$tmp; if ( (Get-Item \$tmp | Measure-Object -Property Length -Sum).sum -gt 0 ) { \$SST_File = Get-ChildItem -Path \$tmp; \$SST_File | Import-Certificate -CertStoreLocation "Cert:\\LocalMachine\\Root"; \$SST_File | Import-Certificate -CertStoreLocation "Cert:\\LocalMachine\\AuthRoot" } Remove-Item -Path \$tmp}"',
+      r'PowerShell -NonInteractive -NoLogo -NoP -C "& {$tmp = (New-TemporaryFile).FullName; CertUtil -generateSSTFromWU -f $tmp; if ( (Get-Item $tmp | Measure-Object -Property Length -Sum).sum -gt 0 ) { $SST_File = Get-ChildItem -Path $tmp; $SST_File | Import-Certificate -CertStoreLocation "Cert:\LocalMachine\Root"; $SST_File | Import-Certificate -CertStoreLocation "Cert:\LocalMachine\AuthRoot" } Remove-Item -Path $tmp}"',
     );
   }
 
@@ -41,8 +42,9 @@ class UpdatesServiceImpl implements UpdatesService {
         'https://settings.data.microsoft.com/settings/v3.0/xbox/knowngamelist';
     try {
       final networkService = NetworkService();
-      final json = await networkService.get(api);
-      final kgl = KGLModel.fromJson(json.data['settings']);
+      final Response<dynamic> json = await networkService.get(api);
+      final data = json.data as Map<String, dynamic>;
+      final kgl = KGLModel.fromJson(data['settings'] as Map<String, dynamic>);
 
       await WinRegistryService.writeRegistryValue(
         WinRegistryService.currentUser,
@@ -88,7 +90,7 @@ class UpdatesServiceImpl implements UpdatesService {
         kgl.versionCheckTimeout,
       );
 
-      const PerformanceServiceImpl().enableBackgroundApps();
+      await const PerformanceServiceImpl().enableBackgroundApps();
     } catch (e, stackTrace) {
       logger.e('Failed to update KGL.', error: e, stackTrace: stackTrace);
       rethrow;
@@ -100,8 +102,8 @@ class UpdatesServiceImpl implements UpdatesService {
     return WinRegistryService.readString(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
-          "PauseUpdatesExpiryTime",
-        )?.contains("2038-01-19T03:14:07Z") ??
+          'PauseUpdatesExpiryTime',
+        )?.contains('2038-01-19T03:14:07Z') ??
         false;
   }
 
@@ -111,44 +113,44 @@ class UpdatesServiceImpl implements UpdatesService {
       WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
-        "FlightSettingsMaxPauseDays",
+        'FlightSettingsMaxPauseDays',
         5269,
       ),
       WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
-        "PauseFeatureUpdatesStartTime",
-        "2023-08-17T12:47:51Z",
+        'PauseFeatureUpdatesStartTime',
+        '2023-08-17T12:47:51Z',
       ),
       WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
-        "PauseFeatureUpdatesEndTime",
-        "2038-01-19T03:14:07Z",
+        'PauseFeatureUpdatesEndTime',
+        '2038-01-19T03:14:07Z',
       ),
       WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
-        "PauseQualityUpdatesStartTime",
-        "2023-08-17T12:47:51Z",
+        'PauseQualityUpdatesStartTime',
+        '2023-08-17T12:47:51Z',
       ),
       WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
-        "PauseQualityUpdatesEndTime",
-        "2038-01-19T03:14:07Z",
+        'PauseQualityUpdatesEndTime',
+        '2038-01-19T03:14:07Z',
       ),
       WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
-        "PauseUpdatesStartTime",
-        "2023-08-17T12:47:51Z",
+        'PauseUpdatesStartTime',
+        '2023-08-17T12:47:51Z',
       ),
       WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
-        "PauseUpdatesExpiryTime",
-        "2038-01-19T03:14:07Z",
+        'PauseUpdatesExpiryTime',
+        '2038-01-19T03:14:07Z',
       ),
     ]);
   }
@@ -200,18 +202,18 @@ class UpdatesServiceImpl implements UpdatesService {
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
           'SettingsPageVisibility',
-        )?.contains("windowsupdate") ??
+        )?.contains('windowsupdate') ??
         false;
   }
 
   @override
   Future<void> enableVisibilityWU() async {
-    await WinRegistryService.unhidePageVisibilitySettings("windowsupdate");
+    await WinRegistryService.unhidePageVisibilitySettings('windowsupdate');
   }
 
   @override
   Future<void> disableVisibilityWU() async {
-    await WinRegistryService.hidePageVisibilitySettings("windowsupdate");
+    await WinRegistryService.hidePageVisibilitySettings('windowsupdate');
   }
 
   @override

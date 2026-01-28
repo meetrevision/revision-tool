@@ -1,15 +1,15 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:revitool/core/widgets/subtitle.dart';
-import 'package:revitool/features/ms_store/widgets/msstore_dialogs.dart';
-import 'package:revitool/features/tweaks/updates/updates_service.dart';
-import 'package:revitool/extensions.dart';
-import 'package:revitool/core/widgets/card_highlight.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
-import 'package:revitool/i18n/generated/strings.g.dart';
-import 'package:revitool/utils_gui.dart';
+import '../../../core/widgets/card_highlight.dart';
+import '../../../core/widgets/subtitle.dart';
+import '../../../extensions.dart';
+import '../../../i18n/generated/strings.g.dart';
+import '../../../utils_gui.dart';
+import '../../ms_store/widgets/msstore_dialogs.dart';
+import 'updates_service.dart';
 
 class UpdatesPage extends ConsumerWidget {
   const UpdatesPage({super.key});
@@ -44,12 +44,12 @@ class _CertificatesCard extends ConsumerWidget {
         width: 150,
         child: Button(
           onPressed: () async {
-            showLoadingDialog(context, "Updating Certificates");
+            await showLoadingDialog(context, 'Updating Certificates');
             await ref.read(updatesServiceProvider).updateCertificates();
 
             if (!context.mounted) return;
             context.pop();
-            showDialog(
+            await showDialog(
               context: context,
               builder: (context) => ContentDialog(
                 content: Text(t.tweaksSecurityCertsUpdateDialog),
@@ -81,9 +81,12 @@ class _UpdateKGLCard extends ConsumerWidget {
         width: 150,
         child: Button(
           onPressed: () async {
-            String message = "";
+            var message = '';
             try {
-              showLoadingDialog(context, "${t.settingsUpdatingStatus} KGL");
+              await showLoadingDialog(
+                context,
+                '${t.settingsUpdatingStatus} KGL',
+              );
               await ref.read(updatesServiceProvider).updateKGL();
               if (!context.mounted) return;
               message = t.restartDialog;
@@ -109,7 +112,7 @@ class _PauseUpdatesCard extends ConsumerWidget {
   const _PauseUpdatesCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(pauseUpdatesWUStatusProvider);
+    final bool status = ref.watch(pauseUpdatesWUStatusProvider);
 
     return CardHighlight(
       icon: msicons.FluentIcons.pause_20_regular,
@@ -132,7 +135,7 @@ class _VisibilityCard extends ConsumerWidget {
   const _VisibilityCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(visibilityWUStatusProvider);
+    final bool status = ref.watch(visibilityWUStatusProvider);
 
     return CardHighlight(
       icon: msicons.FluentIcons.arrow_sync_20_regular,
@@ -155,7 +158,7 @@ class _DriversCard extends ConsumerWidget {
   const _DriversCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(driversWUStatusProvider);
+    final bool status = ref.watch(driversWUStatusProvider);
 
     return CardHighlight(
       icon: FluentIcons.devices4,

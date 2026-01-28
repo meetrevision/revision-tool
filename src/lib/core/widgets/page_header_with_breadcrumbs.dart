@@ -1,6 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:go_router/go_router.dart';
-import 'package:revitool/core/routing/app_routes.dart';
+import '../routing/app_routes.dart';
 
 /// A reusable PageHeader widget that automatically displays breadcrumbs
 /// based on the current route location.
@@ -26,8 +26,8 @@ class PageHeaderBreadcrumbs extends StatelessWidget {
   }
 
   static Widget _chevronIconBuilder(BuildContext context, int index) {
-    final theme = FluentTheme.of(context);
-    final textDirection = Directionality.of(context);
+    final FluentThemeData theme = FluentTheme.of(context);
+    final TextDirection textDirection = Directionality.of(context);
     return Padding(
       padding: const EdgeInsetsDirectional.symmetric(horizontal: 12.0),
       child: Icon(

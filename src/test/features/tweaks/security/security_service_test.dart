@@ -237,7 +237,7 @@ void main() {
           () => mockService.openDefenderThreatSettings(),
         ).thenAnswer((_) async => mockResult);
 
-        final result = await mockService.openDefenderThreatSettings();
+        final ProcessResult result = await mockService.openDefenderThreatSettings();
         expect(result, equals(mockResult));
         verify(() => mockService.openDefenderThreatSettings()).called(1);
       });
@@ -316,9 +316,9 @@ void main() {
         when(() => mockService.statusUAC).thenReturn(true);
 
         // Execute in specific order
-        final defenderStatus = mockService.statusDefender;
+        final bool defenderStatus = mockService.statusDefender;
         await mockService.enableUAC();
-        final uacStatus = mockService.statusUAC;
+        final bool uacStatus = mockService.statusUAC;
 
         expect(defenderStatus, isFalse);
         expect(uacStatus, isTrue);

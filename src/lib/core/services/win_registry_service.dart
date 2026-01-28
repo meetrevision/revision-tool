@@ -1,13 +1,14 @@
 import 'dart:typed_data';
 
-import 'package:revitool/core/trusted_installer/trusted_installer_service.dart';
-import 'package:revitool/utils.dart';
 import 'package:win32/win32.dart';
 import 'package:win32_registry/win32_registry.dart';
 
+import '../../utils.dart';
+import '../trusted_installer/trusted_installer_service.dart';
+
 class WinRegistryService {
-  static const tag = 'await WinRegistryService';
   const WinRegistryService._private();
+  static const tag = 'await WinRegistryService';
 
   static int get buildNumber => _buildNumber;
   static final int _buildNumber = int.parse(
@@ -18,9 +19,9 @@ class WinRegistryService {
     )!,
   );
 
-  static final currentUser = Registry.currentUser;
+  static final RegistryKey currentUser = Registry.currentUser;
   static const defaultUser = 'DefaultUserHive';
-  static const defaultUserHivePath = "C:\\Users\\Default\\NTUSER.DAT";
+  static const defaultUserHivePath = r'C:\Users\Default\NTUSER.DAT';
 
   static bool get isW11 => _w11;
   static final bool _w11 = buildNumber > 19045;
@@ -60,7 +61,7 @@ class WinRegistryService {
   }
 
   static bool _validate() {
-    final key = Registry.openPath(
+    final RegistryKey key = Registry.openPath(
       RegistryHive.localMachine,
       path:
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages',
@@ -68,7 +69,7 @@ class WinRegistryService {
 
     try {
       return key.subkeyNames
-          .lastWhere((element) => element.startsWith("Revision-ReviOS"))
+          .lastWhere((element) => element.startsWith('Revision-ReviOS'))
           .isNotEmpty;
     } catch (e) {
       logger.w('Error validating ReviOS');
@@ -77,7 +78,7 @@ class WinRegistryService {
   }
 
   static Future<void> hidePageVisibilitySettings(String pageName) async {
-    final currentValue = readString(
+    final String? currentValue = readString(
       RegistryHive.localMachine,
       r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
       'SettingsPageVisibility',
@@ -88,7 +89,7 @@ class WinRegistryService {
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
         'SettingsPageVisibility',
-        "hide:$pageName",
+        'hide:$pageName',
       );
       return;
     }
@@ -97,16 +98,16 @@ class WinRegistryService {
         Registry.localMachine,
         r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
         'SettingsPageVisibility',
-        currentValue.endsWith(";") || currentValue.endsWith(":")
-            ? "$currentValue$pageName;"
-            : "$currentValue;$pageName;",
+        currentValue.endsWith(';') || currentValue.endsWith(':')
+            ? '$currentValue$pageName;'
+            : '$currentValue;$pageName;',
       );
       return;
     }
   }
 
   static Future<void> unhidePageVisibilitySettings(String pageName) async {
-    final currentValue = readString(
+    final String? currentValue = readString(
       RegistryHive.localMachine,
       r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
       'SettingsPageVisibility',
@@ -117,20 +118,20 @@ class WinRegistryService {
     if (currentValue.contains(pageName)) {
       String newValue = currentValue;
 
-      if (currentValue == "hide:$pageName") {
+      if (currentValue == 'hide:$pageName') {
         await deleteValue(
           Registry.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
           'SettingsPageVisibility',
         );
         return;
-      } else if (currentValue.contains("$pageName;")) {
-        newValue = newValue.replaceAll("$pageName;", "");
-      } else if (currentValue.contains(";$pageName")) {
-        newValue = newValue.replaceAll(";$pageName", "");
+      } else if (currentValue.contains('$pageName;')) {
+        newValue = newValue.replaceAll('$pageName;', '');
+      } else if (currentValue.contains(';$pageName')) {
+        newValue = newValue.replaceAll(';$pageName', '');
       }
 
-      if (newValue == "hide:" || newValue.isEmpty) {
+      if (newValue == 'hide:' || newValue.isEmpty) {
         await deleteValue(
           Registry.localMachine,
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
@@ -211,10 +212,10 @@ class WinRegistryService {
     T value, {
     int retryCount = 0,
   }) async {
-    bool shouldClose = key != WinRegistryService.currentUser;
+    final shouldClose = key != WinRegistryService.currentUser;
 
     try {
-      final registryValue = switch (value) {
+      final RegistryValue registryValue = switch (value) {
         final int v => RegistryValue.int32(name, v),
         final String v => RegistryValue.string(name, v),
         final List<String> v => RegistryValue.stringArray(name, v),
@@ -229,13 +230,13 @@ class WinRegistryService {
       logger.i('$tag(writeRegistryValue): $path\\$name = $value');
 
       if (key == WinRegistryService.currentUser) {
-        await TrustedInstallerServiceImpl().executeCommand("reg", [
+        await TrustedInstallerServiceImpl().executeCommand('reg', [
           'load',
           'HKU\\$defaultUser',
           defaultUserHivePath,
         ]);
 
-        final reg = Registry.allUsers;
+        final RegistryKey reg = Registry.allUsers;
         reg.createKey('$defaultUser\\$path').createValue(registryValue);
         logger.i(
           '$tag(writeRegistryValue): $defaultUser\\$path\\$name = $value',
@@ -318,7 +319,7 @@ class WinRegistryService {
 
           await TrustedInstallerServiceImpl().executeWithTrustedInstaller(
             () async =>
-                await deleteValue(key, path, name, retryCount: retryCount + 1),
+                deleteValue(key, path, name, retryCount: retryCount + 1),
           );
           return;
         } catch (tiError) {

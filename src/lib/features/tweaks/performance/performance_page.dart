@@ -1,16 +1,17 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
-import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:revitool/core/widgets/card_highlight.dart';
-import 'package:revitool/extensions.dart';
-import 'package:revitool/features/tweaks/performance/performance_service.dart';
-import 'package:revitool/features/tweaks/performance/sections/background_priority_section.dart';
-import 'package:revitool/features/tweaks/performance/sections/memory_storage_section.dart';
-import 'package:revitool/features/tweaks/performance/sections/presentation_section.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
-import 'package:revitool/utils_gui.dart';
+
+import '../../../core/services/win_registry_service.dart';
+import '../../../core/widgets/card_highlight.dart';
+import '../../../extensions.dart';
+import '../../../i18n/generated/strings.g.dart';
+import '../../../utils_gui.dart';
+import 'performance_service.dart';
+import 'sections/background_priority_section.dart';
+import 'sections/memory_storage_section.dart';
+import 'sections/presentation_section.dart';
 
 class PerformancePage extends ConsumerWidget {
   const PerformancePage({super.key});
@@ -37,7 +38,7 @@ class _IntelTSXCard extends ConsumerWidget {
   const _IntelTSXCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(intelTSXStatusProvider);
+    final bool status = ref.watch(intelTSXStatusProvider);
 
     return CardHighlight(
       icon: msicons.FluentIcons.transmission_20_regular,
@@ -61,7 +62,7 @@ class _CStatesCard extends ConsumerWidget {
   const _CStatesCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(cStatesStatusProvider);
+    final bool status = ref.watch(cStatesStatusProvider);
 
     return CardHighlight(
       icon: msicons.FluentIcons.sleep_20_regular,

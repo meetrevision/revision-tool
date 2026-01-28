@@ -7,5 +7,6 @@ class NavigationIndex extends _$NavigationIndex {
   @override
   int build() => 0;
 
-  void setIndex(int index) => state = index;
+  // ignore: avoid_setters_without_getters
+  set index(int index) => state = index;
 }

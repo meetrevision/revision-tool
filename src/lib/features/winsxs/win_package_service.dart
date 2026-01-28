@@ -1,11 +1,13 @@
 import 'dart:io';
+
 import 'package:collection/collection.dart';
 import 'package:path/path.dart' as p;
-import 'package:revitool/core/services/network_service.dart';
-import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:revitool/utils.dart';
-
 import 'package:win32_registry/win32_registry.dart';
+
+import '../../core/services/network_service.dart';
+import '../../core/services/win_registry_service.dart';
+import '../../utils.dart';
+import 'winsxs_exceptions.dart';
 
 enum WinPackageType {
   systemComponentsRemoval(
@@ -23,13 +25,17 @@ enum WinPackageType {
 abstract final class WinPackageService {
   static final _networkService = NetworkService();
 
-  static final cabPath = p.join(
+  static final String cabPath = p.join(
     Directory.systemTemp.path,
     'Revision-Tool',
     'CAB',
   );
 
-  static final bundledPackagesPath = p.join(directoryExe, 'packages', 'winsxs');
+  static final String bundledPackagesPath = p.join(
+    directoryExe,
+    'packages',
+    'winsxs',
+  );
 
   static const cbsPackagesRegPath =
       r'SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages\';
@@ -80,13 +86,13 @@ abstract final class WinPackageService {
           .map((file) => p.basename(file.path))
           .firstWhereOrNull(
             (name) =>
-                name.startsWith("${packageType.packageName}31bf3856ad364e35") &&
+                name.startsWith('${packageType.packageName}31bf3856ad364e35') &&
                 name.contains(WinRegistryService.cpuArch) &&
                 name.endsWith('.cab'),
           );
 
       if (packageFile != null) {
-        final fullPath = p.join(bundledPackagesPath, packageFile);
+        final String fullPath = p.join(bundledPackagesPath, packageFile);
         logger.i('Found bundled package: $fullPath');
         return fullPath;
       }
@@ -100,33 +106,48 @@ abstract final class WinPackageService {
     final WinPackageType packageType, {
     String? path,
   }) async {
-    final downloadPath = path ?? cabPath;
+    final String downloadPath = path ?? cabPath;
 
     try {
       logger.i('Attempting to download package from GitHub...');
 
       Directory(downloadPath).createSync(recursive: true);
 
-      final List<dynamic> assests = (await _networkService.getGHLatestRelease(
-        ApiEndpoints.cabPackages,
-      ))['assets'];
-      String name = '';
+      final assets = List<Map<String, dynamic>>.from(
+        (await _networkService.getGHLatestRelease(
+              ApiEndpoints.cabPackages,
+            ))['assets']
+            as List<dynamic>,
+      );
+      var name = '';
 
-      final String? downloadUrl = assests.firstWhereOrNull((final e) {
-        name = e['name'];
-        return name.startsWith("${packageType.packageName}31bf3856ad364e35") &&
-            name.contains(WinRegistryService.cpuArch);
-      })['browser_download_url'];
+      final Map<String, dynamic>? asset = assets.firstWhereOrNull((
+        final Map<String, dynamic> e,
+      ) {
+        final n = e['name'] as String?;
+        return n != null &&
+            n.startsWith('${packageType.packageName}31bf3856ad364e35') &&
+            n.contains(WinRegistryService.cpuArch);
+      });
 
-      if (downloadUrl == null) {
-        throw 'No matching package found for ${packageType.packageName} with architecture ${WinRegistryService.cpuArch}';
+      final downloadUrl = asset?['browser_download_url'] as String?;
+      if (asset != null) {
+        name = asset['name'] as String? ?? '';
       }
 
-      final filePath = p.join(downloadPath, name);
+      if (downloadUrl == null) {
+        throw WinSxSPackageNotFoundException(
+          'No matching package found for ${packageType.packageName} with architecture ${WinRegistryService.cpuArch}',
+        );
+      }
+
+      final String filePath = p.join(downloadPath, name);
 
       await _networkService.downloadFile(downloadUrl, filePath);
       if (!File(filePath).existsSync()) {
-        throw 'Failed to download package: $name';
+        throw WinSxSPackageDownloadException(
+          'Failed to download package: $name',
+        );
       }
 
       logger.i('Successfully downloaded package from GitHub: $filePath');
@@ -135,12 +156,12 @@ abstract final class WinPackageService {
       logger.w('Failed to download from GitHub: $e');
       logger.i('Falling back to bundled packages...');
 
-      final bundledPath = getBundledPackagePath(packageType);
+      final String? bundledPath = getBundledPackagePath(packageType);
       if (bundledPath != null && File(bundledPath).existsSync()) {
         logger.i('Using bundled package: $bundledPath');
 
         if (path != null) {
-          final targetPath = p.join(path, p.basename(bundledPath));
+          final String targetPath = p.join(path, p.basename(bundledPath));
           Directory(path).createSync(recursive: true);
           await File(bundledPath).copy(targetPath);
           return targetPath;
@@ -149,14 +170,18 @@ abstract final class WinPackageService {
         return bundledPath;
       }
 
-      logger.e('No bundled package found for ${packageType.packageName}');
-      throw 'Failed to download package from GitHub and no bundled package available: $e';
+      throw WinSxSPackageDownloadException(
+        'Failed to download package from GitHub and no bundled package available',
+        e,
+      );
     }
   }
 
   static Future<void> installPackage(final String packagePath) async {
     if (!File(packagePath).existsSync()) {
-      throw 'Package file does not exist: $packagePath';
+      throw WinSxSPackageFileNotFoundException(
+        'Package file does not exist: $packagePath',
+      );
     }
 
     String certValue = await runPSCommand(
@@ -165,7 +190,9 @@ abstract final class WinPackageService {
     certValue = certValue.trim();
 
     if (certValue.isEmpty || certValue != '1.3.6.1.4.1.311.10.3.6') {
-      throw '[win_package] invalid signature: $packagePath';
+      throw InvalidWinSxSPackageSignatureException(
+        'Invalid signature: $packagePath',
+      );
     }
 
     WinRegistryService.createKey(

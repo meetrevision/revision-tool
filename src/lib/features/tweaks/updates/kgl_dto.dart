@@ -1,10 +1,4 @@
 class KGLModel {
-  final String uri;
-  final String hash;
-  final int version;
-  final int activateOnUpdate;
-  final int versionCheckTimeout;
-
   const KGLModel({
     required this.uri,
     required this.hash,
@@ -17,9 +11,14 @@ class KGLModel {
     return KGLModel(
       uri: json['URI'] as String,
       hash: json['HASH'] as String,
-      version: int.parse(json['VERSION']),
-      activateOnUpdate: int.parse(json['ACTIVATEONUPDATE']),
-      versionCheckTimeout: int.parse(json['VERSIONCHECKTIMEOUT']),
+      version: int.parse(json['VERSION'] as String),
+      activateOnUpdate: int.parse(json['ACTIVATEONUPDATE'] as String),
+      versionCheckTimeout: int.parse(json['VERSIONCHECKTIMEOUT'] as String),
     );
   }
+  final String uri;
+  final String hash;
+  final int version;
+  final int activateOnUpdate;
+  final int versionCheckTimeout;
 }

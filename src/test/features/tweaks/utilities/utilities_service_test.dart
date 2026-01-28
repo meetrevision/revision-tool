@@ -268,9 +268,9 @@ void main() {
         ).thenAnswer((_) async => Future.value());
         when(() => mockService.statusFastStartup).thenReturn(true);
 
-        final hibernationStatus = mockService.statusHibernation;
+        final bool hibernationStatus = mockService.statusHibernation;
         await mockService.enableFastStartup();
-        final fastStartupStatus = mockService.statusFastStartup;
+        final bool fastStartupStatus = mockService.statusFastStartup;
 
         expect(hibernationStatus, isFalse);
         expect(fastStartupStatus, isTrue);

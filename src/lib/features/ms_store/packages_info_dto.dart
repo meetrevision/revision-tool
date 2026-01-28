@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:revitool/features/ms_store/update_response.dart';
+import 'update_response.dart';
 part 'packages_info_dto.freezed.dart';
 part 'packages_info_dto.g.dart';
 
@@ -7,7 +7,6 @@ part 'packages_info_dto.g.dart';
 sealed class MSStorePackagesInfoDTO
     with _$MSStorePackagesInfoDTO
     implements Comparable<MSStorePackagesInfoDTO> {
-  MSStorePackagesInfoDTO._();
 
   factory MSStorePackagesInfoDTO({
     required final String id,
@@ -18,6 +17,7 @@ sealed class MSStorePackagesInfoDTO
     final UpdateIdentity? updateIdentity,
     final String? commandLines,
   }) = _MSStorePackagesInfoDTO;
+  MSStorePackagesInfoDTO._();
 
   factory MSStorePackagesInfoDTO.fromJson(Map<String, dynamic> json) =>
       _$MSStorePackagesInfoDTOFromJson(json);

@@ -93,7 +93,7 @@ void main() {
       });
 
       test('themeModeReg returns nullable string', () {
-        final themeMode = WinRegistryService.themeModeReg;
+        final String? themeMode = WinRegistryService.themeModeReg;
         expect(themeMode, anyOf([isNull, isA<String>()]));
       });
     },
@@ -106,7 +106,7 @@ void main() {
         : false,
     () {
       test('readString returns null for non-existent key', () {
-        final result = WinRegistryService.readString(
+        final String? result = WinRegistryService.readString(
           RegistryHive.localMachine,
           r'SOFTWARE\NonExistentKey\SubKey',
           'NonExistentValue',
@@ -115,7 +115,7 @@ void main() {
       });
 
       test('readString returns null for non-existent value', () {
-        final result = WinRegistryService.readString(
+        final String? result = WinRegistryService.readString(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
           'NonExistentValue12345',
@@ -124,7 +124,7 @@ void main() {
       });
 
       test('readString returns string for existing value', () {
-        final result = WinRegistryService.readString(
+        final String? result = WinRegistryService.readString(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
           'CurrentBuildNumber',
@@ -136,7 +136,7 @@ void main() {
       });
 
       test('readInt returns null for non-existent key', () {
-        final result = WinRegistryService.readInt(
+        final int? result = WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SOFTWARE\NonExistentKey\SubKey',
           'NonExistentValue',
@@ -145,7 +145,7 @@ void main() {
       });
 
       test('readInt returns null for non-existent value', () {
-        final result = WinRegistryService.readInt(
+        final int? result = WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
           'NonExistentIntValue12345',
@@ -155,7 +155,7 @@ void main() {
 
       test('readInt returns integer for existing value', () {
         // Test with a known integer registry value
-        final result = WinRegistryService.readInt(
+        final int? result = WinRegistryService.readInt(
           RegistryHive.currentUser,
           r'Software\Microsoft\Windows\CurrentVersion\Themes\Personalize',
           'EnableTransparency',
@@ -168,7 +168,7 @@ void main() {
       });
 
       test('readBinary returns null for non-existent key', () {
-        final result = WinRegistryService.readBinary(
+        final Uint8List? result = WinRegistryService.readBinary(
           RegistryHive.localMachine,
           r'SOFTWARE\NonExistentKey\SubKey',
           'NonExistentValue',
@@ -177,7 +177,7 @@ void main() {
       });
 
       test('readBinary returns null for non-existent value', () {
-        final result = WinRegistryService.readBinary(
+        final Uint8List? result = WinRegistryService.readBinary(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
           'NonExistentBinaryValue12345',
@@ -186,7 +186,7 @@ void main() {
       });
 
       test('readBinary returns Uint8List when value exists', () {
-        final result = WinRegistryService.readBinary(
+        final Uint8List? result = WinRegistryService.readBinary(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
           'DigitalProductId',
@@ -198,14 +198,14 @@ void main() {
       });
 
       test('read operations handle different registry hives', () {
-        final lmResult = WinRegistryService.readString(
+        final String? lmResult = WinRegistryService.readString(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
           'ProductName',
         );
         expect(lmResult, isNotNull);
 
-        final cuResult = WinRegistryService.readString(
+        final String? cuResult = WinRegistryService.readString(
           RegistryHive.currentUser,
           r'Environment',
           'TEMP',
@@ -284,26 +284,26 @@ void main() {
         : false,
     () {
       test('getUserServices returns iterable', () {
-        final result = WinRegistryService.getUserServices('WpnUserService');
+        final Iterable<String> result = WinRegistryService.getUserServices('WpnUserService');
         expect(result, isA<Iterable<String>>());
       });
 
       test('getUserServices filters by prefix', () {
-        final result = WinRegistryService.getUserServices('WpnUserService');
+        final Iterable<String> result = WinRegistryService.getUserServices('WpnUserService');
         for (final service in result) {
           expect(service, startsWith('WpnUserService'));
         }
       });
 
       test('getUserServices returns empty for non-existent service', () {
-        final result = WinRegistryService.getUserServices(
+        final Iterable<String> result = WinRegistryService.getUserServices(
           'NonExistentService12345',
         );
         expect(result, isEmpty);
       });
 
       test('getUserServices handles common services', () {
-        final wpnServices = WinRegistryService.getUserServices(
+        final Iterable<String> wpnServices = WinRegistryService.getUserServices(
           'WpnUserService',
         );
         expect(wpnServices, isA<Iterable<String>>());
@@ -447,14 +447,14 @@ void main() {
           'hello',
         );
 
-        final intValue = WinRegistryService.readInt(
+        final int? intValue = WinRegistryService.readInt(
           RegistryHive.currentUser,
           testRegistryPath,
           'TestReadBackInt',
         );
         expect(intValue, equals(456));
 
-        final stringValue = WinRegistryService.readString(
+        final String? stringValue = WinRegistryService.readString(
           RegistryHive.currentUser,
           testRegistryPath,
           'TestReadBackString',
@@ -522,7 +522,7 @@ void main() {
         expect(() => WinRegistryService.getUserServices(''), returnsNormally);
 
         expect(
-          () => WinRegistryService.getUserServices('Invalid\\Service\\Name'),
+          () => WinRegistryService.getUserServices(r'Invalid\Service\Name'),
           returnsNormally,
         );
       });
@@ -536,7 +536,7 @@ void main() {
         : false,
     () {
       test('buildNumber matches CurrentBuildNumber in registry', () {
-        final registryBuildNumber = WinRegistryService.readString(
+        final String? registryBuildNumber = WinRegistryService.readString(
           RegistryHive.localMachine,
           r'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
           'CurrentBuildNumber',
@@ -549,7 +549,7 @@ void main() {
       });
 
       test('cpuArch matches registry value', () {
-        final registryArch = WinRegistryService.readString(
+        final String? registryArch = WinRegistryService.readString(
           RegistryHive.localMachine,
           r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
           'PROCESSOR_ARCHITECTURE',
@@ -559,7 +559,7 @@ void main() {
       });
 
       test('themeTransparencyEffect matches registry EnableTransparency', () {
-        final registryValue = WinRegistryService.readInt(
+        final int? registryValue = WinRegistryService.readInt(
           RegistryHive.currentUser,
           r'Software\Microsoft\Windows\CurrentVersion\Themes\Personalize',
           'EnableTransparency',
@@ -574,16 +574,16 @@ void main() {
       });
 
       test('static properties are consistent across multiple accesses', () {
-        final build1 = WinRegistryService.buildNumber;
-        final build2 = WinRegistryService.buildNumber;
+        final int build1 = WinRegistryService.buildNumber;
+        final int build2 = WinRegistryService.buildNumber;
         expect(build1, equals(build2));
 
-        final arch1 = WinRegistryService.cpuArch;
-        final arch2 = WinRegistryService.cpuArch;
+        final String arch1 = WinRegistryService.cpuArch;
+        final String arch2 = WinRegistryService.cpuArch;
         expect(arch1, equals(arch2));
 
-        final w11_1 = WinRegistryService.isW11;
-        final w11_2 = WinRegistryService.isW11;
+        final bool w11_1 = WinRegistryService.isW11;
+        final bool w11_2 = WinRegistryService.isW11;
         expect(w11_1, equals(w11_2));
       });
     },
@@ -609,21 +609,21 @@ void main() {
 
       test('REGRESSION: read methods return null instead of throwing', () {
         // Ensure null is returned, not an exception
-        final stringResult = WinRegistryService.readString(
+        final String? stringResult = WinRegistryService.readString(
           RegistryHive.localMachine,
           r'SOFTWARE\NonExistent',
           'Value',
         );
         expect(stringResult, isNull);
 
-        final intResult = WinRegistryService.readInt(
+        final int? intResult = WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SOFTWARE\NonExistent',
           'Value',
         );
         expect(intResult, isNull);
 
-        final binaryResult = WinRegistryService.readBinary(
+        final Uint8List? binaryResult = WinRegistryService.readBinary(
           RegistryHive.localMachine,
           r'SOFTWARE\NonExistent',
           'Value',

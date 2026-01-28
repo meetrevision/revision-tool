@@ -14,21 +14,34 @@ import 'package:win32/win32.dart';
 class Win32TokenHelper {
   static final _advapi32 = DynamicLibrary.open('advapi32.dll');
 
-  static final _duplicateTokenEx = _advapi32
+  static final int Function(
+    int,
+    int,
+    Pointer<NativeType>,
+    int,
+    int,
+    Pointer<IntPtr>,
+  )
+  _duplicateTokenEx = _advapi32
       .lookupFunction<
         Int32 Function(IntPtr, Uint32, Pointer, Int32, Int32, Pointer<IntPtr>),
         int Function(int, int, Pointer, int, int, Pointer<IntPtr>)
       >('DuplicateTokenEx');
 
-  static final _impersonateLoggedOnUser = _advapi32
+  static final int Function(int) _impersonateLoggedOnUser = _advapi32
       .lookupFunction<Int32 Function(IntPtr), int Function(int)>(
         'ImpersonateLoggedOnUser',
       );
 
-  static final _revertToSelf = _advapi32
+  static final int Function() _revertToSelf = _advapi32
       .lookupFunction<Int32 Function(), int Function()>('RevertToSelf');
 
-  static final _lookupPrivilegeValue = _advapi32
+  static final int Function(
+    Pointer<Utf16> lpSystemName,
+    Pointer<Utf16> lpName,
+    Pointer<LUID> lpLuid,
+  )
+  _lookupPrivilegeValue = _advapi32
       .lookupFunction<
         Int32 Function(
           Pointer<Utf16> lpSystemName,
@@ -42,7 +55,15 @@ class Win32TokenHelper {
         )
       >('LookupPrivilegeValueW');
 
-  static final _adjustTokenPrivileges = _advapi32
+  static final int Function(
+    int tokenHandle,
+    int disableAllPrivileges,
+    Pointer<NativeType> privilegesPtr,
+    int bufferLength,
+    Pointer<NativeType> previousState,
+    Pointer<NativeType> returnLength,
+  )
+  _adjustTokenPrivileges = _advapi32
       .lookupFunction<
         Int32 Function(
           IntPtr tokenHandle,
@@ -63,7 +84,18 @@ class Win32TokenHelper {
       >('AdjustTokenPrivileges');
 
   // CreateProcessWithTokenW - simpler alternative to CreateProcessAsUserW
-  static final _createProcessWithToken = _advapi32
+  static final int Function(
+    int hToken,
+    int dwLogonFlags,
+    Pointer<Utf16> lpApplicationName,
+    Pointer<Utf16> lpCommandLine,
+    int dwCreationFlags,
+    Pointer<NativeType> lpEnvironment,
+    Pointer<Utf16> lpCurrentDirectory,
+    Pointer<STARTUPINFO> lpStartupInfo,
+    Pointer<PROCESS_INFORMATION> lpProcessInformation,
+  )
+  _createProcessWithToken = _advapi32
       .lookupFunction<
         Int32 Function(
           IntPtr hToken,
@@ -129,9 +161,9 @@ class Win32TokenHelper {
 
   /// Enables SeDebugPrivilege for the current process.
   static bool enableDebugPrivilege() {
-    final tokenHandle = calloc<HANDLE>();
-    final luidDebug = calloc<LUID>();
-    final debugNamePtr = SE_DEBUG_NAME.toNativeUtf16();
+    final Pointer<HANDLE> tokenHandle = calloc<HANDLE>();
+    final Pointer<LUID> luidDebug = calloc<LUID>();
+    final Pointer<Utf16> debugNamePtr = SE_DEBUG_NAME.toNativeUtf16();
 
     try {
       if (OpenProcessToken(
@@ -149,16 +181,16 @@ class Win32TokenHelper {
       }
 
       const tkpSize = 16; // TOKEN_PRIVILEGES with 1 privilege
-      final tkp = calloc<Uint8>(tkpSize);
+      final Pointer<Uint8> tkp = calloc<Uint8>(tkpSize);
 
       try {
         tkp.cast<Uint32>().value = 1; // PrivilegeCount
-        final luidPtr = (tkp + 4).cast<LUID>();
+        final Pointer<LUID> luidPtr = (tkp + 4).cast<LUID>();
         luidPtr.ref.LowPart = luidDebug.ref.LowPart;
         luidPtr.ref.HighPart = luidDebug.ref.HighPart;
         (tkp + 12).cast<Uint32>().value = SE_PRIVILEGE_ENABLED;
 
-        final result = _adjustTokenPrivileges(
+        final int result = _adjustTokenPrivileges(
           tokenHandle.value,
           0,
           tkp.cast(),
@@ -169,7 +201,7 @@ class Win32TokenHelper {
         CloseHandle(tokenHandle.value);
 
         if (result == 0) return false;
-        final lastError = GetLastError();
+        final int lastError = GetLastError();
         return lastError == 0 || lastError == ERROR_NOT_ALL_ASSIGNED;
       } finally {
         calloc.free(tkp);
@@ -187,8 +219,8 @@ class Win32TokenHelper {
     String? databaseName,
     int desiredAccess = SC_MANAGER_CONNECT,
   }) {
-    final machine = machineName?.toNativeUtf16() ?? nullptr;
-    final database = databaseName?.toNativeUtf16() ?? nullptr;
+    final Pointer<Utf16> machine = machineName?.toNativeUtf16() ?? nullptr;
+    final Pointer<Utf16> database = databaseName?.toNativeUtf16() ?? nullptr;
 
     try {
       return OpenSCManager(machine, database, desiredAccess);
@@ -200,7 +232,7 @@ class Win32TokenHelper {
 
   /// Opens a service with specified access rights.
   static int openService(int scManager, String serviceName, int desiredAccess) {
-    final namePtr = serviceName.toNativeUtf16();
+    final Pointer<Utf16> namePtr = serviceName.toNativeUtf16();
     try {
       return OpenService(scManager, namePtr, desiredAccess);
     } finally {
@@ -215,8 +247,9 @@ class Win32TokenHelper {
 
   /// Queries service status and returns process ID if running.
   static int? getServiceProcessId(int service) {
-    final statusPtr = calloc<SERVICE_STATUS_PROCESS>();
-    final bytesNeeded = calloc<DWORD>();
+    final Pointer<SERVICE_STATUS_PROCESS> statusPtr =
+        calloc<SERVICE_STATUS_PROCESS>();
+    final Pointer<DWORD> bytesNeeded = calloc<DWORD>();
 
     try {
       if (QueryServiceStatusEx(
@@ -240,8 +273,9 @@ class Win32TokenHelper {
 
   /// Gets the current state of a service.
   static int getServiceState(int service) {
-    final statusPtr = calloc<SERVICE_STATUS_PROCESS>();
-    final bytesNeeded = calloc<DWORD>();
+    final Pointer<SERVICE_STATUS_PROCESS> statusPtr =
+        calloc<SERVICE_STATUS_PROCESS>();
+    final Pointer<DWORD> bytesNeeded = calloc<DWORD>();
 
     try {
       if (QueryServiceStatusEx(
@@ -269,7 +303,7 @@ class Win32TokenHelper {
   /// Finds a process by name (e.g., "lsass.exe") and returns its PID.
   static Future<int?> findProcessByName(String processName) async {
     try {
-      final result = await Process.run('tasklist', [
+      final ProcessResult result = await Process.run('tasklist', [
         '/FI',
         'IMAGENAME eq $processName',
         '/FO',
@@ -278,12 +312,12 @@ class Win32TokenHelper {
       ]);
       if (result.exitCode != 0) return null;
 
-      final output = result.stdout.toString().trim();
+      final String output = result.stdout.toString().trim();
       if (output.isEmpty || output.toLowerCase().contains('no tasks')) {
         return null;
       }
 
-      final parts = output.split(',');
+      final List<String> parts = output.split(',');
       return parts.length >= 2
           ? int.tryParse(parts[1].replaceAll('"', '').trim())
           : null;
@@ -294,9 +328,13 @@ class Win32TokenHelper {
 
   /// Opens a process token with specified access rights.
   static int? openProcessToken(int processHandle, int desiredAccess) {
-    final tokenPtr = calloc<HANDLE>();
+    final Pointer<HANDLE> tokenPtr = calloc<HANDLE>();
     try {
-      final result = OpenProcessToken(processHandle, desiredAccess, tokenPtr);
+      final int result = OpenProcessToken(
+        processHandle,
+        desiredAccess,
+        tokenPtr,
+      );
       if (result == 0) {
         return null;
       }
@@ -313,7 +351,7 @@ class Win32TokenHelper {
     int impersonationLevel,
     int tokenType,
   ) {
-    final newTokenPtr = calloc<HANDLE>();
+    final Pointer<HANDLE> newTokenPtr = calloc<HANDLE>();
     try {
       return _duplicateTokenEx(
                 existingToken,
@@ -358,8 +396,8 @@ class Win32TokenHelper {
     String command,
     List<String> args,
   ) async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final tempDir = Platform.environment['TEMP'] ?? r'C:\Windows\Temp';
+    final int timestamp = DateTime.now().millisecondsSinceEpoch;
+    final String tempDir = Platform.environment['TEMP'] ?? r'C:\Windows\Temp';
     final stdoutFile = '$tempDir\\ti_stdout_$timestamp.tmp';
     final stderrFile = '$tempDir\\ti_stderr_$timestamp.tmp';
 
@@ -367,9 +405,10 @@ class Win32TokenHelper {
       final fullCommand = args.isEmpty ? command : '$command ${args.join(' ')}';
       final commandLine =
           'cmd.exe /c $fullCommand > "$stdoutFile" 2> "$stderrFile"';
-      final commandLinePtr = commandLine.toNativeUtf16();
-      final startupInfo = calloc<STARTUPINFO>();
-      final processInfo = calloc<PROCESS_INFORMATION>();
+      final Pointer<Utf16> commandLinePtr = commandLine.toNativeUtf16();
+      final Pointer<STARTUPINFO> startupInfo = calloc<STARTUPINFO>();
+      final Pointer<PROCESS_INFORMATION> processInfo =
+          calloc<PROCESS_INFORMATION>();
 
       try {
         startupInfo.ref
@@ -396,7 +435,7 @@ class Win32TokenHelper {
 
         WaitForSingleObject(processInfo.ref.hProcess, INFINITE);
 
-        final exitCodePtr = calloc<DWORD>();
+        final Pointer<DWORD> exitCodePtr = calloc<DWORD>();
         int exitCode;
         try {
           GetExitCodeProcess(processInfo.ref.hProcess, exitCodePtr);
@@ -405,14 +444,14 @@ class Win32TokenHelper {
           calloc.free(exitCodePtr);
         }
 
-        await Future.delayed(const Duration(milliseconds: 50));
+        await Future<void>.delayed(const Duration(milliseconds: 50));
 
-        String stdout = '';
-        String stderr = '';
+        var stdout = '';
+        var stderr = '';
 
         try {
           final stdoutFileObj = File(stdoutFile);
-          stdout = await stdoutFileObj.exists()
+          stdout = stdoutFileObj.existsSync()
               ? await stdoutFileObj.readAsString()
               : '(stdout file not found)';
         } catch (e) {
@@ -421,7 +460,7 @@ class Win32TokenHelper {
 
         try {
           final stderrFileObj = File(stderrFile);
-          if (await stderrFileObj.exists()) {
+          if (stderrFileObj.existsSync()) {
             stderr = await stderrFileObj.readAsString();
           }
         } catch (e) {
@@ -441,11 +480,11 @@ class Win32TokenHelper {
     } finally {
       try {
         final f = File(stdoutFile);
-        if (await f.exists()) await f.delete();
+        if (f.existsSync()) await f.delete();
       } catch (_) {}
       try {
         final f = File(stderrFile);
-        if (await f.exists()) await f.delete();
+        if (f.existsSync()) await f.delete();
       } catch (_) {}
     }
   }

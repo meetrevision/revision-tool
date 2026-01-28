@@ -2,15 +2,15 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:revitool/core/widgets/card_highlight.dart';
 
-import 'package:revitool/extensions.dart';
-import 'package:revitool/features/ms_store/widgets/msstore_dialogs.dart';
-import 'package:revitool/features/tweaks/security/sections/hw_mitigation_section.dart';
-import 'package:revitool/features/tweaks/security/sections/system_safeguard_section.dart';
-import 'package:revitool/features/tweaks/security/security_service.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
-import 'package:revitool/utils_gui.dart';
+import '../../../core/widgets/card_highlight.dart';
+import '../../../extensions.dart';
+import '../../../i18n/generated/strings.g.dart';
+import '../../../utils_gui.dart';
+import '../../ms_store/widgets/msstore_dialogs.dart';
+import 'sections/hw_mitigation_section.dart';
+import 'sections/system_safeguard_section.dart';
+import 'security_service.dart';
 
 class SecurityPage extends ConsumerWidget {
   const SecurityPage({super.key});
@@ -32,14 +32,14 @@ class _DefenderCard extends ConsumerWidget {
   const _DefenderCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final defenderStatus = ref.watch(defenderStatusProvider);
-    final protectionsStatus = ref.watch(defenderProtectionsStatusProvider);
+    final bool defenderStatus = ref.watch(defenderStatusProvider);
+    final bool protectionsStatus = ref.watch(defenderProtectionsStatusProvider);
 
     final Widget action = !protectionsStatus
         ? CardToggleSwitch(
             value: defenderStatus,
             onChanged: (value) async {
-              showLoadingDialog(context, '');
+              await showLoadingDialog(context, '');
               try {
                 if (value) {
                   await ref.read(securityServiceProvider).enableDefender();
@@ -86,13 +86,13 @@ class _DefenderCard extends ConsumerWidget {
             width: 150,
             child: Button(
               onPressed: () async {
-                Future.delayed(const Duration(seconds: 1), () async {
+                Future<void>.delayed(const Duration(seconds: 1), () async {
                   await ref
                       .read(securityServiceProvider)
                       .openDefenderThreatSettings();
                 });
 
-                showDialog(
+                await showDialog(
                   dismissWithEsc: false,
                   context: context,
                   builder: (context) {
@@ -103,7 +103,7 @@ class _DefenderCard extends ConsumerWidget {
                           child: Text(t.okButton),
                           onPressed: () async {
                             ref.invalidate(defenderProtectionsStatusProvider);
-                            final updatedStatus = ref.read(
+                            final bool updatedStatus = ref.read(
                               defenderProtectionsStatusProvider,
                             );
 

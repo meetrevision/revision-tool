@@ -1,11 +1,13 @@
 import 'dart:io';
 
-import 'package:revitool/features/winsxs/win_package_service.dart';
-import 'package:revitool/core/trusted_installer/trusted_installer_service.dart';
-import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:revitool/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:win32_registry/win32_registry.dart';
+
+import '../../../core/services/win_registry_service.dart';
+import '../../../core/trusted_installer/trusted_installer_service.dart';
+import '../../../utils.dart';
+import '../../winsxs/win_package_service.dart';
+import 'security_exceptions.dart';
 
 part 'security_service.g.dart';
 
@@ -85,12 +87,12 @@ class SecurityServiceImpl implements SecurityService {
 
   @override
   bool get statusDefenderProtectionTamper {
-    final tp = WinRegistryService.readInt(
+    final int? tp = WinRegistryService.readInt(
       RegistryHive.localMachine,
       r'SOFTWARE\Microsoft\Windows Defender\Features',
       'TamperProtection',
     );
-    final tpSource = WinRegistryService.readInt(
+    final int? tpSource = WinRegistryService.readInt(
       RegistryHive.localMachine,
       r'SOFTWARE\Microsoft\Windows Defender\Features',
       'TamperProtectionSource',
@@ -115,7 +117,7 @@ class SecurityServiceImpl implements SecurityService {
 
   @override
   Future<ProcessResult> openDefenderThreatSettings() async {
-    return await Process.run('start', [
+    return Process.run('start', [
       'windowsdefender://threatsettings',
     ], runInShell: true);
   }
@@ -154,7 +156,7 @@ class SecurityServiceImpl implements SecurityService {
       await WinPackageService.uninstallPackage(WinPackageType.defenderRemoval);
 
       await runPSCommand(
-        "& \$env:SystemRoot\\System32\\gpupdate.exe /Target:Computer /Force",
+        r'& $env:SystemRoot\System32\gpupdate.exe /Target:Computer /Force',
       );
 
       await Future.wait([
@@ -202,9 +204,8 @@ class SecurityServiceImpl implements SecurityService {
         ),
       );
 
-      final webthreatdefsvcList = WinRegistryService.getUserServices(
-        'webthreatdefusersvc',
-      );
+      final Iterable<String> webthreatdefsvcList =
+          WinRegistryService.getUserServices('webthreatdefusersvc');
 
       await Future.wait(
         webthreatdefsvcList.map(
@@ -230,7 +231,7 @@ class SecurityServiceImpl implements SecurityService {
         ),
       ]);
 
-      const smartscreenPath = 'C:\\Windows\\System32\\smartscreen.exe';
+      const smartscreenPath = r'C:\Windows\System32\smartscreen.exe';
       if (!File(smartscreenPath).existsSync() &&
           File('$smartscreenPath.revi').existsSync()) {
         await TrustedInstallerServiceImpl().executeCommand('ren', [
@@ -317,7 +318,7 @@ class SecurityServiceImpl implements SecurityService {
         ),
       ]);
     } on Exception catch (e) {
-      throw ('Failed to enable Windows Defender:\n\n$e');
+      throw DefenderOperationException('Failed to enable Windows Defender', e);
     }
   }
 
@@ -348,7 +349,7 @@ class SecurityServiceImpl implements SecurityService {
       ]);
 
       await runPSCommand(
-        "& \$env:SystemRoot\\System32\\gpupdate.exe /Target:Computer /Force",
+        r'& $env:SystemRoot\System32\gpupdate.exe /Target:Computer /Force',
       );
 
       if (File(_mpCmdRunString).existsSync()) {
@@ -383,12 +384,12 @@ class SecurityServiceImpl implements SecurityService {
         ),
       ]);
 
-      final packagePath = await WinPackageService.downloadPackage(
+      final String packagePath = await WinPackageService.downloadPackage(
         WinPackageType.defenderRemoval,
       );
       await WinPackageService.installPackage(packagePath);
     } on Exception catch (e) {
-      throw ('Failed to disable Windows Defender:\n\n$e');
+      throw DefenderOperationException('Failed to disable Windows Defender', e);
     }
   }
 
@@ -536,7 +537,7 @@ class SecurityServiceImpl implements SecurityService {
 
   @override
   bool isMitigationEnabled(Mitigation mitigation) {
-    final val = WinRegistryService.readInt(
+    final int? val = WinRegistryService.readInt(
       RegistryHive.localMachine,
       r'SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
       'FeatureSettingsOverride',
@@ -547,7 +548,7 @@ class SecurityServiceImpl implements SecurityService {
 
   @override
   Future<void> enableMitigation(Mitigation mitigation) async {
-    final otherMitigation =
+    final Mitigation otherMitigation =
         Mitigation.values[(mitigation.index + 1) % Mitigation.values.length];
     if (isMitigationEnabled(otherMitigation)) {
       await WinRegistryService.writeRegistryValue(
@@ -569,9 +570,9 @@ class SecurityServiceImpl implements SecurityService {
       return;
     }
 
-    final currentVal = _readOverride();
-    final newVal = currentVal & ~mitigation.bitmask;
-    _writeOverride(newVal);
+    final int currentVal = _readOverride();
+    final int newVal = currentVal & ~mitigation.bitmask;
+    await _writeOverride(newVal);
   }
 
   @override
@@ -583,9 +584,9 @@ class SecurityServiceImpl implements SecurityService {
       1,
     );
 
-    final currentVal = _readOverride();
-    final newVal = currentVal | mitigation.bitmask;
-    _writeOverride(newVal);
+    final int currentVal = _readOverride();
+    final int newVal = currentVal | mitigation.bitmask;
+    await _writeOverride(newVal);
   }
 }
 

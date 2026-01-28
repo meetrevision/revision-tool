@@ -1,7 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:go_router/go_router.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
+import '../../i18n/generated/strings.g.dart';
 
 enum RouteSection { main, footer, search }
 
@@ -85,11 +85,11 @@ enum RouteMeta {
     }
   }
 
-  static final _pathLookup = {for (final r in values) r.path: r};
+  static final Map<String, RouteMeta> _pathLookup = {for (final r in values) r.path: r};
 
   static RouteMeta? fromPath(String path, {bool allowPrefix = false}) {
     if (!allowPrefix) return _pathLookup[path];
-    for (final route in _navigationRoutes) {
+    for (final RouteMeta route in _navigationRoutes) {
       if (path == route.path ||
           (route.path != '/' && path.startsWith('${route.path}/'))) {
         return route;
@@ -104,16 +104,16 @@ class AppRoutes {
 
   static const List<RouteMeta> navigationRoutes = _navigationRoutes;
 
-  static final mainPaneItems = _buildPaneItems(_mainNavigationRoutes);
-  static final footerPaneItems = _buildPaneItems(_footerNavigationRoutes);
-  static final searchableItems = _buildPaneItems(_searchableRoutes);
+  static final List<NavigationPaneItem> mainPaneItems = _buildPaneItems(_mainNavigationRoutes);
+  static final List<NavigationPaneItem> footerPaneItems = _buildPaneItems(_footerNavigationRoutes);
+  static final List<NavigationPaneItem> searchableItems = _buildPaneItems(_searchableRoutes);
 
   static String getRouteName(String path, BuildContext context) {
-    final meta = RouteMeta.fromPath(path);
+    final RouteMeta? meta = RouteMeta.fromPath(path);
     if (meta != null) {
       return meta.label;
     }
-    final segment = path.split('/').last;
+    final String segment = path.split('/').last;
     return segment.isEmpty ? t.pageHome : segment.capitalize();
   }
 
@@ -126,10 +126,10 @@ class AppRoutes {
     String location,
     BuildContext context,
   ) {
-    final segments = location.split('/').where((s) => s.isNotEmpty).toList();
-    final theme = FluentTheme.of(context);
+    final List<String> segments = location.split('/').where((s) => s.isNotEmpty).toList();
+    final FluentThemeData theme = FluentTheme.of(context);
 
-    String currentPath = '';
+    var currentPath = '';
     return [
       for (int i = 0; i < segments.length; i++)
         (() {

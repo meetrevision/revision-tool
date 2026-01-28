@@ -1,14 +1,17 @@
-import 'package:fluent_ui/fluent_ui.dart';
-import 'package:revitool/features/ms_store/msstore_service.dart';
-import 'package:revitool/features/ms_store/packages_info_dto.dart';
-import 'package:revitool/features/ms_store/search_response_dto.dart';
-import 'package:revitool/core/services/win_registry_service.dart';
+import 'dart:async';
 
-import 'package:revitool/core/widgets/card_highlight.dart';
-import 'package:revitool/features/ms_store/widgets/msstore_dialogs.dart';
-import 'package:revitool/features/ms_store/widgets/ms_store_packages_download_widget.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
-import 'package:revitool/utils_gui.dart';
+import 'package:fluent_ui/fluent_ui.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../core/services/win_registry_service.dart';
+import '../../core/widgets/card_highlight.dart';
+import '../../i18n/generated/strings.g.dart';
+import '../../utils_gui.dart';
+import 'msstore_service.dart';
+import 'packages_info_dto.dart';
+import 'search_response_dto.dart';
+import 'widgets/ms_store_packages_download_widget.dart';
+import 'widgets/msstore_dialogs.dart';
 
 class MSStorePage extends StatefulWidget {
   const MSStorePage({super.key});
@@ -21,7 +24,7 @@ class _MSStorePageState extends State<MSStorePage> {
   final _textEditingController = TextEditingController();
   List<ProductsList> _productsList = [];
   final _msStoreService = MSStoreService();
-  String _selectedRing = "RP";
+  String _selectedRing = 'RP';
 
   @override
   void dispose() {
@@ -30,9 +33,9 @@ class _MSStorePageState extends State<MSStorePage> {
   }
 
   Future<void> _onSearchButtonPressed() async {
-    final query = _textEditingController.text;
+    final String query = _textEditingController.text;
 
-    if (query.startsWith("9") || query.startsWith("XP")) {
+    if (query.startsWith('9') || query.startsWith('XP')) {
       await showInstallDialog(
         context,
         t.msstoreSearchingPackages,
@@ -41,8 +44,8 @@ class _MSStorePageState extends State<MSStorePage> {
       );
     } else if (query.startsWith('https://') &&
         query.contains('microsoft.com')) {
-      final uri = Uri.parse(query);
-      final productId = uri.pathSegments.last;
+      final Uri uri = Uri.parse(query);
+      final String productId = uri.pathSegments.last;
       // debugPrint(productId);
       await showInstallDialog(
         context,
@@ -51,7 +54,10 @@ class _MSStorePageState extends State<MSStorePage> {
         _selectedRing,
       );
     } else {
-      final data = await _msStoreService.searchProducts(query, _selectedRing);
+      final List<ProductsList> data = await _msStoreService.searchProducts(
+        query,
+        _selectedRing,
+      );
 
       setState(() {
         _productsList = data;
@@ -59,11 +65,11 @@ class _MSStorePageState extends State<MSStorePage> {
     }
   }
 
-  static const items2 = [
-    ComboBoxItem(value: "Retail", child: Text("Retail (Base)")),
-    ComboBoxItem(value: "RP", child: Text("Release Preview")),
-    ComboBoxItem(value: "WIS", child: Text("Insider Slow")),
-    ComboBoxItem(value: "WIF", child: Text("Insider Fast")),
+  static const List<ComboBoxItem<String>> items2 = [
+    ComboBoxItem(value: 'Retail', child: Text('Retail (Base)')),
+    ComboBoxItem(value: 'RP', child: Text('Release Preview')),
+    ComboBoxItem(value: 'WIS', child: Text('Insider Slow')),
+    ComboBoxItem(value: 'WIF', child: Text('Insider Fast')),
   ];
 
   @override
@@ -77,8 +83,7 @@ class _MSStorePageState extends State<MSStorePage> {
               child: TextBox(
                 controller: _textEditingController,
                 placeholder: t.search,
-                expands: false,
-                onSubmitted: (value) async => await _onSearchButtonPressed(),
+                onSubmitted: (value) async => _onSearchButtonPressed(),
               ),
             ),
             const SizedBox(width: 10),
@@ -91,10 +96,10 @@ class _MSStorePageState extends State<MSStorePage> {
         ),
         const SizedBox(height: 10),
         for (final product in _productsList) ...[
-          if (product.displayPrice == "Free") ...[
+          if (product.displayPrice == 'Free') ...[
             CardHighlight(
               label: product.title!,
-              image: product.iconUrl!,
+              image: product.iconUrl,
               description: product.description,
               action: FilledButton(
                 child: Text(t.install),
@@ -121,7 +126,7 @@ class _MSStorePageState extends State<MSStorePage> {
     String ring,
   ) async {
     try {
-      showLoadingDialog(context, t.msstoreSearchingPackages);
+      unawaited(showLoadingDialog(context, t.msstoreSearchingPackages));
 
       await _msStoreService.startProcess(productID, _selectedRing);
 
@@ -129,32 +134,34 @@ class _MSStorePageState extends State<MSStorePage> {
       Navigator.pop(context);
 
       if (_msStoreService.packages.isEmpty) {
-        showNotFound(context);
+        await showNotFound(context);
         return;
       }
-      showSelectPackages(productID);
+      await showSelectPackages(productID);
     } catch (e, _) {
       if (!context.mounted) return;
-      Navigator.pop(context);
-      showDialog(
-        context: context,
-        builder: (context) {
-          return ContentDialog(
-            content: Text("$e"),
-            actions: [
-              Button(
-                child: Text(t.close),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          );
-        },
+      context.pop(context);
+      unawaited(
+        showDialog(
+          context: context,
+          builder: (context) {
+            return ContentDialog(
+              content: Text('$e'),
+              actions: [
+                Button(
+                  child: Text(t.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            );
+          },
+        ),
       );
     }
   }
 
-  void showSelectPackages(String productId) async {
-    final packages = _msStoreService.packages;
+  Future<void> showSelectPackages(String productId) async {
+    final Set<MSStorePackagesInfoDTO> packages = _msStoreService.packages;
     final List<TreeViewItem> items = List.generate(
       packages.length,
       (index) => TreeViewItem(
@@ -164,19 +171,20 @@ class _MSStorePageState extends State<MSStorePage> {
                 .elementAt(index)
                 .fileModel!
                 .fileName!
-                .contains("neutral") ||
+                .contains('neutral') ||
             packages
                 .elementAt(index)
                 .fileModel!
                 .fileName!
                 .contains(
-                  WinRegistryService.cpuArch == "amd64" ? "x64" : "arm64",
+                  WinRegistryService.cpuArch == 'amd64' ? 'x64' : 'arm64',
                 ),
         content: Text(packages.elementAt(index).fileModel!.fileName!),
       ),
     );
 
     // TODO: Add checkbox to clean up after install
+    // ignore: prefer_final_locals, omit_obvious_local_variable_types
     bool cleanUp = true;
 
     await showDialog<String>(
@@ -186,7 +194,6 @@ class _MSStorePageState extends State<MSStorePage> {
         title: Text(t.msstorePackagesPrompt),
         content: TreeView(
           selectionMode: TreeViewSelectionMode.multiple,
-          shrinkWrap: true,
           items: items,
         ),
         actions: [
@@ -196,16 +203,16 @@ class _MSStorePageState extends State<MSStorePage> {
               final downloadList = <MSStorePackagesInfoDTO>[];
               for (final item in items) {
                 if (item.selected!) {
-                  downloadList.add(packages.elementAt(item.value));
+                  downloadList.add(packages.elementAt(item.value as int));
                 }
               }
               if (downloadList.isEmpty) {
-                Navigator.pop(context, 'Download list is empty');
+                context.pop('Download list is empty');
                 return;
               }
 
               if (!context.mounted) return;
-              Navigator.pop(context);
+              context.pop();
 
               await showDialog(
                 context: context,
@@ -219,12 +226,12 @@ class _MSStorePageState extends State<MSStorePage> {
               );
 
               if (!context.mounted) return;
-              Navigator.pop(context, 'Successfully downloaded');
+              context.pop('Successfully downloaded');
             },
           ),
           Button(
             child: Text(t.close),
-            onPressed: () => Navigator.pop(context, 'User canceled dialog'),
+            onPressed: () => context.pop('User canceled dialog'),
           ),
         ],
       ),

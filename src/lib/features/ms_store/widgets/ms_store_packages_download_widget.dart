@@ -1,19 +1,15 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:fluent_ui/fluent_ui.dart';
 import 'package:dio/dio.dart';
-import 'package:revitool/features/ms_store/msstore_service.dart';
-import 'package:revitool/features/ms_store/packages_info_dto.dart';
-import 'package:revitool/features/ms_store/widgets/msstore_dialogs.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
+import 'package:fluent_ui/fluent_ui.dart';
+
+import '../../../i18n/generated/strings.g.dart';
+import '../msstore_service.dart';
+import '../packages_info_dto.dart';
+import 'msstore_dialogs.dart';
 
 class MsStorePackagesDownloadWidget extends StatefulWidget {
-  final List<MSStorePackagesInfoDTO> items;
-  final String productId;
-  final bool cleanUpAfterInstall;
-  final String ring;
-
   const MsStorePackagesDownloadWidget({
     super.key,
     required this.items,
@@ -21,6 +17,10 @@ class MsStorePackagesDownloadWidget extends StatefulWidget {
     required this.cleanUpAfterInstall,
     required this.ring,
   });
+  final List<MSStorePackagesInfoDTO> items;
+  final String productId;
+  final bool cleanUpAfterInstall;
+  final String ring;
 
   @override
   State<MsStorePackagesDownloadWidget> createState() =>
@@ -35,7 +35,7 @@ class _MsStorePackagesDownloadWidgetState
       receiveTimeout: const Duration(minutes: 5),
     ),
   );
-  late final List<Stream<Response>> _streams;
+  late final List<Stream<Response<dynamic>>> _streams;
   late final List<ValueNotifier<double>> _progressList;
   final _ms = MSStoreService();
   final _downloadCompletionController = StreamController<int>.broadcast();
@@ -53,7 +53,7 @@ class _MsStorePackagesDownloadWidgetState
     }
 
     _streams = widget.items.map((item) {
-      final downloadPath = item.isDependency ? "$path\\Dependencies" : path;
+      final downloadPath = item.isDependency ? '$path\\Dependencies' : path;
       return _dio
           .download(
             item.uri,
@@ -61,7 +61,7 @@ class _MsStorePackagesDownloadWidgetState
             cancelToken: CancelToken(),
             onReceiveProgress: (received, total) {
               if (total != -1) {
-                final index = widget.items.indexOf(item);
+                final int index = widget.items.indexOf(item);
                 _progressList[index].value = ((received / total) * 100)
                     .floorToDouble();
                 if (received == total) {
@@ -82,7 +82,7 @@ class _MsStorePackagesDownloadWidgetState
 
   @override
   Widget build(BuildContext context) {
-    final itemsLength = widget.items.length;
+    final int itemsLength = widget.items.length;
     return StreamBuilder<int>(
       stream: _downloadCompletionController.stream,
       builder: (context, snapshot) {
@@ -103,7 +103,7 @@ class _MsStorePackagesDownloadWidgetState
               FilledButton(
                 child: Text(t.install),
                 onPressed: () async {
-                  showLoadingDialog(context, t.installing);
+                  await showLoadingDialog(context, t.installing);
 
                   final processResult = <ProcessResult>[];
                   processResult.addAll(
@@ -140,13 +140,13 @@ class _MsStorePackagesDownloadWidgetState
     return Card(
       child: InfoLabel(
         label: widget.items[i].fileModel!.fileName!,
-        child: StreamBuilder<Response>(
+        child: StreamBuilder<Response<dynamic>>(
           stream: _streams[i],
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Text(snapshot.error.toString());
             } else {
-              final index = widget.items.indexOf(widget.items[i]);
+              final int index = widget.items.indexOf(widget.items[i]);
               return Column(
                 children: [
                   ValueListenableBuilder<double>(
@@ -156,7 +156,7 @@ class _MsStorePackagesDownloadWidgetState
                         children: [
                           ProgressBar(value: value),
                           const SizedBox(width: 10),
-                          Text("$value%"),
+                          Text('$value%'),
                         ],
                       );
                     },
@@ -175,7 +175,7 @@ class _MsStorePackagesDownloadWidgetState
     _streams.clear();
     _dio.close(force: true);
 
-    for (var progress in _progressList) {
+    for (final ValueNotifier<double> progress in _progressList) {
       progress.dispose();
     }
     _downloadCompletionController.close();

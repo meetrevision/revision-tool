@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:process_run/shell.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
+import '../../../i18n/generated/strings.g.dart';
 
 Future<Object?> showLoadingDialog(BuildContext context, String title) {
   return showDialog(
@@ -13,7 +13,6 @@ Future<Object?> showLoadingDialog(BuildContext context, String title) {
       title: Text(title),
       content: Center(
         child: Column(
-          crossAxisAlignment: .center,
           mainAxisAlignment: .center,
           children: [
             const ProgressRing(),
@@ -39,7 +38,6 @@ Future<Object?> showInstallProcess(
       content: Center(
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: .center,
             mainAxisAlignment: .center,
             children: [
               for (final item in processResult) ...[

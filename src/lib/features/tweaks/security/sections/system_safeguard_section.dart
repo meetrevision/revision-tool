@@ -1,9 +1,10 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:revitool/core/widgets/card_highlight.dart';
-import 'package:revitool/features/tweaks/security/security_service.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
+
+import '../../../../core/widgets/card_highlight.dart';
+import '../../../../i18n/generated/strings.g.dart';
+import '../security_service.dart';
 
 class SystemSafeguardsSection extends StatelessWidget {
   const SystemSafeguardsSection({super.key});
@@ -23,7 +24,7 @@ class _UACCard extends ConsumerWidget {
   const _UACCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(uacStatusProvider);
+    final bool status = ref.watch(uacStatusProvider);
 
     return CardListTile(
       leading: const Icon(msicons.FluentIcons.person_lock_20_regular, size: 24),

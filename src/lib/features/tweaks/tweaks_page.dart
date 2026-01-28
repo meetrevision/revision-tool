@@ -1,12 +1,13 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:revitool/core/routing/app_routes.dart';
-import 'package:revitool/extensions.dart';
-import 'package:revitool/core/widgets/card_highlight.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
-import 'package:revitool/utils_gui.dart';
+
+import '../../core/routing/app_routes.dart';
+import '../../core/widgets/card_highlight.dart';
+import '../../extensions.dart';
+import '../../i18n/generated/strings.g.dart';
+import '../../utils_gui.dart';
 
 class TweaksPage extends ConsumerWidget {
   const TweaksPage({super.key});

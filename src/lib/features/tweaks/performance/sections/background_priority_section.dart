@@ -3,11 +3,11 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:revitool/core/widgets/card_highlight.dart';
-import 'package:revitool/core/services/win_registry_service.dart';
 
-import 'package:revitool/features/tweaks/performance/performance_service.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
+import '../../../../core/services/win_registry_service.dart';
+import '../../../../core/widgets/card_highlight.dart';
+import '../../../../i18n/generated/strings.g.dart';
+import '../performance_service.dart';
 
 class BackgroundManagementSection extends StatelessWidget {
   const BackgroundManagementSection({super.key});
@@ -32,7 +32,7 @@ class _BackgroundAppsCard extends ConsumerWidget {
   const _BackgroundAppsCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(backgroundAppsStatusProvider);
+    final bool status = ref.watch(backgroundAppsStatusProvider);
 
     return CardListTile(
       // icon: msicons.FluentIcons.bezier_curve_square_20_regular,
@@ -59,7 +59,9 @@ class _BackgroundWindowMessageRateCard extends ConsumerWidget {
   const _BackgroundWindowMessageRateCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(backgroundWindowMessageRateLimitStatusProvider);
+    final int status = ref.watch(
+      backgroundWindowMessageRateLimitStatusProvider,
+    );
 
     return CardListTile(
       // icon: msicons.FluentIcons.group_20_regular,
@@ -72,11 +74,12 @@ class _BackgroundWindowMessageRateCard extends ConsumerWidget {
           if (value == null) return;
 
           try {
-            ref
+            await ref
                 .read(performanceServiceProvider)
                 .setBackgroundWindowMessageRateLimit(value);
           } catch (e) {
-            showDialog(
+            if (!context.mounted) return;
+            await showDialog(
               context: context,
               builder: (context) => ContentDialog(
                 title: Text(t.tweaksPerformanceBWMR),
@@ -93,8 +96,8 @@ class _BackgroundWindowMessageRateCard extends ConsumerWidget {
           ref.invalidate(backgroundWindowMessageRateLimitStatusProvider);
         },
         items: const [
-          ComboBoxItem(value: 20, child: Text("50Hz")),
-          ComboBoxItem(value: 8, child: Text("125Hz (Default)")),
+          ComboBoxItem(value: 20, child: Text('50Hz')),
+          ComboBoxItem(value: 8, child: Text('125Hz (Default)')),
         ],
       ),
     );

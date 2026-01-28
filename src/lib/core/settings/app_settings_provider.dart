@@ -2,17 +2,17 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:revitool/core/settings/locale_config.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
-import 'package:revitool/utils.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:system_theme/system_theme.dart';
 import 'package:win32_registry/win32_registry.dart';
 
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../i18n/generated/strings.g.dart';
+import '../../utils.dart';
+import '../services/win_registry_service.dart';
+import 'locale_config.dart';
 
-part 'app_settings_provider.g.dart';
 part 'app_settings_provider.freezed.dart';
+part 'app_settings_provider.g.dart';
 
 enum NavigationIndicators { sticky, end }
 
@@ -20,7 +20,7 @@ enum NavigationIndicators { sticky, end }
 class AppSettingsNotifier extends _$AppSettingsNotifier {
   @override
   AppSettings build() {
-    final appLocale = LocaleConfig.parse(appLanguage);
+    final AppLocale appLocale = LocaleConfig.parse(appLanguage);
     return AppSettings(
       accentColor: getSystemAccentColor(SystemTheme.accentColor),
       themeMode: SettingsService.themeMode(),
@@ -59,8 +59,8 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     state = state.copyWith(windowEffect: effect);
   }
 
-  void setEffect(Color micaBackgroundColor, bool isDark) async {
-    Window.setEffect(
+  Future<void> setEffect(Color micaBackgroundColor, bool isDark) async {
+    await Window.setEffect(
       effect: state.windowEffect,
       color: state.windowEffect == WindowEffect.mica
           ? micaBackgroundColor.withValues(alpha: 0.05)
@@ -85,7 +85,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
 
   void updateLocale(String localeName) {
     try {
-      final appLocale = LocaleConfig.parse(localeName);
+      final AppLocale appLocale = LocaleConfig.parse(localeName);
       LocaleSettings.setLocale(appLocale);
 
       state = state.copyWith(locale: appLocale.flutterLocale);
@@ -97,7 +97,12 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   }
 
   Color? cardLightHoverBottomBorderColor() {
-    final color = const Color.fromARGB(255, 0, 0, 0).withValues(alpha: 0.11);
+    final Color color = const Color.fromARGB(
+      255,
+      0,
+      0,
+      0,
+    ).withValues(alpha: 0.11);
     if (state.windowEffect != WindowEffect.disabled) {
       return effectColor(color, modifyColors: true);
     }
@@ -136,15 +141,15 @@ AccentColor getSystemAccentColor(SystemAccentColor accentColor) {
 }
 
 class SettingsService {
+  factory SettingsService() => _instance;
   SettingsService._();
   static final SettingsService _instance = SettingsService._();
-  factory SettingsService() => _instance;
 
   static ThemeMode themeMode() {
     switch (WinRegistryService.themeModeReg) {
-      case "light":
+      case 'light':
         return ThemeMode.light;
-      case "dark":
+      case 'dark':
         return ThemeMode.dark;
       default:
         return ThemeMode.system;

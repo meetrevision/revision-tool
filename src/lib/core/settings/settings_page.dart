@@ -1,18 +1,18 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:revitool/extensions.dart';
-
-import 'package:revitool/core/settings/app_settings_provider.dart';
-import 'package:revitool/core/settings/locale_config.dart';
-import 'package:revitool/core/settings/tool_update_service.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
-import 'package:revitool/utils_gui.dart';
-import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:revitool/core/widgets/card_highlight.dart';
-import 'package:win32_registry/win32_registry.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:win32_registry/win32_registry.dart';
 
-final languageList = AppLocale.values
+import '../../extensions.dart';
+import '../../i18n/generated/strings.g.dart';
+import '../../utils_gui.dart';
+import '../services/win_registry_service.dart';
+import '../widgets/card_highlight.dart';
+import 'app_settings_provider.dart';
+import 'locale_config.dart';
+import 'tool_update_service.dart';
+
+final List<ComboBoxItem<String>> languageList = AppLocale.values
     .map(
       (locale) => ComboBoxItem(
         value: locale.name,
@@ -43,7 +43,7 @@ class _ThemeModeCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appSettings = ref.watch(appSettingsProvider);
+    final AppSettings appSettings = ref.watch(appSettingsProvider);
 
     return CardHighlight(
       icon: msicons.FluentIcons.paint_brush_20_regular,
@@ -76,7 +76,7 @@ class _ExperimentalCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(settingsExperimentalStatus);
+    final bool status = ref.watch(settingsExperimentalStatus);
     ref.watch(appSettingsProvider);
 
     return CardHighlight(
@@ -86,7 +86,7 @@ class _ExperimentalCard extends ConsumerWidget {
       action: CardToggleSwitch(
         value: status,
         onChanged: (value) async {
-          WinRegistryService.writeRegistryValue(
+          await WinRegistryService.writeRegistryValue(
             Registry.localMachine,
             r'SOFTWARE\Revision\Revision Tool',
             'Experimental',
@@ -108,7 +108,7 @@ class _UpdateCard extends ConsumerStatefulWidget {
 
 class _UpdateCardState extends ConsumerState<_UpdateCard> {
   final _toolUpdateService = ToolUpdateService();
-  final _updateTitle = ValueNotifier<String>("Check for Updates");
+  final _updateTitle = ValueNotifier<String>('Check for Updates');
 
   @override
   Widget build(BuildContext context) {
@@ -123,15 +123,15 @@ class _UpdateCardState extends ConsumerState<_UpdateCard> {
           onPressed: () async {
             try {
               await _toolUpdateService.fetchData();
-              final currentVersion = _toolUpdateService.getCurrentVersion;
-              final latestVersion = _toolUpdateService.getLatestVersion;
-              final data = _toolUpdateService.data;
+              final int currentVersion = _toolUpdateService.getCurrentVersion;
+              final int latestVersion = _toolUpdateService.getLatestVersion;
+              final Map<String, dynamic> data = _toolUpdateService.data;
 
               if (latestVersion > currentVersion) {
                 if (!context.mounted) return;
                 _updateTitle.value = t.settingsUpdateButton;
 
-                final shouldInstall = await showDialog<bool>(
+                final bool? shouldInstall = await showDialog<bool>(
                   context: context,
                   builder: (dialogCtx) => ContentDialog(
                     title: Text(t.settingsUpdateButtonAvailable),
@@ -151,9 +151,9 @@ class _UpdateCardState extends ConsumerState<_UpdateCard> {
                   ),
                 );
 
-                if (shouldInstall == true) {
+                if (shouldInstall ?? false) {
                   if (!context.mounted) return;
-                  _updateTitle.value = "${t.settingsUpdatingStatus}...";
+                  _updateTitle.value = '${t.settingsUpdatingStatus}...';
                   try {
                     await _toolUpdateService.downloadNewVersion();
                     await _toolUpdateService.installUpdate();
@@ -216,7 +216,7 @@ class _LanguageCard extends ConsumerWidget {
       action: ComboBox(
         value: TranslationProvider.of(context).locale.name,
         onChanged: (value) async {
-          final localeName = value ?? AppLocale.en.name;
+          final String localeName = value ?? AppLocale.en.name;
           await WinRegistryService.writeRegistryValue(
             Registry.localMachine,
             r'SOFTWARE\Revision\Revision Tool',

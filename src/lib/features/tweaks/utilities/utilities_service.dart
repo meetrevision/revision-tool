@@ -1,9 +1,9 @@
-import 'package:revitool/core/trusted_installer/trusted_installer_service.dart';
-import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:revitool/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
 import 'package:win32_registry/win32_registry.dart';
+
+import '../../../core/services/win_registry_service.dart';
+import '../../../core/trusted_installer/trusted_installer_service.dart';
+import '../../../utils.dart';
 
 part 'utilities_service.g.dart';
 

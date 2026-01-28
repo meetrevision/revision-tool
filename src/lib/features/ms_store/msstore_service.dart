@@ -1,65 +1,67 @@
 import 'dart:io';
+
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
-import 'package:revitool/features/ms_store/non_uwp_response_dto.dart';
-import 'package:revitool/features/ms_store/packages_info_dto.dart';
-import 'package:revitool/features/ms_store/product.dart';
-import 'package:revitool/features/ms_store/search_response_dto.dart';
-import 'package:revitool/features/ms_store/update_response.dart';
-import 'package:revitool/core/services/network_service.dart';
-import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:revitool/utils.dart';
 import 'package:process_run/shell_run.dart';
-
 import 'package:xml/xml.dart' as xml;
 
+import '../../core/services/network_service.dart';
+import '../../core/services/win_registry_service.dart';
+import '../../utils.dart';
+import 'non_uwp_response_dto.dart';
+import 'packages_info_dto.dart';
+import 'product.dart';
+import 'search_response_dto.dart';
+import 'update_response.dart';
+
 class _PackageCacheEntry {
+  const _PackageCacheEntry({required this.packages, required this.expiryDate});
   final Set<MSStorePackagesInfoDTO> packages;
   final DateTime expiryDate;
-
-  const _PackageCacheEntry({required this.packages, required this.expiryDate});
 
   bool get isExpired => DateTime.now().isAfter(expiryDate);
 }
 
 class MSStoreService {
+  factory MSStoreService() => _instance;
+  const MSStoreService._private();
   static final _storeFolder =
-      "${Directory.systemTemp.path}\\Revision-Tool\\MSStore";
+      '${Directory.systemTemp.path}\\Revision-Tool\\MSStore';
   String get storeFolder => _storeFolder;
 
-  static final _cookieFile = File(
+  static final String _cookieFile = File(
     '$directoryExe\\msstore\\cookie.xml',
   ).readAsStringSync();
-  static final _urlFile = File(
+  static final String _urlFile = File(
     '$directoryExe\\msstore\\url.xml',
   ).readAsStringSync();
-  static final _wuFile = File(
+  static final String _wuFile = File(
     '$directoryExe\\msstore\\wu.xml',
   ).readAsStringSync();
   static const _fe3Delivery =
-      "https://fe3.delivery.mp.microsoft.com/ClientWebService/client.asmx";
-  static const _storeAPI = "https://storeedgefd.dsx.mp.microsoft.com/v9.0";
+      'https://fe3.delivery.mp.microsoft.com/ClientWebService/client.asmx';
+  static const _storeAPI = 'https://storeedgefd.dsx.mp.microsoft.com/v9.0';
   // static const _filteredSearchAPI = "https://apps.microsoft.com/store/api/Products/GetFilteredSearch";
-  static const _searchAPI = "https://apps.microsoft.com/api/products/search";
+  static const _searchAPI = 'https://apps.microsoft.com/api/products/search';
   static final _optionsSoapXML = Options(
     headers: {
-      "user-agent":
-          "Mozilla/5.0 (Windows NT 10.0; rv:107.0) Gecko/20100101 Firefox/107.0",
-      "Accept": "*/*",
-      "Content-Type": "application/soap+xml",
+      'user-agent':
+          'Mozilla/5.0 (Windows NT 10.0; rv:107.0) Gecko/20100101 Firefox/107.0',
+      'Accept': '*/*',
+      'Content-Type': 'application/soap+xml',
     },
   );
 
   static final _options = Options(
     headers: {
-      "user-agent":
-          "Mozilla/5.0 (Windows NT 10.0; rv:107.0) Gecko/20100101 Firefox/107.0",
-      "content-type": "application/json;charset=utf-8",
-      "accept": "application/json",
+      'user-agent':
+          'Mozilla/5.0 (Windows NT 10.0; rv:107.0) Gecko/20100101 Firefox/107.0',
+      'content-type': 'application/json;charset=utf-8',
+      'accept': 'application/json',
     },
   );
 
-  static String _cookie = "";
+  static String _cookie = '';
 
   static const _knownPackageArch = {'x86', 'x64', 'arm64', 'arm', 'neutral'};
 
@@ -67,11 +69,9 @@ class MSStoreService {
   static final _networkService = NetworkService();
 
   static const _instance = MSStoreService._private();
-  factory MSStoreService() => _instance;
-  const MSStoreService._private();
 
   static final _packagesCache = <String, _PackageCacheEntry>{};
-  static String _currentProductId = "";
+  static String _currentProductId = '';
   Set<MSStorePackagesInfoDTO> get packages {
     if (_currentProductId.isNotEmpty &&
         _packagesCache.containsKey(_currentProductId) &&
@@ -82,7 +82,7 @@ class MSStoreService {
   }
 
   Future<void> startProcess(String id, String ring) async {
-    final productId = id.trim();
+    final String productId = id.trim();
     _currentProductId = productId;
 
     if (_packagesCache.containsKey(productId) &&
@@ -110,32 +110,34 @@ class MSStoreService {
       }
     } catch (e) {
       _packagesCache.remove(productId);
-      _currentProductId = "";
-      throw Exception('Failed to retrieve packages: ${e.toString()}');
+      _currentProductId = '';
+      throw Exception('Failed to retrieve packages: $e');
     }
   }
 
   /// Returns true if the product is UWP
   bool isUWP(String productId) {
-    return productId.startsWith("9");
+    return productId.startsWith('9');
   }
 
   /// Returns true if the product is not UWP
   bool isNonUWP(String productId) {
-    return productId.toLowerCase().startsWith("xp");
+    return productId.toLowerCase().startsWith('xp');
   }
 
   Future<List<ProductsList>> searchProducts(String query, String ring) async {
     //"$_filteredSearchAPI?&Query=$query&FilteredCategories=AllProducts&hl=en-us${systemLanguage.toLowerCase()}&
-    final response = await _networkService.get(
-      "$_searchAPI?gl=US&hl=en-us&query=$query&mediaType=all&age=all&price=all&category=all&subscription=all",
+    final Response<dynamic> response = await _networkService.get(
+      '$_searchAPI?gl=US&hl=en-us&query=$query&mediaType=all&age=all&price=all&category=all&subscription=all',
 
       // https://apps.microsoft.com/api/products/search?gl=GE&hl=en-us&query=xbox&cursor=
       options: _options,
     );
 
     if (response.statusCode == 200) {
-      final responseData = MSStoreSearchResponseDTO.fromJson(response.data);
+      final responseData = MSStoreSearchResponseDTO.fromJson(
+        response.data as Map<String, dynamic>,
+      );
       return [
         ...(responseData.highlightedList ?? List<ProductsList>.empty()),
         ...(responseData.productsList ?? List<ProductsList>.empty()),
@@ -145,7 +147,7 @@ class MSStoreService {
   }
 
   Future<String> _getCookie() async {
-    final response = await _networkService.post(
+    final Response<dynamic> response = await _networkService.post(
       _fe3Delivery,
       data: xml.XmlDocument.parse(_cookieFile),
       options: _optionsSoapXML,
@@ -154,23 +156,23 @@ class MSStoreService {
 
     if (response.statusCode == 200) {
       return xml.XmlDocument.parse(
-        response.data,
-      ).findAllElements("EncryptedData").first.innerText;
+        response.data.toString(),
+      ).findAllElements('EncryptedData').first.innerText;
     }
     throw Exception('Failed to get a cookie');
   }
 
   Future<String> _getCategoryID(String id) async {
     // When Windows region is set to English (World), the language code isn't compatible with the store API, therefore use US en-US
-    final response = await _networkService.get(
-      "$_storeAPI/products/$id?market=US&locale=en-us&deviceFamily=Windows.Desktop",
+    final Response<dynamic> response = await _networkService.get(
+      '$_storeAPI/products/$id?market=US&locale=en-us&deviceFamily=Windows.Desktop',
       cancelToken: _cancelToken,
     );
 
     if (response.statusCode == 200) {
-      final product = Product.fromJson(response.data);
+      final product = Product.fromJson(response.data as Map<String, dynamic>);
 
-      final skus = product.payload!.skus!;
+      final List<Skus> skus = product.payload!.skus!;
 
       if (skus.isNotEmpty) {
         for (final sku in skus) {
@@ -183,7 +185,7 @@ class MSStoreService {
           }
         }
       }
-      throw Exception("The selected app is not UWP");
+      throw Exception('The selected app is not UWP');
     }
     throw Exception('Failed to get category id');
   }
@@ -193,12 +195,12 @@ class MSStoreService {
     String cookie,
     String ring,
   ) async {
-    final cookie2 = _wuFile
-        .replaceAll("{1}", cookie)
-        .replaceAll("{2}", categoryID)
-        .replaceAll("{3}", ring);
+    final String cookie2 = _wuFile
+        .replaceAll('{1}', cookie)
+        .replaceAll('{2}', categoryID)
+        .replaceAll('{3}', ring);
 
-    final response = await _networkService.post(
+    final Response<dynamic> response = await _networkService.post(
       _fe3Delivery,
       data: cookie2,
       options: _optionsSoapXML,
@@ -208,36 +210,38 @@ class MSStoreService {
     if (response.statusCode == 200) {
       return response.data
           .toString()
-          .replaceAll("&lt;", "<")
-          .replaceAll("&gt;", ">");
+          .replaceAll('&lt;', '<')
+          .replaceAll('&gt;', '>');
     }
     throw Exception('Failed to get file list xml');
   }
 
   Future<void> _getNonAppxPackage(String id) async {
-    final response = await _networkService.get(
-      "$_storeAPI/packageManifests/$id?Market=US",
+    final Response<dynamic> response = await _networkService.get(
+      '$_storeAPI/packageManifests/$id?Market=US',
       cancelToken: _cancelToken,
     );
 
     if (response.statusCode != 200) return;
 
-    final data = MSStoreNonUWPResponseDTO.fromJson(response.data).data;
-    final versions = data?.versions;
+    final Data? data = MSStoreNonUWPResponseDTO.fromJson(
+      response.data as Map<String, dynamic>,
+    ).data;
+    final List<Versions>? versions = data?.versions;
     if (versions == null || versions.isEmpty) return;
 
     final urls = <String>{};
     final pkgs = <MSStorePackagesInfoDTO>{};
 
-    for (final version in versions) {
-      for (final installer in version.installers!) {
-        final url = installer.installerUrl;
+    for (final Versions version in versions) {
+      for (final Installers installer in version.installers!) {
+        final String? url = installer.installerUrl;
         if (url == null || urls.contains(url)) continue;
 
         final String fileType =
             installer.installerType ?? url.substring(url.lastIndexOf('.') + 1);
 
-        if (!["exe", "msi"].contains(fileType)) continue;
+        if (!['exe', 'msi'].contains(fileType)) continue;
         pkgs.add(
           MSStorePackagesInfoDTO(
             id: id,
@@ -247,7 +251,7 @@ class MSStoreService {
             arch: extractArchitecture(installer.installerUrl!),
             fileModel: FileModel(
               fileName:
-                  "${version.defaultLocale?.packageName}-${installer.architecture}",
+                  '${version.defaultLocale?.packageName}-${installer.architecture}',
               fileType: fileType,
             ),
             commandLines: installer.installerSwitches?.silent?.replaceAll(
@@ -270,7 +274,7 @@ class MSStoreService {
 
   String extractArchitecture(String package) {
     package = package.toLowerCase();
-    for (final arch in _knownPackageArch) {
+    for (final String arch in _knownPackageArch) {
       if (package.contains(arch)) {
         return arch;
       }
@@ -281,31 +285,35 @@ class MSStoreService {
   UpdateResponse xmlToUpdateResponse(xml.XmlDocument document) {
     final updatesMap = <String, UpdateModel>{};
 
-    final doc = document.findAllElements('SyncUpdatesResult').first;
+    final xml.XmlElement doc = document
+        .findAllElements('SyncUpdatesResult')
+        .first;
 
-    for (final updateElement
+    for (final xml.XmlElement updateElement
         in doc
             .getElement('ExtendedUpdateInfo')!
             .getElement('Updates')!
             .findElements('Update')) {
-      final id = updateElement.getElement('ID')!.innerText;
+      final String id = updateElement.getElement('ID')!.innerText;
 
-      final xmlElement = updateElement.getElement('Xml');
+      final xml.XmlElement? xmlElement = updateElement.getElement('Xml');
       if (xmlElement == null) continue;
 
-      final filesElement = xmlElement.getElement('Files');
+      final xml.XmlElement? filesElement = xmlElement.getElement('Files');
       if (filesElement == null || filesElement.children.isEmpty) continue;
       final files = <FileModel>{};
-      for (final fileElement in filesElement.findElements('File')) {
-        final packageFullName = fileElement.getAttribute(
+      for (final xml.XmlElement fileElement in filesElement.findElements(
+        'File',
+      )) {
+        final String? packageFullName = fileElement.getAttribute(
           'InstallerSpecificIdentifier',
         );
         if (packageFullName == null) continue;
 
-        final fileName = fileElement.getAttribute('FileName');
-        final fileType = fileName!.split('.').last;
+        final String? fileName = fileElement.getAttribute('FileName');
+        final String fileType = fileName!.split('.').last;
 
-        if (fileType.startsWith("e")) {
+        if (fileType.startsWith('e')) {
           continue; // encrypted files installation is not supported
         }
 
@@ -328,7 +336,9 @@ class MSStoreService {
 
       if (files.isEmpty) continue;
 
-      final propsElement = xmlElement.getElement('ExtendedProperties');
+      final xml.XmlElement? propsElement = xmlElement.getElement(
+        'ExtendedProperties',
+      );
       if (propsElement != null) {
         final extendedProperties = ExtendedProperties(
           contentType: propsElement.getAttribute('ContentType'),
@@ -350,17 +360,19 @@ class MSStoreService {
       }
     }
 
-    for (final updateInfoElement
+    for (final xml.XmlElement updateInfoElement
         in doc.getElement('NewUpdates')!.findElements('UpdateInfo')) {
-      final id = updateInfoElement.getElement('ID')?.innerText ?? '';
+      final String id = updateInfoElement.getElement('ID')?.innerText ?? '';
 
       if (id.isEmpty) continue;
       if (!updatesMap.containsKey(id)) continue;
 
-      final xmlElement = updateInfoElement.getElement('Xml');
+      final xml.XmlElement? xmlElement = updateInfoElement.getElement('Xml');
       if (xmlElement == null) continue;
 
-      final identityElement = xmlElement.getElement('UpdateIdentity');
+      final xml.XmlElement? identityElement = xmlElement.getElement(
+        'UpdateIdentity',
+      );
       UpdateIdentity? updateIdentity;
       if (identityElement == null) continue;
 
@@ -370,16 +382,18 @@ class MSStoreService {
       );
 
       String? packageMoniker;
-      final appRules = xmlElement.getElement('ApplicabilityRules');
+      final xml.XmlElement? appRules = xmlElement.getElement(
+        'ApplicabilityRules',
+      );
       if (appRules == null) continue;
-      final appxMetadata = appRules
+      final xml.XmlElement? appxMetadata = appRules
           .getElement('Metadata')!
           .getElement('AppxPackageMetadata')!
           .getElement('AppxMetadata');
       if (appxMetadata != null) {
-        packageMoniker = appxMetadata.getAttribute('PackageMoniker')!;
+        packageMoniker = appxMetadata.getAttribute('PackageMoniker');
 
-        if (packageMoniker.startsWith("Microsoft.Advertising")) {
+        if (packageMoniker!.startsWith('Microsoft.Advertising')) {
           // skip ads
           updatesMap.remove(id);
           continue;
@@ -397,16 +411,17 @@ class MSStoreService {
 
     // Filter to keep only latest packages by comparing modified dates
     final latestPackages = <String, UpdateModel>{};
-    for (final update in updatesMap.values) {
+    for (final UpdateModel update in updatesMap.values) {
       final id =
-          "${update.xml.extendedProperties!.packageIdentityName!}-${update.arch!}";
+          '${update.xml.extendedProperties!.packageIdentityName!}-${update.arch!}';
 
       if (!latestPackages.containsKey(id)) {
         latestPackages[id] = update;
       } else {
-        final existing = latestPackages[id]!;
-        final existingDate = existing.xml.fileModel.first.modifiedDate;
-        final currentDate = update.xml.fileModel.first.modifiedDate;
+        final UpdateModel existing = latestPackages[id]!;
+        final DateTime? existingDate =
+            existing.xml.fileModel.first.modifiedDate;
+        final DateTime? currentDate = update.xml.fileModel.first.modifiedDate;
 
         if (currentDate != null &&
             (existingDate == null || currentDate.isAfter(existingDate))) {
@@ -420,13 +435,13 @@ class MSStoreService {
 
   Future<void> _parsePackages(String xmlList, String ring) async {
     final xmlDoc = xml.XmlDocument.parse(xmlList);
-    final updatesResponse = xmlToUpdateResponse(xmlDoc);
+    final UpdateResponse updatesResponse = xmlToUpdateResponse(xmlDoc);
 
-    for (final update in updatesResponse.updates) {
-      final id = update.id;
-      final xml = update.xml;
+    for (final UpdateModel update in updatesResponse.updates) {
+      final String id = update.id;
+      final ElementXml xml = update.xml;
 
-      final files = update.xml.fileModel;
+      final Set<FileModel> files = update.xml.fileModel;
       if (files.isEmpty) return;
 
       _packagesCache[_currentProductId]!.packages.add(
@@ -453,50 +468,53 @@ class MSStoreService {
     required String ring,
     required String digets,
   }) async {
-    final httpContent = _urlFile
-        .replaceAll("{1}", updateID)
-        .replaceAll("{2}", revision)
-        .replaceAll("{3}", ring);
+    final String httpContent = _urlFile
+        .replaceAll('{1}', updateID)
+        .replaceAll('{2}', revision)
+        .replaceAll('{3}', ring);
 
-    final response = await _networkService.post(
-      "$_fe3Delivery/secured",
+    final Response<dynamic> response = await _networkService.post(
+      '$_fe3Delivery/secured',
       data: httpContent,
       options: Options(
         headers: {
-          HttpHeaders.contentTypeHeader: "application/soap+xml",
-          "user-agent":
-              "Mozilla/5.0 (Windows NT 10.0; rv:107.0) Gecko/20100101 Firefox/107.0",
+          HttpHeaders.contentTypeHeader: 'application/soap+xml',
+          'user-agent':
+              'Mozilla/5.0 (Windows NT 10.0; rv:107.0) Gecko/20100101 Firefox/107.0',
         },
       ),
       cancelToken: _cancelToken,
     );
 
     if (response.statusCode == 200) {
-      final xmlDoc = xml.XmlDocument.parse(response.data);
+      final xmlDoc = xml.XmlDocument.parse(response.data.toString());
 
-      for (final node in xmlDoc.findAllElements("FileLocation")) {
-        if (node.getElement("FileDigest")!.innerText == digets) {
-          return node.getElement("Url")!.innerText;
+      for (final xml.XmlElement node in xmlDoc.findAllElements(
+        'FileLocation',
+      )) {
+        if (node.getElement('FileDigest')!.innerText == digets) {
+          return node.getElement('Url')!.innerText;
         }
       }
     }
-    return "";
+    return '';
   }
 
-  Future<List<Response>> downloadPackages(
+  Future<List<Response<dynamic>>> downloadPackages(
     String productId,
     String ring,
     String arch,
   ) async {
-    final path = "$_storeFolder\\$productId\\$ring";
-    final downloadFutures = <Future<Response>>[];
-    final archToDownload = WinRegistryService.cpuArch == "amd64"
-        ? "x64"
-        : "arm64";
+    final path = '$_storeFolder\\$productId\\$ring';
+    final downloadFutures = <Future<Response<dynamic>>>[];
+    final archToDownload = WinRegistryService.cpuArch == 'amd64'
+        ? 'x64'
+        : 'arm64';
 
-    for (final item in _packagesCache[productId]!.packages) {
+    for (final MSStorePackagesInfoDTO item
+        in _packagesCache[productId]!.packages) {
       if (arch != 'all') {
-        final packageArch = item.arch;
+        final String packageArch = item.arch;
 
         if (arch == 'auto') {
           if (packageArch != 'neutral' && packageArch != archToDownload) {
@@ -507,12 +525,12 @@ class MSStoreService {
         }
       }
 
-      final downloadPath = item.isDependency ? "$path\\Dependencies" : path;
+      final downloadPath = item.isDependency ? '$path\\Dependencies' : path;
 
       downloadFutures.add(
         _networkService.downloadFile(
           item.uri,
-          "$downloadPath\\${item.fileModel!.fileName}.${item.fileModel!.fileType}",
+          '$downloadPath\\${item.fileModel!.fileName}.${item.fileModel!.fileType}',
         ),
       );
     }
@@ -530,8 +548,8 @@ class MSStoreService {
     String id,
     String ring,
   ) async {
-    final path = "$_storeFolder\\$id\\$ring";
-    final entities = Directory(path).listSync();
+    final path = '$_storeFolder\\$id\\$ring';
+    final List<FileSystemEntity> entities = Directory(path).listSync();
 
     if (entities.isEmpty) return [];
 
@@ -542,7 +560,7 @@ class MSStoreService {
         results.add(_addAppxProcess(entity.path));
       }
       if (entity is Directory && entity.path.endsWith('Dependencies')) {
-        final deps = entity.listSync().whereType<File>();
+        final Iterable<File> deps = entity.listSync().whereType<File>();
         for (final file in deps) {
           results.add(_addAppxProcess(file.path));
         }
@@ -553,8 +571,8 @@ class MSStoreService {
   }
 
   Future<ProcessResult> _addAppxProcess(String path) async {
-    return await Process.run("powershell", [
-      "Add-AppxPackage -Path $path -ForceApplicationShutdown",
+    return Process.run('powershell', [
+      'Add-AppxPackage -Path $path -ForceApplicationShutdown',
     ]);
   }
 
@@ -562,18 +580,20 @@ class MSStoreService {
     String id,
     String ring,
   ) async {
-    final fileList = Directory("$_storeFolder\\$id\\$ring").listSync();
+    final List<FileSystemEntity> fileList = Directory(
+      '$_storeFolder\\$id\\$ring',
+    ).listSync();
     final results = <ProcessResult>[];
 
     for (final file in fileList) {
       if (file is File) {
-        final filePath = file.path;
-        final arguments =
+        final String filePath = file.path;
+        final List<String> arguments =
             _packagesCache[_currentProductId]!.packages
                 .firstWhereOrNull(
                   (e) =>
                       e.fileModel!.fileName ==
-                      (file.path.split('\\').last).split(".").first,
+                      file.path.split(r'\').last.split('.').first,
                 )
                 ?.commandLines
                 ?.split(' ') ??
@@ -590,7 +610,7 @@ class MSStoreService {
 
   Future<void> cleanUpDownloads() async {
     final dir = Directory(_storeFolder);
-    if (await dir.exists()) {
+    if (dir.existsSync()) {
       await dir.delete(recursive: true);
     }
   }

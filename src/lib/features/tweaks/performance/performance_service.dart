@@ -1,88 +1,89 @@
-import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:revitool/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:win32_registry/win32_registry.dart';
+
+import '../../../core/services/win_registry_service.dart';
+import '../../../utils.dart';
 
 part 'performance_service.g.dart';
 
 enum ServiceGrouping { forced, recommended, disabled }
 
-const _userSvcSplitDisabled = {"CDPUserSvc_", "OneSyncSvc_", "WpnUserService_"};
+const _userSvcSplitDisabled = {'CDPUserSvc_', 'OneSyncSvc_', 'WpnUserService_'};
 
 final _recommendedSplitDisabled = {
-  "DisplayEnhancementService",
-  "PcaSvc",
-  "WdiSystemHost",
-  "AudioEndpointBuilder",
-  "DeviceAssociationService",
-  "NcbService",
-  "StorSvc",
-  "SysMain",
-  "TextInputManagementService",
-  "TrkWks",
-  "hidserv",
+  'DisplayEnhancementService',
+  'PcaSvc',
+  'WdiSystemHost',
+  'AudioEndpointBuilder',
+  'DeviceAssociationService',
+  'NcbService',
+  'StorSvc',
+  'SysMain',
+  'TextInputManagementService',
+  'TrkWks',
+  'hidserv',
 
-  "Appinfo",
-  "BITS",
-  "LanmanServer",
-  "SENS",
-  "Schedule",
-  "ShellHWDetection",
-  "Themes",
-  "TokenBroker",
-  "UserManager",
-  "UsoSvc",
-  "Winmgmt",
-  "WpnService",
-  "gpsvc",
-  "iphlpsvc",
-  "wuauserv",
+  'Appinfo',
+  'BITS',
+  'LanmanServer',
+  'SENS',
+  'Schedule',
+  'ShellHWDetection',
+  'Themes',
+  'TokenBroker',
+  'UserManager',
+  'UsoSvc',
+  'Winmgmt',
+  'WpnService',
+  'gpsvc',
+  'iphlpsvc',
+  'wuauserv',
 
-  "WinHttpAutoProxySvc",
-  "EventLog",
-  "TimeBrokerSvc",
-  "lmhosts",
-  "Dhcp",
+  'WinHttpAutoProxySvc',
+  'EventLog',
+  'TimeBrokerSvc',
+  'lmhosts',
+  'Dhcp',
 
-  "FontCache",
-  "nsi",
-  "SstpSvc",
-  "DispBrokerDesktopSvc",
-  "CDPSvc",
-  "EventSystem",
-  "LicenseManager",
+  'FontCache',
+  'nsi',
+  'SstpSvc',
+  'DispBrokerDesktopSvc',
+  'CDPSvc',
+  'EventSystem',
+  'LicenseManager',
 
-  "SystemEventsBroker",
-  "Power",
-  "LSM",
-  "DcomLaunch",
-  "BrokerInfrastructure",
+  'SystemEventsBroker',
+  'Power',
+  'LSM',
+  'DcomLaunch',
+  'BrokerInfrastructure',
 
-  "CoreMessagingRegistrar",
-  "DPS",
+  'CoreMessagingRegistrar',
+  'DPS',
 
-  "AppXSvc",
-  "ClipSVC",
+  'AppXSvc',
+  'ClipSVC',
 };
 
 const _defaultSplitDisabled = {
-  "BFE",
-  "BrokerInfrastructure",
-  "DcomLaunch",
-  "DisplayEnhancementService\\Parameters",
-  "mpssvc",
-  "OneSyncSvc",
-  "PimIndexMaintenanceSvc",
-  "PlugPlay",
-  "Power",
-  "RasMan",
-  "RemoteAccess",
-  "RpcEptMapper",
-  "RpcSs",
-  "SensorService\\Parameters",
-  "SystemEventsBroker",
-  "UnistoreSvc",
-  "UserDataSvc",
+  'BFE',
+  'BrokerInfrastructure',
+  'DcomLaunch',
+  r'DisplayEnhancementService\Parameters',
+  'mpssvc',
+  'OneSyncSvc',
+  'PimIndexMaintenanceSvc',
+  'PlugPlay',
+  'Power',
+  'RasMan',
+  'RemoteAccess',
+  'RpcEptMapper',
+  'RpcSs',
+  r'SensorService\Parameters',
+  'SystemEventsBroker',
+  'UnistoreSvc',
+  'UserDataSvc',
 };
 
 abstract class PerformanceService {
@@ -149,7 +150,7 @@ class PerformanceServiceImpl implements PerformanceService {
 
   @override
   Future<void> enableSuperfetch() async {
-    final lowerFilters = WinRegistryService.getStringArrayValue(
+    final List<String>? lowerFilters = WinRegistryService.getStringArrayValue(
       RegistryHive.localMachine,
       r'SYSTEM\ControlSet001\Control\Class\{71a27cdd-812a-11d0-bec7-08002be2092f}',
       'LowerFilters',
@@ -185,8 +186,8 @@ class PerformanceServiceImpl implements PerformanceService {
       ),
     ]);
 
-    final hardDriveType = await runPSCommand(
-      '(Get-PhysicalDisk -SerialNumber (Get-Disk -Number (Get-Partition -DriveLetter \$env:SystemDrive.Substring(0, 1)).DiskNumber).SerialNumber.TrimStart()).MediaType',
+    final String hardDriveType = await runPSCommand(
+      r'(Get-PhysicalDisk -SerialNumber (Get-Disk -Number (Get-Partition -DriveLetter $env:SystemDrive.Substring(0, 1)).DiskNumber).SerialNumber.TrimStart()).MediaType',
     );
     if (hardDriveType == 'HDD') {
       await WinRegistryService.writeRegistryValue(
@@ -219,7 +220,7 @@ class PerformanceServiceImpl implements PerformanceService {
 
   @override
   Future<void> disableSuperfetch() async {
-    final lowerFilters = WinRegistryService.getStringArrayValue(
+    final List<String>? lowerFilters = WinRegistryService.getStringArrayValue(
       RegistryHive.localMachine,
       r'SYSTEM\ControlSet001\Control\Class\{71a27cdd-812a-11d0-bec7-08002be2092f}',
       'LowerFilters',
@@ -322,7 +323,7 @@ class PerformanceServiceImpl implements PerformanceService {
     return WinRegistryService.readInt(
           RegistryHive.currentUser,
           r'System\GameConfigStore',
-          "GameDVR_FSEBehaviorMode",
+          'GameDVR_FSEBehaviorMode',
         ) ==
         0;
   }
@@ -423,20 +424,20 @@ class PerformanceServiceImpl implements PerformanceService {
 
   @override
   bool get statusWindowedOptimization {
-    final value = WinRegistryService.readString(
+    final String? value = WinRegistryService.readString(
       RegistryHive.currentUser,
       r'Software\Microsoft\DirectX\UserGpuPreferences',
-      "DirectXUserGlobalSettings",
+      'DirectXUserGlobalSettings',
     );
     return value == null || !value.contains('SwapEffectUpgradeEnable=0');
   }
 
   @override
   Future<void> enableWindowedOptimization() async {
-    final currentValue = WinRegistryService.readString(
+    final String? currentValue = WinRegistryService.readString(
       RegistryHive.currentUser,
       r'Software\Microsoft\DirectX\UserGpuPreferences',
-      "DirectXUserGlobalSettings",
+      'DirectXUserGlobalSettings',
     );
 
     final String newValue;
@@ -457,10 +458,10 @@ class PerformanceServiceImpl implements PerformanceService {
 
   @override
   Future<void> disableWindowedOptimization() async {
-    final currentValue = WinRegistryService.readString(
+    final String? currentValue = WinRegistryService.readString(
       RegistryHive.currentUser,
       r'Software\Microsoft\DirectX\UserGpuPreferences',
-      "DirectXUserGlobalSettings",
+      'DirectXUserGlobalSettings',
     );
 
     final String newValue;
@@ -614,7 +615,7 @@ class PerformanceServiceImpl implements PerformanceService {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\FileSystem',
-          "RefsDisableLastAccessUpdate",
+          'RefsDisableLastAccessUpdate',
         ) ==
         1;
   }
@@ -634,7 +635,7 @@ class PerformanceServiceImpl implements PerformanceService {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\FileSystem',
-          "NtfsDisable8dot3NameCreation",
+          'NtfsDisable8dot3NameCreation',
         ) ==
         1;
   }
@@ -654,14 +655,14 @@ class PerformanceServiceImpl implements PerformanceService {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\FileSystem',
-          "NtfsMemoryUsage",
+          'NtfsMemoryUsage',
         ) ==
         2;
   }
 
   @override
   ServiceGrouping get statusServicesGrouping {
-    final value = WinRegistryService.readInt(
+    final int? value = WinRegistryService.readInt(
       RegistryHive.localMachine,
       r'SYSTEM\ControlSet001\Control',
       'SvcHostSplitThresholdInKB',
@@ -675,11 +676,10 @@ class PerformanceServiceImpl implements PerformanceService {
           'SvcHostSplitDisable',
         ) ==
         1) {
-      for (final service in _userSvcSplitDisabled) {
-        final finalService = WinRegistryService.getUserServices(service);
-        for (final userService in finalService) {
-          _recommendedSplitDisabled.add(userService);
-        }
+      for (final String service in _userSvcSplitDisabled) {
+        final Iterable<String> finalService =
+            WinRegistryService.getUserServices(service);
+        finalService.forEach(_recommendedSplitDisabled.add);
       }
       return ServiceGrouping.recommended;
     }
@@ -704,7 +704,10 @@ class PerformanceServiceImpl implements PerformanceService {
       'SvcHostSplitThresholdInKB',
       0x380000, // default value
     );
-    final services = {..._defaultSplitDisabled, ..._recommendedSplitDisabled};
+    final Set<String> services = {
+      ..._defaultSplitDisabled,
+      ..._recommendedSplitDisabled,
+    };
     await Future.wait(
       services.map(
         (service) => WinRegistryService.writeRegistryValue(
@@ -719,7 +722,7 @@ class PerformanceServiceImpl implements PerformanceService {
 
   @override
   Future<void> disableServicesGrouping() async {
-    final servicesToDelete = _recommendedSplitDisabled.difference(
+    final Set<String> servicesToDelete = _recommendedSplitDisabled.difference(
       _defaultSplitDisabled,
     );
     await Future.wait([
@@ -741,7 +744,7 @@ class PerformanceServiceImpl implements PerformanceService {
 
   @override
   int get statusBackgroundWindowMessageRateLimit {
-    final bool rawMouseThrottleEnabled =
+    final rawMouseThrottleEnabled =
         WinRegistryService.readInt(
           RegistryHive.currentUser,
           r'Control Panel\Mouse',
@@ -765,7 +768,7 @@ class PerformanceServiceImpl implements PerformanceService {
       return -1;
     }
 
-    final pollFrequency = (1000 / rawMouseThrottleDuration).round();
+    final int pollFrequency = (1000 / rawMouseThrottleDuration).round();
     return pollFrequency;
   }
 

@@ -3,10 +3,11 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:revitool/core/settings/app_settings_provider.dart';
-import 'package:revitool/extensions.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
-import 'package:revitool/utils_gui.dart';
+
+import '../../extensions.dart';
+import '../../i18n/generated/strings.g.dart';
+import '../../utils_gui.dart';
+import '../settings/app_settings_provider.dart';
 
 // const cardBorderColorForDark = Color.fromARGB(255, 29, 29, 29);
 // const cardBorderColorForLight = Color.fromARGB(255, 229, 229, 229);
@@ -62,7 +63,7 @@ class CardHighlight extends StatelessWidget {
     final pageStorageKey = label.hashCode;
 
     // Build the leading widget (icon or image)
-    final leadingWidget = image != null
+    final Widget leadingWidget = image != null
         ? ClipRRect(
             borderRadius: _cardBorderRadius,
             child: Image.network(
@@ -136,11 +137,11 @@ class _ExpandableCardState extends ConsumerState<_ExpandableCard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
-    final resources = theme.resources;
+    final FluentThemeData theme = context.theme;
+    final ResourceDictionary resources = theme.resources;
     final isLight = theme.brightness == .light;
-    final defaultBorderColor = resources.cardStrokeColorDefault;
-    final hoverBottomBorderColor = isLight
+    final Color defaultBorderColor = resources.cardStrokeColorDefault;
+    final Color hoverBottomBorderColor = isLight
         ? ref
               .read(appSettingsProvider.notifier)
               .cardLightHoverBottomBorderColor()!
@@ -295,8 +296,8 @@ class _ClickableCardChevron extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
-    final resources = theme.resources;
+    final FluentThemeData theme = context.theme;
+    final ResourceDictionary resources = theme.resources;
     return HoverButton(
       key: PageStorageKey(pageStorageKey),
       onPressed: onPressed,
@@ -325,7 +326,7 @@ class _ClickableCardChevron extends StatelessWidget {
                   description: description,
                   descriptionLink: descriptionLink,
                   trailing: action != null
-                      ? RepaintBoundary(child: action!)
+                      ? RepaintBoundary(child: action)
                       : null,
                   extraTrailingPadding: false,
                   contentPadding: const .only(
@@ -370,7 +371,7 @@ class CardListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final FluentThemeData theme = context.theme;
     final isLight = theme.brightness == .light;
     final content = Column(
       crossAxisAlignment: .start,
@@ -394,7 +395,7 @@ class CardListTile extends StatelessWidget {
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () async =>
-                              await launchURL(descriptionLink!),
+                              launchURL(descriptionLink!),
                       ),
                     ]
                   : null,
@@ -499,8 +500,8 @@ class CardStatusText extends StatelessWidget {
 /// Shows a restart dialog to inform the user that a restart is required.
 void showRestartDialog(
   final BuildContext context, {
-  String title = "",
-  String content = "",
+  String title = '',
+  String content = '',
 }) {
   showDialog(
     context: context,

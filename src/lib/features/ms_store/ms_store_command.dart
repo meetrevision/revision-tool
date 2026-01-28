@@ -1,13 +1,15 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:args/command_runner.dart';
+import 'package:dio/dio.dart';
+
 import 'package:process_run/shell_run.dart';
-import 'package:revitool/features/ms_store/msstore_service.dart';
-import 'package:revitool/utils.dart';
+
+import '../../utils.dart';
+import 'msstore_service.dart';
 
 class MSStoreCommand extends Command<String> {
-  static final _msStoreService = MSStoreService();
-
   MSStoreCommand() {
     argParser.addMultiOption(
       'id',
@@ -29,7 +31,6 @@ class MSStoreCommand extends Command<String> {
     );
     argParser.addFlag(
       'download-only',
-      defaultsTo: false,
       negatable: false,
       help:
           'Only downloads the specified package(s) without installing. Useful for offline installation or manual package management',
@@ -48,22 +49,23 @@ class MSStoreCommand extends Command<String> {
       },
     );
   }
+  static final _msStoreService = MSStoreService();
 
-  String get tag => "MS Store";
+  String get tag => 'MS Store';
 
   @override
   String get description =>
-      "[$name] Downloads and optionally installs free apps from MS Store";
+      '[$name] Downloads and optionally installs free apps from MS Store';
 
   @override
-  String get name => "msstore-apps";
+  String get name => 'msstore-apps';
 
   @override
   FutureOr<String>? run() async {
-    final List<String> ids = argResults?["id"];
-    final String ring = argResults?["ring"];
-    final String arch = argResults?["arch"] ?? "auto";
-    final bool downloadOnly = argResults?["download-only"] ?? false;
+    final ids = argResults?['id'] as List<String>;
+    final ring = argResults?['ring'] as String;
+    final String arch = argResults?['arch'] as String? ?? 'auto';
+    final bool downloadOnly = argResults?['download-only'] as bool? ?? false;
 
     for (final id in ids) {
       await installPackage(
@@ -108,11 +110,8 @@ class MSStoreCommand extends Command<String> {
     logger.i(
       '$name(installPackage): Downloading id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
     );
-    final downloadResult = await _msStoreService.downloadPackages(
-      id,
-      ring,
-      arch,
-    );
+    final List<Response<dynamic>> downloadResult = await _msStoreService
+        .downloadPackages(id, ring, arch);
 
     if (downloadResult.isEmpty || downloadResult.first.statusCode != 200) {
       logger.e(
@@ -123,7 +122,7 @@ class MSStoreCommand extends Command<String> {
     }
 
     if (downloadOnly) {
-      final downloadPath = "${_msStoreService.storeFolder}\\$id\\$ring";
+      final downloadPath = '${_msStoreService.storeFolder}\\$id\\$ring';
       logger.i(
         '$name(installPackage): Downloaded $id successfully to $downloadPath. downloadOnly=$downloadOnly therefore not installing',
       );
@@ -134,9 +133,10 @@ class MSStoreCommand extends Command<String> {
     logger.i(
       '$name(installPackage): Installing id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
     );
-    final installResult = await _msStoreService.installPackages(id, ring);
+    final List<ProcessResult> installResult = await _msStoreService
+        .installPackages(id, ring);
 
-    bool areResultsZero = true;
+    var areResultsZero = true;
     for (final e in installResult) {
       if (e.exitCode != 0) {
         logger.e(

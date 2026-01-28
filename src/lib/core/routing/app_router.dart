@@ -1,21 +1,22 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:go_router/go_router.dart';
-import 'package:revitool/extensions.dart';
-import 'package:revitool/features/home/home_page.dart';
-import 'package:revitool/core/routing/app_routes.dart';
-import 'package:revitool/core/routing/app_shell.dart';
-import 'package:revitool/core/settings/settings_page.dart';
-import 'package:revitool/core/widgets/unsupported_widget.dart';
-import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:revitool/features/ms_store/ms_store_page.dart';
-import 'package:revitool/features/tweaks/updates/updates_page.dart';
-import 'package:revitool/features/tweaks/utilities/utilities_page.dart';
-import 'package:revitool/features/tweaks/performance/performance_page.dart';
-import 'package:revitool/features/tweaks/personalization/personalization_page.dart';
-import 'package:revitool/features/tweaks/security/security_page.dart';
-import 'package:revitool/features/tweaks/tweaks_page.dart';
-import 'package:revitool/main.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../../extensions.dart';
+import '../../features/home/home_page.dart';
+import '../../features/ms_store/ms_store_page.dart';
+import '../../features/tweaks/performance/performance_page.dart';
+import '../../features/tweaks/personalization/personalization_page.dart';
+import '../../features/tweaks/security/security_page.dart';
+import '../../features/tweaks/tweaks_page.dart';
+import '../../features/tweaks/updates/updates_page.dart';
+import '../../features/tweaks/utilities/utilities_page.dart';
+import '../../main.dart';
+import '../services/win_registry_service.dart';
+import '../settings/settings_page.dart';
+import '../widgets/unsupported_widget.dart';
+import 'app_routes.dart';
+import 'app_shell.dart';
 
 part 'app_router.g.dart';
 

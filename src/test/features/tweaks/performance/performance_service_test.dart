@@ -169,7 +169,7 @@ void main() {
         });
 
         test('statusServicesGrouping returns one of the valid enum values', () {
-          final status = service.statusServicesGrouping;
+          final ServiceGrouping status = service.statusServicesGrouping;
           expect(
             [
               ServiceGrouping.forced,
@@ -201,7 +201,7 @@ void main() {
         test(
           'statusBackgroundWindowMessageRateLimit returns valid value or -1',
           () {
-            final status = service.statusBackgroundWindowMessageRateLimit;
+            final int status = service.statusBackgroundWindowMessageRateLimit;
             expect(status == -1 || (status >= 50 && status <= 333), isTrue);
           },
         );
@@ -309,7 +309,7 @@ void main() {
               predicate(
                 (e) =>
                     e is ArgumentError &&
-                    e.message.contains('between 3 and 20'),
+                    (e.message as String).contains('between 3 and 20'),
               ),
             ),
           );
@@ -322,7 +322,7 @@ void main() {
               predicate(
                 (e) =>
                     e is ArgumentError &&
-                    e.message.contains('between 3 and 20'),
+                    (e.message as String).contains('between 3 and 20'),
               ),
             ),
           );
@@ -508,7 +508,7 @@ void main() {
         when(() => mockService.statusCStates).thenReturn(false);
 
         await mockService.disableCStates();
-        final status = mockService.statusCStates;
+        final bool status = mockService.statusCStates;
 
         expect(status, false);
         verifyInOrder([

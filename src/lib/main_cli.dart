@@ -1,14 +1,14 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:revitool/features/tweaks/utilities/miscellaneous_command.dart';
 
-import 'package:revitool/features/ms_store/ms_store_command.dart';
-import 'package:revitool/features/tweaks/utilities/playbook_patches_command.dart';
-import 'package:revitool/features/tweaks/security/security_command.dart';
-import 'package:revitool/features/winsxs/win_package_command.dart';
-import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:revitool/utils.dart';
+import 'core/services/win_registry_service.dart';
+import 'features/ms_store/ms_store_command.dart';
+import 'features/tweaks/security/security_command.dart';
+import 'features/tweaks/utilities/miscellaneous_command.dart';
+import 'features/tweaks/utilities/playbook_patches_command.dart';
+import 'features/winsxs/win_package_command.dart';
+import 'utils.dart';
 
 Future<void> main(List<String> args) async {
   if (!WinRegistryService.isSupported && !Directory(ameTemp).existsSync()) {
@@ -18,7 +18,7 @@ Future<void> main(List<String> args) async {
 
   if (args.isEmpty) {
     final guiPath =
-        "${mainPath.substring(0, mainPath.lastIndexOf("\\"))}\\revitoolw.exe";
+        "${mainPath.substring(0, mainPath.lastIndexOf(r"\"))}\\revitoolw.exe";
     if (File(guiPath).existsSync()) {
       await Process.start('revitoolw', []);
       exit(0);
@@ -31,7 +31,7 @@ Future<void> main(List<String> args) async {
 
   final runner =
       CommandRunner<String>(
-          "revitool",
+          'revitool',
           "Revision Tool CLI v${const String.fromEnvironment('APP_VERSION', defaultValue: '1.0.0')}",
         )
         ..addCommand(MSStoreCommand())

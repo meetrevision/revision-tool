@@ -1,9 +1,9 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:process_run/shell_run.dart';
-import 'package:revitool/core/services/win_registry_service.dart';
 import 'package:win32_registry/win32_registry.dart';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/services/win_registry_service.dart';
 
 final settingsExperimentalStatus = Provider<bool>((ref) {
   return WinRegistryService.readInt(
@@ -24,5 +24,5 @@ const kScaffoldPagePadding = EdgeInsets.only(
 Future<void> launchURL(String url) async {
   if (url.isEmpty) throw ArgumentError('URL cannot be empty');
   if (Uri.tryParse(url) == null) throw FormatException('Invalid URL: $url');
-  await run("rundll32 url.dll,FileProtocolHandler $url");
+  await run('rundll32 url.dll,FileProtocolHandler $url');
 }

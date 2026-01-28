@@ -2,10 +2,11 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:revitool/core/widgets/card_highlight.dart';
-import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:revitool/features/tweaks/security/security_service.dart';
-import 'package:revitool/i18n/generated/strings.g.dart';
+
+import '../../../../core/services/win_registry_service.dart';
+import '../../../../core/widgets/card_highlight.dart';
+import '../../../../i18n/generated/strings.g.dart';
+import '../security_service.dart';
 
 class HardwareMitigationsSection extends StatelessWidget {
   const HardwareMitigationsSection({super.key});
@@ -26,7 +27,7 @@ class _MeltdownSpectreCard extends ConsumerWidget {
   const _MeltdownSpectreCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(meltdownSpectreStatusProvider);
+    final bool status = ref.watch(meltdownSpectreStatusProvider);
 
     return CardListTile(
       // icon: msicons.FluentIcons.shield_badge_20_regular,
@@ -55,7 +56,7 @@ class _DownfallCard extends ConsumerWidget {
   const _DownfallCard();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(downfallStatusProvider);
+    final bool status = ref.watch(downfallStatusProvider);
 
     return CardListTile(
       // icon: msicons.FluentIcons.shield_badge_20_regular,
@@ -63,7 +64,7 @@ class _DownfallCard extends ConsumerWidget {
       description: t.tweaksSecurityDownfallMitigationDescription,
       trailing: CardToggleSwitch(
         enabled: WinRegistryService.isIntelCpu || kDebugMode,
-        value: WinRegistryService.isAmdCpu ? false : status,
+        value: !WinRegistryService.isAmdCpu && status,
         requiresRestart: true,
         onChanged: (value) async {
           value

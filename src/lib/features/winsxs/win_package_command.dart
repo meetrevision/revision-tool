@@ -2,32 +2,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:revitool/features/ms_store/ms_store_command.dart';
-import 'package:revitool/features/tweaks/security/security_service.dart';
-import 'package:revitool/features/winsxs/win_package_service.dart';
-import 'package:revitool/core/services/win_registry_service.dart';
-import 'package:revitool/utils.dart';
+
+import '../../core/services/win_registry_service.dart';
+import '../../utils.dart';
+import '../ms_store/ms_store_command.dart';
+import '../tweaks/security/security_service.dart';
+import 'win_package_service.dart';
 
 class WindowsPackageCommand extends Command<String> {
-  static final _msStoreCommand = MSStoreCommand();
-
-  static const tag = "Windows Package";
-
-  @override
-  String get description => '[$tag] A command to manage Windows Defender';
-
-  @override
-  String get name => 'winpackage';
-
-  static const packageList = {
-    'system-components-removal': WinPackageType.systemComponentsRemoval,
-    'defender-removal': WinPackageType.defenderRemoval,
-    'ai-removal': WinPackageType.aiRemoval,
-    'onedrive-removal': WinPackageType.oneDriveRemoval,
-  };
-
-  static List<String> get allowedList =>
-      packageList.keys.toList(growable: false);
 
   WindowsPackageCommand() {
     argParser.addOption(
@@ -51,14 +33,33 @@ class WindowsPackageCommand extends Command<String> {
       allowed: allowedList,
     );
   }
+  static final _msStoreCommand = MSStoreCommand();
+
+  static const tag = 'Windows Package';
+
+  @override
+  String get description => '[$tag] A command to manage Windows Defender';
+
+  @override
+  String get name => 'winpackage';
+
+  static const Map<String, WinPackageType> packageList = {
+    'system-components-removal': WinPackageType.systemComponentsRemoval,
+    'defender-removal': WinPackageType.defenderRemoval,
+    'ai-removal': WinPackageType.aiRemoval,
+    'onedrive-removal': WinPackageType.oneDriveRemoval,
+  };
+
+  static List<String> get allowedList =>
+      packageList.keys.toList(growable: false);
 
   @override
   FutureOr<String>? run() async {
-    final installOption = argResults?.option('install');
-    final uninstallOption = argResults?.option('uninstall');
+    final String? installOption = argResults?.option('install');
+    final String? uninstallOption = argResults?.option('uninstall');
 
-    final downloadOption = argResults?.option('download');
-    final downloadPath = argResults?.option('download-path');
+    final String? downloadOption = argResults?.option('download');
+    final String? downloadPath = argResults?.option('download-path');
 
     if (downloadOption != null) {
       await _downloadPackage(downloadOption, downloadPath);
@@ -75,7 +76,7 @@ class WindowsPackageCommand extends Command<String> {
   }
 
   WinPackageType getPackageType(final String package) {
-    final type = packageList[package];
+    final WinPackageType? type = packageList[package];
     if (type == null) {
       logger.e('$name(getPackageType): Invalid package type: package=$package');
       exit(1);
@@ -87,12 +88,12 @@ class WindowsPackageCommand extends Command<String> {
     final String parameter,
     final String? path,
   ) async {
-    final mode = getPackageType(parameter);
+    final WinPackageType mode = getPackageType(parameter);
     logger.i(
       '$name(downloadPackage): Downloading package=${mode.packageName}, path=$path',
     );
     try {
-      final packagePath = await WinPackageService.downloadPackage(
+      final String packagePath = await WinPackageService.downloadPackage(
         mode,
         path: path,
       );
@@ -107,7 +108,7 @@ class WindowsPackageCommand extends Command<String> {
   }
 
   Future<void> _installPackage(final String parameter) async {
-    final mode = getPackageType(parameter);
+    final WinPackageType mode = getPackageType(parameter);
 
     try {
       if (mode == WinPackageType.defenderRemoval) {
@@ -116,9 +117,9 @@ class WindowsPackageCommand extends Command<String> {
       }
 
       if (mode == WinPackageType.aiRemoval) {
-        await WinRegistryService.hidePageVisibilitySettings("aicomponents");
+        await WinRegistryService.hidePageVisibilitySettings('aicomponents');
         await WinRegistryService.hidePageVisibilitySettings(
-          "privacy-systemaimodels",
+          'privacy-systemaimodels',
         );
         await runPSCommand(
           'Disable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart',
@@ -131,7 +132,7 @@ class WindowsPackageCommand extends Command<String> {
       logger.i(
         '$name(installPackage): Downloading package=${mode.packageName}',
       );
-      final packagePath = await WinPackageService.downloadPackage(mode);
+      final String packagePath = await WinPackageService.downloadPackage(mode);
 
       logger.i(
         '$name(installPackage): Installing package=${mode.packageName}, path=$packagePath',
@@ -157,17 +158,17 @@ class WindowsPackageCommand extends Command<String> {
       }
 
       if (packageType == WinPackageType.aiRemoval) {
-        await WinRegistryService.unhidePageVisibilitySettings("aicomponents");
+        await WinRegistryService.unhidePageVisibilitySettings('aicomponents');
         await WinRegistryService.unhidePageVisibilitySettings(
-          "privacy-systemaimodels",
+          'privacy-systemaimodels',
         );
         await runPSCommand(
           'Enable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart',
         );
         await _msStoreCommand.installPackage(
-          id: "9nht9rb2f4hd",
-          ring: "Retail",
-          arch: "auto",
+          id: '9nht9rb2f4hd',
+          ring: 'Retail',
+          arch: 'auto',
           downloadOnly: false,
         );
       }
