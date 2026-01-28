@@ -112,7 +112,7 @@ class _DefenderCard extends ConsumerWidget {
                                   .read(securityServiceProvider)
                                   .openDefenderThreatSettings();
                             } else {
-                              Navigator.pop(context);
+                              context.pop();
                             }
                           },
                         ),

@@ -131,7 +131,7 @@ class _MSStorePageState extends State<MSStorePage> {
       await _msStoreService.startProcess(productID, _selectedRing);
 
       if (!context.mounted) return;
-      Navigator.pop(context);
+      context.pop();
 
       if (_msStoreService.packages.isEmpty) {
         await showNotFound(context);
@@ -140,7 +140,7 @@ class _MSStorePageState extends State<MSStorePage> {
       await showSelectPackages(productID);
     } catch (e, _) {
       if (!context.mounted) return;
-      context.pop(context);
+      context.pop();
       unawaited(
         showDialog(
           context: context,
@@ -148,10 +148,7 @@ class _MSStorePageState extends State<MSStorePage> {
             return ContentDialog(
               content: Text('$e'),
               actions: [
-                Button(
-                  child: Text(t.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
+                Button(child: Text(t.close), onPressed: () => context.pop()),
               ],
             );
           },

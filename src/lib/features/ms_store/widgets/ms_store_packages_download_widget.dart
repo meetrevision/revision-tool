@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../i18n/generated/strings.g.dart';
 import '../msstore_service.dart';
@@ -103,16 +104,35 @@ class _MsStorePackagesDownloadWidgetState
               FilledButton(
                 child: Text(t.install),
                 onPressed: () async {
-                  await showLoadingDialog(context, t.installing);
-
-                  final processResult = <ProcessResult>[];
-                  processResult.addAll(
-                    await _ms.installPackages(widget.productId, widget.ring),
-                  );
+                  unawaited(showLoadingDialog(context, t.installing));
+                  List<ProcessResult> processResult = [];
+                  try {
+                    processResult = await _ms.installPackages(
+                      widget.productId,
+                      widget.ring,
+                    );
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    context.pop();
+                    await showDialog(
+                      context: context,
+                      builder: (context) => ContentDialog(
+                        title: const Text('Error'),
+                        content: Text(e.toString()),
+                        actions: [
+                          Button(
+                            child: Text(t.close),
+                            onPressed: () => context.pop(),
+                          ),
+                        ],
+                      ),
+                    );
+                    return;
+                  } finally {
+                    if (context.mounted) context.pop();
+                  }
 
                   if (!context.mounted) return;
-                  Navigator.pop(context);
-
                   await showInstallProcess(context, processResult);
 
                   // if (widget.cleanUpAfterInstall) {
@@ -120,10 +140,7 @@ class _MsStorePackagesDownloadWidgetState
                   // }
                 },
               ),
-              Button(
-                child: Text(t.close),
-                onPressed: () => Navigator.pop(context),
-              ),
+              Button(child: Text(t.close), onPressed: () => context.pop()),
             ] else ...[
               MouseRegion(
                 cursor: SystemMouseCursors.forbidden,

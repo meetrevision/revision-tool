@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:process_run/shell.dart';
 import '../../../i18n/generated/strings.g.dart';
 
@@ -50,7 +51,7 @@ Future<Object?> showInstallProcess(
       actions: [
         FilledButton(
           child: Text(t.close),
-          onPressed: () => Navigator.pop(context, 'Install process'),
+          onPressed: () => context.pop('Install process'),
         ),
       ],
     ),
