@@ -34,6 +34,9 @@ class _MSStorePageState extends State<MSStorePage> {
 
   Future<void> _onSearchButtonPressed() async {
     final String query = _textEditingController.text;
+    if (query.isEmpty) {
+      return;
+    }
 
     if (query.startsWith('9') || query.startsWith('XP')) {
       await showInstallDialog(
