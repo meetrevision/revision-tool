@@ -29,6 +29,7 @@ class PerformancePage extends ConsumerWidget {
         const PresentationSection(),
 
         if (ref.watch(settingsExperimentalStatus)) ...[const _CStatesCard()],
+        const _PowerPlanCard(),
       ].withSpacing(5),
     );
   }
@@ -76,6 +77,24 @@ class _CStatesCard extends ConsumerWidget {
               : await ref.read(performanceServiceProvider).enableCStates();
           ref.invalidate(cStatesStatusProvider);
         },
+      ),
+    );
+  }
+}
+
+class _PowerPlanCard extends ConsumerWidget {
+  const _PowerPlanCard();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return CardHighlight(
+      icon: msicons.FluentIcons.power_20_regular,
+      label: t.tweaksPerformancePowerPlan,
+      description: t.tweaksPerformancePowerPlanDescription,
+      action: FilledButton(
+        onPressed: () async {
+          await ref.read(performanceServiceProvider).reapplyPowerPlan();
+        },
+        child: Text(t.apply),
       ),
     );
   }
