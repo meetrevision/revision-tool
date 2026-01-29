@@ -26,5 +26,4 @@ A tool to personalize [ReviOS](https://www.revi.cc/) to your needs. Rewritten in
 Revision Tool is licensed under the [GNU General Public License v3.0](LICENSE). 
 
 The tool also contains:
-* [NanaRun](https://github.com/M2Team/NanaRun) - MIT
 * [Fluent System Icons](https://github.com/microsoft/fluentui-system-icons) by Microsoft - MIT
