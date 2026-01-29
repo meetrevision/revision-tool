@@ -127,6 +127,7 @@ abstract class PerformanceService {
   Future<void> recommendedServicesGrouping();
   Future<void> disableServicesGrouping();
   Future<void> setBackgroundWindowMessageRateLimit(int milliseconds);
+  Future<void> reapplyPowerPlan();
 }
 
 class PerformanceServiceImpl implements PerformanceService {
@@ -800,6 +801,22 @@ class PerformanceServiceImpl implements PerformanceService {
         value,
       ),
     ]);
+  }
+
+  @override
+  Future<void> reapplyPowerPlan() async {
+    await runPSCommand(
+      'powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 3ff9831b-6f80-4830-8178-736cd4229e7b; '
+      'powercfg -changename 3ff9831b-6f80-4830-8178-736cd4229e7b "Revision - Ultra Performance" "Windows\'s Ultimate Performance with additional changes."; '
+      'powercfg -s 3ff9831b-6f80-4830-8178-736cd4229e7b; '
+      'powercfg -setacvalueindex scheme_current sub_processor PERFINCPOL 2; '
+      'powercfg -setacvalueindex scheme_current sub_processor PERFDECPOL 1; '
+      'powercfg -setacvalueindex scheme_current sub_processor PERFINCTHRESHOLD 10; '
+      'powercfg -setacvalueindex scheme_current sub_processor PERFDECTHRESHOLD 8; '
+      'powercfg -setacvalueindex scheme_current sub_processor CPMINCORES 100; '
+      'powercfg -setacvalueindex scheme_current sub_processor CPMINCORES1 100; '
+      'powercfg /setactive scheme_current',
+    );
   }
 
   @override

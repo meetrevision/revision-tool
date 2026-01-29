@@ -74,6 +74,8 @@ class WinRegistryService {
     } catch (e) {
       logger.w('Error validating ReviOS');
       return false;
+    } finally {
+      key.close();
     }
   }
 
@@ -149,10 +151,15 @@ class WinRegistryService {
   }
 
   static Iterable<String> getUserServices(String subkey) {
-    return Registry.openPath(
+    final RegistryKey key = Registry.openPath(
       RegistryHive.localMachine,
       path: r'SYSTEM\ControlSet001\Services',
-    ).subkeyNames.where((final e) => e.startsWith(subkey));
+    );
+    try {
+      return key.subkeyNames.where((final String e) => e.startsWith(subkey)).toList();
+    } finally {
+      key.close();
+    }
   }
 
   static String? get themeModeReg => readString(
@@ -171,7 +178,12 @@ class WinRegistryService {
 
   static int? readInt(RegistryHive hive, String path, String value) {
     try {
-      return Registry.openPath(hive, path: path).getIntValue(value);
+      final RegistryKey key = Registry.openPath(hive, path: path);
+      try {
+        return key.getIntValue(value);
+      } finally {
+        key.close();
+      }
     } catch (_) {
       return null;
     }
@@ -179,7 +191,12 @@ class WinRegistryService {
 
   static String? readString(RegistryHive hive, String path, String value) {
     try {
-      return Registry.openPath(hive, path: path).getStringValue(value);
+      final RegistryKey key = Registry.openPath(hive, path: path);
+      try {
+        return key.getStringValue(value);
+      } finally {
+        key.close();
+      }
     } catch (_) {
       return null;
     }
@@ -191,7 +208,12 @@ class WinRegistryService {
     String value,
   ) {
     try {
-      return Registry.openPath(hive, path: path).getStringArrayValue(value);
+      final RegistryKey key = Registry.openPath(hive, path: path);
+      try {
+        return key.getStringArrayValue(value);
+      } finally {
+        key.close();
+      }
     } catch (_) {
       return null;
     }
@@ -199,7 +221,12 @@ class WinRegistryService {
 
   static Uint8List? readBinary(RegistryHive hive, String path, String value) {
     try {
-      return Registry.openPath(hive, path: path).getBinaryValue(value);
+      final RegistryKey key = Registry.openPath(hive, path: path);
+      try {
+        return key.getBinaryValue(value);
+      } finally {
+        key.close();
+      }
     } catch (_) {
       return null;
     }
@@ -226,7 +253,13 @@ class WinRegistryService {
           '$tag(writeRegistryValue): Unsupported type: ${value.runtimeType}',
         ),
       };
-      key.createKey(path).createValue(registryValue);
+      
+      final RegistryKey subKey = key.createKey(path);
+      try {
+        subKey.createValue(registryValue);
+      } finally {
+        subKey.close();
+      }
       logger.i('$tag(writeRegistryValue): $path\\$name = $value');
 
       if (key == WinRegistryService.currentUser) {
@@ -237,11 +270,19 @@ class WinRegistryService {
         ]);
 
         final RegistryKey reg = Registry.allUsers;
-        reg.createKey('$defaultUser\\$path').createValue(registryValue);
-        logger.i(
-          '$tag(writeRegistryValue): $defaultUser\\$path\\$name = $value',
-        );
-        reg.close();
+        try {
+          final RegistryKey subKey = reg.createKey('$defaultUser\\$path');
+          try {
+            subKey.createValue(registryValue);
+          } finally {
+            subKey.close();
+          }
+          logger.i(
+            '$tag(writeRegistryValue): $defaultUser\\$path\\$name = $value',
+          );
+        } finally {
+          reg.close();
+        }
       }
     } on WindowsException catch (e) {
       // 0x80070005 = ERROR_ACCESS_DENIED
@@ -301,7 +342,12 @@ class WinRegistryService {
     int retryCount = 0,
   }) async {
     try {
-      key.createKey(path).deleteValue(name);
+      final RegistryKey subKey = key.createKey(path);
+      try {
+        subKey.deleteValue(name);
+      } finally {
+        subKey.close();
+      }
       logger.i('$tag(deleteValue): $path\\$name');
     } on WindowsException catch (e) {
       // 0x80070005 = ERROR_ACCESS_DENIED
@@ -396,7 +442,8 @@ class WinRegistryService {
 
   static void createKey(RegistryKey key, String path) {
     try {
-      key.createKey(path);
+      final RegistryKey subKey = key.createKey(path);
+      subKey.close();
       logger.i('$tag(createKey): $path');
     } catch (e) {
       logger.e(
