@@ -57,6 +57,8 @@
     "settingsLanguageDescription": "لغات ليست مضمونة أن تكون مترجمة بالكامل أو صحيحة",
     "pageMSStore": "Microsoft Store",
     "msstoreSearchingPackages": "جارٍ البحث عن حزم",
+    "msstoreDownloadingPackages": "جارٍ تنزيل الحزم ($completed/$total)",
+    "msstoreDownloadCompleted": "اكتمل التنزيل",
     "msstoreWait": "يرجى الانتظار...",
     "msstorePackagesPrompt": "هل ترغب في تثبيت الحزم التالية؟",
     "msstorePackagesNotFound": "لم يتم العثور على حزم",

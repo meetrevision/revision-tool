@@ -1,16 +1,17 @@
 // ignore_for_file: invalid_annotation_target
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-part 'non_uwp_response_dto.freezed.dart';
-part 'non_uwp_response_dto.g.dart';
+
+part 'win32_manifest_dto.freezed.dart';
+part 'win32_manifest_dto.g.dart';
 
 @freezed
-sealed class MSStoreNonUWPResponseDTO with _$MSStoreNonUWPResponseDTO {
-  const factory MSStoreNonUWPResponseDTO({@JsonKey(name: 'Data') Data? data}) =
-      _MSStoreNonUWPResponseDTO;
+sealed class Win32ManifestDto with _$Win32ManifestDto {
+  const factory Win32ManifestDto({@JsonKey(name: 'Data') Data? data}) =
+      _Win32ManifestDto;
 
-  factory MSStoreNonUWPResponseDTO.fromJson(Map<String, Object?> json) =>
-      _$MSStoreNonUWPResponseDTOFromJson(json);
+  factory Win32ManifestDto.fromJson(Map<String, Object?> json) =>
+      _$Win32ManifestDtoFromJson(json);
 }
 
 @freezed
@@ -69,13 +70,3 @@ sealed class InstallerSwitches with _$InstallerSwitches {
   factory InstallerSwitches.fromJson(Map<String, Object?> json) =>
       _$InstallerSwitchesFromJson(json);
 }
-
-// @freezed
-// class Markets with _$Markets {
-//   const factory Markets({
-//     List<String>? allowedMarkets,
-//   }) = _Markets;
-
-//   factory Markets.fromJson(Map<String, Object?> json) =>
-//       _$MarketsFromJson(json);
-// }

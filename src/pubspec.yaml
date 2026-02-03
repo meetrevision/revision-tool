@@ -60,6 +60,7 @@ dependencies:
   collection: ^1.18.0
   xml: ^6.5.0
   ffi: ^2.1.4
+  crypto: ^3.0.7
 
 
 dev_dependencies:

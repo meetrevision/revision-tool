@@ -57,6 +57,8 @@
     "settingsLanguageDescription": "A nyelvek nem garantáltan teljesen lefordítottak vagy helyesek",
     "pageMSStore": "Microsoft Store",
     "msstoreSearchingPackages": "Csomagok keresése",
+    "msstoreDownloadingPackages": "Csomagok letöltése folyamatban ($completed/$total)",
+    "msstoreDownloadCompleted": "Letöltés befejezve",
     "msstoreWait": "Kérjük, várjon...",
     "msstorePackagesPrompt": "Szeretné telepíteni a következő csomagokat?",
     "msstorePackagesNotFound": "Nem található csomag",

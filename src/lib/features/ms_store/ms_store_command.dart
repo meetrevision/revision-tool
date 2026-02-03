@@ -3,11 +3,12 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:dio/dio.dart';
-
-import 'package:process_run/shell_run.dart';
-
+import '../../core/services/win_registry_service.dart';
 import '../../utils.dart';
-import 'msstore_service.dart';
+import 'data/package_file_service.dart';
+import 'models/package_info.dart';
+import 'ms_store_enums.dart';
+import 'ms_store_repository.dart';
 
 class MSStoreCommand extends Command<String> {
   MSStoreCommand() {
@@ -19,37 +20,31 @@ class MSStoreCommand extends Command<String> {
       'ring',
       abbr: 'r',
       defaultsTo: 'Retail',
-      allowed: const ['Retail', 'RP', 'WIS', 'WIF'],
-      allowedHelp: const {
-        'Retail': 'Retail/stable ring (recommended)',
-        'RP': 'Release Preview',
-        'WIS': 'Windows Insider Slow',
-        'WIF': 'Windows Insider Fast',
-      },
+      allowed: MSStoreRing.values.map((e) => e.value).toList(),
       help: 'Channel',
-      valueHelp: 'Retail',
     );
     argParser.addFlag(
       'download-only',
       negatable: false,
-      help:
-          'Only downloads the specified package(s) without installing. Useful for offline installation or manual package management',
+      help: 'Only downloads the specified package(s) without installing.',
     );
     argParser.addOption(
       'arch',
       abbr: 'a',
       help: 'Filter downloads by following architectures:',
       defaultsTo: 'auto',
-      allowed: const ['auto', 'x64', 'arm64', 'all'],
-      allowedHelp: const {
-        'auto': 'Prioritizes neutral and system arch packages',
-        'x64': 'Prioritizes x64 and neutral packages',
-        'arm64': 'Prioritizes arm64 and neutral packages',
-        'all': 'Ignores architecture and downloads all packages',
-      },
+      allowed: MSStoreArch.values.map((e) => e.value).toList(),
     );
   }
-  static final _msStoreService = MSStoreService();
+
+  // CLI context: instantiate repository directly
+  late final MSStoreRepository _repository = MSStoreRepositoryImpl(
+    uwpService: .new(.new()),
+    win32Service: .new(.new()),
+    searchService: .new(.new()),
+    xmlParser: const .new(),
+    fileService: const .new(),
+  );
 
   String get tag => 'MS Store';
 
@@ -63,9 +58,12 @@ class MSStoreCommand extends Command<String> {
   @override
   FutureOr<String>? run() async {
     final ids = argResults?['id'] as List<String>;
-    final ring = argResults?['ring'] as String;
-    final String arch = argResults?['arch'] as String? ?? 'auto';
+    final ringValue = argResults?['ring'] as String;
+    final archValue = argResults?['arch'] as String;
     final bool downloadOnly = argResults?['download-only'] as bool? ?? false;
+
+    final MSStoreRing ring = .values.firstWhere((e) => e.value == ringValue);
+    final MSStoreArch arch = .values.firstWhere((e) => e.value == archValue);
 
     for (final id in ids) {
       await installPackage(
@@ -80,93 +78,86 @@ class MSStoreCommand extends Command<String> {
 
   Future<void> installPackage({
     required String id,
-    required String ring,
-    required String arch,
+    required MSStoreRing ring,
+    required MSStoreArch arch,
     required bool downloadOnly,
   }) async {
     logger.i(
-      '$name(installPackage): Starting id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
+      '$name: Starting for id=$id, ring=${ring.label}, arch=${arch.value}',
     );
+
     try {
-      await _msStoreService.startProcess(id, ring);
-    } catch (e) {
-      logger.e(
-        '$name(installPackage): Failed to start process for id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
-        error: e,
-        stackTrace: StackTrace.current,
+      final Set<PackageInfo> packages = await _repository.getPackages(
+        productId: id,
+        ring: ring,
       );
-      exit(1);
-    }
-
-    if (_msStoreService.packages.isEmpty) {
-      logger.e(
-        '$name(installPackage): No packages found for id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
-        error: 'No packages found',
-        stackTrace: StackTrace.current,
-      );
-      exit(1);
-    }
-
-    logger.i(
-      '$name(installPackage): Downloading id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
-    );
-    final List<Response<dynamic>> downloadResult = await _msStoreService
-        .downloadPackages(id, ring, arch);
-
-    if (downloadResult.isEmpty || downloadResult.first.statusCode != 200) {
-      logger.e(
-        '$name(installPackage): Download failed for id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
-        error: 'Download failed',
-      );
-      exit(1);
-    }
-
-    if (downloadOnly) {
-      final downloadPath = '${_msStoreService.storeFolder}\\$id\\$ring';
-      logger.i(
-        '$name(installPackage): Downloaded $id successfully to $downloadPath. downloadOnly=$downloadOnly therefore not installing',
-      );
-      stdout.writeln(downloadPath);
-      return;
-    }
-
-    logger.i(
-      '$name(installPackage): Installing id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
-    );
-    final List<ProcessResult> installResult = await _msStoreService
-        .installPackages(id, ring);
-
-    var areResultsZero = true;
-    for (final e in installResult) {
-      if (e.exitCode != 0) {
-        logger.e(
-          '$name(installPackage): Installation failed for id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly; ${e.outText}',
-          error: e.errText,
-          stackTrace: StackTrace.current,
-        );
-        areResultsZero = false;
-        break;
+      if (packages.isEmpty) {
+        logger.e('$name: No packages found for id=$id');
+        exit(1);
       }
-    }
 
-    if (installResult.isEmpty || !areResultsZero) {
-      logger.e(
-        '$name(installPackage): Installation failed for id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
-        error: 'Installation failed',
-        stackTrace: StackTrace.current,
+      String resolvedArch = arch.value;
+      if (arch == .auto) {
+        resolvedArch = WinRegistryService.cpuArch == 'amd64' ? 'x64' : 'arm64';
+      }
+
+      final List<PackageInfo> filtered = packages
+          .where(
+            (p) =>
+                arch == .all || p.arch == resolvedArch || p.arch == 'neutral',
+          )
+          .toList();
+
+      if (filtered.isEmpty) {
+        logger.e(
+          '$name: No matching packages found for id=$id and arch=$resolvedArch',
+        );
+        exit(1);
+      }
+
+      logger.i('$name: Downloading ${filtered.length} packages for $id...');
+      await _repository.downloadPackages(
+        productId: id,
+        ring: ring,
+        packages: filtered,
+        cancelToken: CancelToken(),
+        onProgress: (fileName, progress) {
+          stdout.write(
+            '\rDownloading $fileName: ${(progress * 100).toStringAsFixed(1)}%',
+          );
+          if (progress >= 1.0) stdout.writeln();
+        },
       );
+
+      if (downloadOnly) {
+        // Find temp path via internal knowledge (or we could expose it in repository)
+        final String path = const PackageFileService().getTempPath(id, ring);
+        logger.i('$name: Downloaded successfully to $path');
+        stdout.writeln(path);
+        return;
+      }
+
+      logger.i('$name: Installing packages for $id...');
+      final List<ProcessResult> results = await _repository.installPackages(
+        productId: id,
+        ring: ring,
+      );
+
+      final List<ProcessResult> failed = results
+          .where((r) => r.exitCode != 0)
+          .toList();
+      if (failed.isNotEmpty) {
+        for (final r in failed) {
+          logger.e('$name: Installation failed: ${r.stderr}');
+        }
+        exit(1);
+      }
+
+      logger.i('$name: Successfully installed $id');
+      await _repository.cleanup();
+    } catch (e) {
+      logger.e('$name: Failed to process $id', error: e);
       exit(1);
-    }
-
-    logger.i(
-      '$name(installPackage): Successfully installed id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
-    );
-
-    if (!downloadOnly) {
-      await _msStoreService.cleanUpDownloads();
-      logger.i(
-        '$name(installPackage): Cleaned up downloads for id=$id, ring=$ring, arch=$arch, downloadOnly=$downloadOnly',
-      );
     }
   }
 }

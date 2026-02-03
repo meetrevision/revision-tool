@@ -57,6 +57,8 @@
     "settingsLanguageDescription": "语言不能保证完全翻译或正确",
     "pageMSStore": "Microsoft Store",
     "msstoreSearchingPackages": "正在搜索包",
+    "msstoreDownloadingPackages": "正在下载包 ($completed/$total)",
+    "msstoreDownloadCompleted": "下载完成",
     "msstoreWait": "请稍候...",
     "msstorePackagesPrompt": "您想安装以下包吗？",
     "msstorePackagesNotFound": "未找到包",

@@ -3,18 +3,19 @@
 import 'dart:convert';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-part 'product.freezed.dart';
-part 'product.g.dart';
+
+part 'product_dto.freezed.dart';
+part 'product_dto.g.dart';
 
 @freezed
-sealed class Product with _$Product {
-  const factory Product({
+sealed class ProductDto with _$ProductDto {
+  const factory ProductDto({
     @JsonKey(name: 'ExpiryUtc') DateTime? expiryUtc,
     @JsonKey(name: 'Payload') Payload? payload,
-  }) = _Product;
+  }) = _ProductDto;
 
-  factory Product.fromJson(Map<String, Object?> json) =>
-      _$ProductFromJson(json);
+  factory ProductDto.fromJson(Map<String, Object?> json) =>
+      _$ProductDtoFromJson(json);
 }
 
 @freezed
@@ -28,7 +29,6 @@ sealed class Payload with _$Payload {
     @JsonKey(name: 'PermissionsRequired') List<String>? permissionsRequired,
     @JsonKey(name: 'PackageAndDeviceCapabilities')
     List<String>? packageAndDeviceCapabilities,
-
     @JsonKey(name: 'ContainsDownloadPackage') bool? containsDownloadPackage,
   }) = _Payload;
 

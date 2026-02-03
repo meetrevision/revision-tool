@@ -57,6 +57,8 @@
     "settingsLanguageDescription": "Dillerin tamamen çevrildiği veya doğru olduğu garanti edilmez",
     "pageMSStore": "Microsoft Store",
     "msstoreSearchingPackages": "Paketler aranıyor",
+    "msstoreDownloadingPackages": "Paketler indiriliyor ($completed/$total)",
+    "msstoreDownloadCompleted": "İndirme tamamlandı",
     "msstoreWait": "Lütfen bekleyin...",
     "msstorePackagesPrompt": "Aşağıdaki paketleri yüklemek ister misiniz?",
     "msstorePackagesNotFound": "Paket bulunamadı",

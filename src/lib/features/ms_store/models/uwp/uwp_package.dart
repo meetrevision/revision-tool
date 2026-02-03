@@ -1,15 +1,15 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'update_response.freezed.dart';
-part 'update_response.g.dart';
+part 'uwp_package.freezed.dart';
+part 'uwp_package.g.dart';
 
 @freezed
-sealed class UpdateResponse with _$UpdateResponse {
-  const factory UpdateResponse({required Set<UpdateModel> updates}) =
-      _UpdateResponse;
+sealed class UwpPackageResponse with _$UwpPackageResponse {
+  const factory UwpPackageResponse({required Set<UpdateModel> updates}) =
+      _UwpPackageResponse;
 
-  factory UpdateResponse.fromJson(Map<String, Object?> json) =>
-      _$UpdateResponseFromJson(json);
+  factory UwpPackageResponse.fromJson(Map<String, Object?> json) =>
+      _$UwpPackageResponseFromJson(json);
 }
 
 @freezed
@@ -65,8 +65,8 @@ sealed class ExtendedProperties with _$ExtendedProperties {
 sealed class FileModel with _$FileModel {
   const factory FileModel({
     String? fileName,
-    String? fileType, // custom
-    String? packageFullName, //PackageFullName
+    String? fileType,
+    String? packageFullName,
     String? digest,
     String? digestAlgorithm,
     int? size,

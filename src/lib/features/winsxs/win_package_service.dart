@@ -184,10 +184,9 @@ abstract final class WinPackageService {
       );
     }
 
-    String certValue = await runPSCommand(
+    final String certValue = (await runPSCommand(
       '(Get-AuthenticodeSignature -FilePath "$packagePath").SignerCertificate.Extensions.EnhancedKeyUsages.Value',
-    );
-    certValue = certValue.trim();
+    )).stdout.toString().trim();
 
     if (certValue.isEmpty || certValue != '1.3.6.1.4.1.311.10.3.6') {
       throw InvalidWinSxSPackageSignatureException(

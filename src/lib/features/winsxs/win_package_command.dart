@@ -10,7 +10,6 @@ import '../tweaks/security/security_service.dart';
 import 'win_package_service.dart';
 
 class WindowsPackageCommand extends Command<String> {
-
   WindowsPackageCommand() {
     argParser.addOption(
       'download',
@@ -167,8 +166,8 @@ class WindowsPackageCommand extends Command<String> {
         );
         await _msStoreCommand.installPackage(
           id: '9nht9rb2f4hd',
-          ring: 'Retail',
-          arch: 'auto',
+          ring: .retail,
+          arch: .auto,
           downloadOnly: false,
         );
       }

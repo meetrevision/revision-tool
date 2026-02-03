@@ -57,6 +57,8 @@
     "settingsLanguageDescription": "Языки не гарантируют полный или правильный перевод",
     "pageMSStore": "Microsoft Store",
     "msstoreSearchingPackages": "Поиск пакетов",
+    "msstoreDownloadingPackages": "Загрузка пакетов ($completed/$total)",
+    "msstoreDownloadCompleted": "Загрузка завершена",
     "msstoreWait": "Пожалуйста, подождите...",
     "msstorePackagesPrompt": "Хотели бы вы установить следующие пакеты?",
     "msstorePackagesNotFound": "Пакеты не найдены",

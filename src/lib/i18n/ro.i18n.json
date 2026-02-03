@@ -57,6 +57,8 @@
     "settingsLanguageDescription": "Limbile nu sunt garantate a fi traduse complet sau corect",
     "pageMSStore": "Microsoft Store",
     "msstoreSearchingPackages": "Se caută pachete",
+    "msstoreDownloadingPackages": "Se descarcă pachetele ($completed/$total)",
+    "msstoreDownloadCompleted": "Descărcare finalizată",
     "msstoreWait": "Vă rugăm să așteptați...",
     "msstorePackagesPrompt": "Doriți să instalați următoarele pachete?",
     "msstorePackagesNotFound": "Nu au fost găsite pachete",

@@ -186,9 +186,10 @@ class PerformanceServiceImpl implements PerformanceService {
       ),
     ]);
 
-    final String hardDriveType = await runPSCommand(
+    final String hardDriveType = (await runPSCommand(
       r'(Get-PhysicalDisk -SerialNumber (Get-Disk -Number (Get-Partition -DriveLetter $env:SystemDrive.Substring(0, 1)).DiskNumber).SerialNumber.TrimStart()).MediaType',
-    );
+    )).stdout.toString().trim();
+
     if (hardDriveType == 'HDD') {
       await WinRegistryService.writeRegistryValue(
         Registry.localMachine,
