@@ -325,68 +325,76 @@ class SecurityServiceImpl implements SecurityService {
   @override
   Future<void> disableDefender() async {
     try {
-      await WinPackageService.downloadPackage(WinPackageType.defenderRemoval);
-
-      await Future.wait([
-        WinRegistryService.writeRegistryValue(
-          Registry.localMachine,
-          r'SOFTWARE\Policies\Microsoft\Windows Defender',
-          'DisableAntiSpyware',
-          1,
-        ),
-        WinRegistryService.writeRegistryValue(
-          Registry.localMachine,
-          r'SOFTWARE\Policies\Microsoft\Windows Defender',
-          'DisableAntiVirus',
-          1,
-        ),
-        WinRegistryService.writeRegistryValue(
-          Registry.localMachine,
-          r'SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection',
-          'DisableRealtimeMonitoring',
-          1,
-        ),
-      ]);
-
-      await runPSCommand(
-        r'& $env:SystemRoot\System32\gpupdate.exe /Target:Computer /Force',
-      );
-
-      if (File(_mpCmdRunString).existsSync()) {
-        await runPSCommand(
-          'Start-Process -FilePath "$_mpCmdRunString" -ArgumentList "-RemoveDefinitions -All" -NoNewWindow -Wait',
-        );
-      }
-
-      await Future.wait([
-        WinRegistryService.writeRegistryValue(
-          Registry.localMachine,
-          r'SOFTWARE\Microsoft\Windows Defender',
-          'DisableAntiSpyware',
-          1,
-        ),
-        WinRegistryService.writeRegistryValue(
-          Registry.localMachine,
-          r'SOFTWARE\Microsoft\Windows Defender',
-          'DisableAntiVirus',
-          1,
-        ),
-        WinRegistryService.writeRegistryValue(
-          Registry.localMachine,
-          r'System\ControlSet001\Services\MDCoreSvc',
-          'Start',
-          4,
-        ),
-        WinRegistryService.deleteValue(
-          Registry.localMachine,
-          r'SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce',
-          'RevisionEnableDefenderCMD',
-        ),
-      ]);
-
       final String packagePath = await WinPackageService.downloadPackage(
         WinPackageType.defenderRemoval,
       );
+
+      /// Internal helper
+      Future<void> applyPolicyWrites() async {
+        await Future.wait([
+          WinRegistryService.writeRegistryValue(
+            Registry.localMachine,
+            r'SOFTWARE\Policies\Microsoft\Windows Defender',
+            'DisableAntiSpyware',
+            1,
+          ),
+          WinRegistryService.writeRegistryValue(
+            Registry.localMachine,
+            r'SOFTWARE\Policies\Microsoft\Windows Defender',
+            'DisableAntiVirus',
+            1,
+          ),
+          WinRegistryService.writeRegistryValue(
+            Registry.localMachine,
+            r'SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection',
+            'DisableRealtimeMonitoring',
+            1,
+          ),
+        ]);
+        await runPSCommand(
+          r'& $env:SystemRoot\System32\gpupdate.exe /Target:Computer /Force',
+        );
+        if (File(_mpCmdRunString).existsSync()) {
+          await runPSCommand(
+            'Start-Process -FilePath "$_mpCmdRunString" -ArgumentList "-RemoveDefinitions -All" -NoNewWindow -Wait',
+          );
+        }
+      }
+
+      await applyPolicyWrites();
+
+      await WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\Windows Defender',
+        'DisableAntiSpyware',
+        1,
+        useTrustedInstaller: true,
+      );
+      await WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\Windows Defender',
+        'DisableAntiVirus',
+        1,
+        useTrustedInstaller: true,
+      );
+
+      // WORKAROUND: Force a second policy update after modifying the core Defender registry keys. After the January 2026 security updates, 'gpupdate' automatically removes 'DisableAntiSpyware' in the Policies path, when security intelligence updates is installed. Re-applying policies after modifying the core Defender registries ensures both locations are synchronized, resolving permission errors that occur when trying to disable Defender services directly.
+      await applyPolicyWrites();
+
+      await WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'System\ControlSet001\Services\MDCoreSvc',
+        'Start',
+        4,
+        useTrustedInstaller: true,
+      );
+
+      await WinRegistryService.deleteValue(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce',
+        'RevisionEnableDefenderCMD',
+      );
+
       await WinPackageService.installPackage(packagePath);
     } on Exception catch (e) {
       throw DefenderOperationException('Failed to disable Windows Defender', e);

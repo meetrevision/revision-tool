@@ -156,7 +156,9 @@ class WinRegistryService {
       path: r'SYSTEM\ControlSet001\Services',
     );
     try {
-      return key.subkeyNames.where((final String e) => e.startsWith(subkey)).toList();
+      return key.subkeyNames
+          .where((final String e) => e.startsWith(subkey))
+          .toList();
     } finally {
       key.close();
     }
@@ -238,7 +240,20 @@ class WinRegistryService {
     String name,
     T value, {
     int retryCount = 0,
+    bool useTrustedInstaller = false,
   }) async {
+    if (useTrustedInstaller) {
+      return TrustedInstallerServiceImpl().executeWithTrustedInstaller(
+        () async => writeRegistryValue<T>(
+          key,
+          path,
+          name,
+          value,
+          retryCount: retryCount,
+        ),
+      );
+    }
+
     final shouldClose = key != WinRegistryService.currentUser;
 
     try {
@@ -253,7 +268,7 @@ class WinRegistryService {
           '$tag(writeRegistryValue): Unsupported type: ${value.runtimeType}',
         ),
       };
-      
+
       final RegistryKey subKey = key.createKey(path);
       try {
         subKey.createValue(registryValue);
@@ -340,7 +355,14 @@ class WinRegistryService {
     String path,
     String name, {
     int retryCount = 0,
+    bool useTrustedInstaller = false,
   }) async {
+    if (useTrustedInstaller) {
+      return TrustedInstallerServiceImpl().executeWithTrustedInstaller(
+        () async => deleteValue(key, path, name, retryCount: retryCount),
+      );
+    }
+
     try {
       final RegistryKey subKey = key.createKey(path);
       try {
@@ -395,7 +417,14 @@ class WinRegistryService {
     RegistryKey key,
     String path, {
     int retryCount = 0,
+    bool useTrustedInstaller = false,
   }) async {
+    if (useTrustedInstaller) {
+      return TrustedInstallerServiceImpl().executeWithTrustedInstaller(
+        () async => deleteKey(key, path, retryCount: retryCount),
+      );
+    }
+
     try {
       key.deleteKey(path, recursive: true);
       logger.i('$tag(deleteKey): $path');
