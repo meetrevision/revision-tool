@@ -12,7 +12,13 @@ class ToolUpdateService {
   static final Map<String, dynamic> _data = {};
   Map<String, dynamic> get data => _data;
 
-  static final _dio = Dio();
+  static final _dio = Dio(
+    BaseOptions(
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 60),
+      sendTimeout: const Duration(seconds: 15),
+    ),
+  );
   static final _options = Options(
     headers: {
       'user-agent':
@@ -75,13 +81,17 @@ class ToolUpdateService {
   }
 
   Future<void> installUpdate() async {
-    final path = '${_tempDir.path}\\RevisionTool-Setup.exe';
-    await Process.start(path, [
-      '/VERYSILENT',
-      '/RESTARTAPPLICATIONS',
-      r'/TASKS="desktopicon"',
-    ]);
+    final installerPath = '${_tempDir.path}\\RevisionTool-Setup.exe';
+    final appPath = Platform.resolvedExecutable;
+    final scriptPath = '${_tempDir.path}\\revitool_update.cmd';
 
-    await File(path).delete();
+    File(scriptPath).writeAsStringSync(
+      '@echo off\r\n'
+      '"$installerPath" /VERYSILENT /TASKS="desktopicon"\r\n'
+      'start "" "$appPath"\r\n',
+    );
+
+    await Process.start(scriptPath, [], mode: ProcessStartMode.detached);
+    exit(0);
   }
 }
