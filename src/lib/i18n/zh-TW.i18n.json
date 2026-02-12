@@ -69,7 +69,7 @@
     "tweaksSecuritySMitigation": "Spectre \u0026 Meltdown 緩解",
     "tweaksSecuritySMitigationDescription": "針對可能允許未經授權存取系統記憶體的推測執行漏洞的防禦性修補",
     "tweaksSecurityDownfallMitigation": "Downfall 緩解",
-    "tweaksSecurityDownfallMitigationDescription": "針對某些 Intel 處理器中可能暴露敏感資料的漏洞的保護。目前不支援在啟用 Hyper-V（虛擬化）時停用此保護。",
+    "tweaksSecurityDownfallMitigationDescription": "針對某些 Intel 處理器中可能暴露敏感資料的漏洞的保護。目前不支持在啟用 Hyper-V（虛擬化）時停用此保護。",
     "tweaksSecuritySystemSafeguards": "系統防護",
     "tweaksSecuritySystemSafeguardsDescription": "帳戶提升提示和系統防護設定",
     "tweaksSecurityUAC": "使用者帳戶控制 (UAC)",
@@ -110,7 +110,7 @@
     "tweaksPerformanceCStates": "停用 ACPI C2 和 C3 狀態",
     "tweaksPerformanceCStatesDescription": "停用 ACPI C 狀態可能會提高效能和延遲，但在閒置時會消耗更多電力，可能會縮短電池壽命",
     "tweaksPersonalizationNotifications": "Windows 通知",
-    "tweaksPersonalizationNotificationsDescription": "「最小」停用通知，而「完全」移除通知中心，防止行事曆和通知面板出現",
+    "tweaksPersonalizationNotificationsDescription": "「最小」停用通知，而「完全」會移除通知中心，防止行事曆和通知面板出現",
     "tweaksPersonalizationLegacyNotificationBalloons": "舊版通知氣泡",
     "tweaksPersonalizationLegacyNotificationBalloonsDescription": "工作列上的匣子程式將呈現為氣泡而不是 Toast 通知",
     "tweaksPersonalizationInkingAndTypingPersonalization": "筆跡書寫和輸入個人化",
@@ -136,5 +136,5 @@
     "tweaksUpdatesWUPage": "隱藏 Windows 更新頁面",
     "tweaksUpdatesWUPageDescription": "顯示此頁面也將啟用更新通知",
     "tweaksUpdatesWUDrivers": "透過 Windows 更新安裝驅動程式",
-    "tweaksUpdatesWUDriversDescription": "要在 ReviOS 中安裝驅動程式，您需要在設定中手動檢查更新，因為不支援自動 Windows 更新"
+    "tweaksUpdatesWUDriversDescription": "要在 ReviOS 中安裝驅動程式，您需要在設定中手動檢查更新，因為不支持自動 Windows 更新"
 }
