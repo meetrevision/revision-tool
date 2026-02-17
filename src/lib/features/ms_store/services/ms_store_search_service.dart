@@ -5,7 +5,7 @@ import '../models/search/search_product.dart';
 
 /// Service for searching products across the MS Store.
 class MSStoreSearchService {
-  MSStoreSearchService(this._networkService);
+  const MSStoreSearchService(this._networkService);
 
   final NetworkService _networkService;
   static const _searchAPI = 'https://apps.microsoft.com/api/products/search';
@@ -21,7 +21,16 @@ class MSStoreSearchService {
 
   /// Searches for products matching the query.
   /// Returns a combined list of highlighted and regular products.
-  Future<List<SearchProduct>> searchProducts(String query) async {
+  Future<List<SearchProduct>> searchProducts(
+    String query, {
+    String market = 'US',
+    String locale = 'en-us',
+    String mediaType = 'all',
+    String age = 'all',
+    String price = 'free',
+    String category = 'all',
+    String subscription = 'all',
+  }) async {
     final Response<dynamic> response = await _networkService.get(
       '$_searchAPI?gl=US&hl=en-us&query=$query&mediaType=all&age=all&price=all&category=all&subscription=all',
       options: _options,

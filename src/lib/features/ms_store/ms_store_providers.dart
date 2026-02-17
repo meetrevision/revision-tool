@@ -1,4 +1,9 @@
+import 'dart:developer' as developer;
+import 'dart:ui' as ui;
+
+import 'package:adaptive_palette/adaptive_palette.dart';
 import 'package:dio/dio.dart';
+import 'package:fluent_ui/fluent_ui.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../core/services/network_service.dart';
 import '../../core/services/win_registry_service.dart';
@@ -6,44 +11,69 @@ import '../../i18n/strings.g.dart';
 import '../../utils.dart';
 import 'models/download_state.dart';
 import 'models/package_info.dart';
+import 'models/product_details/product_details.dart';
 import 'models/search/search_product.dart';
 import 'ms_store_enums.dart';
 import 'ms_store_repository.dart';
+import 'services/ms_store_product_details_service.dart';
+import 'services/uwp_xml_parser.dart';
 
 part 'ms_store_providers.g.dart';
 
 @Riverpod(keepAlive: true)
 MSStoreRepository msStoreRepository(Ref ref) {
   final NetworkService networkService = ref.watch(networkServiceProvider);
+  final detailsService = MSStoreProductDetailsService(networkService);
+  const xmlParser = UwpXmlParser();
+
   return MSStoreRepositoryImpl(
     uwpService: .new(networkService),
-    win32Service: .new(networkService),
     searchService: .new(networkService),
-    xmlParser: const .new(),
+    detailsService: detailsService,
+    xmlParser: xmlParser,
     fileService: const .new(),
+    installerService: const .new(.new()),
+    win32PackageService: .new(
+      networkService: networkService,
+      detailsService: detailsService,
+      xmlParser: xmlParser,
+    ),
   );
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
+Future<ProductDetails> msStoreProductDetails(Ref ref, String productId) async {
+  return ref.read(msStoreRepositoryProvider).getProductDetails(productId);
+}
+
+@Riverpod(keepAlive: true)
 class MSStoreSearch extends _$MSStoreSearch {
   @override
   FutureOr<List<SearchProduct>> build() => [];
 
   Future<void> search(String query) async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
+    state = await .guard(() async {
       return ref.read(msStoreRepositoryProvider).searchProducts(query);
     });
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class MSStorePackages extends _$MSStorePackages {
   @override
   FutureOr<Set<PackageInfo>> build(String productId, MSStoreRing ring) async {
+    final ProductDetails? cachedDetails = ref
+        .read(msStoreProductDetailsProvider(productId))
+        .maybeWhen(data: (d) => d, orElse: () => null);
+
     return ref
         .read(msStoreRepositoryProvider)
-        .getPackages(productId: productId, ring: ring);
+        .getPackages(
+          productId: productId,
+          ring: ring,
+          cachedDetails: cachedDetails,
+        );
   }
 }
 
@@ -129,5 +159,39 @@ class MSStoreDownload extends _$MSStoreDownload {
 
   void reset() {
     state = const .idle();
+  }
+}
+
+/// Downscales the image (to speed up the extraction process) and extracts a color palette.
+/// Caches the extracted color palette from product images.
+/// Results are kept alive to avoid recalculation on repeated navigation.
+@Riverpod(keepAlive: true)
+Future<FluidPalette?> msStoreProductPalette(
+  Ref ref,
+  String productId,
+  String baseImageUrl, {
+  int width = 256,
+  int height = 256,
+}) async {
+  if (baseImageUrl.isEmpty) return null;
+
+  try {
+    final url = '$baseImageUrl?w=$width&h=$height';
+    developer.log(
+      'Extracting palette for productId: $productId from: $url',
+      name: 'msStoreProductPalette',
+    );
+    final resizeImage = NetworkImage(url);
+    final ui.Image image = await loadImageFromProvider(resizeImage);
+    final FluidPalette palette = await FluidPaletteExtractor.extract(image);
+    return palette;
+  } catch (e) {
+    developer.log(
+      'Error extracting palette for $productId: $e',
+      name: 'msStoreProductPalette',
+      level: 1000,
+      error: e,
+    );
+    return null;
   }
 }

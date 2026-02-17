@@ -3,12 +3,13 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:dio/dio.dart';
+
 import '../../core/services/win_registry_service.dart';
 import '../../utils.dart';
-import 'data/package_file_service.dart';
 import 'models/package_info.dart';
 import 'ms_store_enums.dart';
 import 'ms_store_repository.dart';
+import 'services/package_file_service.dart';
 
 class MSStoreCommand extends Command<String> {
   MSStoreCommand() {
@@ -37,13 +38,18 @@ class MSStoreCommand extends Command<String> {
     );
   }
 
-  // CLI context: instantiate repository directly
   late final MSStoreRepository _repository = MSStoreRepositoryImpl(
     uwpService: .new(.new()),
-    win32Service: .new(.new()),
     searchService: .new(.new()),
+    detailsService: .new(.new()),
     xmlParser: const .new(),
     fileService: const .new(),
+    installerService: const .new(.new()),
+    win32PackageService: .new(
+      networkService: .new(),
+      detailsService: .new(.new()),
+      xmlParser: const .new(),
+    ),
   );
 
   String get tag => 'MS Store';

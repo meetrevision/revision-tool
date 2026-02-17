@@ -22,6 +22,12 @@ Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   const tag = 'gui_main:';
 
+  if (kDebugMode) {
+    logger.i('$tag Running in debug mode');
+    // debugRepaintRainbowEnabled = true;
+    // debugInvertOversizedImages = true;
+  }
+
   FlutterError.onError = (details) {
     logger.e(
       '$tag flutter_framework_error',
@@ -117,93 +123,36 @@ class MyApp extends ConsumerWidget {
     );
 
     return SystemThemeBuilder(
-      builder: (context, accent) => FluentApp.router(
-        routerConfig: ref.read(appRouterProvider),
-        title: 'Revision Tool',
-        debugShowCheckedModeBanner: false,
-        locale: TranslationProvider.of(context).flutterLocale,
-        supportedLocales: AppLocaleUtils.supportedLocales,
-        localizationsDelegates: const [FluentLocalizations.delegate],
-        themeMode: appSettings.themeMode,
-        color: getSystemAccentColor(accent),
-        darkTheme: FluentThemeData(
-          brightness: Brightness.dark,
-          accentColor: getSystemAccentColor(accent),
-          navigationPaneTheme: NavigationPaneThemeData(
-            backgroundColor: settingsNotifier.effectColor(
-              const Color.fromARGB(255, 32, 32, 32),
-            ),
-            overlayBackgroundColor: const .fromARGB(255, 32, 32, 32),
+      builder: (context, accent) {
+        final bool isLargeScreen = is10footScreen(context);
+        final AccentColor accentColor = getSystemAccentColor(accent);
+
+        return FluentApp.router(
+          routerConfig: ref.read(appRouterProvider),
+          title: 'Revision Tool',
+          debugShowCheckedModeBanner: false,
+          locale: TranslationProvider.of(context).flutterLocale,
+          supportedLocales: AppLocaleUtils.supportedLocales,
+          localizationsDelegates: const [FluentLocalizations.delegate],
+          themeMode: appSettings.themeMode,
+          color: accentColor,
+          darkTheme: settingsNotifier.buildDarkTheme(
+            accentColor,
+            isLargeScreen,
           ),
-          scaffoldBackgroundColor: settingsNotifier.effectColor(
-            const Color.fromARGB(255, 32, 32, 32),
-          ),
-          visualDensity: VisualDensity.standard,
-          focusTheme: FocusThemeData(
-            glowFactor: is10footScreen(context) ? 2.0 : 0.0,
-          ),
-          resources: ResourceDictionary.dark(
-            cardStrokeColorDefault: settingsNotifier.effectColor(
-              const Color.fromARGB(255, 0, 0, 0).withValues(alpha: 0.32),
-              // const Color(0xFF1D1D1D),
-              modifyColors: true,
-            )!,
-            cardBackgroundFillColorDefault: settingsNotifier.effectColor(
-              const Color.fromARGB(255, 255, 255, 255).withValues(alpha: 0.05),
-              // const Color(0xFF2B2B2B),
-              modifyColors: true,
-            )!,
-            cardBackgroundFillColorSecondary: settingsNotifier.effectColor(
-              const Color.fromARGB(255, 255, 255, 255).withValues(alpha: 0.03),
-              // const Color(0xFF323232),
-              modifyColors: true,
-            )!,
-          ),
-        ),
-        theme: FluentThemeData(
-          accentColor: getSystemAccentColor(accent),
-          visualDensity: VisualDensity.standard,
-          navigationPaneTheme: NavigationPaneThemeData(
-            backgroundColor: settingsNotifier.effectColor(null),
-            overlayBackgroundColor: const Color.fromRGBO(243, 243, 243, 100),
-          ),
-          scaffoldBackgroundColor: settingsNotifier.effectColor(
-            const Color.fromRGBO(243, 243, 243, 100),
-          ),
-          focusTheme: FocusThemeData(
-            glowFactor: is10footScreen(context) ? 2.0 : 0.0,
-          ),
-          resources: ResourceDictionary.light(
-            cardStrokeColorDefault: settingsNotifier.effectColor(
-              const Color.fromARGB(22, 0, 0, 0), // border color
-              modifyColors: true,
-            )!,
-            cardBackgroundFillColorDefault: settingsNotifier.effectColor(
-              const Color.fromARGB(255, 251, 251, 251), // card color
-              modifyColors: true,
-            )!,
-            cardBackgroundFillColorSecondary: settingsNotifier.effectColor(
-              const Color.fromARGB(
-                255,
-                0,
-                0,
-                0,
-              ).withValues(alpha: 0.02), // hover color
-              modifyColors: true,
-            )!,
-          ),
-        ), // TODO: make it compatible with windoweffect
-        builder: (context, child) {
-          settingsNotifier.setEffect(
-            FluentTheme.of(context).micaBackgroundColor,
-            FluentTheme.of(context).brightness == .dark,
-          );
-          return Directionality(
-            textDirection: appSettings.textDirection,
-            child: child!,
-          );
-        },
-      ),
+          theme: settingsNotifier.buildLightTheme(accentColor, isLargeScreen),
+          builder: (context, child) {
+            settingsNotifier.setEffect(
+              FluentTheme.of(context).micaBackgroundColor,
+              FluentTheme.of(context).brightness == .dark,
+            );
+            return Directionality(
+              textDirection: appSettings.textDirection,
+              child: child!,
+            );
+          },
+        );
+      },
     );
   }
 }

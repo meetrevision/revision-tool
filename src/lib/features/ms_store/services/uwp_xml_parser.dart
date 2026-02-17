@@ -199,7 +199,7 @@ class UwpXmlParser {
 
   /// Parses the download URL from the GetExtendedUpdateInfo2 response
   /// Correlates the file by [digest] if multiple files are present.
-  static String parseDownloadUrl(String xmlString, [String? digest]) {
+  String parseDownloadUrl(String xmlString, [String? digest]) {
     final document = XmlDocument.parse(xmlString);
 
     if (digest != null) {

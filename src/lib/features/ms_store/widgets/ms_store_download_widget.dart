@@ -16,8 +16,8 @@ class MSStoreDownloadWidget extends ConsumerStatefulWidget {
   const MSStoreDownloadWidget({
     super.key,
     required this.productId,
-    required this.ring,
-    required this.arch,
+    this.ring = .releasePreview,
+    this.arch = .auto,
   });
 
   final String productId;
@@ -74,7 +74,7 @@ class _MSStoreDownloadWidgetState extends ConsumerState<MSStoreDownloadWidget> {
         ),
         completed: () => Center(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: .min,
             children: [
               Icon(FluentIcons.completed, size: 40, color: Colors.green),
               const SizedBox(height: 10),

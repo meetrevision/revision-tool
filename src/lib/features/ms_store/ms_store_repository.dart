@@ -1,26 +1,32 @@
 import 'dart:io';
-import 'package:collection/collection.dart';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path/path.dart' as p;
-import '../../utils.dart';
 
-import 'data/ms_store_search_service.dart';
-import 'data/package_file_service.dart';
-import 'data/uwp_api_service.dart';
-import 'data/uwp_xml_parser.dart';
-import 'data/win32_api_service.dart';
 import 'models/package_info.dart';
+import 'models/product_details/product_details.dart';
 import 'models/search/search_product.dart';
 import 'models/uwp/uwp_package.dart';
-import 'models/win32/win32_manifest_dto.dart';
 import 'ms_store_enums.dart';
+import 'services/ms_store_installer_service.dart';
+import 'services/ms_store_product_details_service.dart';
+import 'services/ms_store_search_service.dart';
+import 'services/package_file_service.dart';
+import 'services/uwp_api_service.dart';
+import 'services/uwp_xml_parser.dart';
+import 'services/win32_service.dart';
 
 abstract class MSStoreRepository {
   Future<List<SearchProduct>> searchProducts(String query);
+  Future<ProductDetails> getProductDetails(
+    String productId, {
+    String market,
+    String locale,
+  });
   Future<Set<PackageInfo>> getPackages({
     required String productId,
     required MSStoreRing ring,
+    ProductDetails? cachedDetails,
   });
   Future<void> downloadPackages({
     required String productId,
@@ -46,34 +52,73 @@ class _PackageCacheEntry {
 class MSStoreRepositoryImpl implements MSStoreRepository {
   MSStoreRepositoryImpl({
     required UwpApiService uwpService,
-    required Win32ApiService win32Service,
     required MSStoreSearchService searchService,
+    required MSStoreProductDetailsService detailsService,
     required UwpXmlParser xmlParser,
     required PackageFileService fileService,
+    required MSStoreInstallerService installerService,
+    required Win32Service win32PackageService,
   }) : _uwpService = uwpService,
-       _win32Service = win32Service,
        _searchService = searchService,
+       _detailsService = detailsService,
        _xmlParser = xmlParser,
-       _fileService = fileService;
+       _fileService = fileService,
+       _installerService = installerService,
+       _win32PackageService = win32PackageService;
 
   final UwpApiService _uwpService;
-  final Win32ApiService _win32Service;
   final MSStoreSearchService _searchService;
+  final MSStoreProductDetailsService _detailsService;
   final UwpXmlParser _xmlParser;
   final PackageFileService _fileService;
+  final MSStoreInstallerService _installerService;
+  final Win32Service _win32PackageService;
 
   static final Map<String, _PackageCacheEntry> _cache = {};
   static String? _cookie;
 
   @override
-  Future<List<SearchProduct>> searchProducts(String query) async {
-    return _searchService.searchProducts(query);
+  Future<List<SearchProduct>> searchProducts(
+    String query, {
+    String market = 'US',
+    String locale = 'en-us',
+    String mediaType = 'all',
+    String age = 'all',
+    String price = 'free',
+    String category = 'all',
+    String subscription = 'all',
+  }) async {
+    return _searchService.searchProducts(
+      query,
+      market: market,
+      locale: locale,
+      mediaType: mediaType,
+      age: age,
+      price: price,
+      category: category,
+      subscription: subscription,
+    );
   }
 
+  @override
+  Future<ProductDetails> getProductDetails(
+    String productId, {
+    String market = 'US',
+    String locale = 'en-us',
+  }) async {
+    return _detailsService.getProductDetails(
+      productId,
+      market: market,
+      locale: locale,
+    );
+  }
+
+  @override
   @override
   Future<Set<PackageInfo>> getPackages({
     required String productId,
     required MSStoreRing ring,
+    ProductDetails? cachedDetails,
   }) async {
     final cacheKey = '$productId-${ring.value}';
     if (_cache.containsKey(cacheKey) && !_cache[cacheKey]!.isExpired) {
@@ -89,14 +134,16 @@ class MSStoreRepositoryImpl implements MSStoreRepository {
     DateTime expiryDate;
 
     if (appType == .uwp) {
-      final (packages: Set<PackageInfo> uwpPkgs, expiryUtc: DateTime expiry) =
+      final ({DateTime expiryUtc, Set<PackageInfo> packages}) result =
           await _getUwpPackages(productId, ring);
-      packages = uwpPkgs;
-      expiryDate = expiry;
+      packages = result.packages;
+      expiryDate = result.expiryUtc;
     } else {
-      final Set<PackageInfo> win32Pkgs = await _getWin32Packages(productId);
-      packages = win32Pkgs;
-      expiryDate = .now().add(const Duration(minutes: 2));
+      packages = await _win32PackageService.getPackages(
+        productId,
+        cachedDetails,
+      );
+      expiryDate = DateTime.now().add(const Duration(minutes: 2));
     }
 
     _cache[cacheKey] = _PackageCacheEntry(
@@ -160,48 +207,6 @@ class MSStoreRepositoryImpl implements MSStoreRepository {
     return (packages: pkgs, expiryUtc: expiryUtc);
   }
 
-  Future<Set<PackageInfo>> _getWin32Packages(String productId) async {
-    final Win32ManifestDto manifest = await _win32Service.getPackageManifest(
-      productId,
-    );
-    final List<Versions>? versions = manifest.data?.versions;
-    if (versions == null || versions.isEmpty) return {};
-
-    final pkgs = <PackageInfo>{};
-    final urls = <String>{};
-
-    for (final Versions version in versions) {
-      for (final Installers installer in version.installers ?? <Installers>[]) {
-        final String? url = installer.installerUrl;
-        if (url == null || urls.contains(url)) continue;
-
-        final String fileType =
-            installer.installerType ?? url.substring(url.lastIndexOf('.') + 1);
-        if (!['exe', 'msi'].contains(fileType.toLowerCase())) continue;
-
-        pkgs.add(
-          PackageInfo(
-            id: productId,
-            isDependency: false,
-            uri: url,
-            arch: installer.architecture ?? _xmlParser.extractArchitecture(url),
-            fileModel: FileModel(
-              fileName: "${installer.installerLocale!}-${url.split('/').last}",
-              fileType: fileType,
-              digest: installer.installerSha256!.toLowerCase(),
-            ),
-            commandLines: installer.installerSwitches?.silent?.replaceAll(
-              '"',
-              '',
-            ),
-          ),
-        );
-        urls.add(url);
-      }
-    }
-    return pkgs;
-  }
-
   @override
   Future<void> downloadPackages({
     required String productId,
@@ -230,7 +235,7 @@ class MSStoreRepositoryImpl implements MSStoreRepository {
               ring: ring,
               urlTemplate: urlTemplate,
             );
-            downloadUrl = UwpXmlParser.parseDownloadUrl(
+            downloadUrl = _xmlParser.parseDownloadUrl(
               responseBody,
               pkg.fileModel?.digest,
             );
@@ -274,84 +279,20 @@ class MSStoreRepositoryImpl implements MSStoreRepository {
     required String productId,
     required MSStoreRing ring,
   }) async {
-    final List<File> files = _fileService.listDownloadedFiles(productId, ring);
-    if (files.isEmpty) return [];
-
-    final MSStoreAppType? appType = .fromProductId(productId);
-    final results = <ProcessResult>[];
+    final MSStoreAppType? appType = MSStoreAppType.fromProductId(productId);
+    if (appType == null) {
+      throw Exception('Unknown app type for product ID: $productId');
+    }
 
     final cacheKey = '$productId-${ring.value}';
-    final _PackageCacheEntry? packageCache = _cache[cacheKey];
+    final Set<PackageInfo>? cachedPackages = _cache[cacheKey]?.packages;
 
-    if (appType == .uwp) {
-      final String basePath = _fileService.getTempPath(productId, ring);
-      final baseDir = Directory(basePath);
-      final depsDir = Directory('$basePath\\Dependencies');
-
-      // Install dependencies first if they exist
-      if (depsDir.existsSync()) {
-        final Iterable<File> deps = depsDir.listSync().whereType<File>();
-        for (final file in deps) {
-          final String fileName = p.basenameWithoutExtension(file.path);
-          final String fileHash = await _fileService.computeFileSha256(file);
-
-          final PackageInfo? matchedPkg = packageCache?.packages.firstWhereOrNull(
-            (pkg) => pkg.fileModel?.digest == fileHash,
-          );
-
-          if (matchedPkg != null) {
-            logger.i('Hash verified for dependency: $fileName');
-          } else {
-            logger.w('Hash verification failed for dependency: $fileName');
-          }
-
-          results.add(await _fileService.runAppxInstall(file.path));
-        }
-      }
-
-      final Iterable<File> mainFiles = baseDir
-          .listSync()
-          .whereType<File>()
-          .where((f) => !f.path.contains('Dependencies'));
-
-      for (final file in mainFiles) {
-        final String fileName = p.basenameWithoutExtension(file.path);
-        final String fileHash = await _fileService.computeFileSha256(file);
-
-        final PackageInfo? matchedPkg = packageCache?.packages.firstWhereOrNull(
-          (pkg) => pkg.fileModel?.digest == fileHash,
-        );
-
-        if (matchedPkg != null) {
-          logger.i('Hash verified for package: $fileName');
-        } else {
-          logger.w('Hash verification failed for package: $fileName');
-        }
-
-        results.add(await _fileService.runAppxInstall(file.path));
-      }
-    } else {
-      for (final file in files) {
-        final String fileName = p.basenameWithoutExtension(file.path);
-        final String fileHash = await _fileService.computeFileSha256(file);
-
-        final PackageInfo? matchedPkg = packageCache?.packages.firstWhereOrNull(
-          (pkg) {
-            return pkg.fileModel?.digest! == fileHash;
-          },
-        );
-
-        if (matchedPkg != null) {
-          logger.i('Matched package by digest for $fileName');
-        }
-
-        final List<String> arguments =
-            matchedPkg?.commandLines?.split(' ') ?? List<String>.empty();
-
-        results.add(await _fileService.runWin32Install(file.path, arguments));
-      }
-    }
-    return results;
+    return _installerService.installPackages(
+      productId: productId,
+      ring: ring,
+      appType: appType,
+      cachedPackages: cachedPackages,
+    );
   }
 
   @override

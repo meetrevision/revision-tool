@@ -159,6 +159,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                 children: [
                   const SizedBox(width: 5.0),
                   ClipRRect(
+                    clipBehavior: .hardEdge,
                     borderRadius: const BorderRadius.all(Radius.circular(30.0)),
                     child: Image.file(
                       width: imgXY,

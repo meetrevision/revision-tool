@@ -5,7 +5,7 @@ import '../ms_store_enums.dart';
 
 /// Service for UWP (AppX) specific MS Store API calls using FE3 delivery.
 class UwpApiService {
-  UwpApiService(this._networkService);
+  const UwpApiService(this._networkService);
 
   final NetworkService _networkService;
 
@@ -38,10 +38,13 @@ class UwpApiService {
 
   /// Gets the WU Category ID for a UWP product
   Future<({String categoryId, DateTime expiryUtc})> getCategoryId(
-    String productId,
-  ) async {
+    String productId, {
+    String market = 'US',
+    String locale = 'en-us',
+    String deviceFamily = 'Windows.Desktop',
+  }) async {
     final Response<dynamic> response = await _networkService.get(
-      '$_storeAPI/products/$productId?market=US&locale=en-us&deviceFamily=Windows.Desktop',
+      '$_storeAPI/products/$productId?market=$market&locale=$locale&deviceFamily=$deviceFamily',
     );
 
     if (response.statusCode == 200) {

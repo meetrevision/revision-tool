@@ -2,15 +2,16 @@ import 'dart:async';
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../core/widgets/card_highlight.dart';
+import '../../core/routing/app_routes.dart';
 import '../../i18n/generated/strings.g.dart';
 import '../../utils.dart';
 import '../../utils_gui.dart';
 import 'models/search/search_product.dart';
 import 'ms_store_enums.dart';
 import 'ms_store_providers.dart';
-import 'widgets/ms_store_download_widget.dart';
+import 'widgets/ms_store_product_card.dart';
 
 class MSStorePage extends ConsumerStatefulWidget {
   const MSStorePage({super.key});
@@ -30,19 +31,19 @@ class _MSStorePageState extends ConsumerState<MSStorePage> {
   }
 
   Future<void> _onSearchButtonPressed() async {
-    final String query = _textEditingController.text.trim();
+    final String query = _textEditingController.text.toLowerCase().trim();
     if (query.isEmpty) return;
 
     final String? productId = _extractProductId(query);
     if (productId != null) {
-      await _showDownloadDialog(productId);
+      await context.push('${RouteMeta.msStore.path}/product/$productId');
     } else {
       await ref.read(mSStoreSearchProvider.notifier).search(query);
     }
   }
 
   String? _extractProductId(String query) {
-    if (query.startsWith('9') || query.startsWith('XP')) {
+    if (query.startsWith('9') || query.startsWith('xp')) {
       return query;
     }
     if (query.startsWith('https://') && query.contains('microsoft.com')) {
@@ -50,18 +51,6 @@ class _MSStorePageState extends ConsumerState<MSStorePage> {
       return uri?.pathSegments.lastOrNull;
     }
     return null;
-  }
-
-  Future<void> _showDownloadDialog(String productId) async {
-    await showDialog(
-      context: context,
-      dismissWithEsc: false,
-      builder: (context) => MSStoreDownloadWidget(
-        productId: productId,
-        ring: _selectedRing,
-        arch: MSStoreArch.auto,
-      ),
-    );
   }
 
   @override
@@ -81,10 +70,6 @@ class _MSStorePageState extends ConsumerState<MSStorePage> {
                 controller: _textEditingController,
                 placeholder: t.search,
                 onSubmitted: (_) => _onSearchButtonPressed(),
-                // suffix: IconButton(
-                //   icon: const Icon(FluentIcons.search),
-                //   onPressed: _onSearchButtonPressed,
-                // ),
               ),
             ),
             ComboBox<MSStoreRing>(
@@ -96,11 +81,7 @@ class _MSStorePageState extends ConsumerState<MSStorePage> {
         ),
         const SizedBox(height: 20),
         searchState.when(
-          data: (products) => Column(
-            children: products
-                .map((product) => _buildProductCard(product))
-                .toList(),
-          ),
+          data: (products) => _ProductGrid(products: products),
           loading: () => const Center(child: ProgressRing()),
           error: (err, stack) {
             logger.e('Error searching MS Store: $err; $stack');
@@ -110,25 +91,67 @@ class _MSStorePageState extends ConsumerState<MSStorePage> {
       ],
     );
   }
+}
 
-  Widget _buildProductCard(SearchProduct product) {
-    if (product.displayPrice != 'Free') return const SizedBox.shrink();
+class _ProductGrid extends StatelessWidget {
+  const _ProductGrid({required this.products});
 
-    return CardHighlight(
-      label: product.title ?? 'Unknown',
-      image: product.iconUrl,
-      description: _firstParagraph(product.description),
-      action: FilledButton(
-        child: Text(t.install),
-        onPressed: () => _showDownloadDialog(product.productId!),
-      ),
+  final List<SearchProduct> products;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const cardWidth = 366.0;
+        const spacing = 15.0;
+        final double maxWidth = constraints.maxWidth;
+
+        final int columns = ((maxWidth + spacing) / (cardWidth + spacing))
+            .floor()
+            .clamp(1, 4);
+
+        final double actualWidth =
+            (maxWidth - (columns - 1) * spacing) / columns;
+
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final product in products)
+              if (product.displayPrice == 'Free')
+                // Mandatory to prevent unnecessary rebuilds of the entire grid when an item is in extended hover state (_extendedHoverNotifier)
+                RepaintBoundary(
+                  child: SizedBox(
+                    width: actualWidth,
+                    child: _ProductCard(product: product),
+                  ),
+                ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ProductCard extends ConsumerWidget {
+  const _ProductCard({required this.product});
+
+  final SearchProduct product;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MSStoreProductCard(
+      product: product,
+      onPressed: () => _openProductDetails(context, product),
     );
   }
 
-  String? _firstParagraph(String? text) {
-    if (text == null || text.trim().isEmpty) return '';
-    final String cleaned = text.replaceAll('\r\n', '\n').trim();
-    final List<String> parts = cleaned.split(RegExp(r'\n\s*\n'));
-    return parts.first.trim();
+  void _openProductDetails(BuildContext context, SearchProduct product) {
+    final String? productId = product.productId;
+    if (productId == null || productId.isEmpty) return;
+    context.push(
+      '${RouteMeta.msStore.path}/product/$productId',
+      extra: product,
+    );
   }
 }

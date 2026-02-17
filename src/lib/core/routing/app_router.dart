@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../extensions.dart';
 import '../../features/home/home_page.dart';
 import '../../features/ms_store/ms_store_page.dart';
+import '../../features/ms_store/ms_store_product_page.dart';
 import '../../features/tweaks/performance/performance_page.dart';
 import '../../features/tweaks/personalization/personalization_page.dart';
 import '../../features/tweaks/security/security_page.dart';
@@ -20,13 +21,13 @@ import 'app_shell.dart';
 
 part 'app_router.g.dart';
 
-final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
 
 @Riverpod(keepAlive: true)
 GoRouter appRouter(Ref ref) {
   final router = GoRouter(
-    navigatorKey: _rootNavigatorKey,
+    navigatorKey: rootNavigatorKey,
     initialLocation: initialRoute ?? RouteMeta.home.path,
     redirect: (context, state) {
       if (!WinRegistryService.isSupported) {
@@ -107,6 +108,24 @@ GoRouter appRouter(Ref ref) {
             path: RouteMeta.msStore.path,
             name: 'msstore',
             builder: (context, state) => const MSStorePage(),
+            routes: [
+              GoRoute(
+                path: 'product/:productId',
+                name: 'msstore-product',
+                pageBuilder: (context, state) {
+                  // final SearchProduct? product = state.extra is SearchProduct
+                  //     ? state.extra! as SearchProduct
+                  //     : null;
+                  final String productId = state.pathParameters['productId']!;
+
+                  return AppRoutes.buildPageWithHorizontalTransition(
+                    barrierColor: context.theme.scaffoldBackgroundColor,
+                    state: state,
+                    child: MSStoreProductPage(productId: productId),
+                  );
+                },
+              ),
+            ],
           ),
           GoRoute(
             path: RouteMeta.settings.path,
