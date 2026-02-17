@@ -84,7 +84,18 @@ class MSStoreDownload extends _$MSStoreDownload {
   @override
   MSStoreDownloadState build() {
     ref.onDispose(() {
-      _cancelToken?.cancel();
+      try {
+        if (_cancelToken != null && !_cancelToken!.isCancelled) {
+          _cancelToken!.cancel();
+        }
+      } catch (Object error, StackTrace stackTrace) {
+        developer.log(
+          'Error while cancelling download on dispose',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'MSStoreDownload',
+        );
+      }
     });
     return const .idle();
   }
