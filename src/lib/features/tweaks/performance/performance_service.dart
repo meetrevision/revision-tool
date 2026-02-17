@@ -616,7 +616,7 @@ class PerformanceServiceImpl implements PerformanceService {
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\FileSystem',
           'RefsDisableLastAccessUpdate',
-        ) ==
+        ) !=
         1;
   }
 
@@ -636,7 +636,7 @@ class PerformanceServiceImpl implements PerformanceService {
           RegistryHive.localMachine,
           r'SYSTEM\ControlSet001\Control\FileSystem',
           'NtfsDisable8dot3NameCreation',
-        ) ==
+        ) !=
         1;
   }
 

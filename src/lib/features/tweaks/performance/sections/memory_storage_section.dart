@@ -169,10 +169,10 @@ class _LastTimeAccessCard extends ConsumerWidget {
           value
               ? await ref
                     .read(performanceServiceProvider)
-                    .disableLastTimeAccessNTFS()
+                    .enableLastTimeAccessNTFS()
               : await ref
                     .read(performanceServiceProvider)
-                    .enableLastTimeAccessNTFS();
+                    .disableLastTimeAccessNTFS();
           ref.invalidate(lastTimeAccessNTFSStatusProvider);
         },
       ),
@@ -197,10 +197,10 @@ class _Dot3NamingCard extends ConsumerWidget {
           value
               ? await ref
                     .read(performanceServiceProvider)
-                    .disable8dot3NamingNTFS()
+                    .enable8dot3NamingNTFS()
               : await ref
                     .read(performanceServiceProvider)
-                    .enable8dot3NamingNTFS();
+                    .disable8dot3NamingNTFS();
           ref.invalidate(dot3NamingNTFSStatusProvider);
         },
       ),
