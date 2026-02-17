@@ -226,7 +226,7 @@ class MSStoreRepositoryImpl implements MSStoreRepository {
 
         String downloadUrl = pkg.uri;
 
-        // UWP apps need sessiosn URL
+        // UWP apps need session URL
         if (downloadUrl.isEmpty && pkg.updateIdentity != null) {
           try {
             final String responseBody = await _uwpService.getAppxDownloadUri(
