@@ -69,10 +69,18 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     );
   }
 
-  Color? effectColor(Color? color, {bool modifyColors = false}) {
+  Color? effectColor(
+    Color? color, {
+    Color? micaBackgroundColor,
+    double alpha = 0.05,
+    bool modifyColors = false,
+  }) {
     if (state.windowEffect != WindowEffect.disabled) {
+      if (micaBackgroundColor != null) {
+        return micaBackgroundColor;
+      }
       if (modifyColors) {
-        return color?.withValues(alpha: 0.05);
+        return color?.withValues(alpha: alpha);
       }
       return Colors.transparent;
     }
@@ -107,6 +115,78 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
       return effectColor(color, modifyColors: true);
     }
     return color;
+  }
+
+  FluentThemeData buildDarkTheme(AccentColor accentColor, bool isLargeScreen) {
+    return FluentThemeData(
+      brightness: Brightness.dark,
+      accentColor: accentColor,
+      navigationPaneTheme: NavigationPaneThemeData(
+        backgroundColor: effectColor(const Color.fromARGB(255, 32, 32, 32)),
+        overlayBackgroundColor: const .fromARGB(255, 32, 32, 32),
+      ),
+      scaffoldBackgroundColor: effectColor(
+        const Color.fromARGB(255, 32, 32, 32),
+      ),
+      visualDensity: VisualDensity.standard,
+      focusTheme: FocusThemeData(glowFactor: isLargeScreen ? 2.0 : 0.0),
+      resources: ResourceDictionary.dark(
+        cardStrokeColorDefault: effectColor(
+          const Color.fromARGB(255, 0, 0, 0).withValues(alpha: 0.32),
+          // const Color(0xFF1D1D1D),
+          modifyColors: true,
+        )!,
+        cardBackgroundFillColorDefault: effectColor(
+          const Color(0xFF2B2B2B),
+          micaBackgroundColor: const Color.fromARGB(
+            255,
+            255,
+            255,
+            255,
+          ).withValues(alpha: 0.05),
+        )!,
+        cardBackgroundFillColorSecondary: effectColor(
+          const Color.fromARGB(255, 255, 255, 255).withValues(alpha: 0.03),
+          // const Color(0xFF323232),
+          modifyColors: true,
+        )!,
+      ),
+    );
+  }
+
+  FluentThemeData buildLightTheme(AccentColor accentColor, bool isLargeScreen) {
+    return FluentThemeData(
+      accentColor: accentColor,
+      visualDensity: VisualDensity.standard,
+      navigationPaneTheme: NavigationPaneThemeData(
+        backgroundColor: effectColor(null),
+        overlayBackgroundColor: const Color.fromRGBO(243, 243, 243, 100),
+      ),
+      scaffoldBackgroundColor: effectColor(
+        const Color.fromRGBO(243, 243, 243, 100),
+      ),
+      focusTheme: FocusThemeData(glowFactor: isLargeScreen ? 2.0 : 0.0),
+      resources: ResourceDictionary.light(
+        cardStrokeColorDefault: effectColor(
+          const Color.fromARGB(22, 0, 0, 0), // border color
+          modifyColors: true,
+        )!,
+        cardBackgroundFillColorDefault: effectColor(
+          // card color
+          const Color(0xFFFBFBFB),
+          micaBackgroundColor: const Color.fromARGB(255, 251, 251, 251),
+        )!,
+        cardBackgroundFillColorSecondary: effectColor(
+          const Color.fromARGB(
+            255,
+            0,
+            0,
+            0,
+          ).withValues(alpha: 0.02), // hover color
+          modifyColors: true,
+        )!,
+      ),
+    );
   }
 }
 

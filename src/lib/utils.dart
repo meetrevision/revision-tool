@@ -75,9 +75,8 @@ bool isProcessRunning(String name) {
 
   final dylib = DynamicLibrary.open(dllPath);
 
-  final IsRunningDart isRunning = dylib.lookupFunction<IsRunningFunc, IsRunningDart>(
-    'IsRunning',
-  );
+  final IsRunningDart isRunning = dylib
+      .lookupFunction<IsRunningFunc, IsRunningDart>('IsRunning');
 
   final Pointer<Utf16> processName = name.toNativeUtf16();
   final int result = isRunning(processName);
@@ -87,7 +86,10 @@ bool isProcessRunning(String name) {
 }
 
 /// PowerShell helper for executing commands with faster startup time
-Future<String> runPSCommand(String command, {bool stdout = false}) async {
+Future<ProcessResult> runPSCommand(
+  String command, {
+  bool stdout = false,
+}) async {
   final ProcessResult result = await Process.run('powershell', [
     '-NoProfile',
     '-NonInteractive',
@@ -111,7 +113,7 @@ Future<String> runPSCommand(String command, {bool stdout = false}) async {
   }
   logger.i('ps_command: $command; ${stdout ? result.stdout : ''}');
 
-  return result.stdout.toString();
+  return result;
 }
 
 final shell = Shell(commandVerbose: true);

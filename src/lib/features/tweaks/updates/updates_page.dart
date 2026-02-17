@@ -10,7 +10,7 @@ import '../../../core/widgets/subtitle.dart';
 import '../../../extensions.dart';
 import '../../../i18n/generated/strings.g.dart';
 import '../../../utils_gui.dart';
-import '../../ms_store/widgets/msstore_dialogs.dart';
+import '../../ms_store/widgets/ms_store_dialogs.dart';
 import 'updates_service.dart';
 
 class UpdatesPage extends ConsumerWidget {

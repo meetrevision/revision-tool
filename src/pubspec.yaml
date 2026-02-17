@@ -25,6 +25,7 @@ dependencies:
     git:
       # url: https://github.com/melo936/window_plus
       url: https://github.com/alexmercerind/window_plus
+  adaptive_palette: ^3.0.0
 
   # State management
   flutter_riverpod: ^3.1.0
@@ -60,7 +61,7 @@ dependencies:
   collection: ^1.18.0
   xml: ^6.5.0
   ffi: ^2.1.4
-
+  crypto: ^3.0.7
 
 dev_dependencies:
   flutter_test:

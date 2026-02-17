@@ -9,7 +9,7 @@ import '../../../core/widgets/card_highlight.dart';
 import '../../../extensions.dart';
 import '../../../i18n/generated/strings.g.dart';
 import '../../../utils_gui.dart';
-import '../../ms_store/widgets/msstore_dialogs.dart';
+import '../../ms_store/widgets/ms_store_dialogs.dart';
 import 'sections/hw_mitigation_section.dart';
 import 'sections/system_safeguard_section.dart';
 import 'security_service.dart';

@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../utils.dart';
+
+part 'network_service.g.dart';
 
 enum ApiEndpoints {
   revisionTool(api: 'meetrevision/revision-tool'),
@@ -12,8 +15,10 @@ enum ApiEndpoints {
   final String api;
 }
 
-class NetworkService {
+@Riverpod(keepAlive: true)
+NetworkService networkService(Ref ref) => .new();
 
+class NetworkService {
   NetworkService() {
     (_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () =>
         HttpClient()

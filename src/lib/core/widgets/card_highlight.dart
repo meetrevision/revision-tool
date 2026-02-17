@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../extensions.dart';
+import '../../features/ms_store/ms_store_image_provider.dart';
 import '../../i18n/generated/strings.g.dart';
 import '../../utils_gui.dart';
 import '../settings/app_settings_provider.dart';
@@ -38,6 +39,7 @@ class CardHighlight extends StatelessWidget {
     this.children,
     this.onPressed,
     this.initiallyExpanded = false,
+    this.backgroundColor,
   }) : assert(
          icon == null || image == null,
          'Cannot provide both icon and image',
@@ -57,6 +59,8 @@ class CardHighlight extends StatelessWidget {
 
   final bool initiallyExpanded;
 
+  final Color? backgroundColor;
+
   @override
   Widget build(BuildContext context) {
     // Use label hash for stable PageStorageKey to prevent unnecessary rebuilds
@@ -65,22 +69,23 @@ class CardHighlight extends StatelessWidget {
     // Build the leading widget (icon or image)
     final Widget leadingWidget = image != null
         ? ClipRRect(
+            clipBehavior: .hardEdge,
             borderRadius: _cardBorderRadius,
-            child: Image.network(
-              image!,
+            child: Image(
+              image: MSStoreImageProvider(
+                baseUrl: image!,
+                width: _imgXY.cacheSize(context),
+                height: _imgXY.cacheSize(context),
+                fetchPadding: 0,
+              ),
               width: _imgXY,
               height: _imgXY,
-              cacheHeight: (_imgXY * MediaQuery.devicePixelRatioOf(context))
-                  .toInt(),
-              cacheWidth: (_imgXY * MediaQuery.devicePixelRatioOf(context))
-                  .toInt(),
-              filterQuality: FilterQuality.high,
             ),
           )
         : Icon(icon, size: 24);
 
     // If it's a clickable card (no children, has ChevronRightAction), build custom HoverButton
-    if (children == null && action is ChevronRightAction) {
+    if (children == null && action is ChevronRightAction || onPressed != null) {
       return _ClickableCardChevron(
         pageStorageKey: pageStorageKey,
         onPressed: onPressed,
@@ -89,6 +94,7 @@ class CardHighlight extends StatelessWidget {
         description: description,
         descriptionLink: descriptionLink,
         action: action,
+        backgroundColor: backgroundColor,
       );
     }
 
@@ -101,6 +107,7 @@ class CardHighlight extends StatelessWidget {
       description: description,
       descriptionLink: descriptionLink,
       action: action,
+      backgroundColor: backgroundColor,
       children: children,
     );
   }
@@ -116,6 +123,7 @@ class _ExpandableCard extends ConsumerStatefulWidget {
     required this.descriptionLink,
     required this.action,
     required this.children,
+    this.backgroundColor,
   });
 
   final int pageStorageKey;
@@ -126,6 +134,7 @@ class _ExpandableCard extends ConsumerStatefulWidget {
   final String? descriptionLink;
   final Widget? action;
   final List<Widget>? children;
+  final Color? backgroundColor;
 
   @override
   ConsumerState<_ExpandableCard> createState() => _ExpandableCardState();
@@ -155,7 +164,7 @@ class _ExpandableCardState extends ConsumerState<_ExpandableCard> {
         children: [
           DecoratedBox(
             decoration: BoxDecoration(
-              color: theme.cardColor,
+              color: widget.backgroundColor ?? theme.cardColor,
               borderRadius: _cardBorderRadius,
               border: .all(
                 color: isLight
@@ -284,6 +293,7 @@ class _ClickableCardChevron extends StatelessWidget {
     required this.description,
     required this.descriptionLink,
     required this.action,
+    this.backgroundColor,
   });
 
   final int pageStorageKey;
@@ -293,6 +303,7 @@ class _ClickableCardChevron extends StatelessWidget {
   final String? description;
   final String? descriptionLink;
   final Widget? action;
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -306,10 +317,11 @@ class _ClickableCardChevron extends StatelessWidget {
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: _cardBorderRadius,
-            color: theme.cardColor,
+            color: backgroundColor ?? theme.cardColor,
             border: .all(color: resources.cardStrokeColorDefault, width: 1.5),
           ),
           child: ClipRRect(
+            clipBehavior: .hardEdge,
             borderRadius: _cardBorderRadius,
             child: Padding(
               // Inset the hover fill so it does not paint over the stroke.
@@ -394,8 +406,7 @@ class CardListTile extends StatelessWidget {
                           fontWeight: .w500,
                         ),
                         recognizer: TapGestureRecognizer()
-                          ..onTap = () async =>
-                              launchURL(descriptionLink!),
+                          ..onTap = () async => launchURL(descriptionLink!),
                       ),
                     ]
                   : null,

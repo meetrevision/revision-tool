@@ -1,30 +1,28 @@
 import 'dart:async';
 
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/services/win_registry_service.dart';
-import '../../core/widgets/card_highlight.dart';
+import '../../core/routing/app_routes.dart';
 import '../../i18n/generated/strings.g.dart';
+import '../../utils.dart';
 import '../../utils_gui.dart';
-import 'msstore_service.dart';
-import 'packages_info_dto.dart';
-import 'search_response_dto.dart';
-import 'widgets/ms_store_packages_download_widget.dart';
-import 'widgets/msstore_dialogs.dart';
+import 'models/search/search_product.dart';
+import 'ms_store_enums.dart';
+import 'ms_store_providers.dart';
+import 'widgets/ms_store_product_card.dart';
 
-class MSStorePage extends StatefulWidget {
+class MSStorePage extends ConsumerStatefulWidget {
   const MSStorePage({super.key});
 
   @override
-  State<MSStorePage> createState() => _MSStorePageState();
+  ConsumerState<MSStorePage> createState() => _MSStorePageState();
 }
 
-class _MSStorePageState extends State<MSStorePage> {
+class _MSStorePageState extends ConsumerState<MSStorePage> {
   final _textEditingController = TextEditingController();
-  List<ProductsList> _productsList = [];
-  final _msStoreService = MSStoreService();
-  String _selectedRing = 'RP';
+  MSStoreRing _selectedRing = .releasePreview; // Default to RP
 
   @override
   void dispose() {
@@ -33,209 +31,127 @@ class _MSStorePageState extends State<MSStorePage> {
   }
 
   Future<void> _onSearchButtonPressed() async {
-    final String query = _textEditingController.text;
-    if (query.isEmpty) {
-      return;
-    }
+    final String query = _textEditingController.text.toLowerCase().trim();
+    if (query.isEmpty) return;
 
-    if (query.startsWith('9') || query.startsWith('XP')) {
-      await showInstallDialog(
-        context,
-        t.msstoreSearchingPackages,
-        query,
-        _selectedRing,
-      );
-    } else if (query.startsWith('https://') &&
-        query.contains('microsoft.com')) {
-      final Uri uri = Uri.parse(query);
-      final String productId = uri.pathSegments.last;
-      // debugPrint(productId);
-      await showInstallDialog(
-        context,
-        t.msstoreSearchingPackages,
-        productId,
-        _selectedRing,
-      );
+    final String? productId = _extractProductId(query);
+    if (productId != null) {
+      await context.push('${RouteMeta.msStore.path}/product/$productId');
     } else {
-      final List<ProductsList> data = await _msStoreService.searchProducts(
-        query,
-        _selectedRing,
-      );
-
-      setState(() {
-        _productsList = data;
-      });
+      await ref.read(mSStoreSearchProvider.notifier).search(query);
     }
   }
 
-  static const List<ComboBoxItem<String>> items2 = [
-    ComboBoxItem(value: 'Retail', child: Text('Retail (Base)')),
-    ComboBoxItem(value: 'RP', child: Text('Release Preview')),
-    ComboBoxItem(value: 'WIS', child: Text('Insider Slow')),
-    ComboBoxItem(value: 'WIF', child: Text('Insider Fast')),
-  ];
+  String? _extractProductId(String query) {
+    if (query.startsWith('9') || query.startsWith('xp')) {
+      return query;
+    }
+    if (query.startsWith('https://') && query.contains('microsoft.com')) {
+      final Uri? uri = Uri.tryParse(query);
+      return uri?.pathSegments.lastOrNull;
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final AsyncValue<List<SearchProduct>> searchState = ref.watch(
+      mSStoreSearchProvider,
+    );
+
     return ScaffoldPage.scrollable(
       padding: kScaffoldPagePadding,
       children: [
         Row(
+          spacing: 10,
           children: [
             Expanded(
               child: TextBox(
                 controller: _textEditingController,
                 placeholder: t.search,
-                onSubmitted: (value) async => _onSearchButtonPressed(),
+                onSubmitted: (_) => _onSearchButtonPressed(),
               ),
             ),
-            const SizedBox(width: 10),
-            ComboBox<String>(
+            ComboBox<MSStoreRing>(
               value: _selectedRing,
               onChanged: (value) => setState(() => _selectedRing = value!),
-              items: items2,
+              items: MSStoreRing.items,
             ),
           ],
         ),
-        const SizedBox(height: 10),
-        for (final product in _productsList) ...[
-          if (product.displayPrice == 'Free') ...[
-            CardHighlight(
-              label: product.title!,
-              image: product.iconUrl,
-              description: product.description,
-              action: FilledButton(
-                child: Text(t.install),
-                onPressed: () async {
-                  await showInstallDialog(
-                    context,
-                    t.msstoreSearchingPackages,
-                    product.productId!,
-                    _selectedRing,
-                  );
-                },
-              ),
-            ),
-          ],
-        ],
+        const SizedBox(height: 20),
+        searchState.when(
+          data: (products) => _ProductGrid(products: products),
+          loading: () => const Center(child: ProgressRing()),
+          error: (err, stack) {
+            logger.e('Error searching MS Store: $err; $stack');
+            return Center(child: Text(err.toString()));
+          },
+        ),
       ],
     );
   }
+}
 
-  Future<void> showInstallDialog(
-    BuildContext context,
-    String loadingTitle,
-    String productID,
-    String ring,
-  ) async {
-    try {
-      unawaited(showLoadingDialog(context, t.msstoreSearchingPackages));
+class _ProductGrid extends StatelessWidget {
+  const _ProductGrid({required this.products});
 
-      await _msStoreService.startProcess(productID, _selectedRing);
+  final List<SearchProduct> products;
 
-      if (!context.mounted) return;
-      context.pop();
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const cardWidth = 366.0;
+        const spacing = 15.0;
+        final double maxWidth = constraints.maxWidth;
 
-      if (_msStoreService.packages.isEmpty) {
-        await showNotFound(context);
-        return;
-      }
-      await showSelectPackages(productID);
-    } catch (e, _) {
-      if (!context.mounted) return;
-      context.pop();
-      unawaited(
-        showDialog(
-          context: context,
-          builder: (context) {
-            return ContentDialog(
-              content: Text('$e'),
-              actions: [
-                Button(child: Text(t.close), onPressed: () => context.pop()),
-              ],
-            );
-          },
-        ),
-      );
-    }
+        final int columns = ((maxWidth + spacing) / (cardWidth + spacing))
+            .floor()
+            .clamp(1, 4);
+
+        final double actualWidth =
+            (maxWidth - (columns - 1) * spacing) / columns;
+
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final product in products)
+              if (product.displayPrice == 'Free')
+                // Mandatory to prevent unnecessary rebuilds of the entire grid when an item is in extended hover state (_extendedHoverNotifier)
+                RepaintBoundary(
+                  child: SizedBox(
+                    width: actualWidth,
+                    child: _ProductCard(product: product),
+                  ),
+                ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ProductCard extends ConsumerWidget {
+  const _ProductCard({required this.product});
+
+  final SearchProduct product;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MSStoreProductCard(
+      product: product,
+      onPressed: () => _openProductDetails(context, product),
+    );
   }
 
-  Future<void> showSelectPackages(String productId) async {
-    final Set<MSStorePackagesInfoDTO> packages = _msStoreService.packages;
-    final List<TreeViewItem> items = List.generate(
-      packages.length,
-      (index) => TreeViewItem(
-        value: index,
-        selected:
-            packages
-                .elementAt(index)
-                .fileModel!
-                .fileName!
-                .contains('neutral') ||
-            packages
-                .elementAt(index)
-                .fileModel!
-                .fileName!
-                .contains(
-                  WinRegistryService.cpuArch == 'amd64' ? 'x64' : 'arm64',
-                ),
-        content: Text(packages.elementAt(index).fileModel!.fileName!),
-      ),
+  void _openProductDetails(BuildContext context, SearchProduct product) {
+    final String? productId = product.productId;
+    if (productId == null || productId.isEmpty) return;
+    context.push(
+      '${RouteMeta.msStore.path}/product/$productId',
+      extra: product,
     );
-
-    // TODO: Add checkbox to clean up after install
-    // ignore: prefer_final_locals, omit_obvious_local_variable_types
-    bool cleanUp = true;
-
-    await showDialog<String>(
-      context: context,
-      builder: (context) => ContentDialog(
-        constraints: const BoxConstraints(maxWidth: 600),
-        title: Text(t.msstorePackagesPrompt),
-        content: TreeView(
-          selectionMode: TreeViewSelectionMode.multiple,
-          items: items,
-        ),
-        actions: [
-          FilledButton(
-            child: Text(t.okButton),
-            onPressed: () async {
-              final downloadList = <MSStorePackagesInfoDTO>[];
-              for (final item in items) {
-                if (item.selected!) {
-                  downloadList.add(packages.elementAt(item.value as int));
-                }
-              }
-              if (downloadList.isEmpty) {
-                context.pop('Download list is empty');
-                return;
-              }
-
-              if (!context.mounted) return;
-              context.pop();
-
-              await showDialog(
-                context: context,
-                dismissWithEsc: false,
-                builder: (context) => MsStorePackagesDownloadWidget(
-                  items: downloadList,
-                  productId: productId.trim(),
-                  cleanUpAfterInstall: cleanUp,
-                  ring: _selectedRing,
-                ),
-              );
-
-              if (!context.mounted) return;
-              context.pop('Successfully downloaded');
-            },
-          ),
-          Button(
-            child: Text(t.close),
-            onPressed: () => context.pop('User canceled dialog'),
-          ),
-        ],
-      ),
-    );
-    setState(() {});
   }
 }
