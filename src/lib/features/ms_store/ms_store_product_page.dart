@@ -801,7 +801,7 @@ class _AdditionalInfoSection extends StatelessWidget {
     items.add((
       msicons.FluentIcons.bookmark_16_regular,
       'Category',
-      details.categories!.toString().replaceAll('[', '').replaceAll(']', ''),
+      (details.categories?.toString().replaceAll('[', '').replaceAll(']', '')) ?? 'N/A',
     ));
 
     items.add((
