@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,7 +41,7 @@ class _DefenderCard extends ConsumerWidget {
         ? CardToggleSwitch(
             value: defenderStatus,
             onChanged: (value) async {
-              await showLoadingDialog(context, '');
+              unawaited(showLoadingDialog(context, ''));
               try {
                 if (value) {
                   await ref.read(securityServiceProvider).enableDefender();

@@ -107,8 +107,19 @@ class _UpdateCard extends ConsumerStatefulWidget {
 }
 
 class _UpdateCardState extends ConsumerState<_UpdateCard> {
+  static const _defaultTitle = 'Check for Updates';
+
   final _toolUpdateService = ToolUpdateService();
-  final _updateTitle = ValueNotifier<String>('Check for Updates');
+  final _updateTitle = ValueNotifier<String>(_defaultTitle);
+  bool _isChecking = false;
+
+  void _resetTitleAfterDelay() {
+    Future<void>.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        _updateTitle.value = _defaultTitle;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +132,9 @@ class _UpdateCardState extends ConsumerState<_UpdateCard> {
         builder: (context, value, child) => FilledButton(
           child: Text(_updateTitle.value),
           onPressed: () async {
+            if (_isChecking) return;
+            _isChecking = true;
+            _updateTitle.value = '${t.settingsUpdatingStatus}...';
             try {
               await _toolUpdateService.fetchData();
               final int currentVersion = _toolUpdateService.getCurrentVersion;
@@ -175,14 +189,19 @@ class _UpdateCardState extends ConsumerState<_UpdateCard> {
                         ],
                       ),
                     );
+                    _resetTitleAfterDelay();
                   }
+                } else {
+                  _updateTitle.value = _defaultTitle;
                 }
               } else {
                 if (!context.mounted) return;
                 _updateTitle.value = t.settingsUpdatingStatusNotFound;
+                _resetTitleAfterDelay();
               }
             } catch (e) {
               if (!context.mounted) return;
+              _updateTitle.value = t.updateFailed;
               await showDialog(
                 context: context,
                 builder: (c) => ContentDialog(
@@ -196,6 +215,9 @@ class _UpdateCardState extends ConsumerState<_UpdateCard> {
                   ],
                 ),
               );
+              _resetTitleAfterDelay();
+            } finally {
+              _isChecking = false;
             }
           },
         ),

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,7 +46,7 @@ class _CertificatesCard extends ConsumerWidget {
         width: 150,
         child: Button(
           onPressed: () async {
-            await showLoadingDialog(context, 'Updating Certificates');
+            unawaited(showLoadingDialog(context, 'Updating Certificates'));
             await ref.read(updatesServiceProvider).updateCertificates();
 
             if (!context.mounted) return;
@@ -83,10 +85,10 @@ class _UpdateKGLCard extends ConsumerWidget {
           onPressed: () async {
             var message = '';
             try {
-              await showLoadingDialog(
+              unawaited(showLoadingDialog(
                 context,
                 '${t.settingsUpdatingStatus} KGL',
-              );
+              ));
               await ref.read(updatesServiceProvider).updateKGL();
               if (!context.mounted) return;
               message = t.restartDialog;
