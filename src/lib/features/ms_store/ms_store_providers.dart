@@ -88,7 +88,7 @@ class MSStoreDownload extends _$MSStoreDownload {
         if (_cancelToken != null && !_cancelToken!.isCancelled) {
           _cancelToken!.cancel();
         }
-      } catch (Object error, StackTrace stackTrace) {
+      } on Object catch (error, stackTrace) {
         developer.log(
           'Error while cancelling download on dispose',
           error: error,

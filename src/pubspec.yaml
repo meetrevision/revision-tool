@@ -6,15 +6,15 @@ publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.10.4
+  sdk: ^3.11.0
 
 dependencies:
   flutter:
     sdk: flutter
 
   # Localization
-  slang: ^4.11.2
-  slang_flutter: ^4.11.0
+  slang: ^4.12.1
+  slang_flutter: ^4.12.1
 
   # UI
   fluent_ui: ^4.13.0
@@ -25,20 +25,22 @@ dependencies:
     git:
       # url: https://github.com/melo936/window_plus
       url: https://github.com/alexmercerind/window_plus
-  adaptive_palette: ^3.0.0
+  adaptive_palette: 
+   git:
+      url: https://github.com/melo936/adaptive_palette
 
   # State management
-  flutter_riverpod: ^3.1.0
-  riverpod_annotation: ^4.0.0
+  flutter_riverpod: ^3.2.1
+  riverpod_annotation: ^4.0.2
 
   # Path
   path: ^1.9.1
 
   # Network
-  dio: ^5.8.0+1
+  dio: ^5.9.1
 
   # Shell
-  process_run: ^1.2.4
+  process_run: ^1.3.0
 
   # Interactivity with Windows
   win32: ^5.15.0
@@ -46,7 +48,7 @@ dependencies:
 
   # Code generation
   freezed_annotation: ^3.0.0
-  json_annotation: ^4.9.0
+  json_annotation: ^4.10.0
 
   # Logging
   logger: ^2.6.2
@@ -55,30 +57,32 @@ dependencies:
   args: ^2.7.0
 
   # Routing
-  go_router: ^17.0.1
+  go_router: ^17.1.0
 
   # Other
   collection: ^1.18.0
-  xml: ^6.5.0
-  ffi: ^2.1.4
+  xml: ^6.6.1
+  ffi: ^2.2.0
   crypto: ^3.0.7
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  riverpod_lint: ^3.1.0
-  build_runner: ^2.10.4
-  freezed: ^3.2.3
-  json_serializable: ^6.11.2
-  riverpod_generator: ^4.0.0+1
+  riverpod_lint: ^3.1.3
+  build_runner: ^2.11.1
+  freezed: ^3.2.5
+  json_serializable: ^6.12.0
+  riverpod_generator: ^4.0.3
   mocktail: ^1.0.4
-  analysis_server_plugin: ^0.3.3
-  slang_build_runner: ^4.11.0
-  
+  slang_build_runner: ^4.12.1
 
+dependency_overrides:
+  petitparser: ^7.0.2
+  math_expressions: ^3.1.0
+  
 flutter:
-  uses-material-design: true
+  uses-material-design: false
 
   assets:
     - additionals/
