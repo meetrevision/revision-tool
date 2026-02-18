@@ -349,7 +349,7 @@ class _HeroSection extends ConsumerWidget {
                   children: [
                     _HeroIcon(
                       iconUrl: details.iconUrl,
-                      color: parseHexColor(details.iconUrlBackground!),
+                      color: parseHexColor(details.iconUrlBackground ?? ''),
                     ),
                     Column(
                       mainAxisSize: .min,
@@ -449,7 +449,8 @@ class _HeroSection extends ConsumerWidget {
                       ],
                     ),
                     if (details.productRatings != null &&
-                        details.productRatings!.isNotEmpty)
+                        details.productRatings!.isNotEmpty &&
+                        details.productRatings!.first.ratingId != 'Microsoft:E')
                       Wrap(
                         spacing: 12,
                         crossAxisAlignment: .end,
@@ -470,22 +471,24 @@ class _HeroSection extends ConsumerWidget {
                             mainAxisSize: .min,
                             children: [
                               Text(
-                                details.productRatings!.first.longName ?? '',
+                                details.productRatings?.first.longName ?? '',
                                 style: theme.typography.bodyStrong,
                               ),
                               Text(
-                                details.productRatings!.first.ratingDescriptors!
-                                    .join(', '),
+                                details.productRatings?.first.ratingDescriptors
+                                        ?.join(', ') ??
+                                    '',
                                 style: theme.typography.caption!.copyWith(
                                   color: theme.resources.textFillColorDisabled,
                                 ),
                               ),
                               Text(
                                 details
-                                    .productRatings!
-                                    .first
-                                    .interactiveElements!
-                                    .join(', '),
+                                        .productRatings
+                                        ?.first
+                                        .interactiveElements
+                                        ?.join(', ') ??
+                                    '',
                                 style: theme.typography.caption!.copyWith(
                                   color: theme.resources.textFillColorDisabled,
                                 ),
@@ -801,7 +804,11 @@ class _AdditionalInfoSection extends StatelessWidget {
     items.add((
       msicons.FluentIcons.bookmark_16_regular,
       'Category',
-      (details.categories?.toString().replaceAll('[', '').replaceAll(']', '')) ?? 'N/A',
+      (details.categories
+              ?.toString()
+              .replaceAll('[', '')
+              .replaceAll(']', '')) ??
+          'N/A',
     ));
 
     items.add((
