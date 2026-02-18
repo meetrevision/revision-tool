@@ -1,5 +1,3 @@
-import 'package:fluent_ui/fluent_ui.dart';
-
 enum MSStoreAppType {
   uwp(prefix: '9', installCommand: 'Add-AppxPackage'),
   win32(prefix: 'XP');
@@ -26,9 +24,6 @@ enum MSStoreRing {
   const MSStoreRing({required this.value, required this.label});
   final String value;
   final String label;
-
-  static List<ComboBoxItem<MSStoreRing>> get items =>
-      values.map((e) => ComboBoxItem(value: e, child: Text(e.label))).toList();
 }
 
 /// CPU architecture for package filtering

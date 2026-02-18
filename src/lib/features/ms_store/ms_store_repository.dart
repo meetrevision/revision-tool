@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
+import '../../core/compute.dart';
 import 'models/package_info.dart';
 import 'models/product_details/product_details.dart';
 import 'models/search/search_product.dart';

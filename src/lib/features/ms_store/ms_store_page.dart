@@ -75,7 +75,12 @@ class _MSStorePageState extends ConsumerState<MSStorePage> {
             ComboBox<MSStoreRing>(
               value: _selectedRing,
               onChanged: (value) => setState(() => _selectedRing = value!),
-              items: MSStoreRing.items,
+              items: MSStoreRing.values
+                  .map(
+                    (ring) =>
+                        ComboBoxItem(value: ring, child: Text(ring.label)),
+                  )
+                  .toList(),
             ),
           ],
         ),
