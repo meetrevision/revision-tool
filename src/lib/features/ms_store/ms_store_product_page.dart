@@ -2,7 +2,6 @@ import 'package:adaptive_palette/adaptive_palette.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/routing/app_router.dart' show rootNavigatorKey;
@@ -804,10 +803,7 @@ class _AdditionalInfoSection extends StatelessWidget {
     items.add((
       msicons.FluentIcons.bookmark_16_regular,
       'Category',
-      (details.categories
-              ?.toString()
-              .replaceAll('[', '')
-              .replaceAll(']', '')) ??
+      details.categories?.toString().replaceAll('[', '').replaceAll(']', '') ??
           'N/A',
     ));
 

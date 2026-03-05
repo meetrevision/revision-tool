@@ -429,7 +429,7 @@ class CardListTile extends StatelessWidget {
         child: Row(
           spacing: 16.0,
           children: [
-            if (leading != null) leading!,
+            ?leading,
             Expanded(child: content),
             trailing!,
           ],

@@ -82,7 +82,7 @@ class ToolUpdateService {
 
   Future<void> installUpdate() async {
     final installerPath = '${_tempDir.path}\\RevisionTool-Setup.exe';
-    final appPath = Platform.resolvedExecutable;
+    final String appPath = Platform.resolvedExecutable;
     final scriptPath = '${_tempDir.path}\\revitool_update.cmd';
 
     File(scriptPath).writeAsStringSync(
