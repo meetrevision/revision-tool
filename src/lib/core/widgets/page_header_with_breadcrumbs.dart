@@ -13,8 +13,8 @@ class PageHeaderBreadcrumbs extends StatelessWidget {
   Widget build(BuildContext context) {
     final currentLocation = GoRouterState.of(context).uri.toString();
 
-    // Breadcrumb bar for Microsoft Store should be hidden
-    if (currentLocation.startsWith(RouteMeta.msStore.path)) {
+    // Breadcrumb bar for Microsoft Store product pages should be hidden
+    if (currentLocation.startsWith('${RouteMeta.msStore.path}/product/')) {
       return const SizedBox.shrink();
     }
 
