@@ -3,9 +3,13 @@ import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:win32/win32.dart';
 import 'package:win32_registry/win32_registry.dart';
+// ignore: implementation_imports
+import 'package:window_plus/src/common.dart' show WM_CAPTIONAREA;
 import 'package:window_plus/window_plus.dart';
 
 import '../../extensions.dart';
@@ -29,11 +33,14 @@ class _AppShellState extends ConsumerState<AppShell> {
   final GlobalKey<State<StatefulWidget>> _viewKey = GlobalKey(
     debugLabel: 'Navigation View Key',
   );
-  final GlobalKey<State<StatefulWidget>> _searchKey = GlobalKey(
+  final GlobalKey<AutoSuggestBoxState<dynamic>> _searchKey = GlobalKey(
     debugLabel: 'Search Bar Key',
   );
+  final _overlayFocusNode = FocusNode();
   final _searchFocusNode = FocusNode();
   final _searchController = TextEditingController();
+  final _overlayPortalController = OverlayPortalController();
+
   static const imgXY = 60.0;
   AutoSuggestBoxItem<dynamic>? selectedPage;
 
@@ -42,7 +49,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       .map((e) {
         final item = e as PaneItem;
         return AutoSuggestBoxItem(
-          child: Row(spacing: 8, children: [e.icon, e.title!]),
+          child: Row(spacing: 8, children: [?e.icon, e.title!]),
           value: (e.title! as Text).data,
           label: (e.title! as Text).data!,
           onSelected: () async {
@@ -50,20 +57,34 @@ class _AppShellState extends ConsumerState<AppShell> {
             await context.push(path);
             await Future<void>.delayed(const Duration(milliseconds: 17));
             _searchController.clear();
+            _overlayPortalController.hide();
           },
         );
       })
       .toList(growable: false);
 
-  final String? _username = WinRegistryService.readString(
+  static final String? _username = WinRegistryService.readString(
     RegistryHive.currentUser,
     r'Volatile Environment',
     'USERNAME',
   );
 
-  static final File _userImageFile = File(
-    r'C:\ProgramData\Microsoft\User Account Pictures\user-192.png',
-  );
+  static final File _userImageFile = (() {
+    final String path =
+        r'SOFTWARE\Microsoft\Windows\CurrentVersion\AccountPicture\Users\' +
+        WinRegistryService.currentUserSid;
+
+    final String? imagePath = WinRegistryService.readString(
+      .localMachine,
+      path,
+      'Image192',
+    );
+    if (imagePath != null && File(imagePath).existsSync()) {
+      return File(imagePath);
+    }
+
+    return File(r'C:\ProgramData\Microsoft\User Account Pictures\user-192.png');
+  })();
 
   void _updateNavigationIndex() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -87,6 +108,7 @@ class _AppShellState extends ConsumerState<AppShell> {
   void dispose() {
     _searchController.dispose();
     _searchFocusNode.dispose();
+    _overlayFocusNode.dispose();
     super.dispose();
   }
 
@@ -96,25 +118,60 @@ class _AppShellState extends ConsumerState<AppShell> {
     final int imgCacheSize = (imgXY * MediaQuery.devicePixelRatioOf(context))
         .toInt();
 
-    final FluentLocalizations localizations = FluentLocalizations.of(context);
+    final AutoSuggestBox<dynamic> autoSuggestBox = AutoSuggestBox(
+      // Needed to override decoration when autoSuggestBox is an overlay
+      decoration: .resolveWith((states) {
+        final bool isOverlayVisible =
+            _searchKey.currentState?.isOverlayVisible ?? false;
+
+        final Color color = states.isFocused
+            ? context.theme.resources.solidBackgroundFillColorSecondary
+            : context.theme.resources.solidBackgroundFillColorQuarternary;
+
+        final BorderRadius borderRadius = isOverlayVisible
+            ? const .vertical(top: .circular(15))
+            : const .all(.circular(30));
+
+        return .new(color: color, borderRadius: borderRadius);
+      }),
+      leadingIcon: const Padding(
+        padding: EdgeInsetsDirectional.only(start: 11.5),
+        child: Icon(msicons.FluentIcons.search_20_regular),
+      ),
+      key: _searchKey,
+      focusNode: _searchFocusNode,
+      controller: _searchController,
+      placeholder: t.suggestionBoxPlaceholder,
+      items: _searchItems,
+      trailingIcon: const Padding(
+        padding: EdgeInsetsDirectional.only(start: 8),
+        child: SizedBox.shrink(),
+      ),
+    );
 
     return Listener(
-      onPointerDown: (PointerDownEvent event) {
+      onPointerDown: (PointerDownEvent event) async {
         if (event.buttons & kBackMouseButton != 0 && context.canPop()) {
-          context.pop();
-          _updateNavigationIndex();
+          await Future<void>.delayed(
+            Duration(
+              milliseconds: context.theme.fastAnimationDuration.inMilliseconds,
+            ),
+          );
+          if (context.mounted && context.canPop()) {
+            context.pop();
+            _updateNavigationIndex();
+          }
         }
       },
       child: SafeArea(
         child: NavigationView(
           key: _viewKey,
           contentShape: const RoundedRectangleBorder(
-            side: BorderSide(width: 0, color: Colors.transparent),
-            borderRadius: BorderRadius.only(topLeft: Radius.circular(8.0)),
+            side: .new(width: 0, color: Colors.transparent),
+            borderRadius: .only(topLeft: .circular(8.0)),
           ),
-          appBar: NavigationAppBar(
-            automaticallyImplyLeading: false,
-            leading: () {
+          titleBar: TitleBar(
+            backButton: () {
               final GoRouter router = ref.read(appRouterProvider);
               final List<RouteMatchBase> matches =
                   router.routerDelegate.currentConfiguration.matches;
@@ -127,42 +184,72 @@ class _AppShellState extends ConsumerState<AppShell> {
                     }
                   : null;
 
-              return NavigationPaneTheme(
-                data: NavigationPaneTheme.of(context).merge(
-                  NavigationPaneThemeData(
-                    unselectedIconColor: WidgetStateProperty.resolveWith((
-                      states,
-                    ) {
-                      if (states.isDisabled) {
-                        return ButtonThemeData.buttonColor(context, states);
-                      }
-                      return ButtonThemeData.uncheckedInputColor(
-                        FluentTheme.of(context),
-                        states,
-                      ).basedOnLuminance();
-                    }),
-                  ),
-                ),
-                child: Builder(
-                  builder: (context) => PaneItem(
-                    icon: const Center(
-                      child: Icon(FluentIcons.back, size: 12.0),
-                    ),
-                    title: Text(localizations.backButtonTooltip),
-                    body: const SizedBox.shrink(),
-                    enabled: onPressed != null,
-                  ).build(context, false, onPressed, displayMode: .compact),
+              return PaneBackButton(
+                enabled: onPressed != null,
+                onPressed: onPressed,
+                backIcon: const Center(
+                  child: Icon(FluentIcons.back, size: 12.0),
                 ),
               );
             }(),
-            title: const Text('Revision Tool'),
-            actions: Padding(
-              padding: const .only(left: 50),
-              child: RepaintBoundary(child: WindowCaption()),
+            // To match W11's Settings app title bar style, `leftHeader` must be the title, when width > 800 `title` must be a search [IconButton] that spawns an overlay otherwise it must be null and the search [AutoSuggestBox] must be in `content`
+            leftHeader: const Text(
+              'Revision Tool',
+              style: TextStyle(fontSize: 12),
             ),
+            title: MediaQuery.widthOf(context) > 800
+                ? null
+                : OverlayPortal(
+                    controller: _overlayPortalController,
+                    overlayChildBuilder: (context) => Stack(
+                      children: [
+                        Positioned.fill(
+                          child: GestureDetector(
+                            behavior: .opaque,
+                            onTap: _overlayPortalController.hide,
+                            child: const SizedBox.expand(),
+                          ),
+                        ),
+                        Positioned(
+                          top: 50,
+                          left: 25,
+                          right: 25,
+                          child: autoSuggestBox,
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: const Icon(msicons.FluentIcons.search_20_regular),
+                      onPressed: () {
+                        _overlayPortalController.show();
+                        _searchFocusNode.requestFocus();
+                        _overlayFocusNode.requestFocus();
+                      },
+                    ),
+                  ),
+            content: MediaQuery.widthOf(context) > 800
+                ? ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 470),
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.symmetric(
+                        vertical: 8,
+                      ),
+                      child: autoSuggestBox,
+                    ),
+                  )
+                : null,
+            captionControls: WindowCaption(),
+            onDragStarted: () {
+              PostMessage(WindowPlus.instance.handle, WM_CAPTIONAREA, 0, 0);
+            },
           ),
           pane: NavigationPane(
-            size: const NavigationPaneSize(openWidth: 300),
+            acrylicDisabled: true,
+            indicator: const StickyNavigationIndicator(
+              indicatorSize: 3.5,
+              leftPadding: 12.5,
+            ),
+            size: const .new(openWidth: 300, headerHeight: 90.5),
             selected: ref.watch(navigationIndexProvider),
             onItemPressed: (index) {
               if (index == ref.read(navigationIndexProvider)) return;
@@ -171,67 +258,36 @@ class _AppShellState extends ConsumerState<AppShell> {
               ref.read(navigationIndexProvider.notifier).index = index;
               context.push(route.path);
             },
-            displayMode: context.mqSize.width >= 800 ? .open : .minimal,
+            displayMode: MediaQuery.widthOf(context) >= 800
+                ? .expanded
+                : .minimal,
             header: RepaintBoundary(
-              child: SizedBox(
-                height: 90,
-                // height: kOneLineTileHeight,
-                child: Row(
-                  children: [
-                    const SizedBox(width: 5.0),
-                    ClipRRect(
-                      clipBehavior: .hardEdge,
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(30.0),
-                      ),
-                      child: Image.file(
-                        width: imgXY,
-                        height: imgXY,
-                        cacheWidth: imgCacheSize,
-                        cacheHeight: imgCacheSize,
-                        _userImageFile,
-                      ),
+              child: Center(
+                heightFactor: 5,
+                child: ListTile(
+                  leading: ClipRRect(
+                    borderRadius: const .all(.circular(30.0)),
+                    child: Image.file(
+                      width: imgXY,
+                      height: imgXY,
+                      cacheWidth: imgCacheSize,
+                      cacheHeight: imgCacheSize,
+                      _userImageFile,
                     ),
-                    const SizedBox(width: 13.0),
-                    Column(
-                      mainAxisAlignment: .center,
-                      crossAxisAlignment: .start,
-                      children: [
-                        Text(
-                          _username ?? 'User',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const Text(
-                          'Proud ReviOS user',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                  ),
+                  margin: .zero,
+                  contentPadding: .zero,
+                  title: Text(
+                    _username ?? 'User',
+                    style: const .new(fontWeight: .w500, fontSize: 14),
+                  ),
+                  subtitle: const Text(
+                    'Proud ReviOS user',
+                    style: .new(fontSize: 11, fontWeight: .normal),
+                  ),
                 ),
               ),
             ),
-            autoSuggestBox: Padding(
-              padding: const .symmetric(vertical: 4),
-              child: AutoSuggestBox(
-                key: _searchKey,
-                trailingIcon: const Padding(
-                  padding: .only(right: 7.0, bottom: 2),
-                  child: Icon(msicons.FluentIcons.search_20_regular),
-                ),
-                focusNode: _searchFocusNode,
-                controller: _searchController,
-                placeholder: t.suggestionBoxPlaceholder,
-                items: _searchItems,
-              ),
-            ),
-            autoSuggestBoxReplacement: const Icon(FluentIcons.search),
             items: AppRoutes.mainPaneItems,
             footerItems: [
               ...AppRoutes.footerPaneItems,
@@ -245,22 +301,24 @@ class _AppShellState extends ConsumerState<AppShell> {
             return FocusTraversalGroup(
               key: ValueKey('body$name'),
               child: Builder(
-                builder: (context) => Column(
-                  children: [
-                    if (NavigationView.of(context).displayMode == .minimal)
-                      const Padding(
-                        padding: EdgeInsets.only(left: 13),
-                        child: PageHeaderBreadcrumbs(),
-                      )
-                    else
-                      const PageHeaderBreadcrumbs(),
-                    Expanded(child: widget.child),
-                  ],
+                builder: (context) => Padding(
+                  padding: const EdgeInsetsDirectional.only(top: 9),
+                  child: Column(
+                    children: [
+                      if (NavigationView.of(context).displayMode == .minimal)
+                        const Padding(
+                          padding: EdgeInsetsDirectional.only(start: 13),
+                          child: PageHeaderBreadcrumbs(),
+                        )
+                      else
+                        const PageHeaderBreadcrumbs(),
+                      Expanded(child: widget.child),
+                    ],
+                  ),
                 ),
               ),
             );
           },
-          onOpenSearch: () => _searchFocusNode.requestFocus(),
         ),
       ),
     );

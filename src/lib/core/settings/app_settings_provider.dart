@@ -122,6 +122,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
       brightness: Brightness.dark,
       accentColor: accentColor,
       navigationPaneTheme: NavigationPaneThemeData(
+        iconPadding: const EdgeInsetsDirectional.only(start: 10.5, end: 10),
         backgroundColor: effectColor(const Color.fromARGB(255, 32, 32, 32)),
         overlayBackgroundColor: const .fromARGB(255, 32, 32, 32),
       ),
@@ -159,6 +160,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
       accentColor: accentColor,
       visualDensity: VisualDensity.standard,
       navigationPaneTheme: NavigationPaneThemeData(
+        iconPadding: const EdgeInsetsDirectional.only(start: 10.5, end: 10),
         backgroundColor: effectColor(null),
         overlayBackgroundColor: const Color.fromRGBO(243, 243, 243, 100),
       ),

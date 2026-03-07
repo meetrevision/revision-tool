@@ -17,8 +17,7 @@ class HomePage extends StatelessWidget {
         icon: FluentIcons.git_graph,
         label: t.homeCardGithub,
         description: t.homeCardGithubDescription,
-        onPressed: () async =>
-            launchURL('https://github.com/meetrevision'),
+        onPressed: () async => launchURL('https://github.com/meetrevision'),
 
         action: const ChevronRightAction(),
       ),
@@ -74,7 +73,7 @@ class _HomePageContent extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        gradient: context.theme.brightness.isDark
+        gradient: context.theme.brightness == .dark
             ? const LinearGradient(
                 colors: [
                   Color.fromRGBO(0, 0, 0, 0.85),

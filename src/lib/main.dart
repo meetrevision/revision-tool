@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:system_theme/system_theme.dart';
@@ -41,7 +43,7 @@ Future<void> main(List<String> args) async {
   };
 
   logger.i('$tag Revision Tool GUI is starting');
-
+  await WinRegistryService.initialize();
   try {
     logger.i('$tag Initializing TrustedInstaller service');
     await TrustedInstallerServiceImpl.initialize();

@@ -89,6 +89,7 @@ bool isProcessRunning(String name) {
 Future<ProcessResult> runPSCommand(
   String command, {
   bool stdout = false,
+  bool loggerInfoOutput = true,
 }) async {
   final ProcessResult result = await Process.run('powershell', [
     '-NoProfile',
@@ -111,7 +112,9 @@ Future<ProcessResult> runPSCommand(
       result.exitCode,
     );
   }
-  logger.i('ps_command: $command; ${stdout ? result.stdout : ''}');
+  if (loggerInfoOutput) {
+    logger.i('ps_command: $command; ${stdout ? result.stdout : ''}');
+  }
 
   return result;
 }

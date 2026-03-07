@@ -10,6 +10,13 @@ class WinRegistryService {
   const WinRegistryService._private();
   static const tag = 'await WinRegistryService';
 
+  static Future<void> initialize() async {
+    currentUserSid = await runPSCommand(
+      '[System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value',
+      loggerInfoOutput: false,
+    ).then((result) => result.stdout.toString().trim());
+  }
+
   static int get buildNumber => _buildNumber;
   static final int _buildNumber = int.parse(
     WinRegistryService.readString(
@@ -20,6 +27,7 @@ class WinRegistryService {
   );
 
   static final RegistryKey currentUser = Registry.currentUser;
+  static late final String currentUserSid;
   static const defaultUser = 'DefaultUserHive';
   static const defaultUserHivePath = r'C:\Users\Default\NTUSER.DAT';
 
