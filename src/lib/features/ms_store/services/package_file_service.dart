@@ -5,8 +5,15 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:process_run/shell_run.dart';
 
+import '../../../core/compute.dart';
 import '../../../utils.dart';
 import '../ms_store_enums.dart';
+
+String _sha256FromPath(String path) {
+  final Uint8List bytes = File(path).readAsBytesSync();
+  final Digest digest = sha256.convert(bytes);
+  return digest.toString().toLowerCase();
+}
 
 /// Service for file system operations related to MS Store packages.
 class PackageFileService {
@@ -88,9 +95,7 @@ class PackageFileService {
 
   /// Computes the SHA-256 hash of a file and returns it as lowercase hex string
   Future<String> computeFileSha256(File file) async {
-    final Uint8List bytes = await file.readAsBytes();
-    final Digest digest = sha256.convert(bytes);
-    return digest.toString().toLowerCase();
+    return compute(_sha256FromPath, file.path);
   }
 
   /// Verifies the file digest against expected hex string (case-insensitive)
