@@ -50,6 +50,20 @@ void main() {
         });
       });
 
+      group('Modern Standby', () {
+        test('statusModernStandby returns a boolean', () {
+          expect(service.statusModernStandby, isA<bool>());
+        });
+
+        test('enableModernStandby completes without error', () async {
+          await expectLater(service.enableModernStandby(), completes);
+        });
+
+        test('disableModernStandby completes without error', () async {
+          await expectLater(service.disableModernStandby(), completes);
+        });
+      });
+
       group('Task Manager Monitoring', () {
         test('statusTMMonitoring returns a boolean', () {
           expect(service.statusTMMonitoring, isA<bool>());
@@ -112,6 +126,7 @@ void main() {
         test('All status getters return boolean', () {
           expect(service.statusHibernation, isA<bool>());
           expect(service.statusFastStartup, isA<bool>());
+          expect(service.statusModernStandby, isA<bool>());
           expect(service.statusTMMonitoring, isA<bool>());
           expect(service.statusUsageReporting, isA<bool>());
         });
@@ -119,6 +134,8 @@ void main() {
         test('Async methods return Future', () async {
           expect(service.enableHibernation(), isA<Future<void>>());
           expect(service.disableHibernation(), isA<Future<void>>());
+          expect(service.enableModernStandby(), isA<Future<void>>());
+          expect(service.disableModernStandby(), isA<Future<void>>());
           expect(service.enableTMMonitoring(), isA<Future<void>>());
           expect(service.enableUsageReporting(), isA<Future<void>>());
           expect(service.disableUsageReporting(), isA<Future<void>>());
@@ -127,6 +144,8 @@ void main() {
           await Future.wait([
             service.enableHibernation(),
             service.disableHibernation(),
+            service.enableModernStandby(),
+            service.disableModernStandby(),
             service.enableTMMonitoring(),
             service.enableUsageReporting(),
             service.disableUsageReporting(),
@@ -198,6 +217,57 @@ void main() {
 
         await mockService.disableFastStartup();
         verify(() => mockService.disableFastStartup()).called(1);
+      });
+    });
+
+    group('Modern Standby', () {
+      test('statusModernStandby can be mocked as enabled', () {
+        when(() => mockService.statusModernStandby).thenReturn(true);
+        expect(mockService.statusModernStandby, isTrue);
+        verify(() => mockService.statusModernStandby).called(1);
+      });
+
+      test('statusModernStandby can be mocked as disabled', () {
+        when(() => mockService.statusModernStandby).thenReturn(false);
+        expect(mockService.statusModernStandby, isFalse);
+      });
+
+      test(
+        'enableModernStandby can be called without system changes',
+        () async {
+          when(
+            () => mockService.enableModernStandby(),
+          ).thenAnswer((_) async {});
+
+          await mockService.enableModernStandby();
+          verify(() => mockService.enableModernStandby()).called(1);
+        },
+      );
+
+      test(
+        'disableModernStandby can be called without system changes',
+        () async {
+          when(
+            () => mockService.disableModernStandby(),
+          ).thenAnswer((_) async {});
+
+          await mockService.disableModernStandby();
+          verify(() => mockService.disableModernStandby()).called(1);
+        },
+      );
+
+      test('toggle Modern Standby from enabled to disabled', () async {
+        when(() => mockService.statusModernStandby).thenReturn(true);
+        when(() => mockService.disableModernStandby()).thenAnswer((_) async {});
+
+        final bool before = mockService.statusModernStandby;
+        await mockService.disableModernStandby();
+
+        expect(before, isTrue);
+        verifyInOrder([
+          () => mockService.statusModernStandby,
+          () => mockService.disableModernStandby(),
+        ]);
       });
     });
 

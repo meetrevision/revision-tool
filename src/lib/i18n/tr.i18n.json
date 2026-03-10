@@ -134,6 +134,9 @@
     "tweaksUtilitiesHibernateModeDescription": "Tam - Hazırda bekletme ve hızlı başlatmayı destekler. Hiberfile yüklü fiziksel RAM\u0027in %40\u0027ı olacaktır. Hazırda bekletme güç menüsüne eklenebilir.\n\nAzaltılmış - Hazırda bekletme olmadan yalnızca Hızlı Başlatmayı destekler. Hiberfile yüklü fiziksel RAM\u0027in %20\u0027si olacaktır ve hazırda bekletmeyi güç menüsünden kaldırır",
     "tweaksUtilitiesFastStartup": "Hızlı Başlat",
     "tweaksUtilitiesFastStartupDescription": "Daha hızlı başlatma için mevcut oturumu C:\\hiberfil.sys dosyasına kaydeder, yeniden başlatmaları etkilemez. Çift önyükleme veya sistem yükseltmeleri sırasında kararsızlığı önlemek için varsayılan olarak devre dışıdır",
+    "tweaksUtilitiesModernStandby": "Modern Standby",
+    "tweaksUtilitiesModernStandbyDescription": "Cihazınızın bağlı kalırken ve arka planda etkinlik gerçekleştirirken düşük güç durumunda kalmasına izin verin",
+    "tweaksUtilitiesModernStandbyFullDescription": "Modern Standby yalnızca desteklenen cihazlar tarafından kullanılabilir. Uyku modunun veya hibernasyonun aşırı ısınmaya veya pil boşalmaya neden olursa devre dışı bırakın",
     "tweaksUtilitiesTMMonitoring": "Ağ ve GPU izleme",
     "tweaksUtilitiesTMMonitoringDescription": "Görev Yöneticisi için izleme hizmetlerini etkinleştirin",
     "tweaksUtilitiesUsageReporting": "Kullanım Raporlama",
@@ -145,5 +148,5 @@
     "tweaksUpdatesWUPage": "Windows Updates sayfasını gizle",
     "tweaksUpdatesWUPageDescription": "Bu sayfayı göstermek güncelleme bildirimlerini de etkinleştirecektir",
     "tweaksUpdatesWUDrivers": "Windows Updates üzerinden sürücü kurulumu",
-    "tweaksUpdatesWUDriversDescription": "ReviOS\u0027ta sürücü yüklemek için Ayarlar\u0027da güncellemeleri manuel olarak kontrol etmeniz gerekir, çünkü otomatik Windows Güncellemeleri desteklenmemektedir"
+    "tweaksUpdatesWUDriversDescription": "ReviOS'ta sürücü yüklemek için Ayarlar'da güncellemeleri manuel olarak kontrol etmeniz gerekir, çünkü otomatik Windows Güncellemeleri desteklenmemektedir"
 }

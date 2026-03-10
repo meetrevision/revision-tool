@@ -14,6 +14,10 @@ abstract class UtilitiesService {
   bool get statusFastStartup;
   Future<void> enableFastStartup();
   Future<void> disableFastStartup();
+  bool get statusModernStandby;
+  Future<void> enableModernStandby();
+  Future<void> disableModernStandby();
+
   bool get statusTMMonitoring;
   Future<void> enableTMMonitoring();
   Future<void> disableTMMonitoring();
@@ -136,6 +140,35 @@ powercfg -h off
         0,
       ),
     ]);
+  }
+
+  @override
+  bool get statusModernStandby {
+    return WinRegistryService.readInt(
+          .localMachine,
+          r'System\CurrentControlSet\Control\Power',
+          'PlatformAoAcOverride',
+        ) !=
+        0;
+  }
+
+  @override
+  Future<void> enableModernStandby() {
+    return WinRegistryService.deleteValue(
+      Registry.localMachine,
+      r'System\CurrentControlSet\Control\Power',
+      'PlatformAoAcOverride',
+    );
+  }
+
+  @override
+  Future<void> disableModernStandby() {
+    return WinRegistryService.writeRegistryValue(
+      Registry.localMachine,
+      r'System\CurrentControlSet\Control\Power',
+      'PlatformAoAcOverride',
+      0,
+    );
   }
 
   @override

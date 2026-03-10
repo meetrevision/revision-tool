@@ -22,6 +22,7 @@ class UtilitiesPage extends ConsumerWidget {
       children: [
         const _HibernationCard(),
         if (hibernationStatus || kDebugMode) const _FastStartupCard(),
+        const _ModernStandbyCard(),
         const _TMMonitoringCard(),
         // const _MPOCard(),
         const _UsageReportingCard(),
@@ -73,6 +74,23 @@ class _FastStartupCard extends ConsumerWidget {
           ref.invalidate(fastStartupStatusProvider);
         },
       ),
+    );
+  }
+}
+
+class _ModernStandbyCard extends ConsumerWidget {
+  const _ModernStandbyCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return CardHighlight(
+      icon: msicons.FluentIcons.power_20_regular,
+      label: t.tweaksUtilitiesModernStandby,
+      description: t.tweaksUtilitiesModernStandbyDescription,
+      action: CardToggleSwitch(value: false, onChanged: (value) {}),
+      children: [
+        CardListTile(title: t.tweaksUtilitiesModernStandbyFullDescription),
+      ],
     );
   }
 }
