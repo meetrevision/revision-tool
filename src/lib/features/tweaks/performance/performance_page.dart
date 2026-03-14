@@ -11,6 +11,7 @@ import '../../../utils_gui.dart';
 import 'performance_service.dart';
 import 'sections/background_priority_section.dart';
 import 'sections/memory_storage_section.dart';
+import 'sections/powerplan_section.dart';
 import 'sections/presentation_section.dart';
 
 class PerformancePage extends ConsumerWidget {
@@ -21,14 +22,13 @@ class PerformancePage extends ConsumerWidget {
     return ScaffoldPage.scrollable(
       padding: kScaffoldPagePadding,
       children: [
+        const PowerplanSection(),
         const MemoryStorageSection(),
 
         if (WinRegistryService.isIntelCpu || kDebugMode) const _IntelTSXCard(),
 
         const BackgroundManagementSection(),
         const PresentationSection(),
-
-        if (ref.watch(settingsExperimentalStatus)) ...[const _CStatesCard()],
       ].withSpacing(5),
     );
   }
@@ -52,29 +52,6 @@ class _IntelTSXCard extends ConsumerWidget {
               ? await ref.read(performanceServiceProvider).enableIntelTSX()
               : await ref.read(performanceServiceProvider).disableIntelTSX();
           ref.invalidate(intelTSXStatusProvider);
-        },
-      ),
-    );
-  }
-}
-
-class _CStatesCard extends ConsumerWidget {
-  const _CStatesCard();
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final bool status = ref.watch(cStatesStatusProvider);
-
-    return CardHighlight(
-      icon: msicons.FluentIcons.sleep_20_regular,
-      label: t.tweaksPerformanceCStates,
-      description: t.tweaksPerformanceCStatesDescription,
-      action: CardToggleSwitch(
-        value: status,
-        onChanged: (value) async {
-          value
-              ? await ref.read(performanceServiceProvider).disableCStates()
-              : await ref.read(performanceServiceProvider).enableCStates();
-          ref.invalidate(cStatesStatusProvider);
         },
       ),
     );

@@ -37,6 +37,34 @@ void main() {
         });
       });
 
+      group('Revi Power Plan', () {
+        test('statusReviPowerPlan returns a boolean', () {
+          expect(service.statusReviPowerPlan, isA<bool>());
+        });
+
+        test('enableReviPowerPlan completes without error', () async {
+          await expectLater(service.enableReviPowerPlan(), completes);
+        });
+
+        test('disableReviPowerPlan completes without error', () async {
+          await expectLater(service.disableReviPowerPlan(), completes);
+        });
+      });
+
+      group('Revi Power Plan C6 States', () {
+        test('statusReviPowerPlanC6States returns a boolean', () {
+          expect(service.statusReviPowerPlanC6States, isA<bool>());
+        });
+
+        test('enableReviPowerPlanC6States completes without error', () async {
+          await expectLater(service.enableReviPowerPlanC6States(), completes);
+        });
+
+        test('disableReviPowerPlanC6States completes without error', () async {
+          await expectLater(service.disableReviPowerPlanC6States(), completes);
+        });
+      });
+
       group('Memory Compression', () {
         test('statusMemoryCompression returns a boolean', () {
           expect(service.statusMemoryCompression, isA<bool>());
@@ -104,20 +132,6 @@ void main() {
 
         test('disableBackgroundApps completes without error', () async {
           await expectLater(service.disableBackgroundApps(), completes);
-        });
-      });
-
-      group('C-States', () {
-        test('statusCStates returns a boolean', () {
-          expect(service.statusCStates, isA<bool>());
-        });
-
-        test('enableCStates completes without error', () async {
-          await expectLater(service.enableCStates(), completes);
-        });
-
-        test('disableCStates completes without error', () async {
-          await expectLater(service.disableCStates(), completes);
         });
       });
 
@@ -358,21 +372,20 @@ void main() {
           const service1 = PerformanceServiceImpl();
           const service2 = PerformanceServiceImpl();
 
-          // Both should read the same registry values
           expect(service1.statusIntelTSX, equals(service2.statusIntelTSX));
-          expect(service1.statusCStates, equals(service2.statusCStates));
         });
       });
 
       group('Method Return Types', () {
         test('All status getters return boolean or enum', () {
+          expect(service.statusReviPowerPlan, isA<bool>());
+          expect(service.statusReviPowerPlanC6States, isA<bool>());
           expect(service.statusSuperfetch, isA<bool>());
           expect(service.statusMemoryCompression, isA<bool>());
           expect(service.statusIntelTSX, isA<bool>());
           expect(service.statusFullscreenOptimization, isA<bool>());
           expect(service.statusWindowedOptimization, isA<bool>());
           expect(service.statusBackgroundApps, isA<bool>());
-          expect(service.statusCStates, isA<bool>());
           expect(service.statusLastTimeAccessNTFS, isA<bool>());
           expect(service.status8dot3NamingNTFS, isA<bool>());
           expect(service.statusMemoryUsageNTFS, isA<bool>());
@@ -381,6 +394,10 @@ void main() {
         });
 
         test('All async methods return Future<void>', () {
+          expect(service.enableReviPowerPlan(), isA<Future<void>>());
+          expect(service.disableReviPowerPlan(), isA<Future<void>>());
+          expect(service.enableReviPowerPlanC6States(), isA<Future<void>>());
+          expect(service.disableReviPowerPlanC6States(), isA<Future<void>>());
           expect(service.enableSuperfetch(), isA<Future<void>>());
           expect(service.disableSuperfetch(), isA<Future<void>>());
           expect(service.enableMemoryCompression(), isA<Future<void>>());
@@ -399,8 +416,6 @@ void main() {
           expect(service.disableWindowedOptimization(), isA<Future<void>>());
           expect(service.enableBackgroundApps(), isA<Future<void>>());
           expect(service.disableBackgroundApps(), isA<Future<void>>());
-          expect(service.enableCStates(), isA<Future<void>>());
-          expect(service.disableCStates(), isA<Future<void>>());
           expect(service.forcedServicesGrouping(), isA<Future<void>>());
           expect(service.recommendedServicesGrouping(), isA<Future<void>>());
           expect(service.disableServicesGrouping(), isA<Future<void>>());
@@ -421,6 +436,18 @@ void main() {
     });
 
     group('Status Getters', () {
+      test('statusReviPowerPlan can be mocked', () {
+        when(() => mockService.statusReviPowerPlan).thenReturn(true);
+        expect(mockService.statusReviPowerPlan, true);
+        verify(() => mockService.statusReviPowerPlan).called(1);
+      });
+
+      test('statusReviPowerPlanC6States can be mocked', () {
+        when(() => mockService.statusReviPowerPlanC6States).thenReturn(false);
+        expect(mockService.statusReviPowerPlanC6States, false);
+        verify(() => mockService.statusReviPowerPlanC6States).called(1);
+      });
+
       test('statusSuperfetch can be mocked', () {
         when(() => mockService.statusSuperfetch).thenReturn(true);
         expect(mockService.statusSuperfetch, true);
@@ -448,6 +475,54 @@ void main() {
     });
 
     group('Enable/Disable Methods', () {
+      test(
+        'enableReviPowerPlan can be called without system changes',
+        () async {
+          when(
+            () => mockService.enableReviPowerPlan(),
+          ).thenAnswer((_) async => Future.value());
+
+          await mockService.enableReviPowerPlan();
+          verify(() => mockService.enableReviPowerPlan()).called(1);
+        },
+      );
+
+      test(
+        'disableReviPowerPlan can be called without system changes',
+        () async {
+          when(
+            () => mockService.disableReviPowerPlan(),
+          ).thenAnswer((_) async => Future.value());
+
+          await mockService.disableReviPowerPlan();
+          verify(() => mockService.disableReviPowerPlan()).called(1);
+        },
+      );
+
+      test(
+        'enableReviPowerPlanC6States can be called without system changes',
+        () async {
+          when(
+            () => mockService.enableReviPowerPlanC6States(),
+          ).thenAnswer((_) async => Future.value());
+
+          await mockService.enableReviPowerPlanC6States();
+          verify(() => mockService.enableReviPowerPlanC6States()).called(1);
+        },
+      );
+
+      test(
+        'disableReviPowerPlanC6States can be called without system changes',
+        () async {
+          when(
+            () => mockService.disableReviPowerPlanC6States(),
+          ).thenAnswer((_) async => Future.value());
+
+          await mockService.disableReviPowerPlanC6States();
+          verify(() => mockService.disableReviPowerPlanC6States()).called(1);
+        },
+      );
+
       test('enableSuperfetch can be called without system changes', () async {
         when(
           () => mockService.enableSuperfetch(),
@@ -501,22 +576,6 @@ void main() {
     });
 
     group('Behavior Verification', () {
-      test('can verify method call order', () async {
-        when(
-          () => mockService.disableCStates(),
-        ).thenAnswer((_) async => Future.value());
-        when(() => mockService.statusCStates).thenReturn(false);
-
-        await mockService.disableCStates();
-        final bool status = mockService.statusCStates;
-
-        expect(status, false);
-        verifyInOrder([
-          () => mockService.disableCStates(),
-          () => mockService.statusCStates,
-        ]);
-      });
-
       test('can verify method never called', () {
         verifyNever(() => mockService.forcedServicesGrouping());
       });
