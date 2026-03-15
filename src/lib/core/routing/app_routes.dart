@@ -1,7 +1,9 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../i18n/generated/strings.g.dart';
+import 'package:vector_graphics/vector_graphics.dart';
 
 enum RouteSection { main, footer, search }
 
@@ -9,22 +11,42 @@ enum RouteMeta {
   home(
     path: '/',
     section: RouteSection.main,
-    icon: msicons.FluentIcons.home_24_regular,
+    icon: SvgPicture(
+      AssetBytesLoader('assets/icon/pane/ic_revi_fluent_home_color.svg.vec'),
+      width: 20,
+      height: 20,
+    ),
   ),
   tweaks(
     path: '/tweaks',
     section: RouteSection.main,
-    icon: msicons.FluentIcons.wrench_24_regular,
+    icon: SvgPicture(
+      AssetBytesLoader(
+        'assets/icon/pane/ic_revi_fluent_wrench_24_color.svg.vec',
+      ),
+      width: 20,
+      height: 20,
+    ),
   ),
   msStore(
     path: '/msstore',
     section: RouteSection.main,
-    icon: msicons.FluentIcons.store_microsoft_24_regular,
+    icon: SvgPicture(
+      AssetBytesLoader(
+        'assets/icon/pane/ic_revi_fluent_ms_store_48_color.svg.vec',
+      ),
+      width: 24,
+      height: 24,
+    ),
   ),
   settings(
     path: '/settings',
     section: RouteSection.footer,
-    icon: msicons.FluentIcons.settings_24_regular,
+    icon: SvgPicture(
+      AssetBytesLoader('assets/icon/pane/ic_fluent_settings_48_color.svg.vec'),
+      width: 20,
+      height: 20,
+    ),
   ),
   tweaksSecurity(
     path: '/tweaks/security',
@@ -60,32 +82,25 @@ enum RouteMeta {
 
   final String path;
   final RouteSection section;
-  final IconData icon;
+  final Object? icon;
 
   String get label {
-    switch (this) {
-      case RouteMeta.home:
-        return t.pageHome;
-      case RouteMeta.tweaks:
-        return t.pageTweaks;
-      case RouteMeta.msStore:
-        return t.pageMSStore;
-      case RouteMeta.settings:
-        return t.pageSettings;
-      case RouteMeta.tweaksSecurity:
-        return t.pageTweaksSecurity;
-      case RouteMeta.tweaksPerformance:
-        return t.pageTweaksPerformance;
-      case RouteMeta.tweaksPersonalization:
-        return t.pageTweaksPersonalization;
-      case RouteMeta.tweaksUtilities:
-        return t.pageTweaksUtilities;
-      case RouteMeta.tweaksUpdates:
-        return t.pageTweaksUpdates;
-    }
+    return switch (this) {
+      RouteMeta.home => t.pageHome,
+      RouteMeta.tweaks => t.pageTweaks,
+      RouteMeta.msStore => t.pageMSStore,
+      RouteMeta.settings => t.pageSettings,
+      RouteMeta.tweaksSecurity => t.pageTweaksSecurity,
+      RouteMeta.tweaksPerformance => t.pageTweaksPerformance,
+      RouteMeta.tweaksPersonalization => t.pageTweaksPersonalization,
+      RouteMeta.tweaksUtilities => t.pageTweaksUtilities,
+      RouteMeta.tweaksUpdates => t.pageTweaksUpdates,
+    };
   }
 
-  static final Map<String, RouteMeta> _pathLookup = {for (final r in values) r.path: r};
+  static final Map<String, RouteMeta> _pathLookup = {
+    for (final r in values) r.path: r,
+  };
 
   static RouteMeta? fromPath(String path, {bool allowPrefix = false}) {
     if (!allowPrefix) return _pathLookup[path];
@@ -104,9 +119,15 @@ class AppRoutes {
 
   static const List<RouteMeta> navigationRoutes = _navigationRoutes;
 
-  static final List<NavigationPaneItem> mainPaneItems = _buildPaneItems(_mainNavigationRoutes);
-  static final List<NavigationPaneItem> footerPaneItems = _buildPaneItems(_footerNavigationRoutes);
-  static final List<NavigationPaneItem> searchableItems = _buildPaneItems(_searchableRoutes);
+  static final List<NavigationPaneItem> mainPaneItems = _buildPaneItems(
+    _mainNavigationRoutes,
+  );
+  static final List<NavigationPaneItem> footerPaneItems = _buildPaneItems(
+    _footerNavigationRoutes,
+  );
+  static final List<NavigationPaneItem> searchableItems = _buildPaneItems(
+    _searchableRoutes,
+  );
 
   static String getRouteName(String path, BuildContext context) {
     final RouteMeta? meta = RouteMeta.fromPath(path);
@@ -126,7 +147,10 @@ class AppRoutes {
     String location,
     BuildContext context,
   ) {
-    final List<String> segments = location.split('/').where((s) => s.isNotEmpty).toList();
+    final List<String> segments = location
+        .split('/')
+        .where((s) => s.isNotEmpty)
+        .toList();
     final FluentThemeData theme = FluentTheme.of(context);
 
     var currentPath = '';
@@ -205,7 +229,11 @@ List<NavigationPaneItem> _buildPaneItems(List<RouteMeta> routes) {
       .map(
         (route) => PaneItem(
           key: ValueKey(route.path),
-          icon: Icon(route.icon, size: 20),
+          icon: switch (route.icon) {
+            final IconData iconData => Icon(iconData),
+            final SvgPicture svg => svg,
+            _ => const SizedBox.shrink(),
+          },
           title: Text(route.label),
           body: const SizedBox.shrink(),
         ),

@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+
+  <!-- Bag body base -->
+  <path d="M6 20C6 17.7909 7.79086 16 10 16H38C40.2091 16 42 17.7909 42 20V40C42 42.2091 40.2091 44 38 44H10C7.79086 44 6 42.2091 6 40V20Z" fill="url(#paint0_linear)"/>
+
+  <!-- Bag body depth radial overlay -->
+  <path d="M6 20C6 17.7909 7.79086 16 10 16H38C40.2091 16 42 17.7909 42 20V40C42 42.2091 40.2091 44 38 44H10C7.79086 44 6 42.2091 6 40V20Z" fill="url(#paint1_radial)" fill-opacity="0.25"/>
+
+  <!-- Handle ring (filled U, no stroke) -->
+  <path d="M16 18L16 13C16 9 20 7.5 24 7.5C28 7.5 32 9 32 13L32 18L29 18L29 13C29 10.5 26.5 10 24 10C21.5 10 19 10.5 19 13L19 18Z" fill="url(#paint2_linear)"/>
+
+  <!-- Windows logo: top-left red -->
+  <rect x="15.25" y="21.25" width="8" height="8" rx="1.5" fill="url(#paint3_linear)"/>
+
+  <!-- Windows logo: top-right green -->
+  <rect x="24.75" y="21.25" width="8" height="8" rx="1.5" fill="url(#paint4_linear)"/>
+
+  <!-- Windows logo: bottom-left blue -->
+  <rect x="15.25" y="30.75" width="8" height="8" rx="1.5" fill="url(#paint5_linear)"/>
+
+  <!-- Windows logo: bottom-right yellow -->
+  <rect x="24.75" y="30.75" width="8" height="8" rx="1.5" fill="url(#paint6_linear)"/>
+
+  <defs>
+    <!-- Bag body: light azure top-left → soft sky blue bottom-right -->
+    <linearGradient id="paint0_linear" x1="6" y1="16" x2="42" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EBF6FF"/>
+      <stop offset="1" stop-color="#C2DEFF"/>
+    </linearGradient>
+
+    <!-- Depth vignette: bottom-right indigo fade -->
+    <radialGradient id="paint1_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(42 44) rotate(180) scale(36 28)">
+      <stop offset="0.3" stop-color="#2764E7"/>
+      <stop offset="1" stop-color="#2764E7" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Handle: medium to deep blue -->
+    <linearGradient id="paint2_linear" x1="16" y1="7.5" x2="32" y2="18" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0094F0"/>
+      <stop offset="1" stop-color="#0067BF"/>
+    </linearGradient>
+
+    <!-- Red: orange-red diagonal -->
+    <linearGradient id="paint3_linear" x1="15.25" y1="21.25" x2="23.25" y2="29.25" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F65314"/>
+      <stop offset="1" stop-color="#C82B0A"/>
+    </linearGradient>
+
+    <!-- Green: lime to forest -->
+    <linearGradient id="paint4_linear" x1="24.75" y1="21.25" x2="32.75" y2="29.25" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6DC73E"/>
+      <stop offset="1" stop-color="#3D8A00"/>
+    </linearGradient>
+
+    <!-- Blue: sky to deep -->
+    <linearGradient id="paint5_linear" x1="15.25" y1="30.75" x2="23.25" y2="38.75" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#29C3FF"/>
+      <stop offset="1" stop-color="#0078D4"/>
+    </linearGradient>
+
+    <!-- Yellow: bright gold to amber -->
+    <linearGradient id="paint6_linear" x1="24.75" y1="30.75" x2="32.75" y2="38.75" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD147"/>
+      <stop offset="1" stop-color="#E08200"/>
+    </linearGradient>
+  </defs>
+</svg>

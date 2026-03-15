@@ -64,6 +64,7 @@ dependencies:
   xml: ^6.6.1
   ffi: ^2.2.0
   crypto: ^3.0.7
+  flutter_svg: ^2.2.4
 
 dev_dependencies:
   flutter_test:
@@ -85,6 +86,9 @@ flutter:
   uses-material-design: false
 
   assets:
+    - assets/
+    - assets/icon/
+    - assets/icon/pane/
     - additionals/
     - additionals/msstore/
     - additionals/packages/winsxs/
