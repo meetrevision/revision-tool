@@ -13,8 +13,8 @@ dependencies:
     sdk: flutter
 
   # Localization
-  slang: ^4.12.1
-  slang_flutter: ^4.12.1
+  slang: ^4.14.0
+  slang_flutter: ^4.14.0
 
   # UI
   fluent_ui: ^4.15.0
@@ -30,7 +30,7 @@ dependencies:
       url: https://github.com/melo936/adaptive_palette
 
   # State management
-  flutter_riverpod: ^3.2.1
+  flutter_riverpod: ^3.3.1
   riverpod_annotation: ^4.0.2
 
   # Path
@@ -51,7 +51,7 @@ dependencies:
   json_annotation: ^4.11.0
 
   # Logging
-  logger: ^2.6.2
+  logger: ^2.7.0
 
   # Command line
   args: ^2.7.0
@@ -68,21 +68,21 @@ dependencies:
 
   # Code generation dependencies
   analyzer: ^9.0.0
-  build: ^4.0.4
+  build: ^4.0.5
   code_builder: ^4.11.1
-  source_gen: ^4.2.1
+  source_gen: ^4.2.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
   riverpod_lint: ^3.1.3
-  build_runner: ^2.11.2
+  build_runner: ^2.13.1
   freezed: ^3.2.5
   json_serializable: ^6.13.0
   riverpod_generator: ^4.0.3
   mocktail: ^1.0.4
-  slang_build_runner: ^4.13.0
+  slang_build_runner: ^4.14.0
 
   
 
