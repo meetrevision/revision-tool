@@ -142,6 +142,7 @@ powercfg -h off
   @override
   Future<void> enableFastStartup() async {
     await Future.wait([
+      enableHibernation(),
       WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'System\ControlSet001\Control\Session Manager\Power',
