@@ -11,7 +11,7 @@ import 'ms_store_enums.dart';
 import 'ms_store_repository.dart';
 import 'services/package_file_service.dart';
 
-class MSStoreCommand extends Command<String> {
+class MSStoreCommand extends Command<void> {
   MSStoreCommand() {
     argParser.addMultiOption(
       'id',
@@ -62,7 +62,7 @@ class MSStoreCommand extends Command<String> {
   String get name => 'msstore-apps';
 
   @override
-  FutureOr<String>? run() async {
+  FutureOr<void> run() async {
     final ids = argResults?['id'] as List<String>;
     final ringValue = argResults?['ring'] as String;
     final archValue = argResults?['arch'] as String;

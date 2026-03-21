@@ -5,3 +5,17 @@ targets:
         enabled: true
         generate_for:
           - lib/i18n/*.i18n.json
+      revitool|cli_command_builder:
+        enabled: true
+        generate_for:
+          - lib/**.dart
+          - test/core/cli_generator/**.dart
+
+builders:
+  cli_command_builder:
+    import: "package:revitool/core/cli_generator/builder.dart"
+    builder_factories: ["cliCommandBuilder"]
+    build_extensions: {".dart": [".cli_command.g.part"]}
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]

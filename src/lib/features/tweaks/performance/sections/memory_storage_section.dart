@@ -105,33 +105,19 @@ class _ServicesGroupingCard extends ConsumerWidget {
         onChanged: (value) async {
           if (value == null) return;
 
-          switch (value) {
-            case ServiceGrouping.forced:
-              _showServicesGroupingWarning(context);
-              await ref
-                  .read(performanceServiceProvider)
-                  .forcedServicesGrouping();
-            case ServiceGrouping.recommended:
-              await ref
-                  .read(performanceServiceProvider)
-                  .recommendedServicesGrouping();
-            case ServiceGrouping.disabled:
-              await ref
-                  .read(performanceServiceProvider)
-                  .disableServicesGrouping();
+          if (value == .forced) {
+            _showServicesGroupingWarning(context);
           }
+          await ref
+              .read(performanceServiceProvider)
+              .setServiceGroupingMode(value);
+
           ref.invalidate(servicesGroupingStatusProvider);
         },
         items: const [
-          ComboBoxItem(value: ServiceGrouping.forced, child: Text('Forced')),
-          ComboBoxItem(
-            value: ServiceGrouping.recommended,
-            child: Text('Recommended'),
-          ),
-          ComboBoxItem(
-            value: ServiceGrouping.disabled,
-            child: Text('Disabled'),
-          ),
+          ComboBoxItem(value: .forced, child: Text('Forced')),
+          ComboBoxItem(value: .recommended, child: Text('Recommended')),
+          ComboBoxItem(value: .disabled, child: Text('Disabled')),
         ],
       ),
     );

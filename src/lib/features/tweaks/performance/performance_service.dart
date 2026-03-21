@@ -1,10 +1,9 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:win32_registry/win32_registry.dart';
 
+import '../../../core/cli_generator/annotations.dart';
 import '../../../core/services/win_registry_service.dart';
 import '../../../core/trusted_installer/trusted_installer_service.dart';
-import '../../../utils.dart';
-
 part 'performance_service.g.dart';
 
 enum ServiceGrouping { forced, recommended, disabled }
@@ -87,51 +86,143 @@ const _defaultSplitDisabled = {
   'UserDataSvc',
 };
 
+@CliCommand(name: 'performance', description: 'Performance tweaks')
 abstract class PerformanceService {
+  @CliToggle(
+    name: 'powerplan',
+    status: 'statusReviPowerPlan',
+    enable: 'enableReviPowerPlan',
+    disable: 'disableReviPowerPlan',
+  )
   bool get statusReviPowerPlan;
-  bool get statusReviPowerPlanC6States;
-  bool get statusSuperfetch;
-  bool get statusMemoryCompression;
-  bool get statusIntelTSX;
-  bool get statusFullscreenOptimization;
-  bool get statusWindowedOptimization;
-  bool get statusMPO;
-  bool get statusBackgroundApps;
-  bool get statusLastTimeAccessNTFS;
-  bool get status8dot3NamingNTFS;
-  bool get statusMemoryUsageNTFS;
-  ServiceGrouping get statusServicesGrouping;
-  int get statusBackgroundWindowMessageRateLimit;
-
   Future<void> enableReviPowerPlan();
   Future<void> disableReviPowerPlan();
+
+  @CliToggle(
+    name: 'powerplan-states-c6',
+    status: 'statusReviPowerPlanC6States',
+    enable: 'enableReviPowerPlanC6States',
+    disable: 'disableReviPowerPlanC6States',
+  )
+  bool get statusReviPowerPlanC6States;
   Future<void> enableReviPowerPlanC6States();
   Future<void> disableReviPowerPlanC6States();
 
+  @CliToggle(
+    name: 'superfetch',
+    status: 'statusSuperfetch',
+    enable: 'enableSuperfetch',
+    disable: 'disableSuperfetch',
+  )
+  bool get statusSuperfetch;
   Future<void> enableSuperfetch();
   Future<void> disableSuperfetch();
+
+  @CliToggle(
+    name: 'memory-compression',
+    status: 'statusMemoryCompression',
+    enable: 'enableMemoryCompression',
+    disable: 'disableMemoryCompression',
+  )
+  bool get statusMemoryCompression;
   Future<void> enableMemoryCompression();
   Future<void> disableMemoryCompression();
+
+  @CliToggle(
+    name: 'intel-tsx',
+    status: 'statusIntelTSX',
+    enable: 'enableIntelTSX',
+    disable: 'disableIntelTSX',
+  )
+  bool get statusIntelTSX;
   Future<void> enableIntelTSX();
   Future<void> disableIntelTSX();
+
+  @CliToggle(
+    name: 'swapchain-fso',
+    status: 'statusFullscreenOptimization',
+    enable: 'enableFullscreenOptimization',
+    disable: 'disableFullscreenOptimization',
+  )
+  bool get statusFullscreenOptimization;
   Future<void> enableFullscreenOptimization();
   Future<void> disableFullscreenOptimization();
+
+  @CliToggle(
+    name: 'swapchain-wo',
+    status: 'statusWindowedOptimization',
+    enable: 'enableWindowedOptimization',
+    disable: 'disableWindowedOptimization',
+  )
+  bool get statusWindowedOptimization;
   Future<void> enableWindowedOptimization();
   Future<void> disableWindowedOptimization();
+
+  @CliToggle(
+    name: 'swapchain-mpo',
+    status: 'statusMPO',
+    enable: 'enableMPO',
+    disable: 'disableMPO',
+  )
+  bool get statusMPO;
   Future<void> enableMPO();
   Future<void> disableMPO();
+
+  @CliToggle(
+    name: 'background-apps',
+    status: 'statusBackgroundApps',
+    enable: 'enableBackgroundApps',
+    disable: 'disableBackgroundApps',
+  )
+  bool get statusBackgroundApps;
   Future<void> enableBackgroundApps();
   Future<void> disableBackgroundApps();
 
+  @CliToggle(
+    name: 'ntfs-last-access',
+    status: 'statusLastTimeAccessNTFS',
+    enable: 'enableLastTimeAccessNTFS',
+    disable: 'disableLastTimeAccessNTFS',
+  )
+  bool get statusLastTimeAccessNTFS;
   Future<void> enableLastTimeAccessNTFS();
   Future<void> disableLastTimeAccessNTFS();
+
+  @CliToggle(
+    name: 'ntfs-8dot3-naming',
+    status: 'status8dot3NamingNTFS',
+    enable: 'enable8dot3NamingNTFS',
+    disable: 'disable8dot3NamingNTFS',
+  )
+  bool get status8dot3NamingNTFS;
   Future<void> enable8dot3NamingNTFS();
   Future<void> disable8dot3NamingNTFS();
+
+  @CliToggle(
+    name: 'ntfs-memory-usage',
+    status: 'statusMemoryUsageNTFS',
+    enable: 'enableMemoryUsageNTFS',
+    disable: 'disableMemoryUsageNTFS',
+  )
+  bool get statusMemoryUsageNTFS;
   Future<void> enableMemoryUsageNTFS();
   Future<void> disableMemoryUsageNTFS();
-  Future<void> forcedServicesGrouping();
-  Future<void> recommendedServicesGrouping();
-  Future<void> disableServicesGrouping();
+
+  @CliEnumSubCommand(
+    name: 'service-grouping',
+    values: ServiceGrouping.values,
+    status: 'statusServicesGrouping',
+    setMethod: 'setServiceGroupingMode',
+  )
+  ServiceGrouping get statusServicesGrouping;
+  Future<void> setServiceGroupingMode(ServiceGrouping target);
+
+  @CliValue(
+    name: 'background-window-message-rate-limit',
+    status: 'statusBackgroundWindowMessageRateLimit',
+    set: 'setBackgroundWindowMessageRateLimit',
+  )
+  int get statusBackgroundWindowMessageRateLimit;
   Future<void> setBackgroundWindowMessageRateLimit(int milliseconds);
 }
 
@@ -844,59 +935,58 @@ powercfg -delete 6a93ec26-284d-4943-9fc4-c9616def55c6
   }
 
   @override
-  Future<void> forcedServicesGrouping() async {
-    await WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'SYSTEM\CurrentControlSet\Control',
-      'SvcHostSplitThresholdInKB',
-      0xFFFFFFFF,
-    );
-  }
-
-  @override
-  Future<void> recommendedServicesGrouping() async {
-    await WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'SYSTEM\CurrentControlSet\Control',
-      'SvcHostSplitThresholdInKB',
-      0x380000, // default value
-    );
-    final Set<String> services = {
-      ..._defaultSplitDisabled,
-      ..._recommendedSplitDisabled,
+  Future<void> setServiceGroupingMode(ServiceGrouping mode) {
+    return switch (mode) {
+      .forced => () async {
+        await WinRegistryService.writeRegistryValue(
+          Registry.localMachine,
+          r'SYSTEM\CurrentControlSet\Control',
+          'SvcHostSplitThresholdInKB',
+          0xFFFFFFFF,
+        );
+      }(),
+      .recommended => () async {
+        await WinRegistryService.writeRegistryValue(
+          Registry.localMachine,
+          r'SYSTEM\CurrentControlSet\Control',
+          'SvcHostSplitThresholdInKB',
+          0x380000, // default value
+        );
+        final Set<String> services = {
+          ..._defaultSplitDisabled,
+          ..._recommendedSplitDisabled,
+        };
+        await Future.wait(
+          services.map(
+            (service) => WinRegistryService.writeRegistryValue(
+              Registry.localMachine,
+              r'SYSTEM\ControlSet001\Services\' + service,
+              'SvcHostSplitDisable',
+              1,
+            ),
+          ),
+        );
+      }(),
+      .disabled => () async {
+        final Set<String> servicesToDelete = _recommendedSplitDisabled
+            .difference(_defaultSplitDisabled);
+        await Future.wait([
+          ...servicesToDelete.map(
+            (service) => WinRegistryService.deleteValue(
+              Registry.localMachine,
+              'SYSTEM\\ControlSet001\\Services\\$service',
+              'SvcHostSplitDisable',
+            ),
+          ),
+          WinRegistryService.writeRegistryValue(
+            Registry.localMachine,
+            r'SYSTEM\CurrentControlSet\Control',
+            'SvcHostSplitThresholdInKB',
+            0x380000,
+          ),
+        ]);
+      }(),
     };
-    await Future.wait(
-      services.map(
-        (service) => WinRegistryService.writeRegistryValue(
-          Registry.localMachine,
-          r'SYSTEM\ControlSet001\Services\' + service,
-          'SvcHostSplitDisable',
-          1,
-        ),
-      ),
-    );
-  }
-
-  @override
-  Future<void> disableServicesGrouping() async {
-    final Set<String> servicesToDelete = _recommendedSplitDisabled.difference(
-      _defaultSplitDisabled,
-    );
-    await Future.wait([
-      ...servicesToDelete.map(
-        (service) => WinRegistryService.deleteValue(
-          Registry.localMachine,
-          'SYSTEM\\ControlSet001\\Services\\$service',
-          'SvcHostSplitDisable',
-        ),
-      ),
-      WinRegistryService.writeRegistryValue(
-        Registry.localMachine,
-        r'SYSTEM\CurrentControlSet\Control',
-        'SvcHostSplitThresholdInKB',
-        0x380000,
-      ),
-    ]);
   }
 
   @override

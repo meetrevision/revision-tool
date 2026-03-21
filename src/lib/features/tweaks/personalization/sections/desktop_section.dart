@@ -40,35 +40,21 @@ class _NotificationCard extends ConsumerWidget {
         onChanged: (value) async {
           if (value == null) return;
 
-          switch (value) {
-            case NotificationMode.on:
-              await ref
-                  .read(personalizationServiceProvider)
-                  .enableNotification();
-              if (!context.mounted) return;
-              showRestartDialog(context);
-            case NotificationMode.offMinimal:
-              await ref
-                  .read(personalizationServiceProvider)
-                  .disableNotification();
-            case NotificationMode.offFull:
-              await ref
-                  .read(personalizationServiceProvider)
-                  .disableNotificationAggressive();
+          if (value == .on) {
+            if (!context.mounted) return;
+            showRestartDialog(context);
           }
+
+          await ref
+              .read(personalizationServiceProvider)
+              .setNotificationMode(value);
 
           ref.invalidate(notificationStatusProvider);
         },
         items: const [
-          ComboBoxItem(value: NotificationMode.on, child: Text('On')),
-          ComboBoxItem(
-            value: NotificationMode.offMinimal,
-            child: Text('Off (Minimal)'),
-          ),
-          ComboBoxItem(
-            value: NotificationMode.offFull,
-            child: Text('Off (Full)'),
-          ),
+          ComboBoxItem(value: .on, child: Text('On')),
+          ComboBoxItem(value: .offMinimal, child: Text('Off (Minimal)')),
+          ComboBoxItem(value: .offFull, child: Text('Off (Full)')),
         ],
       ),
     );

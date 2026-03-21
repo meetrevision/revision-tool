@@ -5,32 +5,70 @@ import 'package:collection/collection.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:win32_registry/win32_registry.dart';
 
+import '../../../core/cli_generator/annotations.dart';
 import '../../../core/services/win_registry_service.dart';
 
 part 'personalization_service.g.dart';
 
 enum NotificationMode { on, offMinimal, offFull }
 
+@CliCommand(name: 'personalization', description: 'Personalization tweaks')
 abstract class PersonalizationService {
-  // Desktop
+  @CliEnumSubCommand(
+    name: 'notification',
+    values: NotificationMode.values,
+    status: 'statusNotification',
+    setMethod: 'setNotificationMode',
+  )
   NotificationMode get statusNotification;
-  Future<void> enableNotification();
-  Future<void> disableNotification();
-  Future<void> disableNotificationAggressive();
+  Future<void> setNotificationMode(NotificationMode mode);
+
+  @CliToggle(
+    name: 'legacy-balloon',
+    status: 'statusLegacyBalloon',
+    enable: 'enableLegacyBalloon',
+    disable: 'disableLegacyBalloon',
+  )
   bool get statusLegacyBalloon;
   Future<void> enableLegacyBalloon();
   Future<void> disableLegacyBalloon();
+
+  @CliToggle(
+    name: 'screen-edge-swipe',
+    status: 'statusScreenEdgeSwipe',
+    enable: 'enableScreenEdgeSwipe',
+    disable: 'disableScreenEdgeSwipe',
+  )
   bool get statusScreenEdgeSwipe;
   Future<void> enableScreenEdgeSwipe();
   Future<void> disableScreenEdgeSwipe();
+
+  @CliToggle(
+    name: 'new-context-menu',
+    status: 'statusNewContextMenu',
+    enable: 'enableNewContextMenu',
+    disable: 'disableNewContextMenu',
+  )
   bool get statusNewContextMenu;
   Future<void> enableNewContextMenu();
   Future<void> disableNewContextMenu();
 
-  // Input & Typing
+  @CliToggle(
+    name: 'input-personalization',
+    status: 'statusInputPersonalization',
+    enable: 'enableInputPersonalization',
+    disable: 'disableInputPersonalization',
+  )
   bool get statusInputPersonalization;
   Future<void> enableInputPersonalization();
   Future<void> disableInputPersonalization();
+
+  @CliToggle(
+    name: 'caps-lock',
+    status: 'statusCapsLock',
+    enable: 'enableCapsLock',
+    disable: 'disableCapsLock',
+  )
   bool get statusCapsLock;
   Future<void> enableCapsLock();
   Future<void> disableCapsLock();
@@ -90,7 +128,15 @@ class PersonalizationServiceImpl implements PersonalizationService {
   }
 
   @override
-  Future<void> enableNotification() async {
+  Future<void> setNotificationMode(NotificationMode mode) {
+    return switch (mode) {
+      .on => _enableNotification(),
+      .offMinimal => _disableNotification(),
+      .offFull => _disableNotificationAggressive(),
+    };
+  }
+
+  Future<void> _enableNotification() async {
     await Future.wait([
       WinRegistryService.deleteKey(
         WinRegistryService.currentUser,
@@ -193,8 +239,7 @@ class PersonalizationServiceImpl implements PersonalizationService {
     await Process.run('explorer.exe', [], runInShell: true);
   }
 
-  @override
-  Future<void> disableNotification() async {
+  Future<void> _disableNotification() async {
     await Future.wait([
       WinRegistryService.deleteValue(
         Registry.localMachine,
@@ -278,9 +323,8 @@ class PersonalizationServiceImpl implements PersonalizationService {
     await Process.run('explorer.exe', [], runInShell: true);
   }
 
-  @override
-  Future<void> disableNotificationAggressive() async {
-    await disableNotification();
+  Future<void> _disableNotificationAggressive() async {
+    await _disableNotification();
     await Future.wait([
       WinRegistryService.writeRegistryValue(
         Registry.localMachine,

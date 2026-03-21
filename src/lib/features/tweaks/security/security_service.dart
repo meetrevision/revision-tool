@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:win32_registry/win32_registry.dart';
 
+import '../../../core/cli_generator/annotations.dart';
 import '../../../core/services/win_registry_service.dart';
 import '../../../core/trusted_installer/trusted_installer_service.dart';
-import '../../../utils.dart';
 import '../../winsxs/win_package_service.dart';
 import 'security_exceptions.dart';
 
@@ -24,19 +24,44 @@ extension MitigationBits on Mitigation {
   }
 }
 
-/// Abstract interface for security-related operations
+@CliCommand(name: 'security', description: 'Security tweaks')
 abstract class SecurityService {
-  bool get statusDefender;
   bool get statusDefenderProtections;
   bool get statusDefenderProtectionTamper;
   bool get statusDefenderProtectionRealtime;
-  bool get statusUAC;
-
   Future<ProcessResult> openDefenderThreatSettings();
+
+  @CliToggle(
+    name: 'defender',
+    status: 'statusDefender',
+    enable: 'enableDefenderCLI',
+    disable: 'disableDefenderCLI',
+    enableForce: 'enableDefender',
+    disableForce: 'disableDefender',
+  )
+  bool get statusDefender;
   Future<void> enableDefender();
   Future<void> disableDefender();
+  Future<void> enableDefenderCLI();
+  Future<void> disableDefenderCLI();
+
+  @CliToggle(
+    name: 'uac',
+    status: 'statusUAC',
+    enable: 'enableUAC',
+    disable: 'disableUAC',
+  )
+  bool get statusUAC;
   Future<void> enableUAC();
   Future<void> disableUAC();
+
+  @CliEnumSubCommand(
+    name: 'mitigation',
+    values: Mitigation.values,
+    status: 'isMitigationEnabled',
+    enableMethod: 'enableMitigation',
+    disableMethod: 'disableMitigation',
+  )
   bool isMitigationEnabled(Mitigation mitigation);
   Future<void> enableMitigation(Mitigation mitigation);
   Future<void> disableMitigation(Mitigation mitigation);
@@ -399,6 +424,49 @@ class SecurityServiceImpl implements SecurityService {
     } on Exception catch (e) {
       throw DefenderOperationException('Failed to disable Windows Defender', e);
     }
+  }
+
+  @override
+  Future<void> enableDefenderCLI() {
+    if (statusDefender) {
+      logger.i('security: Windows Defender is already enabled');
+      return Future.value();
+    }
+    return enableDefender();
+  }
+
+  @override
+  Future<void> disableDefenderCLI() async {
+    if (!statusDefender) {
+      logger.i('security: Windows Defender is already disabled');
+      return;
+    }
+    logger.i(
+      'security: Checking if Virus and Threat Protections are enabled...',
+    );
+    var count = 0;
+    while (statusDefenderProtections) {
+      if (count > 10) {
+        throw DefenderOperationException(
+          'Unable to disable Defender. Disable Realtime and Tamper protections, then retry.',
+        );
+      }
+
+      if (!statusDefenderProtectionTamper) {
+        await runPSCommand(
+          r'Set-MpPreference -DisableRealtimeMonitoring $true',
+        );
+        break;
+      }
+
+      logger.i('security: Please disable Realtime and Tamper Protections');
+      await openDefenderThreatSettings();
+      await Future<void>.delayed(const Duration(seconds: 7));
+      count++;
+    }
+
+    await Process.run('taskkill', ['/f', '/im', 'SecHealthUI.exe']);
+    await disableDefender();
   }
 
   @override

@@ -2,25 +2,52 @@ import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:win32_registry/win32_registry.dart';
 
+import '../../../core/cli_generator/annotations.dart';
 import '../../../core/services/network_service.dart';
 import '../../../core/services/win_registry_service.dart';
-import '../../../utils.dart';
 import '../performance/performance_service.dart';
 import 'kgl_dto.dart';
 
 part 'updates_service.g.dart';
 
-/// Abstract interface for Windows Updates operations
+@CliCommand(
+  name: 'updates',
+  description:
+      'Updates related tweaks, such as Windows Updates, KGL, and certificates.',
+)
 abstract class UpdatesService {
+  @CliAction(name: 'certificates', run: 'updateCertificates')
   Future<void> updateCertificates();
+
+  @CliAction(name: 'kgl', run: 'updateKGL')
   Future<void> updateKGL();
 
+  @CliToggle(
+    name: 'wu-pause-updates',
+    status: 'statusPauseUpdatesWU',
+    enable: 'enablePauseUpdatesWU',
+    disable: 'disablePauseUpdatesWU',
+  )
   bool get statusPauseUpdatesWU;
   Future<void> enablePauseUpdatesWU();
   Future<void> disablePauseUpdatesWU();
+
+  @CliToggle(
+    name: 'wu-visibility',
+    status: 'statusVisibilityWU',
+    enable: 'enableVisibilityWU',
+    disable: 'disableVisibilityWU',
+  )
   bool get statusVisibilityWU;
   Future<void> enableVisibilityWU();
   Future<void> disableVisibilityWU();
+
+  @CliToggle(
+    name: 'wu-drivers',
+    status: 'statusDriversWU',
+    enable: 'enableDriversWU',
+    disable: 'disableDriversWU',
+  )
   bool get statusDriversWU;
   Future<void> enableDriversWU();
   Future<void> disableDriversWU();

@@ -1,27 +1,60 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:win32_registry/win32_registry.dart';
 
+import '../../../core/cli_generator/annotations.dart';
 import '../../../core/services/win_registry_service.dart';
 import '../../../core/trusted_installer/trusted_installer_service.dart';
-import '../../../utils.dart';
 
 part 'utilities_service.g.dart';
 
+@CliCommand(name: 'utilities', description: 'Utilities tweaks')
 abstract class UtilitiesService {
+  @CliToggle(
+    name: 'hibernation',
+    status: 'statusHibernation',
+    enable: 'enableHibernation',
+    disable: 'disableHibernation',
+  )
   bool get statusHibernation;
   Future<void> enableHibernation();
   Future<void> disableHibernation();
+
+  @CliToggle(
+    name: 'fast-startup',
+    status: 'statusFastStartup',
+    enable: 'enableFastStartup',
+    disable: 'disableFastStartup',
+  )
   bool get statusFastStartup;
   Future<void> enableFastStartup();
   Future<void> disableFastStartup();
+
+  @CliToggle(
+    name: 'modern-standby',
+    status: 'statusModernStandby',
+    enable: 'enableModernStandby',
+    disable: 'disableModernStandby',
+  )
   bool get statusModernStandby;
   Future<void> enableModernStandby();
   Future<void> disableModernStandby();
 
+  @CliToggle(
+    name: 'tm-monitoring',
+    status: 'statusTMMonitoring',
+    enable: 'enableTMMonitoring',
+    disable: 'disableTMMonitoring',
+  )
   bool get statusTMMonitoring;
   Future<void> enableTMMonitoring();
   Future<void> disableTMMonitoring();
 
+  @CliToggle(
+    name: 'usage-reporting',
+    status: 'statusUsageReporting',
+    enable: 'enableUsageReporting',
+    disable: 'disableUsageReporting',
+  )
   bool get statusUsageReporting;
   Future<void> enableUsageReporting();
   Future<void> disableUsageReporting();
@@ -56,9 +89,9 @@ class UtilitiesServiceImpl implements UtilitiesService {
         1,
       ),
       shell.run(r'''
-                       powercfg -h on
-                       powercfg /h /type full
-                      '''),
+powercfg -h on
+powercfg /h /type full
+'''),
     ]);
   }
 

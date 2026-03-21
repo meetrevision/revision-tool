@@ -66,6 +66,12 @@ dependencies:
   crypto: ^3.0.7
   flutter_svg: ^2.2.4
 
+  # Code generation dependencies
+  analyzer: ^9.0.0
+  build: ^4.0.4
+  code_builder: ^4.11.1
+  source_gen: ^4.2.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -77,6 +83,8 @@ dev_dependencies:
   riverpod_generator: ^4.0.3
   mocktail: ^1.0.4
   slang_build_runner: ^4.13.0
+
+  
 
 # dependency_overrides:
 #   petitparser: ^7.0.2

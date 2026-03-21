@@ -9,7 +9,7 @@ import '../ms_store/ms_store_command.dart';
 import '../tweaks/security/security_service.dart';
 import 'win_package_service.dart';
 
-class WindowsPackageCommand extends Command<String> {
+class WindowsPackageCommand extends Command<void> {
   WindowsPackageCommand() {
     argParser.addOption(
       'download',
@@ -53,7 +53,7 @@ class WindowsPackageCommand extends Command<String> {
       packageList.keys.toList(growable: false);
 
   @override
-  FutureOr<String>? run() async {
+  FutureOr<void> run() async {
     final String? installOption = argResults?.option('install');
     final String? uninstallOption = argResults?.option('uninstall');
 

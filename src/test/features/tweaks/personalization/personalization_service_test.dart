@@ -40,16 +40,28 @@ void main() {
           );
         });
 
-        test('enableNotification completes without error', () async {
-          await expectLater(service.enableNotification(), completes);
+        test('setNotificationMode(on) completes without error', () async {
+          await expectLater(
+            service.setNotificationMode(NotificationMode.on),
+            completes,
+          );
         });
 
-        test('disableNotification completes without error', () async {
-          await expectLater(service.disableNotification(), completes);
-        });
+        test(
+          'setNotificationMode(offMinimal) completes without error',
+          () async {
+            await expectLater(
+              service.setNotificationMode(NotificationMode.offMinimal),
+              completes,
+            );
+          },
+        );
 
-        test('disableNotificationAggressive completes without error', () async {
-          await expectLater(service.disableNotificationAggressive(), completes);
+        test('setNotificationMode(offFull) completes without error', () async {
+          await expectLater(
+            service.setNotificationMode(NotificationMode.offFull),
+            completes,
+          );
         });
       });
 
@@ -161,9 +173,18 @@ void main() {
         });
 
         test('All methods return Future<void>', () {
-          expect(service.enableNotification(), isA<Future<void>>());
-          expect(service.disableNotification(), isA<Future<void>>());
-          expect(service.disableNotificationAggressive(), isA<Future<void>>());
+          expect(
+            service.setNotificationMode(NotificationMode.on),
+            isA<Future<void>>(),
+          );
+          expect(
+            service.setNotificationMode(NotificationMode.offMinimal),
+            isA<Future<void>>(),
+          );
+          expect(
+            service.setNotificationMode(NotificationMode.offFull),
+            isA<Future<void>>(),
+          );
           expect(service.enableLegacyBalloon(), isA<Future<void>>());
           expect(service.disableLegacyBalloon(), isA<Future<void>>());
           expect(service.enableScreenEdgeSwipe(), isA<Future<void>>());
@@ -216,36 +237,45 @@ void main() {
     });
 
     group('Notification Actions', () {
-      test('enableNotification can be called without system changes', () async {
-        when(
-          () => mockService.enableNotification(),
-        ).thenAnswer((_) async => Future.value());
-
-        await mockService.enableNotification();
-        verify(() => mockService.enableNotification()).called(1);
-      });
-
       test(
-        'disableNotification can be called without system changes',
+        'setNotificationMode(on) can be called without system changes',
         () async {
           when(
-            () => mockService.disableNotification(),
+            () => mockService.setNotificationMode(NotificationMode.on),
           ).thenAnswer((_) async => Future.value());
 
-          await mockService.disableNotification();
-          verify(() => mockService.disableNotification()).called(1);
+          await mockService.setNotificationMode(NotificationMode.on);
+          verify(
+            () => mockService.setNotificationMode(NotificationMode.on),
+          ).called(1);
         },
       );
 
       test(
-        'disableNotificationAggressive can be called without system changes',
+        'setNotificationMode(offMinimal) can be called without system changes',
         () async {
           when(
-            () => mockService.disableNotificationAggressive(),
+            () => mockService.setNotificationMode(NotificationMode.offMinimal),
           ).thenAnswer((_) async => Future.value());
 
-          await mockService.disableNotificationAggressive();
-          verify(() => mockService.disableNotificationAggressive()).called(1);
+          await mockService.setNotificationMode(NotificationMode.offMinimal);
+          verify(
+            () => mockService.setNotificationMode(NotificationMode.offMinimal),
+          ).called(1);
+        },
+      );
+
+      test(
+        'setNotificationMode(offFull) can be called without system changes',
+        () async {
+          when(
+            () => mockService.setNotificationMode(NotificationMode.offFull),
+          ).thenAnswer((_) async => Future.value());
+
+          await mockService.setNotificationMode(NotificationMode.offFull);
+          verify(
+            () => mockService.setNotificationMode(NotificationMode.offFull),
+          ).called(1);
         },
       );
     });
@@ -406,12 +436,13 @@ void main() {
           () => mockService.statusNotification,
         ).thenReturn(NotificationMode.on);
         when(
-          () => mockService.disableNotification(),
+          () => mockService.setNotificationMode(NotificationMode.offMinimal),
         ).thenAnswer((_) async => Future.value());
         when(() => mockService.statusLegacyBalloon).thenReturn(false);
 
-        final NotificationMode notificationStatus = mockService.statusNotification;
-        await mockService.disableNotification();
+        final NotificationMode notificationStatus =
+            mockService.statusNotification;
+        await mockService.setNotificationMode(NotificationMode.offMinimal);
         final bool balloonStatus = mockService.statusLegacyBalloon;
 
         expect(notificationStatus, NotificationMode.on);
@@ -419,17 +450,19 @@ void main() {
 
         verifyInOrder([
           () => mockService.statusNotification,
-          () => mockService.disableNotification(),
+          () => mockService.setNotificationMode(NotificationMode.offMinimal),
           () => mockService.statusLegacyBalloon,
         ]);
       });
 
       test('can verify a method was never called', () {
         when(
-          () => mockService.enableNotification(),
+          () => mockService.setNotificationMode(NotificationMode.on),
         ).thenAnswer((_) async => Future.value());
 
-        verifyNever(() => mockService.disableNotification());
+        verifyNever(
+          () => mockService.setNotificationMode(NotificationMode.offMinimal),
+        );
       });
     });
 
@@ -484,24 +517,30 @@ void main() {
           () => mockService.statusNotification,
         ).thenReturn(NotificationMode.on);
         when(
-          () => mockService.enableNotification(),
+          () => mockService.setNotificationMode(NotificationMode.on),
         ).thenAnswer((_) async => Future.value());
         when(
-          () => mockService.disableNotification(),
+          () => mockService.setNotificationMode(NotificationMode.offMinimal),
         ).thenAnswer((_) async => Future.value());
         when(
-          () => mockService.disableNotificationAggressive(),
+          () => mockService.setNotificationMode(NotificationMode.offFull),
         ).thenAnswer((_) async => Future.value());
 
         expect(mockService.statusNotification, NotificationMode.on);
-        await mockService.enableNotification();
-        await mockService.disableNotification();
-        await mockService.disableNotificationAggressive();
+        await mockService.setNotificationMode(NotificationMode.on);
+        await mockService.setNotificationMode(NotificationMode.offMinimal);
+        await mockService.setNotificationMode(NotificationMode.offFull);
 
         verify(() => mockService.statusNotification).called(1);
-        verify(() => mockService.enableNotification()).called(1);
-        verify(() => mockService.disableNotification()).called(1);
-        verify(() => mockService.disableNotificationAggressive()).called(1);
+        verify(
+          () => mockService.setNotificationMode(NotificationMode.on),
+        ).called(1);
+        verify(
+          () => mockService.setNotificationMode(NotificationMode.offMinimal),
+        ).called(1);
+        verify(
+          () => mockService.setNotificationMode(NotificationMode.offFull),
+        ).called(1);
       });
 
       test('all desktop personalization features are testable', () async {

@@ -194,17 +194,35 @@ void main() {
           );
         });
 
-        test('forcedServicesGrouping completes without error', () async {
-          await expectLater(service.forcedServicesGrouping(), completes);
-        });
+        test(
+          'setServiceGroupingMode(forced) completes without error',
+          () async {
+            await expectLater(
+              service.setServiceGroupingMode(ServiceGrouping.forced),
+              completes,
+            );
+          },
+        );
 
-        test('recommendedServicesGrouping completes without error', () async {
-          await expectLater(service.recommendedServicesGrouping(), completes);
-        });
+        test(
+          'setServiceGroupingMode(recommended) completes without error',
+          () async {
+            await expectLater(
+              service.setServiceGroupingMode(ServiceGrouping.recommended),
+              completes,
+            );
+          },
+        );
 
-        test('disableServicesGrouping completes without error', () async {
-          await expectLater(service.disableServicesGrouping(), completes);
-        });
+        test(
+          'setServiceGroupingMode(disabled) completes without error',
+          () async {
+            await expectLater(
+              service.setServiceGroupingMode(ServiceGrouping.disabled),
+              completes,
+            );
+          },
+        );
       });
 
       group('Background Window Message Rate Limit', () {
@@ -416,9 +434,18 @@ void main() {
           expect(service.disableWindowedOptimization(), isA<Future<void>>());
           expect(service.enableBackgroundApps(), isA<Future<void>>());
           expect(service.disableBackgroundApps(), isA<Future<void>>());
-          expect(service.forcedServicesGrouping(), isA<Future<void>>());
-          expect(service.recommendedServicesGrouping(), isA<Future<void>>());
-          expect(service.disableServicesGrouping(), isA<Future<void>>());
+          expect(
+            service.setServiceGroupingMode(ServiceGrouping.forced),
+            isA<Future<void>>(),
+          );
+          expect(
+            service.setServiceGroupingMode(ServiceGrouping.recommended),
+            isA<Future<void>>(),
+          );
+          expect(
+            service.setServiceGroupingMode(ServiceGrouping.disabled),
+            isA<Future<void>>(),
+          );
           expect(
             service.setBackgroundWindowMessageRateLimit(8),
             isA<Future<void>>(),
@@ -577,7 +604,9 @@ void main() {
 
     group('Behavior Verification', () {
       test('can verify method never called', () {
-        verifyNever(() => mockService.forcedServicesGrouping());
+        verifyNever(
+          () => mockService.setServiceGroupingMode(ServiceGrouping.forced),
+        );
       });
     });
   });
