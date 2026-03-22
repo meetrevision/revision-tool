@@ -1,12 +1,8 @@
 import 'dart:async';
 
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-
 import '../../utils.dart';
 import 'trusted_installer_exception.dart';
 import 'win32_token_helper.dart';
-
-part 'trusted_installer_service.g.dart';
 
 class CommandResult {
   const CommandResult({
@@ -515,9 +511,4 @@ class TrustedInstallerServiceImpl implements TrustedInstallerService {
       }
     }
   }
-}
-
-@Riverpod(keepAlive: true)
-TrustedInstallerService trustedInstallerService(Ref ref) {
-  return TrustedInstallerServiceImpl();
 }
