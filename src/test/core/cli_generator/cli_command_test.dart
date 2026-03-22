@@ -25,20 +25,14 @@ void main() {
     test('runs enum status with valid target', () async {
       final runner = CommandRunner<void>('revitool', 'test')
         ..addCommand(TestServiceCliCommand(service));
-      await runner.run(['test', 'mode', 'status', '--mode', 'alpha']);
+      await runner.run(['test', 'mode', 'status', 'alpha']);
     });
 
     test('rejects enum status with invalid target', () async {
       final runner = CommandRunner<void>('revitool', 'test')
         ..addCommand(TestServiceCliCommand(service));
       expect(
-        () => runner.run([
-          'test',
-          'mode',
-          'status',
-          '--mode',
-          'not-a-valid-target',
-        ]),
+        () => runner.run(['test', 'mode', 'status', 'not-a-valid-target']),
         throwsA(isA<UsageException>()),
       );
     });

@@ -85,13 +85,10 @@ class CliAction {
 /// Marks an enum-based command group.
 ///
 /// Use [values] from your enum and optional [help] for `allowedHelp` labels.
-/// [argName] controls the option name used by generated enum commands and
-/// defaults to `mode`.
 class CliEnumSubCommand<T extends Enum> {
   const CliEnumSubCommand({
     required this.name,
     required this.values,
-    this.argName = 'mode',
     required this.status,
     this.enableMethod,
     this.disableMethod,
@@ -101,7 +98,6 @@ class CliEnumSubCommand<T extends Enum> {
 
   final String name;
   final List<T> values;
-  final String argName;
   final String status;
   final String? enableMethod;
   final String? disableMethod;

@@ -458,17 +458,6 @@ argParser.addOption(
     final _GroupLeafNames names = _groupLeafNames(_pascal(meta.name));
     final String escaped = _escapeForSingleQuotedString(meta.name);
     final parseHelper = '_parseEnumValue${_sanitizeEnumTypeName(enumType)}';
-    final String optionName = _requireValidIdentifier(
-      meta.argName,
-      'enum argName',
-    );
-    final String constructorBody = _buildTargetOptionCode(
-      optionName,
-      enumType,
-      meta.help.entries
-          .map((e) => '${_quoteLiteral(e.key)}: ${_quoteLiteral(e.value)}')
-          .join(', '),
-    );
     return _buildGroupWithLeaves(
       serviceClassName: serviceClassName,
       groupName: meta.name,
@@ -478,15 +467,12 @@ argParser.addOption(
           className: names.enableLeaf,
           serviceClassName: serviceClassName,
           commandName: 'enable',
-          descriptionLiteral: _quoteLiteral(
-            'Enable ${meta.name} ${meta.argName}',
-          ),
-          constructorBody: constructorBody,
+          descriptionLiteral: _quoteLiteral('Enable ${meta.name} target'),
           returnType: 'Future<void>',
           isAsync: true,
           runBodyCode: _buildTryCatchCode(
             tryBody:
-                '''  final String modeStr = argResults!['$optionName'] as String;\n  final $enumType value = $parseHelper(modeStr);\n  await _service.$explicitEnableName(value);\n  logger.i('Enabled $escaped for \$modeStr');\n''',
+                '''  final String modeStr = (argResults?.rest ?? const <String>[]).single;\n  final $enumType value = $parseHelper(modeStr);\n  await _service.$explicitEnableName(value);\n  logger.i('Enabled $escaped for \$modeStr');\n''',
             exceptionMessageLiteral: "'Operation failed'",
             enumUsageError: true,
           ),
@@ -495,15 +481,12 @@ argParser.addOption(
           className: names.disableLeaf,
           serviceClassName: serviceClassName,
           commandName: 'disable',
-          descriptionLiteral: _quoteLiteral(
-            'Disable ${meta.name} ${meta.argName}',
-          ),
-          constructorBody: constructorBody,
+          descriptionLiteral: _quoteLiteral('Disable ${meta.name} target'),
           returnType: 'Future<void>',
           isAsync: true,
           runBodyCode: _buildTryCatchCode(
             tryBody:
-                '''  final String modeStr = argResults!['$optionName'] as String;\n  final $enumType value = $parseHelper(modeStr);\n  await _service.$explicitDisableName(value);\n  logger.i('Disabled $escaped for \$modeStr');\n''',
+                '''  final String modeStr = (argResults?.rest ?? const <String>[]).single;\n  final $enumType value = $parseHelper(modeStr);\n  await _service.$explicitDisableName(value);\n  logger.i('Disabled $escaped for \$modeStr');\n''',
             exceptionMessageLiteral: "'Operation failed'",
             enumUsageError: true,
           ),
@@ -512,14 +495,11 @@ argParser.addOption(
           className: names.statusLeaf,
           serviceClassName: serviceClassName,
           commandName: 'status',
-          descriptionLiteral: _quoteLiteral(
-            'Get ${meta.name} ${meta.argName} status',
-          ),
-          constructorBody: constructorBody,
+          descriptionLiteral: _quoteLiteral('Get ${meta.name} target status'),
           returnType: 'void',
           runBodyCode: _buildTryCatchCode(
             tryBody:
-                '''  final String modeStr = argResults!['$optionName'] as String;\n  final $enumType value = $parseHelper(modeStr);\n  final bool status = _service.${_memberName(status)}(value);\n  logger.i('$escaped (\$modeStr): \$status');\n''',
+                '''  final String modeStr = (argResults?.rest ?? const <String>[]).single;\n  final $enumType value = $parseHelper(modeStr);\n  final bool status = _service.${_memberName(status)}(value);\n  logger.i('$escaped (\$modeStr): \$status');\n''',
             exceptionMessageLiteral: "'Operation failed'",
             enumUsageError: true,
           ),
@@ -563,17 +543,6 @@ argParser.addOption(
     final setLeafName = '_Set${display}Command';
     final parseHelper = '_parseEnumValue${_sanitizeEnumTypeName(enumType)}';
     final String escaped = _escapeForSingleQuotedString(meta.name);
-    final String optionName = _requireValidIdentifier(
-      meta.argName,
-      'enum argName',
-    );
-    final String constructorBody = _buildTargetOptionCode(
-      optionName,
-      enumType,
-      meta.help.entries
-          .map((e) => '${_quoteLiteral(e.key)}: ${_quoteLiteral(e.value)}')
-          .join(', '),
-    );
 
     final Class statusLeafClass = _buildLeafClass(
       className: statusLeafName,
@@ -596,13 +565,12 @@ argParser.addOption(
       serviceClassName: serviceClassName,
       commandNameLiteral: _quoteLiteral('set'),
       descriptionLiteral: _quoteLiteral('Set ${meta.name} mode'),
-      constructorBody: constructorBody,
       returnType: 'Future<void>',
       isAsync: true,
       runBodyCode: _buildTryCatchCode(
         tryBody:
             '''
-  final String modeStr = argResults!['$optionName'] as String;
+  final String modeStr = (argResults?.rest ?? const <String>[]).single;
   final $enumType value = $parseHelper(modeStr);
   await _service.$explicitSetName(value);
   logger.i('Set $escaped to \$modeStr');
@@ -954,7 +922,6 @@ $tryBody
           annotationName: 'CliEnumSubCommand',
           member: member,
         ),
-        argName: reader.read('argName').stringValue,
         enableMethodName: _validateOptionalIdentifier(
           reader.readOptionalString('enableMethod'),
           'enableMethod',
@@ -1014,23 +981,6 @@ $tryBody
               'void';
     }
     return false;
-  }
-
-  String _buildTargetOptionCode(
-    String optionName,
-    String enumType,
-    String allowedHelpEntries,
-  ) {
-    final String abbr = optionName.isEmpty ? 'm' : optionName[0];
-    return '''
-argParser.addOption(
-  '$optionName',
-  abbr: '$abbr',
-  mandatory: true,
-  allowed: $enumType.values.map((e) => e.name).toList(),
-  allowedHelp: {$allowedHelpEntries},
-);
-''';
   }
 
   String _sanitizeEnumTypeName(String enumType) =>
@@ -1184,13 +1134,11 @@ class _CliMetaEnum extends _CliMeta {
   const _CliMetaEnum(
     super.name,
     super.status, {
-    required this.argName,
     this.enableMethodName,
     this.disableMethodName,
     this.setMethodName,
     required this.help,
   });
-  final String argName;
   final String? enableMethodName;
   final String? disableMethodName;
   final String? setMethodName;
