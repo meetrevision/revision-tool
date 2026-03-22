@@ -82,7 +82,7 @@ jobs:
             dart run vector_graphics_compiler -i "$inputPath" -o "$outputPath"
           }
 
-      - run: dart run build_runner build --delete-conflicting-outputs
+      - run: dart run build_runner build --force-aot
         working-directory: src
 
       - name: Build revitool CLI
