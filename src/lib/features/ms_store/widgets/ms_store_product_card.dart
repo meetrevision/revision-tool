@@ -6,7 +6,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import '../../../core/widgets/app_image.dart';
 import '../../../core/widgets/card_highlight.dart';
 import '../../../extensions.dart';
-import '../../../i18n/strings.g.dart';
+import '../../../i18n/generated/strings.g.dart';
 import '../models/search/search_product.dart';
 
 const BorderRadius _cardRadius = .all(.circular(8.0));

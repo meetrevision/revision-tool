@@ -7,7 +7,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../core/services/network_service.dart';
 import '../../core/services/win_registry_service.dart';
-import '../../i18n/strings.g.dart';
+import '../../i18n/generated/strings.g.dart';
 import '../../utils.dart';
 import 'models/download_state.dart';
 import 'models/package_info.dart';
