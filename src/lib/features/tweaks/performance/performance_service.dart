@@ -47,6 +47,7 @@ final _recommendedSplitDisabled = {
 
   'FontCache',
   'nsi',
+  'netprofm',
   'SstpSvc',
   'DispBrokerDesktopSvc',
   'CDPSvc',
@@ -61,9 +62,25 @@ final _recommendedSplitDisabled = {
 
   'CoreMessagingRegistrar',
   'DPS',
+  'NcdAutoSetup',
 
   'AppXSvc',
   'ClipSVC',
+
+  'camsvc',
+  'StateRepository',
+
+  'FDResPub',
+  'SSDPSRV',
+
+  'CryptSvc',
+  'Dnscache',
+  'NlaSvc',
+  'LanmanWorkstation',
+
+  'KeyIso',
+  'VaultSvc',
+  'SamSs',
 };
 
 const _defaultSplitDisabled = {
