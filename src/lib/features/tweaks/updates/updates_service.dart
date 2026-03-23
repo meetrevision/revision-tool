@@ -271,6 +271,11 @@ class UpdatesServiceImpl implements UpdatesService {
       ),
       WinRegistryService.deleteValue(
         Registry.localMachine,
+        r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
+        'ExcludeWUDriversInQualityUpdate',
+      ),
+      WinRegistryService.deleteValue(
+        Registry.localMachine,
         r'SOFTWARE\Policies\Microsoft\Windows\Device Metadata',
         'PreventDeviceMetadataFromNetwork',
       ),
@@ -286,6 +291,19 @@ class UpdatesServiceImpl implements UpdatesService {
   @override
   Future<void> disableDriversWU() async {
     await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        WinRegistryService.currentUser,
+        r'Software\Policies\Microsoft\Windows\DriverSearching',
+        'DontSearchWindowsUpdate',
+        1,
+      ),
+      WinRegistryService.writeRegistryValue(
+        WinRegistryService.currentUser,
+        r'Software\Policies\Microsoft\Windows\DriverSearching',
+        'DriverUpdateWizardWuSearchEnabled',
+        0,
+      ),
+
       WinRegistryService.writeRegistryValue(
         WinRegistryService.currentUser,
         r'Software\Policies\Microsoft\Windows\DriverSearching',
@@ -307,6 +325,12 @@ class UpdatesServiceImpl implements UpdatesService {
       WinRegistryService.writeRegistryValue(
         Registry.localMachine,
         r'Software\Policies\Microsoft\Windows\WindowsUpdate',
+        'ExcludeWUDriversInQualityUpdate',
+        1,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
         'ExcludeWUDriversInQualityUpdate',
         1,
       ),
