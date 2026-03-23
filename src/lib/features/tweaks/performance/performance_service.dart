@@ -272,7 +272,7 @@ powercfg -s 6a93ec26-284d-4943-9fc4-c9616def55c6
 powercfg -delete 3ff9831b-6f80-4830-8178-736cd4229e7b
 ''';
 
-    shell.runExecutableArgumentsSync('powershell', [
+    shell.runExecutableArgumentsSync('cmd', [
       '-NoProfile',
       '-NonInteractive',
       '-NoLogo',
@@ -301,6 +301,12 @@ powercfg -delete 3ff9831b-6f80-4830-8178-736cd4229e7b
           'ACSettingIndex',
           10,
         ),
+        WinRegistryService.writeRegistryValue(
+          Registry.localMachine,
+          r'SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\6a93ec26-284d-4943-9fc4-c9616def55c6\54533251-82be-4824-96c1-47b60b740d00\12a0ab44-fe28-4fa9-b3bd-4b64f44960a6', // Processor power management -> Processor performance decrease threshold; PERFDECTHRESHOLD
+          'ACSettingIndex',
+          8,
+        ),
 
         // **CPMINCORES** and **CPMINCORES1** to 100 prevents core parking.
         // When hybrid architecture processsor is present (such as E and P Cores) powerplan GUID parameters suffix ending with 1 is for P Cores else E-Cores, meaning the P cores are parked by default on high performance power plans.
@@ -316,6 +322,7 @@ powercfg -delete 3ff9831b-6f80-4830-8178-736cd4229e7b
           'ACSettingIndex',
           100,
         ),
+
         WinRegistryService.writeRegistryValue(
           Registry.localMachine,
           r'SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\6a93ec26-284d-4943-9fc4-c9616def55c6\2a737441-1930-4402-8d77-b2bebba308a3\d4e98f31-5ffe-4ce1-be31-1b38b384c009', // USB settings -> USB 3 Link Power Mangement
