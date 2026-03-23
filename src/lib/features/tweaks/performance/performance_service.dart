@@ -973,13 +973,15 @@ powercfg -delete 6a93ec26-284d-4943-9fc4-c9616def55c6
           ..._defaultSplitDisabled,
           ..._recommendedSplitDisabled,
         };
-        await Future.wait(
-          services.map(
-            (service) => WinRegistryService.writeRegistryValue(
-              Registry.localMachine,
-              r'SYSTEM\ControlSet001\Services\' + service,
-              'SvcHostSplitDisable',
-              1,
+        await TrustedInstallerServiceImpl().executeWithTrustedInstaller(
+          () async => Future.wait(
+            services.map(
+              (service) => WinRegistryService.writeRegistryValue(
+                Registry.localMachine,
+                r'SYSTEM\ControlSet001\Services\' + service,
+                'SvcHostSplitDisable',
+                1,
+              ),
             ),
           ),
         );
@@ -987,21 +989,23 @@ powercfg -delete 6a93ec26-284d-4943-9fc4-c9616def55c6
       .disabled => () async {
         final Set<String> servicesToDelete = _recommendedSplitDisabled
             .difference(_defaultSplitDisabled);
-        await Future.wait([
-          ...servicesToDelete.map(
-            (service) => WinRegistryService.deleteValue(
-              Registry.localMachine,
-              'SYSTEM\\ControlSet001\\Services\\$service',
-              'SvcHostSplitDisable',
+        await TrustedInstallerServiceImpl().executeWithTrustedInstaller(
+          () async => Future.wait([
+            ...servicesToDelete.map(
+              (service) => WinRegistryService.deleteValue(
+                Registry.localMachine,
+                'SYSTEM\\ControlSet001\\Services\\$service',
+                'SvcHostSplitDisable',
+              ),
             ),
-          ),
-          WinRegistryService.writeRegistryValue(
-            Registry.localMachine,
-            r'SYSTEM\CurrentControlSet\Control',
-            'SvcHostSplitThresholdInKB',
-            0x380000,
-          ),
-        ]);
+            WinRegistryService.writeRegistryValue(
+              Registry.localMachine,
+              r'SYSTEM\CurrentControlSet\Control',
+              'SvcHostSplitThresholdInKB',
+              0x380000,
+            ),
+          ]),
+        );
       }(),
     };
   }
