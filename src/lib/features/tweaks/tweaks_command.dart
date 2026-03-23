@@ -7,6 +7,7 @@ import 'package:win32_registry/win32_registry.dart';
 import '../../core/services/win_registry_service.dart';
 import '../../utils.dart';
 import 'performance/performance_service.dart';
+import 'personalization/personalization_service.dart';
 import 'security/security_service.dart';
 import 'updates/updates_service.dart';
 import 'utilities/utilities_service.dart';
@@ -15,10 +16,13 @@ class TweaksCommand extends Command<void> {
   TweaksCommand() {
     addSubcommand(TweaksPatchesCommand());
     // Code-generated:
-    addSubcommand(SecurityServiceCliCommand(const SecurityServiceImpl()));
     addSubcommand(PerformanceServiceCliCommand(const PerformanceServiceImpl()));
-    addSubcommand(UtilitiesServiceCliCommand(const UtilitiesServiceImpl()));
+    addSubcommand(
+      PersonalizationServiceCliCommand(const PersonalizationServiceImpl()),
+    );
+    addSubcommand(SecurityServiceCliCommand(const SecurityServiceImpl()));
     addSubcommand(UpdatesServiceCliCommand(const UpdatesServiceImpl()));
+    addSubcommand(UtilitiesServiceCliCommand(const UtilitiesServiceImpl()));
   }
 
   @override
