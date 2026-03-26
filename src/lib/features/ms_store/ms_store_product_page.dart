@@ -256,252 +256,273 @@ class _HeroSection extends ConsumerWidget {
       ),
     );
 
+    final double height = MediaQuery.heightOf(context) * 0.6;
+
     return FluentTheme(
       data: darkTheme,
-      child: Stack(
-        children: [
-          if (details.heroImageUrl != null)
-            Positioned.fill(
-              left: context.mqSize.width * 0.25,
-              child: AppImage(
-                baseUrl: details.heroImageUrl!,
-
+      child: SizedBox(
+        height: height,
+        child: Stack(
+          children: [
+            if (details.heroImageUrl != null)
+              Align(
                 alignment: .centerRight,
+                child: ClipRRect(
+                  clipBehavior: .hardEdge,
+                  borderRadius: _borderRadiusTop,
+                  child: Image.network(
+                    details.heroImageUrl!,
+                    alignment: .centerRight,
+                    gaplessPlayback: true,
+                    cacheHeight: height.toInt(),
+                  ),
+                ),
+              ),
+            Positioned.fill(
+              child: ClipRRect(
+                clipBehavior: .hardEdge,
                 borderRadius: _borderRadiusTop,
+                child: paletteAsync.when(
+                  data: (palette) {
+                    return palette != null
+                        ? Transform.scale(
+                            // without this and ClipRRect's clipBehavior set to hardEdge, RadialGradient renders edge border lines when the gradient's focal point is near the edge
+                            scale: 1.01,
+                            child: StackedGradient([
+                              RadialGradient(
+                                // center: const Alignment(0.99, 0.0),
+                                center: .centerRight,
+                                radius: 1.5,
+                                focal: isWideScreen ? .center : .topRight,
+                                colors: [
+                                  Colors.transparent,
+                                  palette.accent1,
+                                  palette.baseDark,
+                                ],
+                                stops: isWideScreen
+                                    ? null
+                                    : const [0, 0.1, 0.2],
+                              ),
+                              LinearGradient(
+                                begin: .center,
+                                end: .bottomCenter,
+                                colors: [
+                                  palette.baseDark.withAlpha(140),
+                                  darkTheme.scaffoldBackgroundColor.withAlpha(
+                                    50,
+                                  ),
+                                ],
+                              ),
+                              LinearGradient(
+                                begin: .topLeft,
+                                end: .bottomRight,
+                                stops: const [0, 0.5, 1],
+                                colors: [
+                                  darkTheme.scaffoldBackgroundColor.withAlpha(
+                                    250,
+                                  ),
+                                  Colors.transparent,
+                                  darkTheme.scaffoldBackgroundColor.withAlpha(
+                                    250,
+                                  ),
+                                ],
+                              ),
+                              LinearGradient(
+                                begin: .center,
+                                end: .bottomCenter,
+                                stops: const [0.2, 1],
+                                colors: [
+                                  Colors.transparent,
+                                  context.theme.scaffoldBackgroundColor,
+                                ],
+                              ),
+                            ]),
+                          )
+                        : decoratedBox;
+                  },
+                  loading: () => decoratedBox,
+                  error: (_, _) => decoratedBox,
+                ),
               ),
             ),
-          Positioned.fill(
-            child: ClipRRect(
-              clipBehavior: .hardEdge,
-              borderRadius: _borderRadiusTop,
-              child: paletteAsync.when(
-                data: (palette) {
-                  return palette != null
-                      ? Transform.scale(
-                          // without this and ClipRRect's clipBehavior set to hardEdge, RadialGradient renders edge border lines when the gradient's focal point is near the edge
-                          scale: 1.01,
-                          child: StackedGradient([
-                            RadialGradient(
-                              center: const Alignment(0.99, 0.0),
-                              radius: 1.5,
-                              focal: isWideScreen ? .center : .topRight,
-                              colors: [
-                                Colors.transparent,
-                                palette.accent1,
-                                palette.baseDark,
-                              ],
-                              stops: isWideScreen ? null : const [0, 0.1, 0.2],
-                            ),
-                            LinearGradient(
-                              begin: .center,
-                              end: .bottomCenter,
-                              colors: [
-                                palette.baseDark.withAlpha(140),
-                                darkTheme.scaffoldBackgroundColor.withAlpha(50),
-                              ],
-                            ),
-                            LinearGradient(
-                              begin: .topLeft,
-                              end: .bottomRight,
-                              stops: const [0, 0.5, 1],
-                              colors: [
-                                darkTheme.scaffoldBackgroundColor.withAlpha(
-                                  250,
-                                ),
-                                Colors.transparent,
-                                darkTheme.scaffoldBackgroundColor.withAlpha(
-                                  250,
-                                ),
-                              ],
-                            ),
-                            LinearGradient(
-                              begin: .center,
-                              end: .bottomCenter,
-                              stops: const [0.2, 1],
-                              colors: [
-                                Colors.transparent,
-                                context.theme.scaffoldBackgroundColor,
-                              ],
-                            ),
-                          ]),
-                        )
-                      : decoratedBox;
-                },
-                loading: () => decoratedBox,
-                error: (_, _) => decoratedBox,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const .all(40),
-            child: Wrap(
-              crossAxisAlignment: isWideScreen ? .start : .center,
-              alignment: isWideScreen ? .start : .center,
-              runSpacing: isWideScreen ? 16 : 0,
-              spacing: 16,
-              children: [
-                Flex(
-                  direction: isWideScreen ? .horizontal : .vertical,
-                  mainAxisSize: .min,
-                  crossAxisAlignment: isWideScreen ? .start : .center,
-                  spacing: isWideScreen ? 23.5 : 12,
-                  children: [
-                    _HeroIcon(
-                      iconUrl: details.iconUrl,
-                      color: parseHexColor(details.iconUrlBackground ?? ''),
-                    ),
-                    Column(
-                      mainAxisSize: .min,
-                      crossAxisAlignment: isWideScreen ? .start : .center,
-                      children: [
-                        Text(
-                          details.title ?? '',
-                          style: darkTheme.typography.title!.copyWith(
-                            fontSize: 32,
-                          ),
-                          maxLines: 2,
-                          textAlign: isWideScreen ? .start : .center,
-                        ),
-                        if (details.publisherName != null)
+            Padding(
+              padding: const .all(40),
+              child: Wrap(
+                crossAxisAlignment: isWideScreen ? .start : .center,
+                alignment: isWideScreen ? .start : .center,
+                runSpacing: isWideScreen ? 16 : 0,
+                spacing: 16,
+                children: [
+                  Flex(
+                    direction: isWideScreen ? .horizontal : .vertical,
+                    mainAxisSize: .min,
+                    crossAxisAlignment: isWideScreen ? .start : .center,
+                    spacing: isWideScreen ? 23.5 : 12,
+                    children: [
+                      _HeroIcon(
+                        iconUrl: details.iconUrl,
+                        color: parseHexColor(details.iconUrlBackground ?? ''),
+                      ),
+                      Column(
+                        mainAxisSize: .min,
+                        crossAxisAlignment: isWideScreen ? .start : .center,
+                        children: [
                           Text(
-                            details.publisherName!,
-                            style: darkTheme.typography.body!.copyWith(
-                              fontSize: 14,
-                              color: darkTheme.accentColor.lightest,
+                            details.title ?? '',
+                            style: darkTheme.typography.title!.copyWith(
+                              fontSize: 32,
                             ),
+                            maxLines: 2,
                             textAlign: isWideScreen ? .start : .center,
                           ),
-                        Row(
-                          mainAxisSize: .min,
-                          mainAxisAlignment: isWideScreen ? .start : .center,
-                          spacing: 8,
-                          children: [
-                            if (details.averageRating != null) ...[
-                              Text(
-                                details.averageRating!.toStringAsFixed(1),
-                                style: darkTheme.typography.body,
+                          if (details.publisherName != null)
+                            Text(
+                              details.publisherName!,
+                              style: darkTheme.typography.body!.copyWith(
+                                fontSize: 14,
+                                color: darkTheme.accentColor.lightest,
                               ),
-                              Icon(
-                                msicons.FluentIcons.star_16_filled,
-                                size: 16,
-                                color:
-                                    darkTheme.resources.textFillColorSecondary,
-                              ),
-                              divider,
-                              Text(
-                                details.ratingCountFormatted!,
-                                style: darkTheme.typography.caption,
-                              ),
-                              divider,
-                            ],
-                            if (details.categories?.isNotEmpty ?? false) ...[
-                              Text(
-                                details.categories!.first,
-                                style: darkTheme.typography.body!.copyWith(
-                                  color: theme.accentColor.lightest,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-
-                Column(
-                  crossAxisAlignment: isWideScreen ? .start : .center,
-                  spacing: 10,
-                  children: [
-                    if (details.description?.isNotEmpty ?? false)
-                      Padding(
-                        padding: isWideScreen
-                            ? .only(right: context.mqSize.width * 0.3)
-                            : .zero,
-                        child: Text(
-                          details.description!,
-                          maxLines: 2,
-                          overflow: .ellipsis,
-                          style: darkTheme.typography.body,
-                        ),
-                      ),
-                    Wrap(
-                      crossAxisAlignment: .center,
-                      direction: isWideScreen ? .horizontal : .vertical,
-                      spacing: 11,
-                      children: [
-                        SizedBox(
-                          height: 52,
-                          width: 200,
-                          child: FilledButton(
-                            onPressed: onGet,
-                            child: Align(
-                              alignment: .centerLeft,
-                              child: Text(
-                                t.get,
-                                style: const TextStyle(fontWeight: .bold),
-                              ),
+                              textAlign: isWideScreen ? .start : .center,
                             ),
-                          ),
-                        ),
-                        _ShareButton(productId: details.productId!),
-                      ],
-                    ),
-                    if (details.productRatings != null &&
-                        details.productRatings!.isNotEmpty &&
-                        details.productRatings!.first.ratingId != 'Microsoft:E')
-                      Wrap(
-                        spacing: 12,
-                        crossAxisAlignment: .end,
-                        children: [
-                          SizedBox(
-                            width: 48,
-                            height: 48,
-                            child: AppImage(
-                              fetchPadding: 0,
-                              baseUrl: details
-                                  .productRatings!
-                                  .first
-                                  .ratingValueLogoUrl!,
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: .start,
+                          Row(
                             mainAxisSize: .min,
+                            mainAxisAlignment: isWideScreen ? .start : .center,
+                            spacing: 8,
                             children: [
-                              Text(
-                                details.productRatings?.first.longName ?? '',
-                                style: theme.typography.bodyStrong,
-                              ),
-                              Text(
-                                details.productRatings?.first.ratingDescriptors
-                                        ?.join(', ') ??
-                                    '',
-                                style: theme.typography.caption!.copyWith(
-                                  color: theme.resources.textFillColorDisabled,
+                              if (details.averageRating != null) ...[
+                                Text(
+                                  details.averageRating!.toStringAsFixed(1),
+                                  style: darkTheme.typography.body,
                                 ),
-                              ),
-                              Text(
-                                details
-                                        .productRatings
-                                        ?.first
-                                        .interactiveElements
-                                        ?.join(', ') ??
-                                    '',
-                                style: theme.typography.caption!.copyWith(
-                                  color: theme.resources.textFillColorDisabled,
+                                Icon(
+                                  msicons.FluentIcons.star_16_filled,
+                                  size: 16,
+                                  color: darkTheme
+                                      .resources
+                                      .textFillColorSecondary,
                                 ),
-                              ),
+                                divider,
+                                Text(
+                                  details.ratingCountFormatted!,
+                                  style: darkTheme.typography.caption,
+                                ),
+                                divider,
+                              ],
+                              if (details.categories?.isNotEmpty ?? false) ...[
+                                Text(
+                                  details.categories!.first,
+                                  style: darkTheme.typography.body!.copyWith(
+                                    color: theme.accentColor.lightest,
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ],
                       ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+
+                  Column(
+                    crossAxisAlignment: isWideScreen ? .start : .center,
+                    spacing: 10,
+                    children: [
+                      if (details.description?.isNotEmpty ?? false)
+                        Padding(
+                          padding: isWideScreen
+                              ? .only(right: context.mqSize.width * 0.3)
+                              : .zero,
+                          child: Text(
+                            details.description!,
+                            maxLines: 2,
+                            overflow: .ellipsis,
+                            style: darkTheme.typography.body,
+                          ),
+                        ),
+                      Wrap(
+                        crossAxisAlignment: .center,
+                        direction: isWideScreen ? .horizontal : .vertical,
+                        spacing: 11,
+                        children: [
+                          SizedBox(
+                            height: 52,
+                            width: 200,
+                            child: FilledButton(
+                              onPressed: onGet,
+                              child: Align(
+                                alignment: .centerLeft,
+                                child: Text(
+                                  t.get,
+                                  style: const TextStyle(fontWeight: .bold),
+                                ),
+                              ),
+                            ),
+                          ),
+                          _ShareButton(productId: details.productId!),
+                        ],
+                      ),
+                      if (details.productRatings != null &&
+                          details.productRatings!.isNotEmpty &&
+                          details.productRatings!.first.ratingId !=
+                              'Microsoft:E')
+                        Wrap(
+                          spacing: 12,
+                          crossAxisAlignment: .end,
+                          children: [
+                            SizedBox(
+                              width: 48,
+                              height: 48,
+                              child: AppImage(
+                                fetchPadding: 0,
+                                baseUrl: details
+                                    .productRatings!
+                                    .first
+                                    .ratingValueLogoUrl!,
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: .start,
+                              mainAxisSize: .min,
+                              children: [
+                                Text(
+                                  details.productRatings?.first.longName ?? '',
+                                  style: theme.typography.bodyStrong,
+                                ),
+                                Text(
+                                  details
+                                          .productRatings
+                                          ?.first
+                                          .ratingDescriptors
+                                          ?.join(', ') ??
+                                      '',
+                                  style: theme.typography.caption!.copyWith(
+                                    color:
+                                        theme.resources.textFillColorDisabled,
+                                  ),
+                                ),
+                                Text(
+                                  details
+                                          .productRatings
+                                          ?.first
+                                          .interactiveElements
+                                          ?.join(', ') ??
+                                      '',
+                                  style: theme.typography.caption!.copyWith(
+                                    color:
+                                        theme.resources.textFillColorDisabled,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
