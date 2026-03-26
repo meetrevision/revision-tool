@@ -15,7 +15,8 @@ class SystemSafeguardsSection extends StatelessWidget {
       icon: msicons.FluentIcons.shield_keyhole_20_regular,
       label: t.tweaksSecuritySystemSafeguards,
       description: t.tweaksSecuritySystemSafeguardsDescription,
-      children: const [_UACCard()],
+      initiallyExpanded: true,
+      children: const [_UACCard(), _VbsCard(), _MemoryIntegrityCard()],
     );
   }
 }
@@ -38,6 +39,60 @@ class _UACCard extends ConsumerWidget {
               ? await ref.read(securityServiceProvider).enableUAC()
               : await ref.read(securityServiceProvider).disableUAC();
           ref.invalidate(uacStatusProvider);
+        },
+      ),
+    );
+  }
+}
+
+class _VbsCard extends ConsumerWidget {
+  const _VbsCard();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bool status = ref.watch(vbsStatusProvider);
+
+    return CardListTile(
+      leading: const Icon(
+        msicons.FluentIcons.window_shield_20_regular,
+        size: 24,
+      ),
+      title: t.tweaksSecurityVBS,
+      description: t.tweaksSecurityVBSDescription,
+      trailing: CardToggleSwitch(
+        value: status,
+        requiresRestart: true,
+        onChanged: (value) async {
+          value
+              ? await ref.read(securityServiceProvider).enableVbs()
+              : await ref.read(securityServiceProvider).disableVbs();
+          ref.invalidate(vbsStatusProvider);
+          ref.invalidate(memoryIntegrityStatusProvider);
+        },
+      ),
+    );
+  }
+}
+
+class _MemoryIntegrityCard extends ConsumerWidget {
+  const _MemoryIntegrityCard();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bool status = ref.watch(memoryIntegrityStatusProvider);
+
+    return CardListTile(
+      leading: const Icon(msicons.FluentIcons.ram_20_regular, size: 24),
+      title: t.tweaksSecurityMemoryIntegrity,
+      description: t.tweaksSecurityMemoryIntegrityDescription,
+      trailing: CardToggleSwitch(
+        value: status,
+        requiresRestart: true,
+        onChanged: (value) async {
+          value
+              ? await ref.read(securityServiceProvider).enableMemoryIntegrity()
+              : await ref
+                    .read(securityServiceProvider)
+                    .disableMemoryIntegrity();
+          ref.invalidate(memoryIntegrityStatusProvider);
         },
       ),
     );

@@ -68,6 +68,32 @@ void main() {
         });
       });
 
+      group('VBS and Memory Integrity', () {
+        test('statusVbs returns a boolean', () {
+          expect(service.statusVbs, isA<bool>());
+        });
+
+        test('statusMemoryIntegrity returns a boolean', () {
+          expect(service.statusMemoryIntegrity, isA<bool>());
+        });
+
+        test('enableVbs completes without error', () async {
+          await expectLater(service.enableVbs(), completes);
+        });
+
+        test('disableVbs completes without error', () async {
+          await expectLater(service.disableVbs(), completes);
+        });
+
+        test('enableMemoryIntegrity completes without error', () async {
+          await expectLater(service.enableMemoryIntegrity(), completes);
+        });
+
+        test('disableMemoryIntegrity completes without error', () async {
+          await expectLater(service.disableMemoryIntegrity(), completes);
+        });
+      });
+
       group('CPU Mitigations', () {
         test('isMitigationEnabled accepts Meltdown/Spectre mitigation', () {
           expect(
@@ -137,6 +163,8 @@ void main() {
           expect(service.statusDefenderProtectionTamper, isA<bool>());
           expect(service.statusDefenderProtectionRealtime, isA<bool>());
           expect(service.statusUAC, isA<bool>());
+          expect(service.statusVbs, isA<bool>());
+          expect(service.statusMemoryIntegrity, isA<bool>());
           expect(
             service.isMitigationEnabled(Mitigation.meltdownSpectre),
             isA<bool>(),
@@ -150,6 +178,10 @@ void main() {
           expect(service.openDefenderThreatSettings(), isA<Future<dynamic>>());
           expect(service.enableUAC(), isA<Future<void>>());
           expect(service.disableUAC(), isA<Future<void>>());
+          expect(service.enableVbs(), isA<Future<void>>());
+          expect(service.disableVbs(), isA<Future<void>>());
+          expect(service.enableMemoryIntegrity(), isA<Future<void>>());
+          expect(service.disableMemoryIntegrity(), isA<Future<void>>());
           expect(
             service.enableMitigation(Mitigation.meltdownSpectre),
             isA<Future<void>>(),
@@ -237,7 +269,8 @@ void main() {
           () => mockService.openDefenderThreatSettings(),
         ).thenAnswer((_) async => mockResult);
 
-        final ProcessResult result = await mockService.openDefenderThreatSettings();
+        final ProcessResult result = await mockService
+            .openDefenderThreatSettings();
         expect(result, equals(mockResult));
         verify(() => mockService.openDefenderThreatSettings()).called(1);
       });
@@ -266,6 +299,62 @@ void main() {
         await mockService.disableUAC();
         verify(() => mockService.disableUAC()).called(1);
       });
+    });
+
+    group('VBS and Memory Integrity Actions', () {
+      test('statusVbs can be mocked', () {
+        when(() => mockService.statusVbs).thenReturn(true);
+        expect(mockService.statusVbs, isTrue);
+        verify(() => mockService.statusVbs).called(1);
+      });
+
+      test('statusMemoryIntegrity can be mocked', () {
+        when(() => mockService.statusMemoryIntegrity).thenReturn(false);
+        expect(mockService.statusMemoryIntegrity, isFalse);
+        verify(() => mockService.statusMemoryIntegrity).called(1);
+      });
+
+      test('enableVbs can be called without system changes', () async {
+        when(
+          () => mockService.enableVbs(),
+        ).thenAnswer((_) async => Future.value());
+
+        await mockService.enableVbs();
+        verify(() => mockService.enableVbs()).called(1);
+      });
+
+      test('disableVbs can be called without system changes', () async {
+        when(
+          () => mockService.disableVbs(),
+        ).thenAnswer((_) async => Future.value());
+
+        await mockService.disableVbs();
+        verify(() => mockService.disableVbs()).called(1);
+      });
+
+      test(
+        'enableMemoryIntegrity can be called without system changes',
+        () async {
+          when(
+            () => mockService.enableMemoryIntegrity(),
+          ).thenAnswer((_) async => Future.value());
+
+          await mockService.enableMemoryIntegrity();
+          verify(() => mockService.enableMemoryIntegrity()).called(1);
+        },
+      );
+
+      test(
+        'disableMemoryIntegrity can be called without system changes',
+        () async {
+          when(
+            () => mockService.disableMemoryIntegrity(),
+          ).thenAnswer((_) async => Future.value());
+
+          await mockService.disableMemoryIntegrity();
+          verify(() => mockService.disableMemoryIntegrity()).called(1);
+        },
+      );
     });
 
     group('CPU Mitigations', () {

@@ -65,6 +65,26 @@ abstract class SecurityService {
   bool isMitigationEnabled(Mitigation mitigation);
   Future<void> enableMitigation(Mitigation mitigation);
   Future<void> disableMitigation(Mitigation mitigation);
+
+  @CliToggle(
+    name: 'vbs',
+    status: 'statusVbs',
+    enable: 'enableVbs',
+    disable: 'disableVbs',
+  )
+  bool get statusVbs;
+  Future<void> enableVbs();
+  Future<void> disableVbs();
+
+  @CliToggle(
+    name: 'memory-integrity',
+    status: 'statusMemoryIntegrity',
+    enable: 'enableMemoryIntegrity',
+    disable: 'disableMemoryIntegrity',
+  )
+  bool get statusMemoryIntegrity;
+  Future<void> enableMemoryIntegrity();
+  Future<void> disableMemoryIntegrity();
 }
 
 /// Implementation of SecurityService
@@ -664,6 +684,172 @@ class SecurityServiceImpl implements SecurityService {
     final int newVal = currentVal | mitigation.bitmask;
     await _writeOverride(newVal);
   }
+
+  @override
+  bool get statusVbs {
+    if (statusMemoryIntegrity) return true;
+
+    final int? policyVbs = WinRegistryService.readInt(
+      RegistryHive.localMachine,
+      r'SOFTWARE\Policies\Microsoft\Windows\DeviceGuard',
+      'EnableVirtualizationBasedSecurity',
+    );
+    final int? systemVbs = WinRegistryService.readInt(
+      RegistryHive.localMachine,
+      r'SYSTEM\ControlSet001\Control\DeviceGuard',
+      'EnableVirtualizationBasedSecurity',
+    );
+
+    return policyVbs == 1 || systemVbs == 1;
+
+    // final ProcessResult process = Process.runSync('powershell', [
+    //   '-NoProfile',
+    //   '-NonInteractive',
+    //   '-NoLogo',
+    //   '-Command',
+    //   r'(Get-CimInstance -ClassName Win32_DeviceGuard -Namespace root\Microsoft\Windows\DeviceGuard).VirtualizationBasedSecurityStatus',
+    // ], runInShell: true);
+
+    // if (process.exitCode == 0) {
+    //   final int result = int.parse(process.stdout.toString().trim());
+    //   return result != 0;
+    // }
+
+    // return false;
+  }
+
+  @override
+  bool get statusMemoryIntegrity {
+    final int? hvciEnabled = WinRegistryService.readInt(
+      .localMachine,
+      r'SYSTEM\ControlSet001\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity',
+      'Enabled',
+    );
+
+    return hvciEnabled == 1;
+  }
+
+  @override
+  Future<void> enableVbs() async {
+    await Future.wait([
+      runPSCommand(
+        'Invoke-Command -ScriptBlock { bcdedit /deletevalue hypervisorlaunchtype; bcdedit /deletevalue vsmlaunchtype }',
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SOFTWARE\Policies\Microsoft\Windows\DeviceGuard',
+        'EnableVirtualizationBasedSecurity',
+        1,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\DeviceGuard',
+        'EnableVirtualizationBasedSecurity',
+        1,
+      ),
+      WinRegistryService.deleteValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\DeviceGuard',
+        'Mandatory',
+      ),
+
+      // Legacy: HVCIMATRequired can no longer be found in newer W11 builds
+      WinRegistryService.deleteValue(
+        Registry.localMachine,
+        r'SOFTWARE\Policies\Microsoft\Windows\DeviceGuard',
+        'HVCIMATRequired',
+      ),
+      WinRegistryService.deleteValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\DeviceGuard',
+        'HVCIMATRequired',
+      ),
+    ]);
+  }
+
+  @override
+  Future<void> disableVbs() async {
+    await Future.wait([
+      runPSCommand(
+        'Invoke-Command -ScriptBlock { bcdedit /set vsmlaunchtype off }',
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SOFTWARE\Policies\Microsoft\Windows\DeviceGuard',
+        'EnableVirtualizationBasedSecurity',
+        0,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\DeviceGuard',
+        'EnableVirtualizationBasedSecurity',
+        0,
+      ),
+
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\DeviceGuard',
+        'Mandatory',
+        0,
+      ),
+
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SOFTWARE\Policies\Microsoft\Windows\DeviceGuard',
+        'LsaCfgFlags',
+        0,
+      ),
+
+      // Even if VBS registries are set to the disabled state, if Memory Integrity is enabled, VBS will still be active
+      disableMemoryIntegrity(),
+
+      // Legacy: HVCIMATRequired can no longer be found in newer W11 builds
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SOFTWARE\Policies\Microsoft\Windows\DeviceGuard',
+        'HVCIMATRequired',
+        0,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\DeviceGuard',
+        'HVCIMATRequired',
+        0,
+      ),
+    ]);
+  }
+
+  @override
+  Future<void> enableMemoryIntegrity() async {
+    await WinRegistryService.writeRegistryValue(
+      Registry.localMachine,
+      r'SYSTEM\ControlSet001\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity',
+      'Enabled',
+      1,
+    );
+  }
+
+  @override
+  Future<void> disableMemoryIntegrity() async {
+    await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity',
+        'Enabled',
+        0,
+      ),
+      WinRegistryService.deleteValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity',
+        'WasEnabledBy',
+      ),
+      WinRegistryService.deleteValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity',
+        'ChangedInBootCycle',
+      ),
+    ]);
+  }
 }
 
 int _readOverride() {
@@ -733,4 +919,14 @@ bool downfallStatus(Ref ref) {
   return ref
       .watch(securityServiceProvider)
       .isMitigationEnabled(Mitigation.downfall);
+}
+
+@riverpod
+bool vbsStatus(Ref ref) {
+  return ref.watch(securityServiceProvider).statusVbs;
+}
+
+@riverpod
+bool memoryIntegrityStatus(Ref ref) {
+  return ref.watch(securityServiceProvider).statusMemoryIntegrity;
 }
