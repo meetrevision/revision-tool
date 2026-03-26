@@ -818,11 +818,11 @@ class _AdditionalInfoSection extends StatelessWidget {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: 5,
         crossAxisSpacing: 5,
-        childAspectRatio: context.mqSize.width > 600 ? 6 : 3,
+        mainAxisExtent: 50,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
