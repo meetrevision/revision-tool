@@ -265,16 +265,16 @@ class PerformanceServiceImpl implements PerformanceService {
   ///
   @override
   Future<void> enableReviPowerPlan() async {
+    // Covers edge cases
+    await disableReviPowerPlan();
+
     const command = r'''
-if (Test-Path "HKLM:\SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\3ff9831b-6f80-4830-8178-736cd4229e7b") {
-  powercfg -delete 3ff9831b-6f80-4830-8178-736cd4229e7b
-}
-if (Test-Path "HKLM:\SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\6a93ec26-284d-4943-9fc4-c9616def55c6") {
-  powercfg -delete 6a93ec26-284d-4943-9fc4-c9616def55c6
-}
 powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 6a93ec26-284d-4943-9fc4-c9616def55c6
 powercfg -changename 6a93ec26-284d-4943-9fc4-c9616def55c6 "Revision - Ultra Performance" "Windows's Ultimate Performance with additional changes."
 powercfg -s 6a93ec26-284d-4943-9fc4-c9616def55c6
+if (Test-Path "HKLM:\SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\3ff9831b-6f80-4830-8178-736cd4229e7b") {
+  powercfg -delete 3ff9831b-6f80-4830-8178-736cd4229e7b
+}
 ''';
     await runPSCommand(command, encodedCommand: true);
 
@@ -334,22 +334,19 @@ powercfg -s 6a93ec26-284d-4943-9fc4-c9616def55c6
 
   @override
   Future<void> disableReviPowerPlan() async {
+    // Requires Balanced powerplan activation to delete the active powerplan.
     const command = r'''
 powercfg -s 381b4222-f694-41f0-9685-ff5bb260df2e
 if ($LASTEXITCODE -ne 0) {
   powercfg -restoreindividualdefaultscheme 381b4222-f694-41f0-9685-ff5bb260df2e
 }
 powercfg -s 381b4222-f694-41f0-9685-ff5bb260df2e
-powercfg -delete 6a93ec26-284d-4943-9fc4-c9616def55c6
+if (Test-Path "HKLM:\SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\6a93ec26-284d-4943-9fc4-c9616def55c6") {
+  powercfg -delete 6a93ec26-284d-4943-9fc4-c9616def55c6
+}
 ''';
 
-    shell.runExecutableArgumentsSync('powershell', [
-      '-NoProfile',
-      '-NonInteractive',
-      '-NoLogo',
-      '-Command',
-      command,
-    ]);
+    await runPSCommand(command, encodedCommand: true);
   }
 
   Future<void> _setActiveSchemeCurrent() async {
