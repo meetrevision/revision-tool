@@ -1,6 +1,8 @@
 import 'dart:core';
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 import 'package:logger/logger.dart';
@@ -90,14 +92,25 @@ Future<ProcessResult> runPSCommand(
   String command, {
   bool stdout = false,
   bool loggerInfoOutput = true,
+  bool encodedCommand = false,
 }) async {
-  final ProcessResult result = await Process.run('powershell', [
+  final args = <String>[
     '-NoProfile',
     '-NonInteractive',
     '-NoLogo',
-    '-Command',
-    command,
-  ], runInShell: true);
+    if (encodedCommand) ...[
+      '-EncodedCommand',
+      _toUtf16LeBase64(command),
+    ] else ...[
+      '-Command',
+      command,
+    ],
+  ];
+  final ProcessResult result = await Process.run(
+    'powershell',
+    args,
+    runInShell: true,
+  );
 
   if (result.exitCode != 0) {
     logger.e(
@@ -107,7 +120,7 @@ Future<ProcessResult> runPSCommand(
     );
     throw ProcessException(
       'powershell',
-      ['-NoProfile', '-NonInteractive', '-NoLogo', '-Command', command],
+      args,
       result.stderr.toString(),
       result.exitCode,
     );
@@ -117,6 +130,11 @@ Future<ProcessResult> runPSCommand(
   }
 
   return result;
+}
+
+String _toUtf16LeBase64(String value) {
+  final units = Uint16List.fromList(value.codeUnits);
+  return base64Encode(Uint8List.view(units.buffer));
 }
 
 final shell = Shell(commandVerbose: true);
