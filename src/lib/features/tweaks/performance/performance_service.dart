@@ -266,19 +266,17 @@ class PerformanceServiceImpl implements PerformanceService {
   @override
   Future<void> enableReviPowerPlan() async {
     const command = r'''
+if (Test-Path "HKLM:\SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\3ff9831b-6f80-4830-8178-736cd4229e7b") {
+  powercfg -delete 3ff9831b-6f80-4830-8178-736cd4229e7b
+}
+if (Test-Path "HKLM:\SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\6a93ec26-284d-4943-9fc4-c9616def55c6") {
+  powercfg -delete 6a93ec26-284d-4943-9fc4-c9616def55c6
+}
 powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 6a93ec26-284d-4943-9fc4-c9616def55c6
 powercfg -changename 6a93ec26-284d-4943-9fc4-c9616def55c6 "Revision - Ultra Performance" "Windows's Ultimate Performance with additional changes."
 powercfg -s 6a93ec26-284d-4943-9fc4-c9616def55c6
-powercfg -delete 3ff9831b-6f80-4830-8178-736cd4229e7b
 ''';
-
-    shell.runExecutableArgumentsSync('cmd', [
-      '-NoProfile',
-      '-NonInteractive',
-      '-NoLogo',
-      '-Command',
-      command,
-    ]);
+    await runPSCommand(command, encodedCommand: true);
 
     // **PERFINCPOL**, **PERFDECPOL**, **PERFINCTHRESHOLD**, **PERFDECTHRESHOLD** only take effect on non-HWP systems or when **PERFAUTONOMOUS** is disabled.
     await TrustedInstallerServiceImpl().executeWithTrustedInstaller(
