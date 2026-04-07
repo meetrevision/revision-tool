@@ -9,7 +9,7 @@ import 'features/winsxs/win_package_command.dart';
 import 'utils.dart';
 
 Future<void> main(List<String> args) async {
-  if (!WinRegistryService.isSupported && !Directory(ameTemp).existsSync()) {
+  if (!WinRegistryService.isSupported && !WinRegistryService.isAmePlaybook) {
     logger.i('Unsupported build detected. Please apply ReviOS on your system');
     exit(55);
   }

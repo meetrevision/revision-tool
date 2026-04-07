@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:win32/win32.dart';
@@ -43,8 +44,7 @@ abstract class WinRegistryService {
       r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer';
   static const _settingsPageVisibilityName = 'SettingsPageVisibility';
 
-  static bool get isW11 => _w11;
-  static final bool _w11 = buildNumber > 19045;
+  static final bool isW11 = buildNumber > 19045;
 
   static final String cpuArch = readString(
     RegistryHive.localMachine,
@@ -61,8 +61,12 @@ abstract class WinRegistryService {
               '')
           .toLowerCase();
 
-  static bool get isIntelCpu => _cpuVendorIdentifier.contains('intel');
-  static bool get isAmdCpu => _cpuVendorIdentifier.contains('amd');
+  static final bool isIntelCpu = _cpuVendorIdentifier.contains('intel');
+  static final bool isAmdCpu = _cpuVendorIdentifier.contains('amd');
+
+  static final bool isAmePlaybook = Directory(
+    '${Directory.systemTemp.path}\\AME\\Playbooks\\Revision-ReviOS',
+  ).existsSync();
 
   static bool get isSupported {
     return _validate() ||
@@ -92,7 +96,9 @@ abstract class WinRegistryService {
           .lastWhere((element) => element.startsWith('Revision-ReviOS'))
           .isNotEmpty;
     } catch (e) {
-      logger.w('Error validating ReviOS');
+      if (!isAmePlaybook) {
+        logger.w('Error validating ReviOS');
+      }
       return false;
     } finally {
       key.close();
