@@ -3,12 +3,21 @@ import 'dart:typed_data';
 import 'package:win32/win32.dart';
 import 'package:win32_registry/win32_registry.dart';
 
-import '../../utils.dart';
+import '../cli_generator/annotations.dart';
 import '../trusted_installer/trusted_installer_service.dart';
 
-class WinRegistryService {
+part 'win_registry_service.g.dart';
+
+@CliCommand(name: 'registry', description: 'Windows registry utilities')
+abstract class WinRegistryService {
   const WinRegistryService._private();
   static const tag = 'await WinRegistryService';
+
+  @CliAction(name: 'hide-page', run: 'hideSettingsPage')
+  Future<void> hideSettingsPage(String pageName);
+
+  @CliAction(name: 'unhide-page', run: 'unhideSettingsPage')
+  Future<void> unhideSettingsPage(String pageName);
 
   static Future<void> initialize() async {
     currentUserSid = await runPSCommand(
@@ -30,6 +39,9 @@ class WinRegistryService {
   static late final String currentUserSid;
   static const defaultUser = 'DefaultUserHive';
   static const defaultUserHivePath = r'C:\Users\Default\NTUSER.DAT';
+  static const _settingsPageVisibilityPath =
+      r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer';
+  static const _settingsPageVisibilityName = 'SettingsPageVisibility';
 
   static bool get isW11 => _w11;
   static final bool _w11 = buildNumber > 19045;
@@ -90,15 +102,15 @@ class WinRegistryService {
   static Future<void> hidePageVisibilitySettings(String pageName) async {
     final String? currentValue = readString(
       RegistryHive.localMachine,
-      r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
-      'SettingsPageVisibility',
+      _settingsPageVisibilityPath,
+      _settingsPageVisibilityName,
     );
 
     if (currentValue == null || currentValue.isEmpty) {
       await writeRegistryValue(
         Registry.localMachine,
-        r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
-        'SettingsPageVisibility',
+        _settingsPageVisibilityPath,
+        _settingsPageVisibilityName,
         'hide:$pageName',
       );
       return;
@@ -106,8 +118,8 @@ class WinRegistryService {
     if (!currentValue.contains(pageName)) {
       await writeRegistryValue(
         Registry.localMachine,
-        r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
-        'SettingsPageVisibility',
+        _settingsPageVisibilityPath,
+        _settingsPageVisibilityName,
         currentValue.endsWith(';') || currentValue.endsWith(':')
             ? '$currentValue$pageName;'
             : '$currentValue;$pageName;',
@@ -119,8 +131,8 @@ class WinRegistryService {
   static Future<void> unhidePageVisibilitySettings(String pageName) async {
     final String? currentValue = readString(
       RegistryHive.localMachine,
-      r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
-      'SettingsPageVisibility',
+      _settingsPageVisibilityPath,
+      _settingsPageVisibilityName,
     );
 
     if (currentValue == null || currentValue.isEmpty) return;
@@ -131,8 +143,8 @@ class WinRegistryService {
       if (currentValue == 'hide:$pageName') {
         await deleteValue(
           Registry.localMachine,
-          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
-          'SettingsPageVisibility',
+          _settingsPageVisibilityPath,
+          _settingsPageVisibilityName,
         );
         return;
       } else if (currentValue.contains('$pageName;')) {
@@ -144,14 +156,14 @@ class WinRegistryService {
       if (newValue == 'hide:' || newValue.isEmpty) {
         await deleteValue(
           Registry.localMachine,
-          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
-          'SettingsPageVisibility',
+          _settingsPageVisibilityPath,
+          _settingsPageVisibilityName,
         );
       } else {
         await writeRegistryValue(
           Registry.localMachine,
-          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer',
-          'SettingsPageVisibility',
+          _settingsPageVisibilityPath,
+          _settingsPageVisibilityName,
           newValue,
         );
       }
@@ -490,4 +502,16 @@ class WinRegistryService {
       );
     }
   }
+}
+
+class WinRegistryCliService implements WinRegistryService {
+  const WinRegistryCliService();
+
+  @override
+  Future<void> hideSettingsPage(String pageName) =>
+      WinRegistryService.hidePageVisibilitySettings(pageName);
+
+  @override
+  Future<void> unhideSettingsPage(String pageName) =>
+      WinRegistryService.unhidePageVisibilitySettings(pageName);
 }

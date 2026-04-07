@@ -33,6 +33,9 @@ Future<void> main(List<String> args) async {
           "Revision Tool CLI v${const String.fromEnvironment('APP_VERSION', defaultValue: '1.0.0')}",
         )
         ..addCommand(MSStoreCommand())
+        ..addCommand(
+          WinRegistryServiceCliCommand(const WinRegistryCliService()),
+        )
         ..addCommand(TweaksCommand())
         ..addCommand(WindowsPackageCommand());
   await runner.run(args);

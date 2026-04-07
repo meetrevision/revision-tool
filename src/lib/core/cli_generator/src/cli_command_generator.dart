@@ -101,11 +101,28 @@ class CliCommandGenerator extends GeneratorForAnnotation<CliCommand> {
               element: member,
             );
           }
-          if (runMethod.formalParameters.isNotEmpty) {
+          final List<FormalParameterElement> requiredParams = runMethod
+              .formalParameters
+              .where((p) => p.isRequiredPositional)
+              .toList(growable: false);
+          if (runMethod.formalParameters.any(
+                (p) => p.isOptionalPositional || p.isNamed,
+              ) ||
+              requiredParams.length > 1) {
             throw InvalidGenerationSourceError(
-              '@CliAction(name: "${meta.name}") run method must not declare parameters.',
+              '@CliAction(name: "${meta.name}") run method must declare zero or one required positional parameter only.',
               element: member,
             );
+          }
+          if (requiredParams.length == 1) {
+            final String paramType = requiredParams.single.type
+                .getDisplayString(withNullability: false);
+            if (!_isSupportedValueType(paramType)) {
+              throw InvalidGenerationSourceError(
+                '@CliAction(name: "${meta.name}") parameter type "$paramType" is unsupported. Supported types: int, double, bool, String.',
+                element: member,
+              );
+            }
           }
           if (!_isValidToggleReturnType(runMethod.returnType)) {
             throw InvalidGenerationSourceError(
@@ -115,7 +132,7 @@ class CliCommandGenerator extends GeneratorForAnnotation<CliCommand> {
           }
           final _GeneratedLeaf leaf = _buildActionLeaf(
             serviceClassName,
-            meta.runMethod,
+            runMethod,
             meta,
           );
           groupClassNames.add(leaf.className);
@@ -389,11 +406,40 @@ argParser.addOption(
 
   _GeneratedLeaf _buildActionLeaf(
     String serviceClassName,
-    String runMethodName,
+    MethodElement runMethod,
     _CliMetaAction meta,
   ) {
     final String display = _pascal(meta.name);
     final className = '_Action${display}Command';
+    final String runMethodName = _memberName(runMethod);
+    final List<FormalParameterElement> requiredParams = runMethod
+        .formalParameters
+        .where((p) => p.isRequiredPositional)
+        .toList(growable: false);
+    final bool hasParam = requiredParams.isNotEmpty;
+    final String? valueType = hasParam
+        ? requiredParams.single.type.getDisplayString(withNullability: false)
+        : null;
+    final constructorBody = hasParam
+        ? '''
+argParser.addOption(
+  'value',
+  mandatory: true,
+  help: 'The value (type: $valueType)',
+);
+'''
+        : '';
+    final tryBody = hasParam
+        ? '''
+  final String valueStr = argResults!['value'] as String;
+  final $valueType value = ${_generateValueParser(valueType!, 'valueStr')};
+  await _service.$runMethodName(value);
+  logger.i('${_escapeForSingleQuotedString(meta.name)} completed for: \$valueStr');
+'''
+        : '''
+  await _service.$runMethodName();
+  logger.i('${_escapeForSingleQuotedString(meta.name)} completed');
+''';
     return (
       className: className,
       spec: _buildLeafClass(
@@ -401,14 +447,11 @@ argParser.addOption(
         serviceClassName: serviceClassName,
         commandNameLiteral: _quoteLiteral(meta.name),
         descriptionLiteral: _quoteLiteral('Run ${meta.name} action'),
+        constructorBody: constructorBody,
         returnType: 'Future<void>',
         isAsync: true,
         runBodyCode: _buildTryCatchCode(
-          tryBody:
-              '''
-  await _service.$runMethodName();
-  logger.i('${_escapeForSingleQuotedString(meta.name)} completed');
-''',
+          tryBody: tryBody,
           exceptionMessageLiteral: _quoteLiteral('Failed to run ${meta.name}'),
         ),
       ),
@@ -766,6 +809,13 @@ argParser.addOption(
           '@CliValue: unsupported parameter type "$type". Supported types: int, double, bool, String.',
         );
     }
+  }
+
+  bool _isSupportedValueType(String type) {
+    return switch (type) {
+      'int' || 'double' || 'num' || 'bool' || 'String' => true,
+      _ => false,
+    };
   }
 
   Method _buildParseHelper(String enumType) {
