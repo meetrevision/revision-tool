@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 
+import 'core/services/win_registry_command.dart';
 import 'core/services/win_registry_service.dart';
 import 'features/ms_store/ms_store_command.dart';
 import 'features/tweaks/tweaks_command.dart';

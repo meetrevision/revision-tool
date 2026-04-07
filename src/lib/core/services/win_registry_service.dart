@@ -7,17 +7,15 @@ import 'package:win32_registry/win32_registry.dart';
 import '../cli_generator/annotations.dart';
 import '../trusted_installer/trusted_installer_service.dart';
 
-part 'win_registry_service.g.dart';
-
-@CliCommand(name: 'registry', description: 'Windows registry utilities')
+// @CliCommand(name: 'registry', description: 'Windows registry utilities')
 abstract class WinRegistryService {
   const WinRegistryService._private();
   static const tag = 'await WinRegistryService';
 
-  @CliAction(name: 'hide-page', run: 'hideSettingsPage')
+  // @CliAction(name: 'hide-page', run: 'hideSettingsPage')
   Future<void> hideSettingsPage(String pageName);
 
-  @CliAction(name: 'unhide-page', run: 'unhideSettingsPage')
+  // @CliAction(name: 'unhide-page', run: 'unhideSettingsPage')
   Future<void> unhideSettingsPage(String pageName);
 
   static Future<void> initialize() async {
