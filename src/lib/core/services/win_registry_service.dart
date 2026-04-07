@@ -105,7 +105,18 @@ abstract class WinRegistryService {
     }
   }
 
-  static Future<void> hidePageVisibilitySettings(String pageName) async {
+  static Future<void> hidePageVisibilitySettings(String pageNames) async {
+    final List<String> pages = pageNames
+        .split(',')
+        .map((p) => p.trim())
+        .where((p) => p.isNotEmpty)
+        .toList();
+    for (final page in pages) {
+      await _hidePageVisibilitySettingsSingle(page);
+    }
+  }
+
+  static Future<void> _hidePageVisibilitySettingsSingle(String pageName) async {
     final String? currentValue = readString(
       RegistryHive.localMachine,
       _settingsPageVisibilityPath,
@@ -134,7 +145,20 @@ abstract class WinRegistryService {
     }
   }
 
-  static Future<void> unhidePageVisibilitySettings(String pageName) async {
+  static Future<void> unhidePageVisibilitySettings(String pageNames) async {
+    final List<String> pages = pageNames
+        .split(',')
+        .map((p) => p.trim())
+        .where((p) => p.isNotEmpty)
+        .toList();
+    for (final page in pages) {
+      await _unhidePageVisibilitySettingsSingle(page);
+    }
+  }
+
+  static Future<void> _unhidePageVisibilitySettingsSingle(
+    String pageName,
+  ) async {
     final String? currentValue = readString(
       RegistryHive.localMachine,
       _settingsPageVisibilityPath,
