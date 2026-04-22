@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:win32_registry/win32_registry.dart';
@@ -216,6 +217,20 @@ class SecurityServiceImpl implements SecurityService {
           r'SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce',
           'RevisionEnableDefenderCMD',
           '"$_mpCmdRunString" -WDEnable',
+        ),
+      ]);
+
+      await Future.wait([
+        WinRegistryService.deleteValue(
+          Registry.localMachine,
+          r'SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Systray',
+          'HideSystray',
+        ),
+        WinRegistryService.writeRegistryValue(
+          Registry.localMachine,
+          r'SOFTWARE\Microsoft\Windows\CurrentVersion\Run',
+          'SecurityHealth',
+          r'%windir%\system32\SecurityHealthSystray.exe',
         ),
       ]);
 
