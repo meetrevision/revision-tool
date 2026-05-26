@@ -30,20 +30,25 @@ Future<Object?> showInstallProcess(
   BuildContext context,
   List<ProcessResult> processResult,
 ) {
+  final hasError = processResult.any((r) => r.exitCode != 0);
+
   return showDialog(
     context: context,
     dismissWithEsc: false,
     builder: (context) => ContentDialog(
       constraints: const BoxConstraints(maxWidth: 600, maxHeight: 600),
-      title: Text(t.installing),
+      title: Text(hasError ? 'Error' : t.install),
       content: Center(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: .center,
             children: [
-              for (final item in processResult) ...[
-                Text(processResultToDebugString(item)),
-              ],
+              if (hasError)
+                for (final item in processResult) ...[
+                  Text(processResultToDebugString(item)),
+                ]
+              else
+                const Icon(FluentIcons.completed, size: 40, color: Colors.green),
             ],
           ),
         ),
