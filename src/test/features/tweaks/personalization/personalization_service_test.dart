@@ -135,6 +135,34 @@ void main() {
         });
       });
 
+      group('Explorer Home', () {
+        test('statusExplorerHome returns a boolean', () {
+          expect(service.statusExplorerHome, isA<bool>());
+        });
+
+        test('enableExplorerHome completes without error', () async {
+          await expectLater(service.enableExplorerHome(), completes);
+        });
+
+        test('disableExplorerHome completes without error', () async {
+          await expectLater(service.disableExplorerHome(), completes);
+        });
+      });
+
+      group('Explorer Gallery', () {
+        test('statusExplorerGallery returns a boolean', () {
+          expect(service.statusExplorerGallery, isA<bool>());
+        });
+
+        test('enableExplorerGallery completes without error', () async {
+          await expectLater(service.enableExplorerGallery(), completes);
+        });
+
+        test('disableExplorerGallery completes without error', () async {
+          await expectLater(service.disableExplorerGallery(), completes);
+        });
+      });
+
       group('Service Instance', () {
         test('PersonalizationService can be instantiated', () {
           expect(() => const PersonalizationServiceImpl(), returnsNormally);
@@ -170,6 +198,8 @@ void main() {
           expect(service.statusNewContextMenu, isA<bool>());
           expect(service.statusInputPersonalization, isA<bool>());
           expect(service.statusCapsLock, isA<bool>());
+          expect(service.statusExplorerHome, isA<bool>());
+          expect(service.statusExplorerGallery, isA<bool>());
         });
 
         test('All methods return Future<void>', () {
@@ -195,6 +225,10 @@ void main() {
           expect(service.disableInputPersonalization(), isA<Future<void>>());
           expect(service.enableCapsLock(), isA<Future<void>>());
           expect(service.disableCapsLock(), isA<Future<void>>());
+          expect(service.enableExplorerHome(), isA<Future<void>>());
+          expect(service.disableExplorerHome(), isA<Future<void>>());
+          expect(service.enableExplorerGallery(), isA<Future<void>>());
+          expect(service.disableExplorerGallery(), isA<Future<void>>());
         });
       });
 
@@ -430,6 +464,44 @@ void main() {
       });
     });
 
+    group('Explorer Home Status', () {
+      test('statusExplorerHome can be mocked', () {
+        when(() => mockService.statusExplorerHome).thenReturn(true);
+        expect(mockService.statusExplorerHome, isTrue);
+      });
+
+      test('enableExplorerHome can be called without system changes', () async {
+        when(() => mockService.enableExplorerHome()).thenAnswer((_) async => Future.value());
+        await mockService.enableExplorerHome();
+        verify(() => mockService.enableExplorerHome()).called(1);
+      });
+
+      test('disableExplorerHome can be called without system changes', () async {
+        when(() => mockService.disableExplorerHome()).thenAnswer((_) async => Future.value());
+        await mockService.disableExplorerHome();
+        verify(() => mockService.disableExplorerHome()).called(1);
+      });
+    });
+
+    group('Explorer Gallery Status', () {
+      test('statusExplorerGallery can be mocked', () {
+        when(() => mockService.statusExplorerGallery).thenReturn(true);
+        expect(mockService.statusExplorerGallery, isTrue);
+      });
+
+      test('enableExplorerGallery can be called without system changes', () async {
+        when(() => mockService.enableExplorerGallery()).thenAnswer((_) async => Future.value());
+        await mockService.enableExplorerGallery();
+        verify(() => mockService.enableExplorerGallery()).called(1);
+      });
+
+      test('disableExplorerGallery can be called without system changes', () async {
+        when(() => mockService.disableExplorerGallery()).thenAnswer((_) async => Future.value());
+        await mockService.disableExplorerGallery();
+        verify(() => mockService.disableExplorerGallery()).called(1);
+      });
+    });
+
     group('Call Order Verification', () {
       test('can verify method call order', () async {
         when(
@@ -553,12 +625,20 @@ void main() {
           () => mockService.enableScreenEdgeSwipe(),
         ).thenAnswer((_) async => Future.value());
         when(() => mockService.statusNewContextMenu).thenReturn(true);
+        when(() => mockService.statusExplorerHome).thenReturn(false);
+        when(() => mockService.enableExplorerHome()).thenAnswer((_) async => Future.value());
+        when(() => mockService.statusExplorerGallery).thenReturn(false);
+        when(() => mockService.enableExplorerGallery()).thenAnswer((_) async => Future.value());
 
         expect(mockService.statusLegacyBalloon, isTrue);
         await mockService.enableLegacyBalloon();
         expect(mockService.statusScreenEdgeSwipe, isFalse);
         await mockService.enableScreenEdgeSwipe();
         expect(mockService.statusNewContextMenu, isTrue);
+        expect(mockService.statusExplorerHome, isFalse);
+        await mockService.enableExplorerHome();
+        expect(mockService.statusExplorerGallery, isFalse);
+        await mockService.enableExplorerGallery();
       });
 
       test('all input personalization features are testable', () async {
