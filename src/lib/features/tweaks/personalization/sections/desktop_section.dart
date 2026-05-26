@@ -20,6 +20,8 @@ class DesktopSection extends StatelessWidget {
         _LegacyBalloonCard(),
         _ScreenEdgeSwipeCard(),
         _NewContextMenuCard(),
+        _ExplorerHomeCard(),
+        _ExplorerGalleryCard(),
       ],
     );
   }
@@ -133,6 +135,58 @@ class _NewContextMenuCard extends ConsumerWidget {
                     .read(personalizationServiceProvider)
                     .disableNewContextMenu();
           ref.invalidate(newContextMenuStatusProvider);
+        },
+      ),
+    );
+  }
+}
+
+class _ExplorerHomeCard extends ConsumerWidget {
+  const _ExplorerHomeCard();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bool status = ref.watch(explorerHomeStatusProvider);
+
+    return CardListTile(
+      title: 'Show "Home" in Navigation Pane',
+      description: 'Display the Home entry in File Explorer\'s left navigation pane',
+      trailing: CardToggleSwitch(
+        value: status,
+        onChanged: (value) async {
+          value
+              ? await ref
+                    .read(personalizationServiceProvider)
+                    .enableExplorerHome()
+              : await ref
+                    .read(personalizationServiceProvider)
+                    .disableExplorerHome();
+          ref.invalidate(explorerHomeStatusProvider);
+        },
+      ),
+    );
+  }
+}
+
+class _ExplorerGalleryCard extends ConsumerWidget {
+  const _ExplorerGalleryCard();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bool status = ref.watch(explorerGalleryStatusProvider);
+
+    return CardListTile(
+      title: 'Show "Gallery" in Navigation Pane',
+      description: 'Display the Gallery entry in File Explorer\'s left navigation pane',
+      trailing: CardToggleSwitch(
+        value: status,
+        onChanged: (value) async {
+          value
+              ? await ref
+                    .read(personalizationServiceProvider)
+                    .enableExplorerGallery()
+              : await ref
+                    .read(personalizationServiceProvider)
+                    .disableExplorerGallery();
+          ref.invalidate(explorerGalleryStatusProvider);
         },
       ),
     );
