@@ -43,14 +43,8 @@ class TweaksPatchesCommand extends Command<void> {
   FutureOr<void> run() async {
     logger.i('$name: Applying main playbook patch...');
 
-    // Disable WebView2 spawning from SearchHost.
-    // https://www.reddit.com/r/WindowsHelp/comments/1lfu325/comment/n2nk50h
-    await WinRegistryService.writeRegistryValue(
-      Registry.localMachine,
-      r'SYSTEM\ControlSet001\Policies\Microsoft\FeatureManagement\Overrides',
-      '1694661260',
-      0,
-    );
+    await const UpdatesServiceImpl().disableDriversWU();
+    await const UpdatesServiceImpl().enablePauseUpdatesWU();
     exit(0);
   }
 }
