@@ -306,6 +306,7 @@ abstract class WinRegistryService {
 
     try {
       final RegistryValue registryValue = switch (value) {
+        final RegistryValue v => v,
         final int v => RegistryValue.int32(name, v),
         final String v => RegistryValue.string(name, v),
         final List<String> v => RegistryValue.stringArray(name, v),

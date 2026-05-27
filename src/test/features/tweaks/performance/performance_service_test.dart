@@ -135,6 +135,20 @@ void main() {
         });
       });
 
+      group('CTFMon Input', () {
+        test('statusCtfmonInput returns a boolean', () {
+          expect(service.statusCtfmonInput, isA<bool>());
+        });
+
+        test('enableCtfmonInput completes without error', () async {
+          await expectLater(service.enableCtfmonInput(), completes);
+        });
+
+        test('disableCtfmonInput completes without error', () async {
+          await expectLater(service.disableCtfmonInput(), completes);
+        });
+      });
+
       group('Last Time Access NTFS', () {
         test('statusLastTimeAccessNTFS returns a boolean', () {
           expect(service.statusLastTimeAccessNTFS, isA<bool>());
@@ -404,6 +418,7 @@ void main() {
           expect(service.statusFullscreenOptimization, isA<bool>());
           expect(service.statusWindowedOptimization, isA<bool>());
           expect(service.statusBackgroundApps, isA<bool>());
+          expect(service.statusCtfmonInput, isA<bool>());
           expect(service.statusLastTimeAccessNTFS, isA<bool>());
           expect(service.status8dot3NamingNTFS, isA<bool>());
           expect(service.statusMemoryUsageNTFS, isA<bool>());
@@ -434,6 +449,8 @@ void main() {
           expect(service.disableWindowedOptimization(), isA<Future<void>>());
           expect(service.enableBackgroundApps(), isA<Future<void>>());
           expect(service.disableBackgroundApps(), isA<Future<void>>());
+          expect(service.enableCtfmonInput(), isA<Future<void>>());
+          expect(service.disableCtfmonInput(), isA<Future<void>>());
           expect(
             service.setServiceGroupingMode(ServiceGrouping.forced),
             isA<Future<void>>(),
@@ -498,6 +515,12 @@ void main() {
           () => mockService.statusBackgroundWindowMessageRateLimit,
         ).thenReturn(125);
         expect(mockService.statusBackgroundWindowMessageRateLimit, 125);
+      });
+
+      test('statusCtfmonInput can be mocked', () {
+        when(() => mockService.statusCtfmonInput).thenReturn(true);
+        expect(mockService.statusCtfmonInput, true);
+        verify(() => mockService.statusCtfmonInput).called(1);
       });
     });
 
@@ -587,6 +610,30 @@ void main() {
           () => mockService.setBackgroundWindowMessageRateLimit(8),
         ).called(1);
       });
+
+      test(
+        'enableCtfmonInput can be called without registry changes',
+        () async {
+          when(
+            () => mockService.enableCtfmonInput(),
+          ).thenAnswer((_) async => Future.value());
+
+          await mockService.enableCtfmonInput();
+          verify(() => mockService.enableCtfmonInput()).called(1);
+        },
+      );
+
+      test(
+        'disableCtfmonInput can be called without registry changes',
+        () async {
+          when(
+            () => mockService.disableCtfmonInput(),
+          ).thenAnswer((_) async => Future.value());
+
+          await mockService.disableCtfmonInput();
+          verify(() => mockService.disableCtfmonInput()).called(1);
+        },
+      );
     });
 
     group('Error Scenarios', () {

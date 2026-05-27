@@ -115,6 +115,8 @@
     "tweaksPerformanceBADescription": "Allow apps to run in the background, even when you\u0027re not using them. This will have a performance impact due to constantly running in the background. Disabling this will also disable notifications for some apps",
     "tweaksPerformanceBWMR": "Background Window Message Rate Limit",
     "tweaksPerformanceBWMRDescription": "Controls how often background apps receive mouse and keyboard input updates. A higher rate (125 Hz) offers maximum responsiveness, while a lower rate (50 Hz) improves performance by reducing background processing but may cause issues with hotkeys or idle detection.",
+    "tweaksPerformanceCtfmonInput": "Reduce CTFMon input overhead",
+    "tweaksPerformanceCtfmonInputDescription": "Limits CTFMon input interception to reduce background overhead. Turning this off hides the language bar on the taskbar and may affect IMEs, touch keyboard, and advanced typing features.",
     "tweaksPerformancePresentation": "Swapchain Presentation",
     "tweaksPerformanceFSO": "Fullscreen Optimizations",
     "tweaksPerformanceFSODescription": "Fullscreen Optimizations may lead to better gaming and app performance when running in fullscreen mode",

@@ -115,6 +115,8 @@
     "tweaksPerformanceBADescription": "Autoriser les applications à s\u0027exécuter en arrière-plan, même lorsque vous ne les utilisez pas. Cela aura un impact sur les performances car elles s\u0027exécutent constamment. La désactivation désactivera également les notifications pour certaines applications",
     "tweaksPerformanceBWMR": "Limite de taux de messages fenêtre arrière-plan",
     "tweaksPerformanceBWMRDescription": "Contrôle la fréquence à laquelle les applications en arrière-plan reçoivent les mises à jour de la souris et du clavier. Un taux plus élevé (125 Hz) offre une réactivité maximale, tandis qu\u0027un taux plus bas (50 Hz) améliore les performances en réduisant le traitement en arrière-plan mais peut causer des problèmes avec les raccourcis ou la détection d\u0027inactivité.",
+    "tweaksPerformanceCtfmonInput": "Réduire la surcharge d\u0027entrée de CTFMon",
+    "tweaksPerformanceCtfmonInputDescription": "Limite l\u0027interception des entrées par CTFMon afin de réduire la surcharge en arrière-plan. La désactivation masque la barre de langue dans la barre des tâches et peut affecter les IME, le clavier tactile et les fonctionnalités avancées de saisie.",
     "tweaksPerformancePresentation": "Présentation Swapchain",
     "tweaksPerformanceFSO": "Optimisations plein écran",
     "tweaksPerformanceFSODescription": "Les optimisations plein écran peuvent conduire à de meilleures performances de jeu et d\u0027application lors de l\u0027exécution en mode plein écran",

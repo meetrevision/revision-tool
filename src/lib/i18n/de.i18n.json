@@ -115,6 +115,8 @@
     "tweaksPerformanceBADescription": "Erlauben Sie Apps, im Hintergrund ausgeführt zu werden, auch wenn Sie sie nicht verwenden. Dies hat Auswirkungen auf die Leistung, da sie ständig im Hintergrund laufen. Das Deaktivieren deaktiviert auch Benachrichtigungen für einige Apps",
     "tweaksPerformanceBWMR": "Hintergrundfenster-Nachrichtenratenlimit",
     "tweaksPerformanceBWMRDescription": "Steuert, wie oft Hintergrund-Apps Maus- und Tastatureingabeaktualisierungen erhalten. Eine höhere Rate (125 Hz) bietet maximale Reaktionsfähigkeit, während eine niedrigere Rate (50 Hz) die Leistung verbessert, indem die Hintergrundverarbeitung reduziert wird, aber Probleme mit Hotkeys oder der Leerlauferkennung verursachen kann.",
+    "tweaksPerformanceCtfmonInput": "CTFMon-Eingabeaufwand reduzieren",
+    "tweaksPerformanceCtfmonInputDescription": "Begrenzt das Abfangen von Eingaben durch CTFMon, um den Hintergrundaufwand zu reduzieren. Das Deaktivieren blendet die Sprachleiste in der Taskleiste aus und kann IMEs, die Touch-Tastatur und erweiterte Eingabefunktionen beeinträchtigen.",
     "tweaksPerformancePresentation": "Swapchain-Präsentation",
     "tweaksPerformanceFSO": "Vollbildoptimierungen",
     "tweaksPerformanceFSODescription": "Vollbildoptimierungen können zu einer besseren Spiele- und App-Leistung führen, wenn im Vollbildmodus ausgeführt",

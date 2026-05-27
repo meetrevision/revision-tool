@@ -111,6 +111,8 @@
     "tweaksPerformanceBADescription": "Uygulamaların kullanmadığınızda bile arka planda çalışmasına izin verin. Sürekli çalıştığı için performans üzerinde etkisi olacaktır. Bunu devre dışı bırakmak bazı uygulamalar için bildirimleri de devre dışı bırakacaktır",
     "tweaksPerformanceBWMR": "Arka Plan Penceresi Mesaj Hızı Sınırı",
     "tweaksPerformanceBWMRDescription": "Arka plan uygulamalarının fare ve klavye giriş güncellemelerini ne sıklıkla alacağını kontrol eder. Daha yüksek bir oran (125 Hz) maksimum yanıt verme hızı sunarken, daha düşük bir oran (50 Hz) arka plan işlemeyi azaltarak performansı artırır ancak kısayol tuşları veya boşta algılama ile ilgili sorunlara neden olabilir.",
+    "tweaksPerformanceCtfmonInput": "CTFMon giriş yükünü azalt",
+    "tweaksPerformanceCtfmonInputDescription": "CTFMon giriş yakalamasını sınırlayarak arka plan yükünü azaltır. Bunu kapatmak görev çubuğundaki dil çubuğunu gizler ve IME'leri, dokunmatik klavyeyi ve gelişmiş yazma özelliklerini etkileyebilir.",
     "tweaksPerformancePresentation": "Swapchain Sunumu",
     "tweaksPerformanceFSO": "Tam Ekran Optimizasyonları",
     "tweaksPerformanceFSODescription": "Tam Ekran Optimizasyonları, tam ekran modunda çalışırken daha iyi oyun ve uygulama performansı sağlayabilir",

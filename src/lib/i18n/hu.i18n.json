@@ -115,6 +115,8 @@
     "tweaksPerformanceBADescription": "Engedélyezze az alkalmazások futását a háttérben, még akkor is, ha nem használja őket. Ez hatással lesz a teljesítményre a folyamatos futás miatt. Ennek letiltása letiltja az értesítéseket is bizonyos alkalmazásoknál",
     "tweaksPerformanceBWMR": "Háttérablak üzenet sebességkorlát",
     "tweaksPerformanceBWMRDescription": "Szabályozza, milyen gyakran kapják meg a háttéralkalmazások az egér- és billentyűzet-bevitel frissítéseit. A magasabb arány (125 Hz) maximális válaszkészséget kínál, míg az alacsonyabb arány (50 Hz) javítja a teljesítményt a háttérfeldolgozás csökkentésével, de problémákat okozhat gyorsbillentyűkkel vagy az üresjárat észlelésével.",
+    "tweaksPerformanceCtfmonInput": "A CTFMon bemeneti terhelésének csökkentése",
+    "tweaksPerformanceCtfmonInputDescription": "Korlátozza a CTFMon bemenet-elfogását a háttérterhelés csökkentése érdekében. Kikapcsolása elrejti a tálcán lévő nyelvi sávot, és hatással lehet az IME-kre, az érintőbillentyűzetre és a fejlett gépelési funkciókra.",
     "tweaksPerformancePresentation": "Swapchain prezentáció",
     "tweaksPerformanceFSO": "Teljes képernyős optimalizálások",
     "tweaksPerformanceFSODescription": "A teljes képernyős optimalizálások jobb játék- és alkalmazásteljesítményhez vezethetnek teljes képernyős módban",

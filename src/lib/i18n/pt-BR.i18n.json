@@ -115,6 +115,8 @@
     "tweaksPerformanceBADescription": "Permitir que aplicativos sejam executados em segundo plano, mesmo quando você não os está usando. Isso terá um impacto no desempenho devido à execução constante. Desativar isso também desativará notificações para alguns aplicativos",
     "tweaksPerformanceBWMR": "Limite de taxa de mensagens de janela em segundo plano",
     "tweaksPerformanceBWMRDescription": "Controla a frequência com que os aplicativos em segundo plano recebem atualizações de mouse e teclado. Uma taxa mais alta (125 Hz) oferece capacidade de resposta máxima, enquanto uma taxa mais baixa (50 Hz) melhora o desempenho reduzindo o processamento em segundo plano, mas pode causar problemas com teclas de atalho ou detecção de inatividade.",
+    "tweaksPerformanceCtfmonInput": "Reduzir a sobrecarga de entrada do CTFMon",
+    "tweaksPerformanceCtfmonInputDescription": "Limita a interceptação de entrada do CTFMon para reduzir a sobrecarga em segundo plano. Desativar isso oculta a barra de idioma na barra de tarefas e pode afetar IMEs, o teclado sensível ao toque e recursos avançados de digitação.",
     "tweaksPerformancePresentation": "Apresentação Swapchain",
     "tweaksPerformanceFSO": "Otimizações de Tela Cheia",
     "tweaksPerformanceFSODescription": "Otimizações de Tela Cheia podem levar a um melhor desempenho de jogos e aplicativos quando executados em modo de tela cheia",

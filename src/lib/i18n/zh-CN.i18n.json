@@ -111,6 +111,8 @@
     "tweaksPerformanceBADescription": "允许应用在后台运行，即使您不使用它们。由于持续运行，这将对性能产生影响。禁用此项也将禁用某些应用的通知",
     "tweaksPerformanceBWMR": "后台窗口消息速率限制",
     "tweaksPerformanceBWMRDescription": "控制后台应用接收鼠标和键盘输入更新的频率。较高的速率 (125 Hz) 提供最大的响应能力，而较低的速率 (50 Hz) 通过减少后台处理来提高性能，但可能会导致热键或空闲检测问题。",
+    "tweaksPerformanceCtfmonInput": "减少 CTFMon 输入开销",
+    "tweaksPerformanceCtfmonInputDescription": "限制 CTFMon 的输入拦截以减少后台开销。关闭后会隐藏任务栏中的语言栏，并可能影响 IME、触摸键盘和高级输入功能。",
     "tweaksPerformancePresentation": "交换链演示",
     "tweaksPerformanceFSO": "全屏优化",
     "tweaksPerformanceFSODescription": "全屏优化可能会在全屏模式下运行时带来更好的游戏和应用性能",

@@ -196,6 +196,16 @@ abstract class PerformanceService {
   Future<void> disableBackgroundApps();
 
   @CliToggle(
+    name: 'ctfmon-input',
+    status: 'statusCtfmonInput',
+    enable: 'enableCtfmonInput',
+    disable: 'disableCtfmonInput',
+  )
+  bool get statusCtfmonInput;
+  Future<void> enableCtfmonInput();
+  Future<void> disableCtfmonInput();
+
+  @CliToggle(
     name: 'ntfs-last-access',
     status: 'statusLastTimeAccessNTFS',
     enable: 'enableLastTimeAccessNTFS',
@@ -878,6 +888,76 @@ if (Test-Path "HKLM:\SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\6a93ec
   }
 
   @override
+  bool get statusCtfmonInput {
+    final int? inputServiceEnabled = WinRegistryService.readInt(
+      RegistryHive.localMachine,
+      r'Software\Microsoft\Input',
+      'InputServiceEnabled',
+    );
+    final int? inputServiceEnabledForCci = WinRegistryService.readInt(
+      RegistryHive.localMachine,
+      r'Software\Microsoft\Input',
+      'InputServiceEnabledForCCI',
+    );
+
+    return inputServiceEnabled != 0 && inputServiceEnabledForCci != 0;
+  }
+
+  @override
+  Future<void> enableCtfmonInput() async {
+    await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'Software\Microsoft\Input',
+        'InputServiceEnabled',
+        1,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'Software\Microsoft\Input',
+        'InputServiceEnabledForCCI',
+        1,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\TextInputManagementService\Parameters',
+        'ServiceDll',
+        const RegistryValue.unexpandedString(
+          'ServiceDll',
+          r'%SystemRoot%\System32\TabSvc.dll',
+        ),
+      ),
+    ]);
+  }
+
+  @override
+  Future<void> disableCtfmonInput() async {
+    await Future.wait([
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'Software\Microsoft\Input',
+        'InputServiceEnabled',
+        0,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'Software\Microsoft\Input',
+        'InputServiceEnabledForCCI',
+        0,
+      ),
+      WinRegistryService.writeRegistryValue(
+        Registry.localMachine,
+        r'SYSTEM\ControlSet001\Services\TextInputManagementService\Parameters',
+        'ServiceDll',
+        const RegistryValue.unexpandedString(
+          'ServiceDll',
+          r'%SystemRoot%\System32\MSCTF.DLL',
+        ),
+      ),
+    ]);
+  }
+
+  @override
   bool get statusLastTimeAccessNTFS {
     return WinRegistryService.readInt(
           RegistryHive.localMachine,
@@ -1131,6 +1211,11 @@ bool mpoStatus(Ref ref) {
 @riverpod
 bool backgroundAppsStatus(Ref ref) {
   return ref.watch(performanceServiceProvider).statusBackgroundApps;
+}
+
+@riverpod
+bool ctfmonInputStatus(Ref ref) {
+  return ref.watch(performanceServiceProvider).statusCtfmonInput;
 }
 
 @riverpod

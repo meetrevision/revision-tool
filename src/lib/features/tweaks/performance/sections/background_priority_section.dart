@@ -20,6 +20,7 @@ class BackgroundManagementSection extends StatelessWidget {
       description: t.tweaksPerformanceBackgroundDescription,
       children: [
         const _BackgroundAppsCard(),
+        const _CtfmonInputCard(),
         if (WinRegistryService.isW11 || kDebugMode) ...[
           const _BackgroundWindowMessageRateCard(),
         ],
@@ -49,6 +50,31 @@ class _BackgroundAppsCard extends ConsumerWidget {
                     .read(performanceServiceProvider)
                     .disableBackgroundApps();
           ref.invalidate(backgroundAppsStatusProvider);
+        },
+      ),
+    );
+  }
+}
+
+class _CtfmonInputCard extends ConsumerWidget {
+  const _CtfmonInputCard();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bool status = ref.watch(ctfmonInputStatusProvider);
+
+    // Credits to https://youtu.be/b6wfwG4jecQ for discovering
+    return CardListTile(
+      title: t.tweaksPerformanceCtfmonInput,
+      description: t.tweaksPerformanceCtfmonInputDescription,
+      descriptionLink: 'https://ctfmon.vercel.app/',
+      trailing: CardToggleSwitch(
+        value: status,
+        requiresRestart: true,
+        onChanged: (value) async {
+          value
+              ? await ref.read(performanceServiceProvider).enableCtfmonInput()
+              : await ref.read(performanceServiceProvider).disableCtfmonInput();
+          ref.invalidate(ctfmonInputStatusProvider);
         },
       ),
     );

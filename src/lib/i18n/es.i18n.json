@@ -115,6 +115,8 @@
   "tweaksPerformanceBADescription": "Permite que las apps se ejecuten en 2do. plano, incluso cuando no las estés utilizando. Esto afectará al rendimiento, ya que se ejecutarán constantemente en 2do. plano. Si desactivas esta opción, también se desactivarán las notificaciones de algunas apps.",
   "tweaksPerformanceBWMR": "Límite de frecuencia de mensajes de la ventana en 2do. plano",
   "tweaksPerformanceBWMRDescription": "Determina la frecuencia con la que las apps en 2do. plano reciben actualizaciones de las entradas del ratón y teclado. Una frecuencia más alta (125 Hz) ofrece la máxima capacidad de respuesta, mientras que una frecuencia más baja (50 Hz) mejora el rendimiento al reducir el procesamiento en 2do. plano, aunque puede provocar problemas con las teclas de acceso rápido o la detección de inactividad.",
+  "tweaksPerformanceCtfmonInput": "Reducir la sobrecarga de entrada de CTFMon",
+  "tweaksPerformanceCtfmonInputDescription": "Limita la interceptación de entrada de CTFMon para reducir la sobrecarga en segundo plano. Desactivar esto oculta la barra de idioma en la barra de tareas y puede afectar a los IME, al teclado táctil y a las funciones avanzadas de escritura.",
   "tweaksPerformancePresentation": "Presentación Cadena de Intercambio (Swapchain)",
   "tweaksPerformanceFSO": "Optimizar Pantalla Completa",
   "tweaksPerformanceFSODescription": "Las optimizaciones de pantalla completa pueden mejorar el rendimiento de los juegos y las apps cuando se ejecutan en modo de pantalla completa",

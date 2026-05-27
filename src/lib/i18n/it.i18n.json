@@ -115,6 +115,8 @@
     "tweaksPerformanceBADescription": "Consenti alle app di essere eseguite in background, anche quando non le usi. Questo avrà un impatto sulle prestazioni poiché sono costantemente in esecuzione. Disabilitarlo disabiliterà anche le notifiche per alcune app",
     "tweaksPerformanceBWMR": "Limite frequenza messaggi finestra background",
     "tweaksPerformanceBWMRDescription": "Controlla con che frequenza le app in background ricevono aggiornamenti di input mouse e tastiera. Una frequenza più alta (125 Hz) offre massima reattività, mentre una più bassa (50 Hz) migliora le prestazioni riducendo l\u0027elaborazione in background ma potrebbe causare problemi con tasti di scelta rapida o rilevamento inattività.",
+    "tweaksPerformanceCtfmonInput": "Riduci l\u0027overhead di input di CTFMon",
+    "tweaksPerformanceCtfmonInputDescription": "Limita l\u0027intercettazione dell\u0027input di CTFMon per ridurre l\u0027overhead in background. Disattivandolo si nasconde la barra della lingua nella barra delle applicazioni e potrebbe influire su IME, tastiera touch e funzionalità avanzate di digitazione.",
     "tweaksPerformancePresentation": "Presentazione Swapchain",
     "tweaksPerformanceFSO": "Ottimizzazioni schermo intero",
     "tweaksPerformanceFSODescription": "Le ottimizzazioni schermo intero possono portare a migliori prestazioni di gioco e app quando eseguite in modalità schermo intero",

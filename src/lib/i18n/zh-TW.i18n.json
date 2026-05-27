@@ -111,6 +111,8 @@
     "tweaksPerformanceBADescription": "允許應用程式在背景執行，即使您不使用它們。由於持續執行，這將對效能產生影響。停用此項也將停用某些應用程式的通知",
     "tweaksPerformanceBWMR": "背景視窗訊息速率限制",
     "tweaksPerformanceBWMRDescription": "控制背景應用程式接收滑鼠和鍵盤輸入更新的頻率。較高的速率 (125 Hz) 提供最大的回應能力，而較低的速率 (50 Hz) 透過減少背景處理來提高效能，但可能會導致快速鍵或閒置偵測問題。",
+    "tweaksPerformanceCtfmonInput": "減少 CTFMon 輸入開銷",
+    "tweaksPerformanceCtfmonInputDescription": "限制 CTFMon 的輸入攔截以減少背景開銷。關閉後會隱藏工作列中的語言列，並可能影響 IME、觸控鍵盤和進階輸入功能。",
     "tweaksPerformancePresentation": "交換鏈簡報",
     "tweaksPerformanceFSO": "全螢幕最佳化",
     "tweaksPerformanceFSODescription": "全螢幕最佳化可能會在全螢幕模式下執行時帶來更好的遊戲和應用程式效能",

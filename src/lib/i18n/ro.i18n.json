@@ -115,6 +115,8 @@
     "tweaksPerformanceBADescription": "Permite aplicațiilor să ruleze în fundal, chiar și când nu le folosiți. Acest lucru va avea un impact asupra performanței datorită rulării constante. Dezactivarea acestui lucru va dezactiva și notificările pentru unele aplicații",
     "tweaksPerformanceBWMR": "Limită rată mesaje fereastră fundal",
     "tweaksPerformanceBWMRDescription": "Controlează cât de des aplicațiile de fundal primesc actualizări de mouse și tastatură. O rată mai mare (125 Hz) oferă capacitate de răspuns maximă, în timp ce o rată mai mică (50 Hz) îmbunătățește performanța reducând procesarea în fundal, dar poate cauza probleme cu tastele rapide sau detectarea inactivității.",
+    "tweaksPerformanceCtfmonInput": "Reduce suprasarcina de intrare a CTFMon",
+    "tweaksPerformanceCtfmonInputDescription": "Limitează interceptarea intrărilor CTFMon pentru a reduce suprasarcina în fundal. Dezactivarea ascunde bara de limbă din bara de activități și poate afecta IME-urile, tastatura tactilă și funcțiile avansate de tastare.",
     "tweaksPerformancePresentation": "Prezentare Swapchain",
     "tweaksPerformanceFSO": "Optimizări Ecran Complet",
     "tweaksPerformanceFSODescription": "Optimizările Ecran Complet pot duce la o performanță mai bună a jocurilor și aplicațiilor când rulează în mod ecran complet",
