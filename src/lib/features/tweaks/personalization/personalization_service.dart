@@ -72,6 +72,26 @@ abstract class PersonalizationService {
   bool get statusCapsLock;
   Future<void> enableCapsLock();
   Future<void> disableCapsLock();
+
+  @CliToggle(
+    name: 'explorer-home',
+    status: 'statusExplorerHome',
+    enable: 'enableExplorerHome',
+    disable: 'disableExplorerHome',
+  )
+  bool get statusExplorerHome;
+  Future<void> enableExplorerHome();
+  Future<void> disableExplorerHome();
+
+  @CliToggle(
+    name: 'explorer-gallery',
+    status: 'statusExplorerGallery',
+    enable: 'enableExplorerGallery',
+    disable: 'disableExplorerGallery',
+  )
+  bool get statusExplorerGallery;
+  Future<void> enableExplorerGallery();
+  Future<void> disableExplorerGallery();
 }
 
 class PersonalizationServiceImpl implements PersonalizationService {
@@ -618,6 +638,74 @@ class PersonalizationServiceImpl implements PersonalizationService {
       _cplValue,
     );
   }
+
+  @override
+  bool get statusExplorerHome {
+    return WinRegistryService.readInt(
+          RegistryHive.currentUser,
+          r'Software\Classes\CLSID\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}',
+          'System.IsPinnedToNameSpaceTree',
+        ) !=
+        0;
+  }
+
+  @override
+  Future<void> enableExplorerHome() async {
+    await WinRegistryService.writeRegistryValue(
+      WinRegistryService.currentUser,
+      r'Software\Classes\CLSID\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}',
+      'System.IsPinnedToNameSpaceTree',
+      1,
+    );
+    await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
+    await Process.run('explorer.exe', [], runInShell: true);
+  }
+
+  @override
+  Future<void> disableExplorerHome() async {
+    await WinRegistryService.writeRegistryValue(
+      WinRegistryService.currentUser,
+      r'Software\Classes\CLSID\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}',
+      'System.IsPinnedToNameSpaceTree',
+      0,
+    );
+    await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
+    await Process.run('explorer.exe', [], runInShell: true);
+  }
+
+  @override
+  bool get statusExplorerGallery {
+    return WinRegistryService.readInt(
+          RegistryHive.currentUser,
+          r'Software\Classes\CLSID\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}',
+          'System.IsPinnedToNameSpaceTree',
+        ) !=
+        0;
+  }
+
+  @override
+  Future<void> enableExplorerGallery() async {
+    await WinRegistryService.writeRegistryValue(
+      WinRegistryService.currentUser,
+      r'Software\Classes\CLSID\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}',
+      'System.IsPinnedToNameSpaceTree',
+      1,
+    );
+    await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
+    await Process.run('explorer.exe', [], runInShell: true);
+  }
+
+  @override
+  Future<void> disableExplorerGallery() async {
+    await WinRegistryService.writeRegistryValue(
+      WinRegistryService.currentUser,
+      r'Software\Classes\CLSID\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}',
+      'System.IsPinnedToNameSpaceTree',
+      0,
+    );
+    await Process.run('taskkill.exe', ['/im', 'explorer.exe', '/f']);
+    await Process.run('explorer.exe', [], runInShell: true);
+  }
 }
 
 @Riverpod(keepAlive: true)
@@ -654,4 +742,14 @@ bool inputPersonalizationStatus(Ref ref) {
 @riverpod
 bool capsLockStatus(Ref ref) {
   return ref.watch(personalizationServiceProvider).statusCapsLock;
+}
+
+@riverpod
+bool explorerHomeStatus(Ref ref) {
+  return ref.watch(personalizationServiceProvider).statusExplorerHome;
+}
+
+@riverpod
+bool explorerGalleryStatus(Ref ref) {
+  return ref.watch(personalizationServiceProvider).statusExplorerGallery;
 }
