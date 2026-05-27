@@ -148,8 +148,8 @@ class _ExplorerHomeCard extends ConsumerWidget {
     final bool status = ref.watch(explorerHomeStatusProvider);
 
     return CardListTile(
-      title: 'Show "Home" in Navigation Pane',
-      description: 'Display the Home entry in File Explorer\'s left navigation pane',
+      title: t.tweaksPersonalizationExplorerHome,
+      description: t.tweaksPersonalizationExplorerHomeDescription,
       trailing: CardToggleSwitch(
         value: status,
         onChanged: (value) async {
@@ -174,8 +174,8 @@ class _ExplorerGalleryCard extends ConsumerWidget {
     final bool status = ref.watch(explorerGalleryStatusProvider);
 
     return CardListTile(
-      title: 'Show "Gallery" in Navigation Pane',
-      description: 'Display the Gallery entry in File Explorer\'s left navigation pane',
+      title: t.tweaksPersonalizationExplorerGallery,
+      description: t.tweaksPersonalizationExplorerGalleryDescription,
       trailing: CardToggleSwitch(
         value: status,
         onChanged: (value) async {
