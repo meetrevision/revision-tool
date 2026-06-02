@@ -37,6 +37,9 @@ sealed class Payload with _$Payload {
 }
 
 enum SkuType {
+  enterpriseonline(value: 'enterpriseonline'),
+  enterpriseoffline(value: 'enterpriseoffline'),
+  preinstall(value: 'preinstall'),
   full(value: 'full'),
   trial(value: 'trial');
 
