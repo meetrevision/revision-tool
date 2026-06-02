@@ -1,4 +1,3 @@
-import 'package:adaptive_palette/adaptive_palette.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter/services.dart';
@@ -231,7 +230,7 @@ class _HeroSection extends ConsumerWidget {
     const divider = Divider(size: 16, direction: .vertical);
 
     final bool isWideScreen = context.mqSize.width >= 550;
-    final AsyncValue<FluidPalette?> paletteAsync = details.heroImageUrl != null
+    final AsyncValue<List<Color>?> paletteAsync = details.heroImageUrl != null
         ? ref.watch(
             msStoreProductPaletteProvider(
               details.productId!,
@@ -284,7 +283,7 @@ class _HeroSection extends ConsumerWidget {
                 borderRadius: _borderRadiusTop,
                 child: paletteAsync.when(
                   data: (palette) {
-                    return palette != null
+                    return palette != null && palette.isNotEmpty
                         ? Transform.scale(
                             // without this and ClipRRect's clipBehavior set to hardEdge, RadialGradient renders edge border lines when the gradient's focal point is near the edge
                             scale: 1.01,
@@ -296,8 +295,8 @@ class _HeroSection extends ConsumerWidget {
                                 focal: isWideScreen ? .center : .topRight,
                                 colors: [
                                   Colors.transparent,
-                                  palette.accent1,
-                                  palette.baseDark,
+                                  palette.elementAt(1),
+                                  palette.elementAt(1),
                                 ],
                                 stops: isWideScreen
                                     ? null
@@ -307,7 +306,7 @@ class _HeroSection extends ConsumerWidget {
                                 begin: .center,
                                 end: .bottomCenter,
                                 colors: [
-                                  palette.baseDark.withAlpha(140),
+                                  palette.first.withAlpha(140),
                                   darkTheme.scaffoldBackgroundColor.withAlpha(
                                     50,
                                   ),

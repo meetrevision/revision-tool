@@ -1,5 +1,4 @@
 import 'dart:developer' as developer;
-import 'dart:ui' as ui;
 
 import 'package:adaptive_palette/adaptive_palette.dart';
 import 'package:dio/dio.dart';
@@ -177,7 +176,7 @@ class MSStoreDownload extends _$MSStoreDownload {
 /// Caches the extracted color palette from product images.
 /// Results are kept alive to avoid recalculation on repeated navigation.
 @Riverpod(keepAlive: true)
-Future<FluidPalette?> msStoreProductPalette(
+Future<List<Color>?> msStoreProductPalette(
   Ref ref,
   String productId,
   String baseImageUrl, {
@@ -193,9 +192,10 @@ Future<FluidPalette?> msStoreProductPalette(
       name: 'msStoreProductPalette',
     );
     final resizeImage = NetworkImage(url);
-    final ui.Image image = await loadImageFromProvider(resizeImage);
-    final FluidPalette palette = await FluidPaletteExtractor.extract(image);
-    return palette;
+    final List<Color> colors = await FluidPaletteExtractor.extractColors(
+      resizeImage,
+    );
+    return colors;
   } catch (e) {
     developer.log(
       'Error extracting palette for $productId: $e',
