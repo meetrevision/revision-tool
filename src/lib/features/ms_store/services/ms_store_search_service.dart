@@ -1,14 +1,17 @@
 import 'package:dio/dio.dart';
-import '../../../core/services/network_service.dart';
+
+import '../../../core/error/app_exception.dart';
+import '../../../core/error/result.dart';
+import '../../../core/network/api_client.dart';
 import '../models/search/ms_store_search_dto.dart';
 import '../models/search/search_product.dart';
+import '../ms_store_endpoints.dart';
 
 /// Service for searching products across the MS Store.
 class MSStoreSearchService {
-  const MSStoreSearchService(this._networkService);
+  const MSStoreSearchService(this._api);
 
-  final NetworkService _networkService;
-  static const _searchAPI = 'https://apps.microsoft.com/api/products/search';
+  final ApiClient _api;
 
   static final _options = Options(
     headers: {
@@ -21,7 +24,7 @@ class MSStoreSearchService {
 
   /// Searches for products matching the query.
   /// Returns a combined list of highlighted and regular products.
-  Future<List<SearchProduct>> searchProducts(
+  Future<Result<List<SearchProduct>>> searchProducts(
     String query, {
     String market = 'US',
     String locale = 'en-us',
@@ -31,22 +34,41 @@ class MSStoreSearchService {
     String category = 'all',
     String subscription = 'all',
   }) async {
-    final Response<dynamic> response = await _networkService.get(
-      '$_searchAPI?gl=US&hl=en-us&query=$query&mediaType=all&age=all&price=all&category=all&subscription=all',
+    final Result<Response<dynamic>> result = await _api.get(
+      MSStoreEndpoints.search(
+        query: query,
+        market: market,
+        locale: locale,
+        mediaType: mediaType,
+        age: age,
+        price: price,
+        category: category,
+        subscription: subscription,
+      ),
       options: _options,
     );
 
-    if (response.statusCode == 200) {
-      final responseData = MsStoreSearchDto.fromJson(
-        response.data as Map<String, dynamic>,
-      );
-      return [
-        ...(responseData.highlightedList ?? []),
-        ...(responseData.productsList ?? []),
-      ];
-    }
-    throw Exception(
-      'Failed to search the product (Status: ${response.statusCode})',
+    return result.when(
+      success: (Response<dynamic> response) {
+        if (response.statusCode != 200) {
+          return Result<List<SearchProduct>>.failure(
+            HttpStatusException(
+              response.statusCode ?? 500,
+              'Failed to search the product',
+              responseBody: response.data,
+            ),
+          );
+        }
+
+        final responseData = MsStoreSearchDto.fromJson(
+          response.data as Map<String, dynamic>,
+        );
+        return Result<List<SearchProduct>>.success([
+          ...(responseData.highlightedList ?? []),
+          ...(responseData.productsList ?? []),
+        ]);
+      },
+      failure: Result<List<SearchProduct>>.failure,
     );
   }
 }

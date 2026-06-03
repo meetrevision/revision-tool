@@ -1,10 +1,13 @@
 import 'dart:io';
 
 import 'package:collection/collection.dart';
+import 'package:dio/dio.dart';
 import 'package:path/path.dart' as p;
 import 'package:win32_registry/win32_registry.dart';
 
-import '../../core/services/network_service.dart';
+import '../../core/error/result.dart';
+import '../../core/network/api_client.dart';
+import '../../core/network/network_endpoints.dart';
 import '../../core/services/win_registry_service.dart';
 import '../../utils.dart';
 import 'winsxs_exceptions.dart';
@@ -24,7 +27,7 @@ enum WinPackageType {
 }
 
 abstract final class WinPackageService {
-  static final _networkService = NetworkService();
+  static final _api = ApiClient();
 
   static final String cabPath = p.join(
     Directory.systemTemp.path,
@@ -114,11 +117,19 @@ abstract final class WinPackageService {
 
       Directory(downloadPath).createSync(recursive: true);
 
+      final Result<Response<dynamic>> releaseResult = await _api.get<dynamic>(
+        NetworkEndpoints.githubLatestRelease(
+          GitHubRepositoryEndpoint.cabPackages,
+        ),
+      );
+      final Response<dynamic> releaseResponse = releaseResult.when(
+        success: (response) => response,
+        failure: (exception) => throw exception,
+      );
+
+      final releaseData = releaseResponse.data as Map<String, dynamic>;
       final assets = List<Map<String, dynamic>>.from(
-        (await _networkService.getGHLatestRelease(
-              ApiEndpoints.cabPackages,
-            ))['assets']
-            as List<dynamic>,
+        releaseData['assets'] as List<dynamic>,
       );
       var name = '';
 
@@ -144,7 +155,14 @@ abstract final class WinPackageService {
 
       final String filePath = p.join(downloadPath, name);
 
-      await _networkService.downloadFile(downloadUrl, filePath);
+      final Result<Response<dynamic>> downloadResult = await _api.downloadFile(
+        Uri.parse(downloadUrl),
+        filePath,
+      );
+      downloadResult.when(
+        success: (_) {},
+        failure: (exception) => throw exception,
+      );
       if (!File(filePath).existsSync()) {
         throw WinSxSPackageDownloadException(
           'Failed to download package: $name',

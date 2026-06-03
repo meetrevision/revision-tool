@@ -4,7 +4,9 @@ import 'package:adaptive_palette/adaptive_palette.dart';
 import 'package:dio/dio.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../core/services/network_service.dart';
+
+import '../../core/error/result.dart';
+import '../../core/network/api_client.dart';
 import '../../core/services/win_registry_service.dart';
 import '../../i18n/generated/strings.g.dart';
 import '../../utils.dart';
@@ -15,25 +17,27 @@ import 'models/search/search_product.dart';
 import 'ms_store_enums.dart';
 import 'ms_store_repository.dart';
 import 'services/ms_store_product_details_service.dart';
+import 'services/package_file_service.dart';
 import 'services/uwp_xml_parser.dart';
 
 part 'ms_store_providers.g.dart';
 
 @Riverpod(keepAlive: true)
 MSStoreRepository msStoreRepository(Ref ref) {
-  final NetworkService networkService = ref.watch(networkServiceProvider);
-  final detailsService = MSStoreProductDetailsService(networkService);
+  final ApiClient api = ref.watch(apiClientProvider);
+  final detailsService = MSStoreProductDetailsService(api);
   const xmlParser = UwpXmlParser();
+  final fileService = PackageFileService(api);
 
   return MSStoreRepositoryImpl(
-    uwpService: .new(networkService),
-    searchService: .new(networkService),
+    uwpService: .new(api),
+    searchService: .new(api),
     detailsService: detailsService,
     xmlParser: xmlParser,
-    fileService: const .new(),
-    installerService: const .new(.new()),
+    fileService: fileService,
+    installerService: .new(fileService),
     win32PackageService: .new(
-      networkService: networkService,
+      api: api,
       detailsService: detailsService,
       xmlParser: xmlParser,
     ),
@@ -42,7 +46,13 @@ MSStoreRepository msStoreRepository(Ref ref) {
 
 @Riverpod(keepAlive: true)
 Future<ProductDetails> msStoreProductDetails(Ref ref, String productId) async {
-  return ref.read(msStoreRepositoryProvider).getProductDetails(productId);
+  final Result<ProductDetails> result = await ref
+      .read(msStoreRepositoryProvider)
+      .getProductDetails(productId);
+  return result.when(
+    success: (value) => value,
+    failure: (exception) => throw exception,
+  );
 }
 
 @Riverpod(keepAlive: true)
@@ -53,7 +63,14 @@ class MSStoreSearch extends _$MSStoreSearch {
   Future<void> search(String query) async {
     state = const AsyncLoading();
     state = await .guard(() async {
-      return ref.read(msStoreRepositoryProvider).searchProducts(query);
+      final Result<List<SearchProduct>> result = await ref
+          .read(msStoreRepositoryProvider)
+          .searchProducts(query);
+
+      return result.when(
+        success: (value) => value,
+        failure: (exception) => throw exception,
+      );
     });
   }
 }
@@ -66,13 +83,17 @@ class MSStorePackages extends _$MSStorePackages {
         .read(msStoreProductDetailsProvider(productId))
         .maybeWhen(data: (d) => d, orElse: () => null);
 
-    return ref
+    final Result<Set<PackageInfo>> result = await ref
         .read(msStoreRepositoryProvider)
         .getPackages(
           productId: productId,
           ring: ring,
           cachedDetails: cachedDetails,
         );
+    return result.when(
+      success: (value) => value,
+      failure: (exception) => throw exception,
+    );
   }
 }
 
@@ -111,9 +132,11 @@ class MSStoreDownload extends _$MSStoreDownload {
       final MSStoreRepository repository = ref.read(msStoreRepositoryProvider);
 
       // Get packages again (cached) to know how many we are downloading
-      final Set<PackageInfo> pkgs = await repository.getPackages(
-        productId: productId,
-        ring: ring,
+      final Result<Set<PackageInfo>> packagesResult = await repository
+          .getPackages(productId: productId, ring: ring);
+      final Set<PackageInfo> pkgs = packagesResult.when(
+        success: (value) => value,
+        failure: (exception) => throw exception,
       );
 
       String resolvedArch = arch.value;
@@ -136,7 +159,7 @@ class MSStoreDownload extends _$MSStoreDownload {
       final progressMap = <String, double>{};
       var completed = 0;
 
-      await repository.downloadPackages(
+      final Result<void> result = await repository.downloadPackages(
         productId: productId,
         ring: ring,
         packages: filtered,
@@ -155,6 +178,7 @@ class MSStoreDownload extends _$MSStoreDownload {
           );
         },
       );
+      result.when(success: (_) {}, failure: (exception) => throw exception);
 
       if (ref.mounted) {
         state = const .completed();

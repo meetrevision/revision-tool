@@ -3,7 +3,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:win32_registry/win32_registry.dart';
 
 import '../../../core/cli_generator/annotations.dart';
-import '../../../core/services/network_service.dart';
+import '../../../core/error/result.dart';
+import '../../../core/network/api_client.dart';
 import '../../../core/services/win_registry_service.dart';
 import '../performance/performance_service.dart';
 import 'kgl_dto.dart';
@@ -68,8 +69,14 @@ class UpdatesServiceImpl implements UpdatesService {
     const api =
         'https://settings.data.microsoft.com/settings/v3.0/xbox/knowngamelist';
     try {
-      final networkService = NetworkService();
-      final Response<dynamic> json = await networkService.get(api);
+      final apiClient = ApiClient();
+      final Result<Response<dynamic>> result = await apiClient.get(
+        Uri.parse(api),
+      );
+      final Response<dynamic> json = result.when(
+        success: (response) => response,
+        failure: (exception) => throw exception,
+      );
       final data = json.data as Map<String, dynamic>;
       final kgl = KGLModel.fromJson(data['settings'] as Map<String, dynamic>);
 

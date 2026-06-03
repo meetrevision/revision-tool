@@ -1,11 +1,16 @@
+// ignore_for_file: prefer_initializing_formals
+
 import 'package:dio/dio.dart';
 
-import '../../../core/services/network_service.dart';
+import '../../../core/error/app_exception.dart';
+import '../../../core/error/result.dart';
+import '../../../core/network/api_client.dart';
 import '../../../utils.dart';
 import '../models/package_info.dart';
 import '../models/product_details/product_details.dart';
 import '../models/uwp/uwp_package.dart';
 import '../models/win32/win32_manifest_dto.dart';
+import '../ms_store_endpoints.dart';
 import 'ms_store_product_details_service.dart';
 import 'uwp_xml_parser.dart';
 
@@ -14,22 +19,20 @@ class Win32Service {
   // const Win32ApiService(this._networkService);
 
   const Win32Service({
-    required NetworkService networkService,
+    required ApiClient api,
     required MSStoreProductDetailsService detailsService,
     required UwpXmlParser xmlParser,
-  }) : _networkService = networkService,
+  }) : _api = api,
        _detailsService = detailsService,
        _xmlParser = xmlParser;
 
-  final NetworkService _networkService;
+  final ApiClient _api;
   final MSStoreProductDetailsService _detailsService;
   final UwpXmlParser _xmlParser;
 
-  static const _storeAPI = 'https://storeedgefd.dsx.mp.microsoft.com/v9.0';
-
   /// Fetches Win32 packages. Tries the installer field from product details
   /// first, then falls back to the Win32 manifest API.
-  Future<Set<PackageInfo>> getPackages(
+  Future<Result<Set<PackageInfo>>> getPackages(
     String productId,
     ProductDetails? cachedDetails,
   ) async {
@@ -38,21 +41,31 @@ class Win32Service {
       productId,
       cachedDetails,
     );
-    if (pkgs.isNotEmpty) return pkgs;
+    if (pkgs.isNotEmpty) {
+      return Result<Set<PackageInfo>>.success(pkgs);
+    }
 
     // If no cached details, try fetching them
     if (cachedDetails == null) {
-      try {
-        final ProductDetails details = await _detailsService.getProductDetails(
-          productId,
-        );
+      final Result<ProductDetails> detailsResult = await _detailsService
+          .getProductDetails(productId);
+      final ProductDetails? details = detailsResult.when(
+        success: (ProductDetails value) => value,
+        failure: (AppException exception) {
+          logger.w(
+            'Failed to fetch product details for $productId: $exception',
+          );
+          return null;
+        },
+      );
+      if (details != null) {
         final Set<PackageInfo> freshPkgs = _parseInstallerArchitectures(
           productId,
           details,
         );
-        if (freshPkgs.isNotEmpty) return freshPkgs;
-      } catch (e) {
-        logger.w('Failed to 1 product details for $productId: $e');
+        if (freshPkgs.isNotEmpty) {
+          return Result<Set<PackageInfo>>.success(freshPkgs);
+        }
       }
     }
 
@@ -101,10 +114,30 @@ class Win32Service {
   }
 
   /// Fallback: fetches Win32 packages from the manifest API.
-  Future<Set<PackageInfo>> _getPackagesFromManifest(String productId) async {
-    final Win32ManifestDto manifest = await getPackageManifest(productId);
+  Future<Result<Set<PackageInfo>>> _getPackagesFromManifest(
+    String productId,
+  ) async {
+    final Result<Win32ManifestDto> manifestResult = await getPackageManifest(
+      productId,
+    );
+    AppException? manifestException;
+    final Win32ManifestDto? manifest = manifestResult.when(
+      success: (Win32ManifestDto value) => value,
+      failure: (AppException exception) {
+        manifestException = exception;
+        return null;
+      },
+    );
+    if (manifest == null) {
+      return Result<Set<PackageInfo>>.failure(
+        manifestException ?? const UnexpectedNetworkException(),
+      );
+    }
+
     final List<Versions>? versions = manifest.data?.versions;
-    if (versions == null || versions.isEmpty) return {};
+    if (versions == null || versions.isEmpty) {
+      return const Result<Set<PackageInfo>>.success(<PackageInfo>{});
+    }
 
     final pkgs = <PackageInfo>{};
     final urls = <String>{};
@@ -138,23 +171,34 @@ class Win32Service {
         urls.add(url);
       }
     }
-    return pkgs;
+    return Result<Set<PackageInfo>>.success(pkgs);
   }
 
   /// Fetches the manifest for a Win32 app
-  Future<Win32ManifestDto> getPackageManifest(
+  Future<Result<Win32ManifestDto>> getPackageManifest(
     String productId, {
     String market = 'US',
   }) async {
-    final Response<dynamic> response = await _networkService.get(
-      '$_storeAPI/packageManifests/$productId?Market=$market',
+    final Result<Response<dynamic>> result = await _api.get(
+      MSStoreEndpoints.packageManifest(productId: productId, market: market),
     );
 
-    if (response.statusCode == 200) {
-      return Win32ManifestDto.fromJson(response.data as Map<String, dynamic>);
-    }
-    throw Exception(
-      'Failed to get package manifest for $productId (Status: ${response.statusCode})',
+    return result.when(
+      success: (Response<dynamic> response) {
+        if (response.statusCode == 200) {
+          return Result<Win32ManifestDto>.success(
+            Win32ManifestDto.fromJson(response.data as Map<String, dynamic>),
+          );
+        }
+        return Result<Win32ManifestDto>.failure(
+          HttpStatusException(
+            response.statusCode ?? 500,
+            'Failed to get package manifest for $productId',
+            responseBody: response.data,
+          ),
+        );
+      },
+      failure: Result<Win32ManifestDto>.failure,
     );
   }
 }

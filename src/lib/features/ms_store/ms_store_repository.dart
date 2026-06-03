@@ -1,8 +1,12 @@
+// ignore_for_file: prefer_initializing_formals
+
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 
 import '../../core/compute.dart';
+import '../../core/error/app_exception.dart';
+import '../../core/error/result.dart';
 import 'models/package_info.dart';
 import 'models/product_details/product_details.dart';
 import 'models/search/search_product.dart';
@@ -17,18 +21,18 @@ import 'services/uwp_xml_parser.dart';
 import 'services/win32_service.dart';
 
 abstract class MSStoreRepository {
-  Future<List<SearchProduct>> searchProducts(String query);
-  Future<ProductDetails> getProductDetails(
+  Future<Result<List<SearchProduct>>> searchProducts(String query);
+  Future<Result<ProductDetails>> getProductDetails(
     String productId, {
     String market,
     String locale,
   });
-  Future<Set<PackageInfo>> getPackages({
+  Future<Result<Set<PackageInfo>>> getPackages({
     required String productId,
     required MSStoreRing ring,
     ProductDetails? cachedDetails,
   });
-  Future<void> downloadPackages({
+  Future<Result<void>> downloadPackages({
     required String productId,
     required MSStoreRing ring,
     required List<PackageInfo> packages,
@@ -78,13 +82,13 @@ class MSStoreRepositoryImpl implements MSStoreRepository {
   static String? _cookie;
 
   @override
-  Future<List<SearchProduct>> searchProducts(
+  Future<Result<List<SearchProduct>>> searchProducts(
     String query, {
     String market = 'US',
     String locale = 'en-us',
     String mediaType = 'all',
     String age = 'all',
-    String price = 'free',
+    String price = 'all',
     String category = 'all',
     String subscription = 'all',
   }) async {
@@ -101,7 +105,7 @@ class MSStoreRepositoryImpl implements MSStoreRepository {
   }
 
   @override
-  Future<ProductDetails> getProductDetails(
+  Future<Result<ProductDetails>> getProductDetails(
     String productId, {
     String market = 'US',
     String locale = 'en-us',
@@ -114,68 +118,105 @@ class MSStoreRepositoryImpl implements MSStoreRepository {
   }
 
   @override
-  @override
-  Future<Set<PackageInfo>> getPackages({
+  Future<Result<Set<PackageInfo>>> getPackages({
     required String productId,
     required MSStoreRing ring,
     ProductDetails? cachedDetails,
   }) async {
     final cacheKey = '$productId-${ring.value}';
     if (_cache.containsKey(cacheKey) && !_cache[cacheKey]!.isExpired) {
-      return _cache[cacheKey]!.packages;
+      return Result<Set<PackageInfo>>.success(_cache[cacheKey]!.packages);
     }
 
     final MSStoreAppType? appType = .fromProductId(productId);
     if (appType == null) {
-      throw Exception('Unknown app type for product ID: $productId');
+      return Result<Set<PackageInfo>>.failure(
+        UnexpectedNetworkException(
+          cause: Exception('Unknown app type for product ID: $productId'),
+        ),
+      );
     }
 
-    Set<PackageInfo> packages;
+    final Set<PackageInfo> packages;
     DateTime expiryDate;
 
     if (appType == .uwp) {
-      final ({DateTime expiryUtc, Set<PackageInfo> packages}) result =
+      final Result<({DateTime expiryUtc, Set<PackageInfo> packages})> result =
           await _getUwpPackages(productId, ring);
-      packages = result.packages;
-      expiryDate = result.expiryUtc;
+      switch (result) {
+        case Success(value: final value):
+          packages = value.packages;
+          expiryDate = value.expiryUtc;
+        case Failure(exception: final exception):
+          return Result<Set<PackageInfo>>.failure(exception);
+      }
     } else {
-      packages = await _win32PackageService.getPackages(
-        productId,
-        cachedDetails,
-      );
-      expiryDate = DateTime.now().add(const Duration(minutes: 2));
+      final Result<Set<PackageInfo>> result = await _win32PackageService
+          .getPackages(productId, cachedDetails);
+      switch (result) {
+        case Success(value: final value):
+          packages = value;
+          expiryDate = DateTime.now().add(const Duration(minutes: 2));
+        case Failure():
+          return result;
+      }
     }
 
     _cache[cacheKey] = _PackageCacheEntry(
       packages: packages,
       expiryDate: expiryDate,
     );
-    return packages;
+    return Result<Set<PackageInfo>>.success(packages);
   }
 
-  Future<({Set<PackageInfo> packages, DateTime expiryUtc})> _getUwpPackages(
-    String productId,
-    MSStoreRing ring,
-  ) async {
+  Future<Result<({Set<PackageInfo> packages, DateTime expiryUtc})>>
+  _getUwpPackages(String productId, MSStoreRing ring) async {
     // 1. Get Cookie (lazy)
     if (_cookie == null) {
       final String template = await _xmlParser.getTemplate('cookie');
-      final String responseBody = await _uwpService.getCookie(template);
-      _cookie = _xmlParser.parseCookieResponse(responseBody);
+      final Result<String> result = await _uwpService.getCookie(template);
+      switch (result) {
+        case Success(value: final responseBody):
+          _cookie = _xmlParser.parseCookieResponse(responseBody);
+        case Failure(exception: final exception):
+          return Result<
+            ({Set<PackageInfo> packages, DateTime expiryUtc})
+          >.failure(exception);
+      }
     }
 
     // 2. Get Category ID
-    final (:String categoryId, :DateTime expiryUtc) = await _uwpService
-        .getCategoryId(productId);
+    final Result<({String categoryId, DateTime expiryUtc})> categoryResult =
+        await _uwpService.getCategoryId(productId);
+    final String categoryId;
+    final DateTime expiryUtc;
+    switch (categoryResult) {
+      case Success(value: final value):
+        categoryId = value.categoryId;
+        expiryUtc = value.expiryUtc;
+      case Failure(exception: final exception):
+        return Result<
+          ({Set<PackageInfo> packages, DateTime expiryUtc})
+        >.failure(exception);
+    }
 
     // 3. Fetch File List XML
     final String wuTemplate = await _xmlParser.getTemplate('wu');
-    final String xmlString = await _uwpService.fetchPackageListXml(
+    final Result<String> xmlResult = await _uwpService.fetchPackageListXml(
       categoryId: categoryId,
       cookie: _cookie!,
       ring: ring,
       wuTemplate: wuTemplate,
     );
+    final String xmlString;
+    switch (xmlResult) {
+      case Success(value: final value):
+        xmlString = value;
+      case Failure(exception: final exception):
+        return Result<
+          ({Set<PackageInfo> packages, DateTime expiryUtc})
+        >.failure(exception);
+    }
 
     // 4. Parse Packages in isolate
     final UwpPackageResponse response = await compute(
@@ -204,74 +245,87 @@ class MSStoreRepositoryImpl implements MSStoreRepository {
       }
     }
 
-    return (packages: pkgs, expiryUtc: expiryUtc);
+    return Result<({Set<PackageInfo> packages, DateTime expiryUtc})>.success((
+      packages: pkgs,
+      expiryUtc: expiryUtc,
+    ));
   }
 
   @override
-  Future<void> downloadPackages({
+  Future<Result<void>> downloadPackages({
     required String productId,
     required MSStoreRing ring,
     required List<PackageInfo> packages,
     required void Function(String fileName, double progress) onProgress,
     required CancelToken cancelToken,
   }) async {
-    if (packages.isEmpty) return;
+    if (packages.isEmpty) return const Result<void>.success(null);
 
     final String urlTemplate = await _xmlParser.getTemplate('url');
     final String tempDir = _fileService.getTempPath(productId, ring);
 
-    await Future.wait(
-      packages.map((pkg) async {
-        if (cancelToken.isCancelled) return;
+    for (final pkg in packages) {
+      if (cancelToken.isCancelled) {
+        return const Result<void>.success(null);
+      }
 
-        String downloadUrl = pkg.uri;
+      String downloadUrl = pkg.uri;
 
-        // UWP apps need session URL
-        if (downloadUrl.isEmpty && pkg.updateIdentity != null) {
-          try {
-            final String responseBody = await _uwpService.getAppxDownloadUri(
-              updateId: pkg.updateIdentity!.id,
-              revision: pkg.updateIdentity!.revisionNumber,
-              ring: ring,
-              urlTemplate: urlTemplate,
-            );
-            downloadUrl = _xmlParser.parseDownloadUrl(
-              responseBody,
-              pkg.fileModel?.digest,
-            );
-          } catch (e) {
-            if (cancelToken.isCancelled) return;
-            rethrow;
-          }
-        }
-
-        if (downloadUrl.isEmpty) return;
-
-        final String fileName =
-            pkg.fileModel?.packageFullName ??
-            pkg.fileModel?.fileName ??
-            'package_${pkg.id}';
-
-        final String extension = pkg.fileModel?.fileType ?? 'appx';
-        var fullPath = '$tempDir\\$fileName';
-
-        if (!fileName.endsWith('.$extension')) {
-          fullPath += '.$extension';
-        }
-
-        await _fileService.downloadPackage(
-          downloadUrl,
-          fullPath,
-          isDependency: pkg.isDependency,
-          cancelToken: cancelToken,
-          onProgress: (count, total) {
-            if (total > 0 && !cancelToken.isCancelled) {
-              onProgress(fileName, count / total);
-            }
-          },
+      // UWP apps need session URL
+      if (downloadUrl.isEmpty && pkg.updateIdentity != null) {
+        final Result<String> result = await _uwpService.getAppxDownloadUri(
+          updateId: pkg.updateIdentity!.id,
+          revision: pkg.updateIdentity!.revisionNumber,
+          ring: ring,
+          urlTemplate: urlTemplate,
         );
-      }),
-    );
+        final String responseBody;
+        switch (result) {
+          case Success(value: final value):
+            responseBody = value;
+          case Failure(exception: final exception):
+            if (cancelToken.isCancelled) {
+              return const Result<void>.success(null);
+            }
+            return Result<void>.failure(exception);
+        }
+        downloadUrl = _xmlParser.parseDownloadUrl(
+          responseBody,
+          pkg.fileModel?.digest,
+        );
+      }
+
+      if (downloadUrl.isEmpty) continue;
+
+      final String fileName =
+          pkg.fileModel?.packageFullName ??
+          pkg.fileModel?.fileName ??
+          'package_${pkg.id}';
+
+      final String extension = pkg.fileModel?.fileType ?? 'appx';
+      var fullPath = '$tempDir\\$fileName';
+
+      if (!fileName.endsWith('.$extension')) {
+        fullPath += '.$extension';
+      }
+
+      final Result<void> downloadResult = await _fileService.downloadPackage(
+        downloadUrl,
+        fullPath,
+        isDependency: pkg.isDependency,
+        cancelToken: cancelToken,
+        onProgress: (count, total) {
+          if (total > 0 && !cancelToken.isCancelled) {
+            onProgress(fileName, count / total);
+          }
+        },
+      );
+      if (downloadResult is Failure<void>) {
+        return downloadResult;
+      }
+    }
+
+    return const Result<void>.success(null);
   }
 
   @override

@@ -1,17 +1,17 @@
 import 'package:dio/dio.dart';
-import '../../../core/services/network_service.dart';
+
+import '../../../core/error/app_exception.dart';
+import '../../../core/error/result.dart';
+import '../../../core/network/api_client.dart';
 import '../models/uwp/product_dto.dart';
+import '../ms_store_endpoints.dart';
 import '../ms_store_enums.dart';
 
 /// Service for UWP (AppX) specific MS Store API calls using FE3 delivery.
 class UwpApiService {
-  const UwpApiService(this._networkService);
+  const UwpApiService(this._api);
 
-  final NetworkService _networkService;
-
-  static const _fe3Delivery =
-      'https://fe3.delivery.mp.microsoft.com/ClientWebService/client.asmx';
-  static const _storeAPI = 'https://storeedgefd.dsx.mp.microsoft.com/v9.0';
+  final ApiClient _api;
 
   static final _soapOptions = Options(
     headers: {
@@ -23,56 +23,89 @@ class UwpApiService {
   );
 
   /// Fetches an encrypted cookie from FE3 delivery
-  Future<String> getCookie(String cookieTemplate) async {
-    final Response<dynamic> response = await _networkService.post(
-      _fe3Delivery,
+  Future<Result<String>> getCookie(String cookieTemplate) async {
+    final Result<Response<dynamic>> result = await _api.post(
+      MSStoreEndpoints.fe3Delivery(),
       data: cookieTemplate,
       options: _soapOptions,
     );
 
-    if (response.statusCode == 200) {
-      return response.data.toString();
-    }
-    throw Exception('Failed to get a cookie (Status: ${response.statusCode})');
+    return result.when(
+      success: (Response<dynamic> response) {
+        if (response.statusCode == 200) {
+          return Result<String>.success(response.data.toString());
+        }
+        return Result<String>.failure(
+          HttpStatusException(
+            response.statusCode ?? 500,
+            'Failed to get a cookie',
+            responseBody: response.data,
+          ),
+        );
+      },
+      failure: Result<String>.failure,
+    );
   }
 
   /// Gets the WU Category ID for a UWP product
-  Future<({String categoryId, DateTime expiryUtc})> getCategoryId(
+  Future<Result<({String categoryId, DateTime expiryUtc})>> getCategoryId(
     String productId, {
     String market = 'US',
     String locale = 'en-us',
     String deviceFamily = 'Windows.Desktop',
   }) async {
-    final Response<dynamic> response = await _networkService.get(
-      '$_storeAPI/products/$productId?market=$market&locale=$locale&deviceFamily=$deviceFamily',
+    final Result<Response<dynamic>> result = await _api.get(
+      MSStoreEndpoints.category(
+        productId: productId,
+        market: market,
+        locale: locale,
+        deviceFamily: deviceFamily,
+      ),
     );
 
-    if (response.statusCode == 200) {
-      final product = ProductDto.fromJson(
-        response.data as Map<String, dynamic>,
-      );
-      final List<Skus> skus = product.payload?.skus ?? [];
+    return result.when(
+      success: (Response<dynamic> response) {
+        if (response.statusCode != 200) {
+          return Result<({String categoryId, DateTime expiryUtc})>.failure(
+            HttpStatusException(
+              response.statusCode ?? 500,
+              'Failed to get category ID for $productId',
+              responseBody: response.data,
+            ),
+          );
+        }
 
-      for (final sku in skus) {
-        if (sku.skuType == .full) {
-          final String? categoryId = sku.fulfillmentData?.wuCategoryId;
-          final DateTime? expiryUtc = product.expiryUtc;
-          if (categoryId != null && expiryUtc != null) {
-            return (categoryId: categoryId, expiryUtc: expiryUtc);
+        final product = ProductDto.fromJson(
+          response.data as Map<String, dynamic>,
+        );
+        final List<Skus> skus = product.payload?.skus ?? [];
+
+        for (final sku in skus) {
+          if (sku.skuType == .full) {
+            final String? categoryId = sku.fulfillmentData?.wuCategoryId;
+            final DateTime? expiryUtc = product.expiryUtc;
+            if (categoryId != null && expiryUtc != null) {
+              return Result<({String categoryId, DateTime expiryUtc})>.success((
+                categoryId: categoryId,
+                expiryUtc: expiryUtc,
+              ));
+            }
           }
         }
-      }
-      throw Exception(
-        'Product $productId is not a UWP app or missing fulfillment data',
-      );
-    }
-    throw Exception(
-      'Failed to get category ID for $productId (Status: ${response.statusCode})',
+        return Result<({String categoryId, DateTime expiryUtc})>.failure(
+          UnexpectedNetworkException(
+            cause: Exception(
+              'Product $productId is not a UWP app or missing fulfillment data',
+            ),
+          ),
+        );
+      },
+      failure: Result<({String categoryId, DateTime expiryUtc})>.failure,
     );
   }
 
   /// Fetches the package list XML manifest
-  Future<String> fetchPackageListXml({
+  Future<Result<String>> fetchPackageListXml({
     required String categoryId,
     required String cookie,
     required MSStoreRing ring,
@@ -83,25 +116,36 @@ class UwpApiService {
         .replaceAll('{2}', categoryId)
         .replaceAll('{3}', ring.value);
 
-    final Response<dynamic> response = await _networkService.post(
-      _fe3Delivery,
+    final Result<Response<dynamic>> result = await _api.post(
+      MSStoreEndpoints.fe3Delivery(),
       data: body,
       options: _soapOptions,
     );
 
-    if (response.statusCode == 200) {
-      return response.data
-          .toString()
-          .replaceAll('&lt;', '<')
-          .replaceAll('&gt;', '>');
-    }
-    throw Exception(
-      'Failed to fetch package list XML (Status: ${response.statusCode})',
+    return result.when(
+      success: (Response<dynamic> response) {
+        if (response.statusCode == 200) {
+          return Result<String>.success(
+            response.data
+                .toString()
+                .replaceAll('&lt;', '<')
+                .replaceAll('&gt;', '>'),
+          );
+        }
+        return Result<String>.failure(
+          HttpStatusException(
+            response.statusCode ?? 500,
+            'Failed to fetch package list XML',
+            responseBody: response.data,
+          ),
+        );
+      },
+      failure: Result<String>.failure,
     );
   }
 
   /// Gets the download URL for a specific package
-  Future<String> getAppxDownloadUri({
+  Future<Result<String>> getAppxDownloadUri({
     required String updateId,
     required String revision,
     required MSStoreRing ring,
@@ -112,17 +156,26 @@ class UwpApiService {
         .replaceAll('{2}', revision)
         .replaceAll('{3}', ring.value);
 
-    final Response<dynamic> response = await _networkService.post(
-      '$_fe3Delivery/secured',
+    final Result<Response<dynamic>> result = await _api.post(
+      MSStoreEndpoints.fe3Delivery(secured: true),
       data: body,
       options: _soapOptions,
     );
 
-    if (response.statusCode == 200) {
-      return response.data.toString();
-    }
-    throw Exception(
-      'Failed to get download URI for $updateId (Status: ${response.statusCode})',
+    return result.when(
+      success: (Response<dynamic> response) {
+        if (response.statusCode == 200) {
+          return Result<String>.success(response.data.toString());
+        }
+        return Result<String>.failure(
+          HttpStatusException(
+            response.statusCode ?? 500,
+            'Failed to get download URI for $updateId',
+            responseBody: response.data,
+          ),
+        );
+      },
+      failure: Result<String>.failure,
     );
   }
 }

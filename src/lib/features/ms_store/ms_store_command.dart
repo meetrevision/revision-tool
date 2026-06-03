@@ -4,11 +4,14 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:dio/dio.dart';
 
+import '../../core/error/result.dart';
+import '../../core/network/api_client.dart';
 import '../../core/services/win_registry_service.dart';
 import '../../utils.dart';
 import 'models/package_info.dart';
 import 'ms_store_enums.dart';
 import 'ms_store_repository.dart';
+import 'services/ms_store_product_details_service.dart';
 import 'services/package_file_service.dart';
 
 class MSStoreCommand extends Command<void> {
@@ -38,16 +41,20 @@ class MSStoreCommand extends Command<void> {
     );
   }
 
+  late final ApiClient _api = ApiClient();
+  late final PackageFileService _fileService = PackageFileService(_api);
+  late final MSStoreProductDetailsService _detailsService =
+      MSStoreProductDetailsService(_api);
   late final MSStoreRepository _repository = MSStoreRepositoryImpl(
-    uwpService: .new(.new()),
-    searchService: .new(.new()),
-    detailsService: .new(.new()),
+    uwpService: .new(_api),
+    searchService: .new(_api),
+    detailsService: _detailsService,
     xmlParser: const .new(),
-    fileService: const .new(),
-    installerService: const .new(.new()),
+    fileService: _fileService,
+    installerService: .new(_fileService),
     win32PackageService: .new(
-      networkService: .new(),
-      detailsService: .new(.new()),
+      api: _api,
+      detailsService: _detailsService,
       xmlParser: const .new(),
     ),
   );
@@ -93,9 +100,11 @@ class MSStoreCommand extends Command<void> {
     );
 
     try {
-      final Set<PackageInfo> packages = await _repository.getPackages(
-        productId: id,
-        ring: ring,
+      final Result<Set<PackageInfo>> packagesResult = await _repository
+          .getPackages(productId: id, ring: ring);
+      final Set<PackageInfo> packages = packagesResult.when(
+        success: (value) => value,
+        failure: (exception) => throw exception,
       );
       if (packages.isEmpty) {
         logger.e('$name: No packages found for id=$id');
@@ -122,7 +131,7 @@ class MSStoreCommand extends Command<void> {
       }
 
       logger.i('$name: Downloading ${filtered.length} packages for $id...');
-      await _repository.downloadPackages(
+      final Result<void> downloadResult = await _repository.downloadPackages(
         productId: id,
         ring: ring,
         packages: filtered,
@@ -134,10 +143,14 @@ class MSStoreCommand extends Command<void> {
           if (progress >= 1.0) stdout.writeln();
         },
       );
+      downloadResult.when(
+        success: (_) {},
+        failure: (exception) => throw exception,
+      );
 
       if (downloadOnly) {
         // Find temp path via internal knowledge (or we could expose it in repository)
-        final String path = const PackageFileService().getTempPath(id, ring);
+        final String path = _fileService.getTempPath(id, ring);
         logger.i('$name: Downloaded successfully to $path');
         stdout.writeln(path);
         return;

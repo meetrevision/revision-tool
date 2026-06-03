@@ -1,16 +1,16 @@
 import 'package:dio/dio.dart';
 
-import '../../../core/services/network_service.dart';
+import '../../../core/error/app_exception.dart';
+import '../../../core/error/result.dart';
+import '../../../core/network/api_client.dart';
 import '../models/product_details/product_details.dart';
+import '../ms_store_endpoints.dart';
 
 /// Service for fetching MS Store product details by ID.
 class MSStoreProductDetailsService {
-  const MSStoreProductDetailsService(this._networkService);
+  const MSStoreProductDetailsService(this._api);
 
-  final NetworkService _networkService;
-
-  static const _detailsAPI =
-      'https://apps.microsoft.com/api/ProductsDetails/GetProductDetailsById';
+  final ApiClient _api;
 
   static final _options = Options(
     headers: {
@@ -22,22 +22,37 @@ class MSStoreProductDetailsService {
   );
 
   /// Fetches product details for the given product ID.
-  Future<ProductDetails> getProductDetails(
+  Future<Result<ProductDetails>> getProductDetails(
     String productId, {
     String market = 'US',
     String locale = 'en-us',
   }) async {
-    final Response<dynamic> response = await _networkService.get(
-      '$_detailsAPI/$productId?gl=$market&hl=$locale',
+    final Result<Response<dynamic>> result = await _api.get(
+      MSStoreEndpoints.productDetails(
+        productId: productId,
+        market: market,
+        locale: locale,
+      ),
       options: _options,
     );
 
-    if (response.statusCode == 200) {
-      return ProductDetails.fromJson(response.data as Map<String, dynamic>);
-    }
+    return result.when(
+      success: (Response<dynamic> response) {
+        if (response.statusCode != 200) {
+          return Result<ProductDetails>.failure(
+            HttpStatusException(
+              response.statusCode ?? 500,
+              'Failed to fetch product details',
+              responseBody: response.data,
+            ),
+          );
+        }
 
-    throw Exception(
-      'Failed to fetch product details (Status: ${response.statusCode})',
+        return Result<ProductDetails>.success(
+          ProductDetails.fromJson(response.data as Map<String, dynamic>),
+        );
+      },
+      failure: Result<ProductDetails>.failure,
     );
   }
 }

@@ -6,6 +6,8 @@ import 'package:dio/dio.dart';
 import 'package:process_run/shell_run.dart';
 
 import '../../../core/compute.dart';
+import '../../../core/error/result.dart';
+import '../../../core/network/api_client.dart';
 import '../../../utils.dart';
 import '../ms_store_enums.dart';
 
@@ -17,7 +19,9 @@ String _sha256FromPath(String path) {
 
 /// Service for file system operations related to MS Store packages.
 class PackageFileService {
-  const PackageFileService();
+  const PackageFileService([this._api]);
+
+  final ApiClient? _api;
 
   static final String _storeFolder =
       '${Directory.systemTemp.path}\\Revision-Tool\\MSStore';
@@ -28,7 +32,7 @@ class PackageFileService {
   }
 
   /// Downloads a file from [url] to [path] with progress reporting
-  Future<void> downloadPackage(
+  Future<Result<void>> downloadPackage(
     String url,
     String path, {
     bool isDependency = false,
@@ -48,12 +52,17 @@ class PackageFileService {
         ? '${dir.path}\\${file.uri.pathSegments.last}'
         : path;
 
-    final dio = Dio();
-    await dio.download(
-      url,
-      finalPath,
-      onReceiveProgress: onProgress,
-      cancelToken: cancelToken,
+    final Result<Response<dynamic>> result = await (_api ?? ApiClient())
+        .downloadFile(
+          Uri.parse(url),
+          finalPath,
+          onReceiveProgress: onProgress,
+          cancelToken: cancelToken,
+        );
+
+    return result.when(
+      success: (Response<dynamic> response) => const Result<void>.success(null),
+      failure: Result<void>.failure,
     );
   }
 
