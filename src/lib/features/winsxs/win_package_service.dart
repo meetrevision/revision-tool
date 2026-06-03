@@ -15,7 +15,8 @@ enum WinPackageType {
   ),
   defenderRemoval(packageName: 'Revision-ReviOS-Defender-Removal'),
   aiRemoval(packageName: 'Revision-ReviOS-AI-Removal'),
-  oneDriveRemoval(packageName: 'Revision-ReviOS-OneDrive-Removal');
+  oneDriveRemoval(packageName: 'Revision-ReviOS-OneDrive-Removal'),
+  xboxRemoval(packageName: 'Revision-ReviOS-Xbox-Removal');
 
   const WinPackageType({required this.packageName});
 

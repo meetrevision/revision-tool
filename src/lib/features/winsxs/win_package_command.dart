@@ -47,6 +47,7 @@ class WindowsPackageCommand extends Command<void> {
     'defender-removal': WinPackageType.defenderRemoval,
     'ai-removal': WinPackageType.aiRemoval,
     'onedrive-removal': WinPackageType.oneDriveRemoval,
+    'xbox-removal': WinPackageType.xboxRemoval,
   };
 
   static List<String> get allowedList =>
@@ -128,6 +129,16 @@ class WindowsPackageCommand extends Command<void> {
         );
       }
 
+      if (mode == WinPackageType.xboxRemoval) {
+        await runPSCommand(
+          r"Get-AppxPackage -Name 'Microsoft.XboxGameCallableUI' | Remove-AppxPackage -PreserveRoamableApplicationData",
+        ); // Unregister XboxGameCallableUI package first
+
+        await runPSCommand(
+          r"'Microsoft.Xbox.TCUI','Microsoft.XboxApp','Microsoft.GamingApp','Microsoft.GamingServices','Microsoft.Edge.GameAssist','Microsoft.XboxGamingOverlay','Microsoft.XboxIdentityProvider' | ForEach-Object { Get-AppxPackage -AllUsers -Name $_ | Remove-AppxPackage -AllUsers }",
+        );
+      }
+
       logger.i(
         '$name(installPackage): Downloading package=${mode.packageName}',
       );
@@ -171,7 +182,51 @@ class WindowsPackageCommand extends Command<void> {
           downloadOnly: false,
         );
       }
+
       await WinPackageService.uninstallPackage(packageType);
+
+      if (packageType == WinPackageType.xboxRemoval) {
+        const xboGameCallableUIPath =
+            r'C:\Windows\SystemApps\Microsoft.XboxGameCallableUI_cw5n1h2txyewy\AppxManifest.xml';
+        if (File(xboGameCallableUIPath).existsSync()) {
+          logger.i('winsxs: Re-registering XboxGameCallableUI package...');
+
+          await runPSCommand(
+            'Add-AppxPackage -Register -DisableDevelopmentMode -Path "$xboGameCallableUIPath"',
+          );
+        }
+
+        logger.i('winsxs: Reinstalling Xbox packages from Microsoft Store...');
+
+        const xboxPackages = <String, String>{
+          'Microsoft.Xbox.TCUI': '9MV0B5HZVK9Z',
+          // 'Microsoft.XboxApp': '9WZDNCRFJBD8', // Deprecated package
+          'Microsoft.GamingApp': '9MV0B5HZVK9Z',
+          'Microsoft.GamingServices': '9MWPM2CQNLHN',
+          'Microsoft.Edge.GameAssist': '',
+          'Microsoft.XboxGamingOverlay': '9NZKPSTSNW4P',
+          'Microsoft.XboxIdentityProvider': '9WZDNCRD1HKW',
+        };
+
+        for (final MapEntry<String, String> package in xboxPackages.entries) {
+          final String packageName = package.key;
+          final String storeId = package.value;
+
+          if (storeId.isEmpty) {
+            logger.w(
+              'winsxs: No Store ID for $packageName, skipping reinstallation.',
+            );
+            continue;
+          }
+
+          await _msStoreCommand.installPackage(
+            id: storeId,
+            ring: .retail,
+            arch: .auto,
+            downloadOnly: false,
+          );
+        }
+      }
     } catch (e) {
       logger.e(
         '$name(uninstallPackage): Error uninstalling package=${packageType.packageName}',
