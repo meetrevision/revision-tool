@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/widgets/card_highlight.dart';
 import '../../../../i18n/generated/strings.g.dart';
+import '../../../../utils.dart';
 import '../performance_service.dart';
 
 class MemoryStorageSection extends StatelessWidget {
@@ -76,6 +77,31 @@ class _MemoryCompressionCard extends ConsumerWidget {
         value: memoryCompressionStatus,
         requiresRestart: true,
         onChanged: (value) async {
+          if (!value) {
+            final ramBytes = getTotalPhysicalMemory();
+            final ramGB = ramBytes / (1024 * 1024 * 1024);
+            if (ramBytes > 0 && ramGB < 16.0) {
+              final proceed = await showDialog<bool>(
+                context: context,
+                builder: (context) => ContentDialog(
+                  title: Text(t.warning ?? '⚠️ Low Memory Warning'),
+                  content: Text('Your system has only ${ramGB.toStringAsFixed(1)} GB of physical RAM. Disabling Memory Compression on systems with less than 16 GB of RAM can cause severe stuttering in modern games and system instability. Are you absolutely sure?'),
+                  actions: [
+                    Button(
+                      child: Text(t.close ?? 'Cancel'),
+                      onPressed: () => Navigator.pop(context, false),
+                    ),
+                    FilledButton(
+                      child: const Text('Disable anyway'),
+                      onPressed: () => Navigator.pop(context, true),
+                    ),
+                  ],
+                ),
+              );
+              if (proceed != true) return;
+            }
+          }
+
           value
               ? await ref
                     .read(performanceServiceProvider)
