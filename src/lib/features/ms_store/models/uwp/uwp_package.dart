@@ -69,10 +69,19 @@ sealed class FileModel with _$FileModel {
     String? packageFullName,
     String? digest,
     String? digestAlgorithm,
+    String? additionalDigest,
+    String? additionalDigestAlgorithm,
     int? size,
     DateTime? modifiedDate,
   }) = _FileModel;
 
   factory FileModel.fromJson(Map<String, Object?> json) =>
       _$FileModelFromJson(json);
+}
+
+extension FileModelDigestX on FileModel {
+  String? get verificationDigest => additionalDigest ?? digest;
+
+  String? get verificationDigestAlgorithm =>
+      additionalDigestAlgorithm ?? digestAlgorithm;
 }

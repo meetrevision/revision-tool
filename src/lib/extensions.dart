@@ -33,9 +33,3 @@ extension WidgetListSpacing on List<Widget> {
     return spacedChildren;
   }
 }
-
-extension ImageCacheSize on num {
-  int cacheSize(BuildContext context) {
-    return (this * MediaQuery.devicePixelRatioOf(context)).round();
-  }
-}

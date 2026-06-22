@@ -1,7 +1,12 @@
 import 'dart:io';
+import 'package:riverpod/riverpod.dart';
 import 'package:xml/xml.dart';
 import '../../../utils.dart';
 import '../models/uwp/uwp_package.dart';
+
+final storeUwpXmlParserProvider = Provider<UwpXmlParser>(
+  (_) => const UwpXmlParser(),
+);
 
 /// Stateless parser for UWP-related XML responses.
 /// Designed to be run in an isolate via [compute].
@@ -69,6 +74,10 @@ class UwpXmlParser {
               continue; // encrypted files installation is not supported
             }
 
+            final XmlElement? additionalDigest = _preferredAdditionalDigest(
+              fileElement,
+            );
+
             files.add(
               FileModel(
                 fileName: fileName,
@@ -76,6 +85,10 @@ class UwpXmlParser {
                 packageFullName: packageFullName,
                 digest: fileElement.getAttribute('Digest'),
                 digestAlgorithm: fileElement.getAttribute('DigestAlgorithm'),
+                additionalDigest: additionalDigest?.innerText.trim(),
+                additionalDigestAlgorithm: additionalDigest?.getAttribute(
+                  'Algorithm',
+                ),
                 size: int.tryParse(fileElement.getAttribute('Size') ?? '0'),
                 modifiedDate: DateTime.tryParse(
                   fileElement.getAttribute('Modified') ?? '',
@@ -195,6 +208,26 @@ class UwpXmlParser {
     }
 
     return UwpPackageResponse(updates: latestPackages.values.toSet());
+  }
+
+  static XmlElement? _preferredAdditionalDigest(XmlElement fileElement) {
+    final Iterable<XmlElement> additionalDigests = fileElement.findElements(
+      'AdditionalDigest',
+    );
+    XmlElement? fallback;
+    for (final element in additionalDigests) {
+      fallback ??= element;
+      if (_normalizeDigestAlgorithm(
+        element.getAttribute('Algorithm'),
+      ).contains('SHA256')) {
+        return element;
+      }
+    }
+    return fallback;
+  }
+
+  static String _normalizeDigestAlgorithm(String? algorithm) {
+    return (algorithm ?? '').toUpperCase().replaceAll('-', '');
   }
 
   /// Parses the download URL from the GetExtendedUpdateInfo2 response

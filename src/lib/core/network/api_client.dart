@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod/riverpod.dart';
 
 import '../../utils.dart';
 import '../error/app_exception.dart';
@@ -89,11 +89,8 @@ class ApiClient {
     CancelToken? cancelToken,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final String safeUri = _safeUri(uri);
-
     for (var attempt = 0; attempt <= retryPolicy.maxRetries; attempt++) {
       try {
-        logger.i('$tag(downloadFile): Downloading $safeUri to $downloadPath');
         final Response<dynamic> response = await _dio.downloadUri(
           uri,
           downloadPath,
@@ -101,7 +98,7 @@ class ApiClient {
           onReceiveProgress: onReceiveProgress,
           options: Options(extra: const {'skipRetry': true}),
         );
-        logger.i('$tag(downloadFile): Download completed for $safeUri');
+
         return Result<Response<dynamic>>.success(response);
       } on DioException catch (e) {
         final AppException exception = _mapException(e);
@@ -110,7 +107,7 @@ class ApiClient {
 
         if (!canRetry) {
           logger.e(
-            '$tag(downloadFile): Failed to download $safeUri',
+            '$tag(downloadFile): Failed to download $uri',
             error: exception,
             stackTrace: StackTrace.current,
           );
@@ -133,14 +130,12 @@ class ApiClient {
     required Future<Response<T>> Function() operation,
   }) async {
     try {
-      logger.i('$tag($label): ${_safeUri(uri)}');
-
       return Result<Response<T>>.success(await operation());
     } on DioException catch (e) {
       final AppException exception = _mapException(e);
 
       logger.e(
-        '$tag($label): Failed to connect to ${_safeUri(uri)}',
+        '$tag($label): Failed to connect to $uri',
         error: exception,
         stackTrace: StackTrace.current,
       );
@@ -188,10 +183,5 @@ class ApiClient {
     if (file.existsSync()) {
       await file.delete();
     }
-  }
-
-  static String _safeUri(Uri uri) {
-    if (!uri.hasQuery) return uri.toString();
-    return uri.replace(query: '<redacted>').toString();
   }
 }

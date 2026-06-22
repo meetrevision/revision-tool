@@ -8,6 +8,7 @@ import '../../extensions.dart';
 import '../../features/ms_store/ms_store_image_provider.dart';
 import '../../i18n/generated/strings.g.dart';
 import '../../utils_gui.dart';
+import '../extensions/gui/image_cache_size.dart';
 import '../settings/app_settings_provider.dart';
 
 // const cardBorderColorForDark = Color.fromARGB(255, 29, 29, 29);

@@ -2,15 +2,18 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:dio/dio.dart';
 
 import '../../core/services/win_registry_service.dart';
 import '../../utils.dart';
-import '../ms_store/ms_store_command.dart';
+import '../ms_store/models/store_download_info.dart';
+import '../ms_store/store_enums.dart';
+import '../ms_store/store_service.dart';
 import '../tweaks/security/security_service.dart';
 import 'win_package_service.dart';
 
 class WindowsPackageCommand extends Command<void> {
-  WindowsPackageCommand() {
+  WindowsPackageCommand(this._storeService) {
     argParser.addOption(
       'download',
       help: 'Downloads a package',
@@ -32,7 +35,8 @@ class WindowsPackageCommand extends Command<void> {
       allowed: allowedList,
     );
   }
-  static final _msStoreCommand = MSStoreCommand();
+
+  final StoreService _storeService;
 
   static const tag = 'Windows Package';
 
@@ -175,15 +179,14 @@ class WindowsPackageCommand extends Command<void> {
         await runPSCommand(
           'Enable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart',
         );
-        await _msStoreCommand.installPackage(
-          id: '9nht9rb2f4hd',
+        await _installStorePackage(
+          ids: {'9nht9rb2f4hd'},
           ring: .retail,
           arch: .auto,
-          downloadOnly: false,
         );
       }
 
-      await WinPackageService.uninstallPackage(packageType);
+      // await WinPackageService.uninstallPackage(packageType);
 
       if (packageType == WinPackageType.xboxRemoval) {
         const xboGameCallableUIPath =
@@ -208,24 +211,22 @@ class WindowsPackageCommand extends Command<void> {
           'Microsoft.XboxIdentityProvider': '9WZDNCRD1HKW',
         };
 
+        final xboxStoreIds = <String>{};
         for (final MapEntry<String, String> package in xboxPackages.entries) {
-          final String packageName = package.key;
-          final String storeId = package.value;
-
-          if (storeId.isEmpty) {
+          if (package.value.isEmpty) {
             logger.w(
-              'winsxs: No Store ID for $packageName, skipping reinstallation.',
+              'winsxs: No Store ID for ${package.key}, skipping reinstallation.',
             );
-            continue;
+          } else {
+            xboxStoreIds.add(package.value);
           }
-
-          await _msStoreCommand.installPackage(
-            id: storeId,
-            ring: .retail,
-            arch: .auto,
-            downloadOnly: false,
-          );
         }
+
+        await _installStorePackage(
+          ids: xboxStoreIds,
+          ring: .releasePreview,
+          arch: .auto,
+        );
       }
     } catch (e) {
       logger.e(
@@ -234,6 +235,50 @@ class WindowsPackageCommand extends Command<void> {
         stackTrace: StackTrace.current,
       );
       exit(1);
+    }
+  }
+
+  Future<void> _installStorePackage({
+    required Set<String> ids,
+    required StoreRing ring,
+    required StoreArch arch,
+  }) async {
+    final StorePackagesByProductId packagesByProductId = await _storeService
+        .getPackages(productIds: ids, ring: ring, arch: arch)
+        .then(
+          (result) => result.when(
+            success: (value) => value,
+            failure: (exception) => throw exception,
+          ),
+        );
+    final Set<StorePackageFileDownload> downloads = await _storeService
+        .download(
+          ring: ring,
+          packagesByProductId: packagesByProductId,
+          cancelToken: CancelToken(),
+          onProgress: (_) {},
+        )
+        .then(
+          (result) => result.when(
+            success: (value) => value,
+            failure: (exception) => throw exception,
+          ),
+        );
+    final Map<String, ProcessResult> installResults = await _storeService
+        .install(downloads: downloads)
+        .then(
+          (result) => result.when(
+            success: (value) => value,
+            failure: (exception) => throw exception,
+          ),
+        );
+
+    final List<ProcessResult> failed = installResults.values
+        .where((result) => result.exitCode != 0)
+        .toList();
+
+    if (failed.isNotEmpty) {
+      throw Exception(failed.map((result) => result.stderr).join('\n'));
     }
   }
 }

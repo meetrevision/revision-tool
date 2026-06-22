@@ -6,11 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/widgets/card_highlight.dart';
+import '../../../core/widgets/loading_dialog.dart';
 import '../../../core/widgets/subtitle.dart';
 import '../../../extensions.dart';
 import '../../../i18n/generated/strings.g.dart';
 import '../../../utils_gui.dart';
-import '../../ms_store/widgets/ms_store_dialogs.dart';
 import 'updates_service.dart';
 
 class UpdatesPage extends ConsumerWidget {
@@ -85,10 +85,9 @@ class _UpdateKGLCard extends ConsumerWidget {
           onPressed: () async {
             var message = '';
             try {
-              unawaited(showLoadingDialog(
-                context,
-                '${t.settingsUpdatingStatus} KGL',
-              ));
+              unawaited(
+                showLoadingDialog(context, '${t.settingsUpdatingStatus} KGL'),
+              );
               await ref.read(updatesServiceProvider).updateKGL();
               if (!context.mounted) return;
               message = t.restartDialog;

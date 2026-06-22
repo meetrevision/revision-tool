@@ -36,6 +36,8 @@ final class CancelledRequestException extends AppException {
 }
 
 final class UnexpectedNetworkException extends AppException {
-  const UnexpectedNetworkException({Object? cause})
-    : super('Unexpected network error', cause: cause);
+  const UnexpectedNetworkException({
+    String message = 'Unexpected network error',
+    Object? cause,
+  }) : super(message, cause: cause);
 }

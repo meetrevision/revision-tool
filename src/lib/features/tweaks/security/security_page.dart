@@ -6,10 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/widgets/card_highlight.dart';
+import '../../../core/widgets/loading_dialog.dart';
 import '../../../extensions.dart';
 import '../../../i18n/generated/strings.g.dart';
 import '../../../utils_gui.dart';
-import '../../ms_store/widgets/ms_store_dialogs.dart';
 import 'sections/hw_mitigation_section.dart';
 import 'sections/system_safeguard_section.dart';
 import 'security_service.dart';

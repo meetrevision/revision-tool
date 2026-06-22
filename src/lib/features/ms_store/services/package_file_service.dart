@@ -1,64 +1,53 @@
+import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:process_run/shell_run.dart';
+import 'package:riverpod/riverpod.dart';
 
-import '../../../core/compute.dart';
 import '../../../core/error/result.dart';
 import '../../../core/network/api_client.dart';
 import '../../../utils.dart';
-import '../ms_store_enums.dart';
+import '../store_enums.dart';
 
-String _sha256FromPath(String path) {
-  final Uint8List bytes = File(path).readAsBytesSync();
-  final Digest digest = sha256.convert(bytes);
-  return digest.toString().toLowerCase();
-}
+final storePackageFileServiceProvider = Provider<PackageFileService>((ref) {
+  return PackageFileService(ref.read(apiClientProvider));
+});
 
 /// Service for file system operations related to MS Store packages.
 class PackageFileService {
-  const PackageFileService([this._api]);
+  const PackageFileService(this._api);
 
-  final ApiClient? _api;
+  final ApiClient _api;
 
   static final String _storeFolder =
       '${Directory.systemTemp.path}\\Revision-Tool\\MSStore';
 
-  /// Returns the temporary path for a specific product and ring
-  String getTempPath(String productId, MSStoreRing ring) {
-    return '$_storeFolder\\$productId\\${ring.value}';
+  String downloadPath(String downloadId, StoreRing ring) {
+    return '$_storeFolder\\$downloadId\\${ring.value}';
   }
 
-  /// Downloads a file from [url] to [path] with progress reporting
-  Future<Result<void>> downloadPackage(
+  Future<Result<void>> download(
     String url,
     String path, {
-    bool isDependency = false,
     void Function(int count, int total)? onProgress,
     CancelToken? cancelToken,
   }) async {
     final file = File(path);
-    final Directory dir = isDependency
-        ? Directory('${file.parent.path}\\Dependencies')
-        : file.parent;
+    final Directory dir = file.parent;
 
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
     }
 
-    final finalPath = isDependency
-        ? '${dir.path}\\${file.uri.pathSegments.last}'
-        : path;
-
-    final Result<Response<dynamic>> result = await (_api ?? ApiClient())
-        .downloadFile(
-          Uri.parse(url),
-          finalPath,
-          onReceiveProgress: onProgress,
-          cancelToken: cancelToken,
-        );
+    final Result<Response<dynamic>> result = await _api.downloadFile(
+      Uri.parse(url),
+      path,
+      onReceiveProgress: onProgress,
+      cancelToken: cancelToken,
+    );
 
     return result.when(
       success: (Response<dynamic> response) => const Result<void>.success(null),
@@ -67,26 +56,11 @@ class PackageFileService {
   }
 
   /// Deletes the root temporary store folder
-  Future<void> cleanupDownloads() async {
+  Future<void> cleanup() async {
     final dir = Directory(_storeFolder);
     if (dir.existsSync()) {
       await dir.delete(recursive: true);
     }
-  }
-
-  /// Lists all files in the temporary folder for a product and ring
-  List<File> listDownloadedFiles(String productId, MSStoreRing ring) {
-    final String path = getTempPath(productId, ring);
-    final dir = Directory(path);
-    if (!dir.existsSync()) return [];
-
-    final files = <File>[];
-    for (final FileSystemEntity entity in dir.listSync(recursive: true)) {
-      if (entity is File) {
-        files.add(entity);
-      }
-    }
-    return files;
   }
 
   /// Installs a UWP (AppX/Msix) package
@@ -102,15 +76,41 @@ class PackageFileService {
     return runExecutableArguments(path, args, verbose: true);
   }
 
-  /// Computes the SHA-256 hash of a file and returns it as lowercase hex string
-  Future<String> computeFileSha256(File file) async {
-    return compute(_sha256FromPath, file.path);
-  }
+  /// Verifies Store API digests.
+  /// UWP payloads may expose SHA1 as `Digest` and SHA256 as `AdditionalDigest`.
+  Future<bool> verifyFileDigest({
+    required File file,
+    required String digest,
+    required String algorithm,
+  }) async {
+    final String expected = digest.trim();
+    if (expected.isEmpty) return false;
 
-  /// Verifies the file digest against expected hex string (case-insensitive)
-  Future<bool> verifyFileDigest(File file, String? expectedHex) async {
-    if (expectedHex == null || expectedHex.isEmpty) return false;
-    final String actual = await computeFileSha256(file);
-    return actual == expectedHex.toLowerCase();
+    final Digest actualDigest;
+    switch (algorithm.toUpperCase().trim()) {
+      case 'SHA1':
+        actualDigest = await sha1.bind(file.openRead()).first;
+      case 'SHA256':
+        actualDigest = await sha256.bind(file.openRead()).first;
+      default:
+        return false;
+    }
+
+    final bool isHexDigest = RegExp(
+      r'^([0-9a-fA-F]{40}|[0-9a-fA-F]{64})$',
+    ).hasMatch(expected);
+    if (isHexDigest) {
+      // Win32 Store API hashes are already decoded SHA256 hex strings.
+      return actualDigest.toString().toLowerCase() == expected.toLowerCase();
+    }
+
+    try {
+      return const ListEquality<int>().equals(
+        actualDigest.bytes,
+        base64.decode(base64.normalize(expected)),
+      );
+    } on FormatException {
+      return false;
+    }
   }
 }

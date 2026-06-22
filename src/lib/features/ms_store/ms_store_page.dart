@@ -6,11 +6,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/routing/app_routes.dart';
 import '../../i18n/generated/strings.g.dart';
-import '../../utils.dart';
 import '../../utils_gui.dart';
 import 'models/search/search_product.dart';
-import 'ms_store_enums.dart';
-import 'ms_store_providers.dart';
+import 'store_enums.dart';
+import 'store_providers.dart';
 import 'widgets/ms_store_product_card.dart';
 
 class MSStorePage extends ConsumerStatefulWidget {
@@ -22,7 +21,7 @@ class MSStorePage extends ConsumerStatefulWidget {
 
 class _MSStorePageState extends ConsumerState<MSStorePage> {
   final _textEditingController = TextEditingController();
-  MSStoreRing _selectedRing = .releasePreview; // Default to RP
+  static const _spacing = 16.0;
 
   @override
   void dispose() {
@@ -38,7 +37,7 @@ class _MSStorePageState extends ConsumerState<MSStorePage> {
     if (productId != null) {
       await context.push('${RouteMeta.msStore.path}/product/$productId');
     } else {
-      await ref.read(mSStoreSearchProvider.notifier).search(query);
+      await ref.read(storeControllerProvider.notifier).search(query);
     }
   }
 
@@ -56,13 +55,17 @@ class _MSStorePageState extends ConsumerState<MSStorePage> {
   @override
   Widget build(BuildContext context) {
     final AsyncValue<List<SearchProduct>> searchState = ref.watch(
-      mSStoreSearchProvider,
+      storeControllerProvider.select((s) => s.search),
+    );
+    final StoreRing selectedRing = ref.watch(
+      storeControllerProvider.select((s) => s.ring),
     );
 
-    return ScaffoldPage.scrollable(
+    return ScaffoldPage(
       padding: kScaffoldPagePadding,
-      children: [
-        Row(
+      header: Padding(
+        padding: kScaffoldPagePadding.copyWith(bottom: 20.45),
+        child: Row(
           spacing: 10,
           children: [
             Expanded(
@@ -72,91 +75,60 @@ class _MSStorePageState extends ConsumerState<MSStorePage> {
                 onSubmitted: (_) => _onSearchButtonPressed(),
               ),
             ),
-            ComboBox<MSStoreRing>(
-              value: _selectedRing,
-              onChanged: (value) => setState(() => _selectedRing = value!),
-              items: MSStoreRing.values
-                  .map(
-                    (ring) =>
-                        ComboBoxItem(value: ring, child: Text(ring.label)),
-                  )
-                  .toList(),
+            ComboBox<StoreRing>(
+              value: selectedRing,
+              onChanged: (value) {
+                if (value == null) return;
+                ref.read(storeControllerProvider.notifier).setRing(value);
+              },
+              items: StoreRing.values.map((ring) {
+                return ComboBoxItem(value: ring, child: Text(ring.label));
+              }).toList(),
             ),
           ],
         ),
-        const SizedBox(height: 20),
-        searchState.when(
-          data: (products) => _ProductGrid(products: products),
-          loading: () => const Center(child: ProgressRing()),
-          error: (err, stack) {
-            logger.e('Error searching MS Store: $err; $stack');
-            return Center(child: Text(err.toString()));
-          },
-        ),
-      ],
-    );
-  }
-}
+      ),
 
-class _ProductGrid extends StatelessWidget {
-  const _ProductGrid({required this.products});
+      content: searchState.when(
+        data: (products) {
+          if (products.isEmpty) return const SizedBox.shrink();
 
-  final List<SearchProduct> products;
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final int crossAxisCount =
+                  (constraints.maxWidth /
+                          (MSStoreProductCard.cardHeight / 1.22 + _spacing))
+                      .floor()
+                      .clamp(1, 6);
 
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const cardWidth = 366.0;
-        const spacing = 15.0;
-        final double maxWidth = constraints.maxWidth;
-
-        final int columns = ((maxWidth + spacing) / (cardWidth + spacing))
-            .floor()
-            .clamp(1, 4);
-
-        final double actualWidth =
-            (maxWidth - (columns - 1) * spacing) / columns;
-
-        return Wrap(
-          spacing: spacing,
-          runSpacing: spacing,
-          children: [
-            for (final product in products)
-              if (product.displayPrice == 'Free')
-                // Mandatory to prevent unnecessary rebuilds of the entire grid when an item is in extended hover state (_extendedHoverNotifier)
-                RepaintBoundary(
-                  child: SizedBox(
-                    width: actualWidth,
-                    child: _ProductCard(product: product),
-                  ),
-                ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _ProductCard extends ConsumerWidget {
-  const _ProductCard({required this.product});
-
-  final SearchProduct product;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return MSStoreProductCard(
-      product: product,
-      onPressed: () => _openProductDetails(context, product),
-    );
-  }
-
-  void _openProductDetails(BuildContext context, SearchProduct product) {
-    final String? productId = product.productId;
-    if (productId == null || productId.isEmpty) return;
-    context.push(
-      '${RouteMeta.msStore.path}/product/$productId',
-      extra: product,
+              return GridView.count(
+                padding: kScaffoldPagePadding,
+                crossAxisCount: crossAxisCount,
+                mainAxisSpacing: _spacing,
+                crossAxisSpacing: _spacing,
+                children: products
+                    .map((p) {
+                      return MSStoreProductCard(
+                        product: p,
+                        onPressed: () {
+                          if (p.productId == null || p.productId!.isEmpty) {
+                            return;
+                          }
+                          context.push(
+                            '${RouteMeta.msStore.path}/product/${p.productId}',
+                            extra: p,
+                          );
+                        },
+                      );
+                    })
+                    .toList(growable: false),
+              );
+            },
+          );
+        },
+        loading: () => const Center(child: ProgressRing()),
+        error: (error, _) => Center(child: Text(error.toString())),
+      ),
     );
   }
 }

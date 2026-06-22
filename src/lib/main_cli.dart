@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:riverpod/riverpod.dart';
 
 import 'core/services/win_registry_command.dart';
 import 'core/services/win_registry_service.dart';
 import 'features/ms_store/ms_store_command.dart';
+import 'features/ms_store/store_service.dart';
 import 'features/tweaks/tweaks_command.dart';
 import 'features/winsxs/win_package_command.dart';
 import 'utils.dart';
@@ -26,6 +28,8 @@ Future<void> main(List<String> args) async {
   }
   const tag = 'cli_main:';
 
+  final container = ProviderContainer();
+
   logger.i('$tag Revision Tool CLI is starting');
 
   final runner =
@@ -33,12 +37,16 @@ Future<void> main(List<String> args) async {
           'revitool',
           "Revision Tool CLI v${const String.fromEnvironment('APP_VERSION', defaultValue: '1.0.0')}",
         )
-        ..addCommand(MSStoreCommand())
+        ..addCommand(
+          MSStoreCommand(service: container.read(storeServiceProvider)),
+        )
         ..addCommand(
           WinRegistryServiceCliCommand(const WinRegistryCliService()),
         )
         ..addCommand(TweaksCommand())
-        ..addCommand(WindowsPackageCommand());
+        ..addCommand(
+          WindowsPackageCommand(container.read(storeServiceProvider)),
+        );
   await runner.run(args);
   exit(0);
 }
