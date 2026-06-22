@@ -68,12 +68,12 @@ class _CtfmonInputCard extends ConsumerWidget {
       description: t.tweaksPerformanceCtfmonInputDescription,
       descriptionLink: 'https://ctfmon.vercel.app/',
       trailing: CardToggleSwitch(
-        value: status,
+        value: !status,
         requiresRestart: true,
         onChanged: (value) async {
           value
-              ? await ref.read(performanceServiceProvider).enableCtfmonInput()
-              : await ref.read(performanceServiceProvider).disableCtfmonInput();
+              ? await ref.read(performanceServiceProvider).disableCtfmonInput()
+              : await ref.read(performanceServiceProvider).enableCtfmonInput();
           ref.invalidate(ctfmonInputStatusProvider);
         },
       ),
