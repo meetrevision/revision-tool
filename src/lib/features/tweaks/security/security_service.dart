@@ -1,10 +1,11 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:win32_registry/win32_registry.dart';
 
 import '../../../core/cli_generator/annotations.dart';
+
+import '../../../core/network/api_client.dart';
 import '../../../core/services/win_registry_service.dart';
 import '../../../core/trusted_installer/trusted_installer_service.dart';
 import '../../winsxs/win_package_service.dart';
@@ -199,7 +200,10 @@ class SecurityServiceImpl implements SecurityService {
         ),
       ]);
 
-      await WinPackageService.uninstallPackage(WinPackageType.defenderRemoval);
+      await DefenderRemovalService(
+        security: this,
+        api: ApiClient(),
+      ).uninstallPackage();
 
       await runPSCommand(
         r'& $env:SystemRoot\System32\gpupdate.exe /Target:Computer /Force',
@@ -385,10 +389,6 @@ class SecurityServiceImpl implements SecurityService {
   @override
   Future<void> disableDefender() async {
     try {
-      final String packagePath = await WinPackageService.downloadPackage(
-        WinPackageType.defenderRemoval,
-      );
-
       /// Internal helper
       Future<void> applyPolicyWrites() async {
         await Future.wait([
@@ -455,7 +455,10 @@ class SecurityServiceImpl implements SecurityService {
         'RevisionEnableDefenderCMD',
       );
 
-      await WinPackageService.installPackage(packagePath);
+      await DefenderRemovalService(
+        security: this,
+        api: ApiClient(),
+      ).installPackage();
     } on Exception catch (e) {
       throw DefenderOperationException('Failed to disable Windows Defender', e);
     }

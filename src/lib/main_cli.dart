@@ -8,6 +8,7 @@ import 'core/services/win_registry_service.dart';
 import 'features/ms_store/ms_store_command.dart';
 import 'features/ms_store/store_service.dart';
 import 'features/tweaks/tweaks_command.dart';
+
 import 'features/winsxs/win_package_command.dart';
 import 'utils.dart';
 
@@ -43,10 +44,8 @@ Future<void> main(List<String> args) async {
         ..addCommand(
           WinRegistryServiceCliCommand(const WinRegistryCliService()),
         )
-        ..addCommand(TweaksCommand())
-        ..addCommand(
-          WindowsPackageCommand(container.read(storeServiceProvider)),
-        );
+        ..addCommand(TweaksCommand(container: container))
+        ..addCommand(WindowsPackageCommand(container: container));
   await runner.run(args);
   exit(0);
 }
