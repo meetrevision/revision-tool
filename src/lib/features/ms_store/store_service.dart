@@ -163,8 +163,14 @@ final class StoreService with BaseService {
     required Map<String, Iterable<PackageInfo>> packagesByProductId,
     required void Function(StorePackageDownloadProgress) onProgress,
     required CancelToken cancelToken,
+    String? downloadPath,
   }) async {
     return run(() async {
+      if (downloadPath != null && downloadPath.isNotEmpty) {
+        final dir = Directory(downloadPath);
+        if (!dir.existsSync()) dir.createSync(recursive: true);
+      }
+
       final flat = <({PackageInfo package, String productId})>{};
       for (final MapEntry<String, Iterable<PackageInfo>> entry
           in packagesByProductId.entries) {
@@ -195,7 +201,8 @@ final class StoreService with BaseService {
         final StoreAppType type = .fromProductId(productId)!;
 
         // Build local path
-        final String tempDir = _fileService.downloadPath(downloadId, ring);
+        final String tempDir =
+            downloadPath ?? _fileService.downloadPath(downloadId, ring);
         final String fileName = package.downloadName;
         var storedPath = package.isDependency
             ? '$tempDir\\Dependencies\\$fileName'

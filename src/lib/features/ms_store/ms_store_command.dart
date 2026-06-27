@@ -22,10 +22,10 @@ class MSStoreCommand extends Command<void> {
       allowed: StoreRing.values.map((e) => e.value).toList(),
       help: 'Channel',
     );
-    argParser.addFlag(
-      'download-only',
-      negatable: false,
-      help: 'Only downloads the specified package(s) without installing.',
+    argParser.addOption(
+      'download',
+      help: 'Download to specified path.',
+      defaultsTo: '',
     );
     argParser.addOption(
       'arch',
@@ -52,7 +52,7 @@ class MSStoreCommand extends Command<void> {
     final ids = argResults?['id'] as Iterable<String>;
     final ringValue = argResults?['ring'] as String;
     final archValue = argResults?['arch'] as String;
-    final bool downloadOnly = argResults?['download-only'] as bool? ?? false;
+    final download = argResults?['download'] as String?;
 
     final StoreRing ring = .values.firstWhere((e) => e.value == ringValue);
     final StoreArch arch = .values.firstWhere((e) => e.value == archValue);
@@ -68,6 +68,9 @@ class MSStoreCommand extends Command<void> {
 
     final Set<StorePackageFileDownload> downloads = await _service
         .download(
+          downloadPath: download != null && download.isNotEmpty
+              ? download
+              : null,
           ring: ring,
           packagesByProductId: packagesByProductId,
           cancelToken: CancelToken(),
@@ -85,12 +88,12 @@ class MSStoreCommand extends Command<void> {
           ),
         );
 
-    if (downloadOnly) {
-      final String? path = downloads.isEmpty
-          ? null
-          : File(downloads.first.path).parent.path;
+    if (download != null && download.isNotEmpty) {
+      final String path = File(downloads.first.path).parent.path;
+
       _service.releaseDownloadLocks();
-      if (path != null) stdout.writeln(path);
+
+      stdout.writeln(path);
       exit(0);
     }
 
