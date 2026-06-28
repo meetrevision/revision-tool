@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:process_run/shell_run.dart';
@@ -104,6 +105,13 @@ class _HomePageContent extends StatelessWidget {
             const Text(
               'Revision Tool',
               style: TextStyle(fontSize: 28, color: Color(0xFFffffff)),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 2.0, bottom: 8.0),
+              child: Text(
+                'OS: ${Platform.operatingSystemVersion}',
+                style: const TextStyle(fontSize: 12, color: Color(0x8AFFFFFF), fontFamily: 'Consolas'),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0),

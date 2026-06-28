@@ -8,9 +8,23 @@ import 'package:ffi/ffi.dart';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
 import 'package:process_run/shell_run.dart';
+import 'package:win32/win32.dart';
 import 'package:win32_registry/win32_registry.dart';
 
 import 'core/services/win_registry_service.dart';
+
+int getTotalPhysicalMemory() {
+  final memoryStatus = calloc<MEMORYSTATUSEX>();
+  try {
+    memoryStatus.ref.dwLength = sizeOf<MEMORYSTATUSEX>();
+    if (GlobalMemoryStatusEx(memoryStatus) != 0) {
+      return memoryStatus.ref.ullTotalPhys;
+    }
+    return 0;
+  } finally {
+    free(memoryStatus);
+  }
+}
 
 final String mainPath = Platform.resolvedExecutable;
 final String directoryExe = Directory(
