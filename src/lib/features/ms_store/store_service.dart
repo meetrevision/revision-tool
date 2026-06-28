@@ -137,10 +137,12 @@ final class StoreService with BaseService {
                   productId: productId,
                   ring: ring,
                 )).where((p) {
-                  final String pArch = p.arch.toLowerCase();
-                  return arch == .all ||
-                      pArch == resolvedArch ||
-                      pArch == 'neutral';
+                  if (arch == .all) return true;
+                  final String a = p.arch.toLowerCase();
+                  if (a == 'neutral' || a == resolvedArch) return true;
+                  return p.isDependency &&
+                      ((resolvedArch == 'x64' && a == 'x86') ||
+                          (resolvedArch == 'arm64' && a == 'arm'));
                 }).toSet();
 
             if (packages.isEmpty) {

@@ -422,6 +422,60 @@ void main() {
       }
     });
 
+    test('getPackages includes 32-bit deps for target arch', () async {
+      final StoreService service = _service(
+        apiClient,
+        uwpRepository: _FakeStoreRepository({
+          '9TEST': {
+            _mainPackage(id: 'm64', fileName: 'main-x64', digest: 'a', size: 1),
+            _mainPackage(
+              id: 'm86',
+              fileName: 'main-x86',
+              digest: 'b',
+              size: 1,
+              arch: 'x86',
+            ),
+            _sharedPackage(
+              id: 'd86',
+              fileName: 'dep-x86',
+              digest: 'c',
+              size: 1,
+              arch: 'x86',
+            ),
+            _mainPackage(
+              id: 'ma64',
+              fileName: 'main-arm64',
+              digest: 'd',
+              size: 1,
+              arch: 'arm64',
+            ),
+            _sharedPackage(
+              id: 'da',
+              fileName: 'dep-arm',
+              digest: 'e',
+              size: 1,
+              arch: 'arm',
+            ),
+          },
+        }),
+      );
+      Future<Set<String>> names(StoreArch arch) => service
+          .getPackages(
+            productIds: ['9TEST'],
+            ring: StoreRing.retail,
+            arch: arch,
+          )
+          .then(
+            (r) => r.when(
+              success: (m) =>
+                  m['9TEST']!.map((p) => p.fileModel!.fileName!).toSet(),
+              failure: (e) => throw e,
+            ),
+          );
+      expect(await names(StoreArch.x64), {'main-x64', 'dep-x86'});
+      expect(await names(StoreArch.arm64), {'main-arm64', 'dep-arm'});
+    });
+
     test('batch download shares package paths between products', () async {
       final List<int> bytes = utf8.encode('shared dependency');
       final String digest = base64.encode(sha256.convert(bytes).bytes);
@@ -584,9 +638,7 @@ void main() {
               ),
             );
         final Result<Map<String, ProcessResult>> installResult = await service
-            .install(
-          downloads: downloads,
-        );
+            .install(downloads: downloads);
 
         expect(installResult, isA<Success<Map<String, ProcessResult>>>());
         expect(recording.win32InstallPaths, isNotEmpty);
@@ -811,12 +863,13 @@ PackageInfo _sharedPackage({
   String fileName = 'shared',
   required String digest,
   required int size,
+  String arch = 'x64',
 }) {
   return PackageInfo(
     id: id,
     isDependency: true,
     uri: 'https://example.test/$fileName.appx',
-    arch: 'x64',
+    arch: arch,
     fileModel: FileModel(
       fileName: fileName,
       fileType: 'appx',
@@ -832,12 +885,13 @@ PackageInfo _mainPackage({
   required String fileName,
   required String digest,
   required int size,
+  String arch = 'x64',
 }) {
   return PackageInfo(
     id: id,
     isDependency: false,
     uri: 'https://example.test/$fileName.appx',
-    arch: 'x64',
+    arch: arch,
     fileModel: FileModel(
       fileName: fileName,
       fileType: 'appx',
