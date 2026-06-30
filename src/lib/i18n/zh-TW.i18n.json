@@ -2,7 +2,7 @@
     "okButton": "確定",
     "notNowButton": "暫不",
     "restartDialog": "您必須重新啟動電腦才能使變更生效",
-    "moreAbout": "更多關於",
+    "moreAbout": "了解更多",
     "onStatus": "開啟",
     "offStatus": "關閉",
     "experimental": "實驗性",
@@ -171,10 +171,10 @@
     "tweaksPersonalizationScreenEdgeSwipe": "螢幕邊緣滑動",
     "tweaksPersonalizationScreenEdgeSwipeDescription": "停用此項可修復全螢幕模式下的工作列彈出問題",
     "tweaksPersonalizationNewContextMenu": "新操作功能表",
-    "tweaksPersonalizationExplorerHome": "在瀏覽窗格中顯示「Home」",
-    "tweaksPersonalizationExplorerHomeDescription": "在檔案總管左側瀏覽窗格中顯示「Home」項目",
-    "tweaksPersonalizationExplorerGallery": "在瀏覽窗格中顯示「Gallery」",
-    "tweaksPersonalizationExplorerGalleryDescription": "在檔案總管左側瀏覽窗格中顯示「Gallery」項目",
+    "tweaksPersonalizationExplorerHome": "在瀏覽窗格中顯示「首頁」",
+    "tweaksPersonalizationExplorerHomeDescription": "在檔案總管左側瀏覽窗格中顯示「首頁」項目",
+    "tweaksPersonalizationExplorerGallery": "在瀏覽窗格中顯示「相簿」",
+    "tweaksPersonalizationExplorerGalleryDescription": "在檔案總管左側瀏覽窗格中顯示「相簿」項目",
     "tweaksUtilitiesHibernate": "休眠",
     "tweaksUtilitiesHibernateDescription": "省電 S4 狀態，將目前工作階段儲存到休眠檔案並關閉裝置。預設停用以避免雙重開機或系統升級期間的不穩定性",
     "tweaksUtilitiesHibernateMode": "休眠模式",
@@ -195,5 +195,5 @@
     "tweaksUpdatesWUPage": "隱藏 Windows 更新頁面",
     "tweaksUpdatesWUPageDescription": "顯示此頁面也將啟用更新通知",
     "tweaksUpdatesWUDrivers": "透過 Windows 更新安裝驅動程式",
-    "tweaksUpdatesWUDriversDescription": "要在 ReviOS 中安裝驅動程式，您需要在設定中手動檢查更新，因為不支持自動 Windows 更新"
+    "tweaksUpdatesWUDriversDescription": "要在 ReviOS 中安裝驅動程式，您需要在設定中手動檢查更新，因為不支持 Windows 自動更新"
 }
