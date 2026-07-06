@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:riverpod/riverpod.dart';
 
+import '../../../core/error/app_exception.dart';
 import '../../../core/error/result.dart';
 import '../../../core/network/api_client.dart';
 import '../../../utils.dart';
@@ -50,9 +51,28 @@ class PackageFileService {
     );
 
     return result.when(
-      success: (Response<dynamic> response) => const Result<void>.success(null),
-      failure: Result<void>.failure,
+      success: (Response<dynamic> response) {
+        if (cancelToken?.isCancelled ?? false) {
+          _deletePartialFile(file);
+          return const Result<void>.failure(CancelledRequestException());
+        }
+        return const Result<void>.success(null);
+      },
+      failure: (exception) {
+        _deletePartialFile(file);
+        return Result<void>.failure(exception);
+      },
     );
+  }
+
+  static void _deletePartialFile(File file) {
+    try {
+      if (file.existsSync()) {
+        file.deleteSync();
+      }
+    } on FileSystemException catch (e) {
+      logger.w('Failed to delete partial download ${file.path}: $e');
+    }
   }
 
   /// Deletes the root temporary store folder

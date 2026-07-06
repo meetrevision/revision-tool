@@ -41,3 +41,13 @@ final class UnexpectedNetworkException extends AppException {
     Object? cause,
   }) : super(message, cause: cause);
 }
+
+final class PackageIntegrityException extends AppException {
+  const PackageIntegrityException(String message, {Object? cause})
+    : super(message, cause: cause);
+}
+
+final class PackageInstallException extends AppException {
+  const PackageInstallException(String message, {Object? cause})
+    : super(message, cause: cause);
+}

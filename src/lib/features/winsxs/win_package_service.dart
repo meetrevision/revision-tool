@@ -162,6 +162,7 @@ abstract base class WinPackageService {
   /// Returns [String] path of the downloaded package.
   Future<String> download({String? path}) async {
     final String downloadPath = path ?? cabPath;
+    Object? githubFailure;
 
     try {
       logger.i('Attempting to download package from GitHub...');
@@ -194,13 +195,11 @@ abstract base class WinPackageService {
       });
 
       final downloadUrl = asset?['browser_download_url'] as String?;
-      if (asset != null) {
-        name = asset['name'] as String? ?? '';
-      }
+      name = asset?['name'] as String? ?? '';
 
-      if (downloadUrl == null) {
+      if (asset == null || name.isEmpty || downloadUrl == null) {
         throw WinSxSPackageNotFoundException(
-          'No matching package found for ${type.packageName} with architecture ${WinRegistryService.cpuArch}',
+          'No matching CAB asset found for ${type.packageName} with architecture ${WinRegistryService.cpuArch}',
         );
       }
 
@@ -223,6 +222,7 @@ abstract base class WinPackageService {
       logger.i('Successfully downloaded package from GitHub: $filePath');
       return filePath;
     } catch (e) {
+      githubFailure = e;
       logger.w('Failed to download from GitHub: $e');
       logger.i('Falling back to bundled packages...');
 
@@ -241,8 +241,8 @@ abstract base class WinPackageService {
       }
 
       throw WinSxSPackageDownloadException(
-        'Failed to download package from GitHub and no bundled package available',
-        e,
+        'Failed to download ${type.packageName} for ${WinRegistryService.cpuArch}; no bundled package was available at $bundledPackagesPath',
+        githubFailure,
       );
     }
   }

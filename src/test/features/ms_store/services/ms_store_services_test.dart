@@ -322,6 +322,84 @@ void main() {
       },
     );
 
+    test('package download failure deletes partial file', () async {
+      final Directory tempDir = Directory.systemTemp.createTempSync(
+        'ms_store_file_service_failure_test_',
+      );
+      final path = '${tempDir.path}\\package.msix';
+
+      when(
+        () => apiClient.downloadFile(
+          any<Uri>(),
+          any<String>(),
+          onReceiveProgress: any<ProgressCallback?>(
+            named: 'onReceiveProgress',
+          ),
+          cancelToken: any<CancelToken?>(named: 'cancelToken'),
+        ),
+      ).thenAnswer((invocation) async {
+        final file = File(invocation.positionalArguments[1] as String)
+          ..parent.createSync(recursive: true);
+        file.writeAsStringSync('partial');
+        return const Result<Response<dynamic>>.failure(NetworkException());
+      });
+
+      try {
+        final Result<void> result = await PackageFileService(apiClient)
+            .download('https://example.test/package.msix', path);
+
+        expect(result, isA<Failure<void>>());
+        expect(File(path).existsSync(), isFalse);
+      } finally {
+        tempDir.deleteSync(recursive: true);
+      }
+    });
+
+    test('package download cancellation deletes partial file', () async {
+      final Directory tempDir = Directory.systemTemp.createTempSync(
+        'ms_store_file_service_cancel_test_',
+      );
+      final path = '${tempDir.path}\\package.msix';
+      final cancelToken = CancelToken();
+
+      when(
+        () => apiClient.downloadFile(
+          any<Uri>(),
+          any<String>(),
+          onReceiveProgress: any<ProgressCallback?>(
+            named: 'onReceiveProgress',
+          ),
+          cancelToken: any<CancelToken?>(named: 'cancelToken'),
+        ),
+      ).thenAnswer((invocation) async {
+        final file = File(invocation.positionalArguments[1] as String)
+          ..parent.createSync(recursive: true);
+        file.writeAsStringSync('partial');
+        cancelToken.cancel('cancelled by test');
+        return Result<Response<dynamic>>.success(
+          Response<dynamic>(requestOptions: RequestOptions(), statusCode: 200),
+        );
+      });
+
+      try {
+        final Result<void> result = await PackageFileService(apiClient)
+            .download(
+              'https://example.test/package.msix',
+              path,
+              cancelToken: cancelToken,
+            );
+
+        expect(result, isA<Failure<void>>());
+        expect(
+          (result as Failure<void>).exception,
+          isA<CancelledRequestException>(),
+        );
+        expect(File(path).existsSync(), isFalse);
+      } finally {
+        tempDir.deleteSync(recursive: true);
+      }
+    });
+
     test('service package download delegates to ApiClient', () async {
       final StoreService service = _service(
         apiClient,
@@ -363,6 +441,27 @@ void main() {
       } finally {
         await service.cleanup();
       }
+    });
+
+    test('service download cancellation returns typed failure', () async {
+      final StoreService service = _service(apiClient);
+      final cancelToken = CancelToken()..cancel('cancelled by test');
+
+      final Result<Set<StorePackageFileDownload>> result = await service
+          .download(
+            ring: StoreRing.retail,
+            packagesByProductId: {
+              '9TEST': [_sharedPackage(digest: 'digest', size: 12)],
+            },
+            cancelToken: cancelToken,
+            onProgress: (_) {},
+          );
+
+      expect(result, isA<Failure<Set<StorePackageFileDownload>>>());
+      expect(
+        (result as Failure<Set<StorePackageFileDownload>>).exception,
+        isA<CancelledRequestException>(),
+      );
     });
 
     test('single download skips a valid existing file', () async {
@@ -647,6 +746,69 @@ void main() {
       }
     });
 
+    test('install digest mismatch returns typed failure', () async {
+      final recording = _RecordingPackageFileService(
+        apiClient,
+        verifyResult: false,
+      );
+      final StoreService service = _service(apiClient, fileService: recording);
+
+      final Result<Map<String, ProcessResult>> result = await service.install(
+        downloads: {
+          StorePackageFileDownload(
+            downloadId: 'XPTEST',
+            ring: StoreRing.retail,
+            appType: StoreAppType.win32,
+            package: _win32Package(),
+            path: 'C:\\Temp\\app.exe',
+            bytes: 1,
+          ),
+        },
+      );
+
+      expect(result, isA<Failure<Map<String, ProcessResult>>>());
+      expect(
+        (result as Failure<Map<String, ProcessResult>>).exception,
+        isA<PackageIntegrityException>(),
+      );
+      expect(recording.win32InstallPaths, isEmpty);
+    });
+
+    test(
+      'failed Win32 install returns typed failure with stderr cause',
+      () async {
+        final recording = _RecordingPackageFileService(
+          apiClient,
+          win32ExitCode: 1603,
+          win32Stderr: 'install failed',
+        );
+        final StoreService service = _service(
+          apiClient,
+          fileService: recording,
+        );
+
+        final Result<Map<String, ProcessResult>> result = await service
+            .install(
+              downloads: {
+                StorePackageFileDownload(
+                  downloadId: 'XPTEST',
+                  ring: StoreRing.retail,
+                  appType: StoreAppType.win32,
+                  package: _win32Package(),
+                  path: 'C:\\Temp\\app.exe',
+                  bytes: 1,
+                ),
+              },
+            );
+
+        expect(result, isA<Failure<Map<String, ProcessResult>>>());
+        final exception =
+            (result as Failure<Map<String, ProcessResult>>).exception;
+        expect(exception, isA<PackageInstallException>());
+        expect(exception.cause, 'install failed');
+      },
+    );
+
     test('UWP parser stores SHA256 AdditionalDigest for verification', () {
       const packageDigest = 'h2VpDinRGUSRY9f04ZJbJoQDWD8=';
       const packageSha256 = 'WWxxdcCw+iftKSpE9GgfaHcgp3404Ae/bEA9GUDkYAU=';
@@ -811,7 +973,16 @@ final class _FakeUwpXmlParser extends UwpXmlParser {
 
 /// Intercepts install calls without executing real processes.
 final class _RecordingPackageFileService extends PackageFileService {
-  _RecordingPackageFileService(super.api);
+  _RecordingPackageFileService(
+    super.api, {
+    this.verifyResult = true,
+    this.win32ExitCode = 0,
+    this.win32Stderr = '',
+  });
+
+  final bool verifyResult;
+  final int win32ExitCode;
+  final String win32Stderr;
 
   final win32InstallPaths = <String>[];
 
@@ -820,12 +991,12 @@ final class _RecordingPackageFileService extends PackageFileService {
     required File file,
     required String digest,
     required String algorithm,
-  }) async => true;
+  }) async => verifyResult;
 
   @override
   Future<ProcessResult> runWin32Install(String path, List<String> args) async {
     win32InstallPaths.add(path);
-    return ProcessResult(0, 0, '', '');
+    return ProcessResult(0, win32ExitCode, '', win32Stderr);
   }
 }
 
