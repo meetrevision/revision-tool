@@ -167,6 +167,7 @@ final class StoreService with BaseService {
     required CancelToken cancelToken,
     String? downloadPath,
   }) async {
+    var completed = false;
     return run(() async {
       if (downloadPath != null && downloadPath.isNotEmpty) {
         final dir = Directory(downloadPath);
@@ -193,10 +194,10 @@ final class StoreService with BaseService {
       var downloadedBytes = 0;
       var completedCount = 0;
       final downloads = <StorePackageFileDownload>{};
-      if (cancelToken.isCancelled) return downloads;
+      if (cancelToken.isCancelled) throw const CancelledRequestException();
 
       for (final item in flat) {
-        if (cancelToken.isCancelled) return downloads;
+        if (cancelToken.isCancelled) throw const CancelledRequestException();
 
         final PackageInfo package = item.package;
         final String productId = item.productId;
@@ -300,9 +301,10 @@ final class StoreService with BaseService {
             );
           },
         );
-        if (result is Failure && !cancelToken.isCancelled) {
+        if (result is Failure) {
           throw result.exception;
         }
+        if (cancelToken.isCancelled) throw const CancelledRequestException();
 
         final download = StorePackageFileDownload(
           downloadId: downloadId,
@@ -330,7 +332,10 @@ final class StoreService with BaseService {
           ),
         );
       }
+      completed = true;
       return downloads;
+    }, onFinally: () async {
+      if (!completed) releaseDownloadLocks();
     });
   }
 
@@ -360,7 +365,7 @@ final class StoreService with BaseService {
             algorithm: package.algorithm!,
           );
           if (!ok) {
-            throw Exception(
+            throw PackageIntegrityException(
               'Hash verification failed for ${package.progressName}',
             );
           }
@@ -378,6 +383,12 @@ final class StoreService with BaseService {
         };
         results[package.id] = installResult;
         if (installResult.exitCode == 0) _unlockFile(download.path);
+        if (installResult.exitCode != 0) {
+          throw PackageInstallException(
+            'Install failed for ${package.progressName} with exit code ${installResult.exitCode}',
+            cause: installResult.stderr,
+          );
+        }
       }
       return results;
     });

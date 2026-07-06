@@ -327,25 +327,33 @@ abstract class WinRegistryService {
       logger.i('$tag(writeRegistryValue): $path\\$name = $value');
 
       if (key == WinRegistryService.currentUser) {
-        await TrustedInstallerServiceImpl().executeCommand('reg', [
-          'load',
-          'HKU\\$defaultUser',
-          defaultUserHivePath,
-        ]);
-
-        final RegistryKey reg = Registry.allUsers;
+        var defaultHiveLoaded = false;
         try {
-          final RegistryKey subKey = reg.createKey('$defaultUser\\$path');
+          await _executeRegCommand([
+            'load',
+            'HKU\\$defaultUser',
+            defaultUserHivePath,
+          ]);
+          defaultHiveLoaded = true;
+
+          final RegistryKey reg = Registry.allUsers;
           try {
-            subKey.createValue(registryValue);
+            final RegistryKey subKey = reg.createKey('$defaultUser\\$path');
+            try {
+              subKey.createValue(registryValue);
+            } finally {
+              subKey.close();
+            }
+            logger.i(
+              '$tag(writeRegistryValue): $defaultUser\\$path\\$name = $value',
+            );
           } finally {
-            subKey.close();
+            reg.close();
           }
-          logger.i(
-            '$tag(writeRegistryValue): $defaultUser\\$path\\$name = $value',
-          );
         } finally {
-          reg.close();
+          if (defaultHiveLoaded) {
+            await _executeRegCommand(['unload', 'HKU\\$defaultUser']);
+          }
         }
       }
     } on WindowsException catch (e) {
@@ -386,16 +394,31 @@ abstract class WinRegistryService {
         error: e,
         stackTrace: StackTrace.current,
       );
+      rethrow;
     } catch (e) {
       logger.e(
         '$tag(writeRegistryValue): $path\\$name',
         error: e,
         stackTrace: StackTrace.current,
       );
+      rethrow;
     } finally {
       if (shouldClose) {
         key.close();
       }
+    }
+  }
+
+  static Future<void> _executeRegCommand(List<String> args) async {
+    final CommandResult result = await TrustedInstallerServiceImpl()
+        .executeCommand('reg', args);
+    if (result.exitCode != 0) {
+      throw ProcessException(
+        'reg',
+        args,
+        result.error.isEmpty ? result.output : result.error,
+        result.exitCode,
+      );
     }
   }
 
@@ -453,12 +476,14 @@ abstract class WinRegistryService {
         error: e,
         stackTrace: StackTrace.current,
       );
+      rethrow;
     } catch (e) {
       logger.e(
         '$tag(deleteValue): $path\\$name',
         error: e,
         stackTrace: StackTrace.current,
       );
+      rethrow;
     }
   }
 
@@ -509,12 +534,14 @@ abstract class WinRegistryService {
         error: e,
         stackTrace: StackTrace.current,
       );
+      rethrow;
     } catch (e) {
       logger.e(
         '$tag(deleteKey): $path',
         error: e,
         stackTrace: StackTrace.current,
       );
+      rethrow;
     }
   }
 
@@ -529,6 +556,7 @@ abstract class WinRegistryService {
         error: e,
         stackTrace: StackTrace.current,
       );
+      rethrow;
     }
   }
 }
