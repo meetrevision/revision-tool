@@ -4,6 +4,10 @@ on:
     tags:
       - '*'
 name: "Build & Release"
+
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build & Release
@@ -57,6 +61,10 @@ jobs:
           Write-Host "Downloaded $($cabAssets.Count) packages successfully"
         shell: pwsh
 
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: src
+
       - run: dart run slang
         working-directory: src
 
@@ -85,11 +93,14 @@ jobs:
       - run: dart run build_runner build --force-aot
         working-directory: src
 
+      - name: Analyze
+        run: flutter analyze
+        working-directory: src
+
       - name: Build revitool CLI
         run: dart compile exe src/lib/main_cli.dart -o revitool.exe --define=APP_VERSION=${{ env.NEW_VERSION }} 
       
       - name: Run tests
-        continue-on-error: true
         run: flutter test --reporter=expanded --dart-define=SKIP_INTEGRATION=true
         working-directory: src
 
@@ -121,7 +132,7 @@ jobs:
       - name: Release
         uses: svenstaro/upload-release-action@v2
         with:
-          repo_token: ${{ secrets.TOKEN }}
+          repo_token: ${{ github.token }}
           file: RevisionTool-Setup.exe
           asset_name: RevisionTool-Setup.exe
           tag: ${{ github.ref }}

@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Analyze & Test
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: src
+
+      - name: Generate localization
+        run: dart run slang
+        working-directory: src
+
+      - name: Generate code
+        run: dart run build_runner build --force-aot
+        working-directory: src
+
+      - name: Analyze
+        run: flutter analyze
+        working-directory: src
+
+      - name: Test
+        run: flutter test --reporter=expanded --dart-define=SKIP_INTEGRATION=true
+        working-directory: src
