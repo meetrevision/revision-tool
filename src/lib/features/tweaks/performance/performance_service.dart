@@ -251,10 +251,16 @@ abstract class PerformanceService {
   )
   int get statusBackgroundWindowMessageRateLimit;
   Future<void> setBackgroundWindowMessageRateLimit(int milliseconds);
+  Future<void> disableBackgroundWindowMessageRateLimit();
 }
 
 class PerformanceServiceImpl implements PerformanceService {
   const PerformanceServiceImpl();
+
+  static const int reviPowerPlanC6EnabledIdlePromote = 100;
+  static const int reviPowerPlanC6EnabledIdleDemote = 80;
+  static const int reviPowerPlanC6DefaultIdlePromote = 60;
+  static const int reviPowerPlanC6DefaultIdleDemote = 40;
 
   @override
   bool get statusReviPowerPlan {
@@ -380,7 +386,8 @@ if (Test-Path "HKLM:\SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\6a93ec
       'ACSettingIndex',
     );
 
-    return idlePromote == 100 && idleDemote == 80;
+    return idlePromote == reviPowerPlanC6EnabledIdlePromote &&
+        idleDemote == reviPowerPlanC6EnabledIdleDemote;
   }
 
   @override
@@ -393,13 +400,13 @@ if (Test-Path "HKLM:\SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\6a93ec
           Registry.localMachine,
           r'SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\6a93ec26-284d-4943-9fc4-c9616def55c6\54533251-82be-4824-96c1-47b60b740d00\7b224883-b3cc-4d79-819f-8374152cbe7c',
           'ACSettingIndex',
-          60,
+          reviPowerPlanC6EnabledIdlePromote,
         ),
         WinRegistryService.writeRegistryValue(
           Registry.localMachine,
           r'SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\6a93ec26-284d-4943-9fc4-c9616def55c6\54533251-82be-4824-96c1-47b60b740d00\4b92d758-5a24-4851-a470-815d78aee119',
           'ACSettingIndex',
-          40,
+          reviPowerPlanC6EnabledIdleDemote,
         ),
         WinRegistryService.deleteValue(
           // LEGACY approach: https://learn.microsoft.com/en-us/previous-versions/troubleshoot/windows-server/virtual-machines-slow-startup-shutdown
@@ -423,13 +430,13 @@ if (Test-Path "HKLM:\SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\6a93ec
           Registry.localMachine,
           r'SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\6a93ec26-284d-4943-9fc4-c9616def55c6\54533251-82be-4824-96c1-47b60b740d00\7b224883-b3cc-4d79-819f-8374152cbe7c',
           'ACSettingIndex',
-          100,
+          reviPowerPlanC6DefaultIdlePromote,
         ),
         WinRegistryService.writeRegistryValue(
           Registry.localMachine,
           r'SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\6a93ec26-284d-4943-9fc4-c9616def55c6\54533251-82be-4824-96c1-47b60b740d00\4b92d758-5a24-4851-a470-815d78aee119',
           'ACSettingIndex',
-          80,
+          reviPowerPlanC6DefaultIdleDemote,
         ),
       ]),
     );
@@ -1150,6 +1157,16 @@ if (Test-Path "HKLM:\SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\6a93ec
         value,
       ),
     ]);
+  }
+
+  @override
+  Future<void> disableBackgroundWindowMessageRateLimit() async {
+    await WinRegistryService.writeRegistryValue(
+      WinRegistryService.currentUser,
+      r'Control Panel\Mouse',
+      'RawMouseThrottleEnabled',
+      0,
+    );
   }
 
   @override

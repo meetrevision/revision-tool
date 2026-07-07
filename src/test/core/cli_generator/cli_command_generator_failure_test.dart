@@ -28,8 +28,15 @@ abstract class InvalidCliService {
 ''');
 
         try {
+          final String? flutterRoot = Platform.environment['FLUTTER_ROOT'];
+          final dartExecutable = flutterRoot == null
+              ? 'dart'
+              : Platform.isWindows
+              ? '$flutterRoot\\bin\\dart.bat'
+              : '$flutterRoot/bin/dart';
+
           final ProcessResult result = await Process.run(
-            'dart',
+            dartExecutable,
             [
               'run',
               'build_runner',

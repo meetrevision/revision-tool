@@ -6,6 +6,7 @@ import '../../extensions.dart';
 import '../../features/home/home_page.dart';
 import '../../features/ms_store/ms_store_page.dart';
 import '../../features/ms_store/ms_store_product_page.dart';
+import '../../features/tweaks/controller/tweak_controller_page.dart';
 import '../../features/tweaks/performance/performance_page.dart';
 import '../../features/tweaks/personalization/personalization_page.dart';
 import '../../features/tweaks/security/security_page.dart';
@@ -13,6 +14,7 @@ import '../../features/tweaks/tweaks_page.dart';
 import '../../features/tweaks/updates/updates_page.dart';
 import '../../features/tweaks/utilities/utilities_page.dart';
 import '../../main.dart';
+import '../build_config.dart';
 import '../services/win_registry_service.dart';
 import '../settings/settings_page.dart';
 import '../widgets/unsupported_widget.dart';
@@ -30,7 +32,7 @@ GoRouter appRouter(Ref ref) {
     navigatorKey: rootNavigatorKey,
     initialLocation: initialRoute ?? RouteMeta.home.path,
     redirect: (context, state) {
-      if (!WinRegistryService.isSupported) {
+      if (!WinRegistryService.isSupported && !allowUnsupportedGui) {
         return AppRoutes.unsupported;
       }
       return null; // Allow navigation
@@ -52,6 +54,16 @@ GoRouter appRouter(Ref ref) {
             name: 'tweaks',
             builder: (context, state) => const TweaksPage(),
             routes: [
+              GoRoute(
+                path: 'controller',
+                name: 'tweak-controller',
+                pageBuilder: (context, state) =>
+                    AppRoutes.buildPageWithHorizontalTransition(
+                      barrierColor: context.theme.scaffoldBackgroundColor,
+                      state: state,
+                      child: const TweakControllerPage(),
+                    ),
+              ),
               GoRoute(
                 path: 'security',
                 name: 'security',

@@ -1,0 +1,658 @@
+schema: revios_tweak_inventory.v1
+yaml_mirror_of: lib/features/tweaks/inventory/tweak_inventory.dart
+profiles:
+  - compatibility
+  - gaming
+  - performance
+  - extreme
+controller_states:
+  - enabled
+  - disabled
+  - blocked
+  - failed
+  - pendingReboot
+  - unknown
+  - managedByProfile
+  - userOverride
+  - dangerousPendingConfirmation
+tweaks:
+  - id: performance.powerplan
+    category: Power Plan
+    name: Revision ultra performance power plan
+    technical_description: Creates and activates the Revision power scheme.
+    expected_impact: Improves CPU response and disables selected AC power saving behavior.
+    risk: medium
+    profiles: [gaming, performance, extreme]
+    dependencies: [Administrator rights, powercfg.exe, AC power guard for laptops]
+    detection: PerformanceService.statusReviPowerPlan
+    apply: PerformanceService.enableReviPowerPlan
+    verify: PerformanceService.statusReviPowerPlan
+    rollback: PerformanceService.disableReviPowerPlan
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Gaming and higher profiles need an existing aggressive AC power baseline.
+    warnings: [May require restart or sign out before verification is final.]
+    evidence: [lib/features/tweaks/performance/performance_service.dart, playbook/src/Configuration/Tasks/start.yml]
+  - id: performance.powerplan-states-c6
+    category: CPU
+    name: C-state latency tuning
+    technical_description: Changes Revision power plan idle promote and demote thresholds.
+    expected_impact: Reduces latency from deep idle transitions on tuned desktop systems.
+    risk: high
+    profiles: [gaming, performance, extreme]
+    dependencies: [Administrator rights, powercfg.exe, AC power guard for laptops]
+    detection: PerformanceService.statusReviPowerPlanC6States
+    apply: PerformanceService.enableReviPowerPlanC6States
+    verify: PerformanceService.statusReviPowerPlanC6States
+    rollback: PerformanceService.disableReviPowerPlanC6States
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Gaming and Performance profiles prioritize latency over idle efficiency.
+    warnings: [Guard with hardware and workload detection before profile automation.]
+    evidence: [lib/features/tweaks/performance/performance_service.dart]
+  - id: performance.superfetch
+    category: Services
+    name: SysMain and Superfetch
+    technical_description: Controls SysMain, ReadyBoost, prefetcher, and related cache policy values.
+    expected_impact: Can reduce background disk and memory churn on SSD-focused systems.
+    risk: high
+    profiles: [performance, extreme]
+    dependencies: [Administrator rights, Windows registry access]
+    detection: PerformanceService.statusSuperfetch
+    apply: PerformanceService.disableSuperfetch
+    verify: PerformanceService.statusSuperfetch
+    rollback: PerformanceService.enableSuperfetch
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Performance profile can trade Windows caching behavior for lower background load.
+    warnings: [Guard with hardware and workload detection before profile automation.]
+    evidence: [lib/features/tweaks/performance/performance_service.dart]
+  - id: performance.memory-compression
+    category: RAM
+    name: Memory Compression
+    technical_description: Uses Enable-MMAgent and Disable-MMAgent to control Windows memory compression.
+    expected_impact: Can reduce CPU overhead at the cost of higher memory pressure.
+    risk: high
+    profiles: [performance, extreme]
+    dependencies: [Administrator rights, PowerShell MMAgent, RAM capacity guard]
+    detection: PerformanceService.statusMemoryCompression
+    apply: PerformanceService.disableMemoryCompression
+    verify: PerformanceService.statusMemoryCompression
+    rollback: PerformanceService.enableMemoryCompression
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Performance and Extreme may disable it only when memory headroom is adequate.
+    warnings: [Guard with hardware and workload detection before profile automation.]
+    evidence: [lib/features/tweaks/performance/performance_service.dart]
+  - id: performance.intel-tsx
+    category: Intel
+    name: Intel TSX
+    technical_description: Controls the DisableTsx kernel registry value for compatible Intel CPUs.
+    expected_impact: May improve specific transactional memory workloads and benchmarks.
+    risk: dangerous
+    profiles: [extreme]
+    dependencies: [Intel CPU guard, Administrator rights, Reboot]
+    detection: PerformanceService.statusIntelTSX
+    apply: PerformanceService.enableIntelTSX
+    verify: PerformanceService.statusIntelTSX
+    rollback: PerformanceService.disableIntelTSX
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Extreme exposes legacy and hardware-specific tweaks behind confirmation.
+    warnings: [Requires explicit Extreme confirmation, backup, verification, and rollback.]
+    evidence: [lib/features/tweaks/performance/performance_service.dart, lib/features/tweaks/performance/performance_page.dart]
+  - id: performance.swapchain-fso
+    category: Gaming
+    name: Fullscreen Optimizations
+    technical_description: Normalizes GameConfigStore fullscreen optimization values.
+    expected_impact: Keeps compatible fullscreen presentation behavior for games.
+    risk: low
+    profiles: [compatibility, gaming, performance, extreme]
+    dependencies: [Administrator rights, Windows registry access]
+    detection: PerformanceService.statusFullscreenOptimization
+    apply: PerformanceService.enableFullscreenOptimization
+    verify: PerformanceService.statusFullscreenOptimization
+    rollback: PerformanceService.disableFullscreenOptimization
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: All profiles keep a compatible gaming presentation baseline.
+    warnings: [Back up the previous value before profile automation.]
+    evidence: [lib/features/tweaks/performance/performance_service.dart]
+  - id: performance.swapchain-wo
+    category: Gaming
+    name: Windowed Optimizations
+    technical_description: Controls DirectXUserGlobalSettings SwapEffectUpgradeEnable.
+    expected_impact: Improves modern windowed and borderless game presentation.
+    risk: low
+    profiles: [compatibility, gaming, performance, extreme]
+    dependencies: [Administrator rights, Windows registry access]
+    detection: PerformanceService.statusWindowedOptimization
+    apply: PerformanceService.enableWindowedOptimization
+    verify: PerformanceService.statusWindowedOptimization
+    rollback: PerformanceService.disableWindowedOptimization
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: All profiles should preserve modern compatible presentation behavior.
+    warnings: [Back up the previous value before profile automation.]
+    evidence: [lib/features/tweaks/performance/performance_service.dart]
+  - id: performance.swapchain-mpo
+    category: GPU
+    name: Multiplane Overlay
+    technical_description: Controls DWM OverlayTestMode to enable or disable multiplane overlay.
+    expected_impact: Can reduce flicker, overlay issues, or game capture stutter.
+    risk: medium
+    profiles: [gaming, performance, extreme]
+    dependencies: [Administrator rights, Windows registry access]
+    detection: PerformanceService.statusMPO
+    apply: PerformanceService.disableMPO
+    verify: PerformanceService.statusMPO
+    rollback: PerformanceService.enableMPO
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Gaming profiles expose display-path tweaks while preserving rollback.
+    warnings: [May require restart or sign out before verification is final.]
+    evidence: [lib/features/tweaks/performance/performance_service.dart]
+  - id: performance.background-apps
+    category: Services
+    name: Background Apps
+    technical_description: Controls app background execution policy and user background toggles.
+    expected_impact: Reduces resident app activity and background wakeups.
+    risk: high
+    profiles: [performance, extreme]
+    dependencies: [Administrator rights, Windows registry access]
+    detection: PerformanceService.statusBackgroundApps
+    apply: PerformanceService.disableBackgroundApps
+    verify: PerformanceService.statusBackgroundApps
+    rollback: PerformanceService.enableBackgroundApps
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Existing global control is too broad for Compatibility and Gaming allowlists.
+    warnings: [Guard with hardware and workload detection before profile automation.]
+    evidence: [lib/features/tweaks/performance/performance_service.dart]
+  - id: performance.ctfmon-input
+    category: Compatibility
+    name: CTFMon Input
+    technical_description: Controls Microsoft input service values and TextInputManagementService DLL.
+    expected_impact: Can reduce text input service activity.
+    risk: dangerous
+    profiles: [performance, extreme]
+    dependencies: [Administrator rights, Windows registry access]
+    detection: PerformanceService.statusCtfmonInput
+    apply: PerformanceService.disableCtfmonInput
+    verify: PerformanceService.statusCtfmonInput
+    rollback: PerformanceService.enableCtfmonInput
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Only aggressive profiles should touch input infrastructure.
+    warnings: [Requires explicit Extreme confirmation, backup, verification, and rollback.]
+    evidence: [lib/features/tweaks/performance/performance_service.dart]
+  - id: performance.ntfs-last-access
+    category: Storage/NVMe
+    name: NTFS Last Access Updates
+    technical_description: Uses fsutil to disable last access timestamp updates.
+    expected_impact: Reduces filesystem metadata writes.
+    risk: low
+    profiles: [compatibility, gaming, performance, extreme]
+    dependencies: [Administrator rights, fsutil.exe]
+    detection: PerformanceService.statusLastTimeAccessNTFS
+    apply: PerformanceService.disableLastTimeAccessNTFS
+    verify: PerformanceService.statusLastTimeAccessNTFS
+    rollback: PerformanceService.enableLastTimeAccessNTFS
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Safe storage optimization for all profiles.
+    warnings: [Back up the previous value before profile automation.]
+    evidence: [lib/features/tweaks/performance/performance_service.dart, playbook/src/Configuration/Tasks/final.yml]
+  - id: performance.ntfs-8dot3-naming
+    category: Storage/NVMe
+    name: NTFS 8.3 Naming
+    technical_description: Uses fsutil to disable 8.3 name creation where safe.
+    expected_impact: Reduces legacy filename generation overhead.
+    risk: low
+    profiles: [compatibility, gaming, performance, extreme]
+    dependencies: [Administrator rights, fsutil.exe, Legacy application guard]
+    detection: PerformanceService.status8dot3NamingNTFS
+    apply: PerformanceService.disable8dot3NamingNTFS
+    verify: PerformanceService.status8dot3NamingNTFS
+    rollback: PerformanceService.enable8dot3NamingNTFS
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Compatibility profile may apply it when legacy app guards pass.
+    warnings: [Back up the previous value before profile automation.]
+    evidence: [lib/features/tweaks/performance/performance_service.dart, playbook/src/Configuration/Tasks/final.yml]
+  - id: performance.ntfs-memory-usage
+    category: Storage/NVMe
+    name: NTFS Memory Usage
+    technical_description: Uses fsutil to set NTFS memory usage policy.
+    expected_impact: Allows more filesystem cache behavior for storage throughput.
+    risk: medium
+    profiles: [performance, extreme]
+    dependencies: [Administrator rights, fsutil.exe, RAM capacity guard]
+    detection: PerformanceService.statusMemoryUsageNTFS
+    apply: PerformanceService.enableMemoryUsageNTFS
+    verify: PerformanceService.statusMemoryUsageNTFS
+    rollback: PerformanceService.disableMemoryUsageNTFS
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Performance profile can spend more memory on filesystem throughput.
+    warnings: [Guard with hardware and workload detection before profile automation.]
+    evidence: [lib/features/tweaks/performance/performance_service.dart]
+  - id: performance.service-grouping
+    category: Services
+    name: Service Grouping
+    technical_description: Controls SvcHostSplitThresholdInKB and service SvcHostSplitDisable values.
+    expected_impact: Reduces service host process count while preserving an allowlist.
+    risk: medium
+    profiles: [gaming, performance, extreme]
+    dependencies: [Administrator rights, TrustedInstaller access, Rollback snapshot]
+    detection: PerformanceService.statusServicesGrouping
+    apply: PerformanceService.setServiceGroupingMode(ServiceGrouping.recommended)
+    verify: PerformanceService.statusServicesGrouping
+    rollback: PerformanceService.setServiceGroupingMode(ServiceGrouping.disabled)
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Gaming and higher profiles need a controlled background process reduction.
+    warnings: [Guard with hardware and workload detection before profile automation.]
+    evidence: [lib/features/tweaks/performance/performance_service.dart, playbook/src/Configuration/Tasks/final.yml]
+  - id: performance.background-window-message-rate-limit
+    category: Gaming
+    name: Background Window Message Rate Limit
+    technical_description: Writes RawMouseThrottleEnabled and RawMouseThrottleDuration for the current user.
+    expected_impact: Can improve input consistency during background window activity.
+    risk: medium
+    profiles: [gaming, performance, extreme]
+    dependencies: [Administrator rights, Windows registry access]
+    detection: PerformanceService.statusBackgroundWindowMessageRateLimit
+    apply: PerformanceService.setBackgroundWindowMessageRateLimit(8)
+    verify: PerformanceService.statusBackgroundWindowMessageRateLimit
+    rollback: Restore previous RawMouseThrottle values from tweak backup.
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Gaming profiles target input consistency and 1 percent lows.
+    warnings: [Guard with hardware and workload detection before profile automation.]
+    evidence: [lib/features/tweaks/performance/performance_service.dart]
+  - id: personalization.notification
+    category: Privacy
+    name: Notifications
+    technical_description: Sets notification mode through PersonalizationService.setNotificationMode.
+    expected_impact: Reduces notification noise while allowing compatible operation.
+    risk: low
+    profiles: [compatibility, gaming, performance, extreme]
+    dependencies: [Administrator rights, Windows registry access, Explorer restart allowed]
+    detection: PersonalizationService.statusNotification
+    apply: PersonalizationService.setNotificationMode(NotificationMode.offMinimal)
+    verify: PersonalizationService.statusNotification
+    rollback: PersonalizationService.setNotificationMode(NotificationMode.on)
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Compatibility and higher profiles reduce prompts without removing shell support.
+    warnings: [Back up the previous value before profile automation.]
+    evidence: [lib/features/tweaks/personalization/personalization_service.dart]
+  - id: personalization.legacy-balloon
+    category: Compatibility
+    name: Legacy Balloon Notifications
+    technical_description: Controls EnableLegacyBalloonNotifications.
+    expected_impact: Keeps modern notification behavior and removes legacy UI noise.
+    risk: low
+    profiles: [gaming, performance, extreme]
+    dependencies: [Administrator rights, Windows registry access, Explorer restart allowed]
+    detection: PersonalizationService.statusLegacyBalloon
+    apply: PersonalizationService.disableLegacyBalloon
+    verify: PersonalizationService.statusLegacyBalloon
+    rollback: PersonalizationService.enableLegacyBalloon
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Gaming and higher profiles remove nonessential shell legacy surfaces.
+    warnings: [Back up the previous value before profile automation.]
+    evidence: [lib/features/tweaks/personalization/personalization_service.dart]
+  - id: personalization.screen-edge-swipe
+    category: Compatibility
+    name: Screen Edge Swipe
+    technical_description: Controls EdgeUI AllowEdgeSwipe policy.
+    expected_impact: Prevents accidental edge gestures during games or fullscreen use.
+    risk: medium
+    profiles: [gaming, performance, extreme]
+    dependencies: [Administrator rights, Touch/tablet guard, Windows registry access]
+    detection: PersonalizationService.statusScreenEdgeSwipe
+    apply: PersonalizationService.disableScreenEdgeSwipe
+    verify: PersonalizationService.statusScreenEdgeSwipe
+    rollback: PersonalizationService.enableScreenEdgeSwipe
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Gaming profiles reduce accidental shell gestures with tablet guard.
+    warnings: [Guard with hardware and workload detection before profile automation.]
+    evidence: [lib/features/tweaks/personalization/personalization_service.dart]
+  - id: personalization.new-context-menu
+    category: Compatibility
+    name: Windows 11 Context Menu
+    technical_description: Controls the CLSID override that restores the legacy Explorer context menu.
+    expected_impact: Reduces Explorer interaction friction for power users.
+    risk: low
+    profiles: [compatibility, gaming, performance, extreme]
+    dependencies: [Administrator rights, Windows registry access, Explorer restart allowed]
+    detection: PersonalizationService.statusNewContextMenu
+    apply: PersonalizationService.disableNewContextMenu
+    verify: PersonalizationService.statusNewContextMenu
+    rollback: PersonalizationService.enableNewContextMenu
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: All profiles may prefer direct shell actions over the modern compact menu.
+    warnings: [Back up the previous value before profile automation.]
+    evidence: [lib/features/tweaks/personalization/personalization_service.dart]
+  - id: personalization.input-personalization
+    category: Privacy
+    name: Input Personalization
+    technical_description: Controls implicit ink/text collection and trained data store registry values.
+    expected_impact: Reduces personalization telemetry and background data collection.
+    risk: low
+    profiles: [compatibility, gaming, performance, extreme]
+    dependencies: [Administrator rights, Windows registry access]
+    detection: PersonalizationService.statusInputPersonalization
+    apply: PersonalizationService.disableInputPersonalization
+    verify: PersonalizationService.statusInputPersonalization
+    rollback: PersonalizationService.enableInputPersonalization
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: All profiles reduce nonessential personalization data collection.
+    warnings: [Back up the previous value before profile automation.]
+    evidence: [lib/features/tweaks/personalization/personalization_service.dart, playbook/src/Configuration/Tasks/registry/explorer/win-settings.yml]
+  - id: personalization.caps-lock
+    category: Compatibility
+    name: Caps Lock
+    technical_description: Controls the keyboard layout Scancode Map value.
+    expected_impact: Optional keyboard behavior change for users who never use Caps Lock.
+    risk: medium
+    profiles: [extreme]
+    dependencies: [Administrator rights, Keyboard layout guard, Windows registry access]
+    detection: PersonalizationService.statusCapsLock
+    apply: PersonalizationService.disableCapsLock
+    verify: PersonalizationService.statusCapsLock
+    rollback: PersonalizationService.enableCapsLock
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: This is user-preference behavior, so profiles should only expose it manually.
+    warnings: [May require restart or sign out before verification is final.]
+    evidence: [lib/features/tweaks/personalization/personalization_service.dart]
+  - id: personalization.explorer-home
+    category: Debloat
+    name: Explorer Home
+    technical_description: Controls Explorer Home namespace pinning.
+    expected_impact: Removes a low-value Explorer entry point.
+    risk: low
+    profiles: [compatibility, gaming, performance, extreme]
+    dependencies: [Administrator rights, Windows registry access, Explorer restart allowed]
+    detection: PersonalizationService.statusExplorerHome
+    apply: PersonalizationService.disableExplorerHome
+    verify: PersonalizationService.statusExplorerHome
+    rollback: PersonalizationService.enableExplorerHome
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Compatibility profile can clean shell noise without removing core components.
+    warnings: [Back up the previous value before profile automation.]
+    evidence: [lib/features/tweaks/personalization/personalization_service.dart]
+  - id: personalization.explorer-gallery
+    category: Debloat
+    name: Explorer Gallery
+    technical_description: Controls Explorer Gallery namespace pinning.
+    expected_impact: Removes a low-value Explorer media entry point.
+    risk: low
+    profiles: [compatibility, gaming, performance, extreme]
+    dependencies: [Administrator rights, Windows registry access, Explorer restart allowed]
+    detection: PersonalizationService.statusExplorerGallery
+    apply: PersonalizationService.disableExplorerGallery
+    verify: PersonalizationService.statusExplorerGallery
+    rollback: PersonalizationService.enableExplorerGallery
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Compatibility profile can clean shell noise without removing core components.
+    warnings: [Back up the previous value before profile automation.]
+    evidence: [lib/features/tweaks/personalization/personalization_service.dart]
+  - id: security.defender
+    category: Windows Defender
+    name: Windows Defender
+    technical_description: Controls Defender policy, services, package removal, and SmartScreen state.
+    expected_impact: Reduces security stack overhead only when user accepts major risk.
+    risk: dangerous
+    profiles: [extreme]
+    dependencies: [Administrator rights, TrustedInstaller access, Rollback snapshot]
+    detection: SecurityService.statusDefender
+    apply: SecurityService.disableDefenderCLI
+    verify: SecurityService.statusDefender
+    rollback: SecurityService.enableDefender
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Only Extreme may reduce Defender, and only after explicit confirmation.
+    warnings: [Requires explicit Extreme confirmation, backup, verification, and rollback.]
+    evidence: [lib/features/tweaks/security/security_service.dart, packages/defender-removal-amd64.yaml, packages/defender-removal-arm64.yaml]
+  - id: security.uac
+    category: Compatibility
+    name: User Account Control
+    technical_description: Controls UAC and consent prompt policy values under Policies/System.
+    expected_impact: Can reduce prompts, but weakens Windows elevation boundaries.
+    risk: dangerous
+    profiles: [extreme]
+    dependencies: [Administrator rights, Windows registry access]
+    detection: SecurityService.statusUAC
+    apply: SecurityService.disableUAC
+    verify: SecurityService.statusUAC
+    rollback: SecurityService.enableUAC
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: UAC changes are preserved as manual Extreme-only toggles.
+    warnings: [Requires explicit Extreme confirmation, backup, verification, and rollback.]
+    evidence: [lib/features/tweaks/security/security_service.dart]
+  - id: security.mitigation.meltdown-spectre
+    category: CPU
+    name: Meltdown and Spectre Mitigations
+    technical_description: Controls FeatureSettingsOverride bits through SecurityService.disableMitigation.
+    expected_impact: May improve CPU performance on affected workloads.
+    risk: dangerous
+    profiles: [performance, extreme]
+    dependencies: [Administrator rights, CPU vulnerability guard, Restore point recommended]
+    detection: SecurityService.isMitigationEnabled(Mitigation.meltdownSpectre)
+    apply: SecurityService.disableMitigation(Mitigation.meltdownSpectre)
+    verify: SecurityService.isMitigationEnabled(Mitigation.meltdownSpectre)
+    rollback: SecurityService.enableMitigation(Mitigation.meltdownSpectre)
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Performance may expose mitigation changes only with guard and warning.
+    warnings: [Requires explicit Extreme confirmation, backup, verification, and rollback.]
+    evidence: [lib/features/tweaks/security/security_service.dart]
+  - id: security.mitigation.downfall
+    category: CPU
+    name: Downfall Mitigation
+    technical_description: Controls the Downfall FeatureSettingsOverride bit through SecurityService.
+    expected_impact: May improve CPU performance on affected Intel systems.
+    risk: dangerous
+    profiles: [performance, extreme]
+    dependencies: [Intel CPU guard, Administrator rights, Restore point recommended]
+    detection: SecurityService.isMitigationEnabled(Mitigation.downfall)
+    apply: SecurityService.disableMitigation(Mitigation.downfall)
+    verify: SecurityService.isMitigationEnabled(Mitigation.downfall)
+    rollback: SecurityService.enableMitigation(Mitigation.downfall)
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Performance may expose mitigation changes only with guard and warning.
+    warnings: [Requires explicit Extreme confirmation, backup, verification, and rollback.]
+    evidence: [lib/features/tweaks/security/security_service.dart]
+  - id: security.vbs
+    category: Experimental
+    name: Virtualization Based Security
+    technical_description: Controls Device Guard policy and BCD values for VBS launch behavior.
+    expected_impact: Can reduce virtualization security overhead.
+    risk: dangerous
+    profiles: [performance, extreme]
+    dependencies: [Administrator rights, Hyper-V and WSL guard, BitLocker recovery guard]
+    detection: SecurityService.statusVbs
+    apply: SecurityService.disableVbs
+    verify: SecurityService.statusVbs
+    rollback: SecurityService.enableVbs
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Performance may expose VBS changes only when virtualization dependencies permit.
+    warnings: [Requires explicit Extreme confirmation, backup, verification, and rollback.]
+    evidence: [lib/features/tweaks/security/security_service.dart]
+  - id: security.memory-integrity
+    category: Experimental
+    name: Memory Integrity
+    technical_description: Controls HypervisorEnforcedCodeIntegrity Enabled and related state values.
+    expected_impact: Can reduce HVCI overhead on systems that do not require it.
+    risk: dangerous
+    profiles: [performance, extreme]
+    dependencies: [Administrator rights, Driver compatibility guard, BitLocker recovery guard]
+    detection: SecurityService.statusMemoryIntegrity
+    apply: SecurityService.disableMemoryIntegrity
+    verify: SecurityService.statusMemoryIntegrity
+    rollback: SecurityService.enableMemoryIntegrity
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Performance may expose HVCI changes only with driver and rollback guards.
+    warnings: [Requires explicit Extreme confirmation, backup, verification, and rollback.]
+    evidence: [lib/features/tweaks/security/security_service.dart]
+  - id: updates.certificates
+    category: Windows Update/Drivers
+    name: Root Certificates Update
+    technical_description: Downloads the Windows root certificate SST and imports root stores.
+    expected_impact: Improves compatibility with software and TLS chains.
+    risk: low
+    profiles: [compatibility, gaming, performance, extreme]
+    dependencies: [Administrator rights, Network access, Windows Update service health]
+    detection: No status getter; verify command success and certificate import result.
+    apply: UpdatesService.updateCertificates
+    verify: Process exit code and certificate store inspection
+    rollback: No direct rollback method; remove imported certificates manually if needed.
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Compatibility profile should keep trust store compatibility healthy.
+    warnings: [Back up the previous value before profile automation.]
+    evidence: [lib/features/tweaks/updates/updates_service.dart]
+  - id: updates.kgl
+    category: Xbox/Game Bar/Game DVR
+    name: Known Game List Update
+    technical_description: Fetches Microsoft Known Game List settings and writes KGL registry values.
+    expected_impact: Improves Windows game detection and Game DVR/Game Mode behavior.
+    risk: low
+    profiles: [compatibility, gaming, performance, extreme]
+    dependencies: [Administrator rights, Network access, Windows Update service health]
+    detection: No status getter; verify KGL registry version and API response.
+    apply: UpdatesService.updateKGL
+    verify: KGL registry Version and Hash values
+    rollback: Restore previous KGL registry values from tweak backup.
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: All profiles preserve the gaming ecosystem while improving detection.
+    warnings: [Back up the previous value before profile automation.]
+    evidence: [lib/features/tweaks/updates/updates_service.dart]
+  - id: updates.wu-pause-updates
+    category: Windows Update/Drivers
+    name: Pause Windows Update
+    technical_description: Writes Windows Update pause timestamps through UpdatesService.
+    expected_impact: Prevents update activity and reboot prompts during tuned sessions.
+    risk: dangerous
+    profiles: [extreme]
+    dependencies: [Administrator rights, Windows registry access]
+    detection: UpdatesService.statusPauseUpdatesWU
+    apply: UpdatesService.enablePauseUpdatesWU
+    verify: UpdatesService.statusPauseUpdatesWU
+    rollback: UpdatesService.disablePauseUpdatesWU
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Windows Update is protected unless Extreme confirmation is provided.
+    warnings: [Requires explicit Extreme confirmation, backup, verification, and rollback.]
+    evidence: [lib/features/tweaks/updates/updates_service.dart]
+  - id: updates.wu-visibility
+    category: Windows Update/Drivers
+    name: Windows Update Settings Visibility
+    technical_description: Hides or unhides the Windows Update settings page.
+    expected_impact: Reduces accidental Windows Update changes in locked-down profiles.
+    risk: high
+    profiles: [extreme]
+    dependencies: [Administrator rights, Windows registry access]
+    detection: UpdatesService.statusVisibilityWU
+    apply: UpdatesService.disableVisibilityWU
+    verify: UpdatesService.statusVisibilityWU
+    rollback: UpdatesService.enableVisibilityWU
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Hiding update controls is too aggressive outside Extreme.
+    warnings: [Requires explicit Extreme confirmation, backup, verification, and rollback.]
+    evidence: [lib/features/tweaks/updates/updates_service.dart]
+  - id: updates.wu-drivers
+    category: Windows Update/Drivers
+    name: Windows Update Driver Delivery
+    technical_description: Controls driver search, metadata, and ExcludeWUDriversInQualityUpdate policy.
+    expected_impact: Prevents Windows Update from changing GPU and device drivers.
+    risk: dangerous
+    profiles: [extreme]
+    dependencies: [Administrator rights, Windows registry access]
+    detection: UpdatesService.statusDriversWU
+    apply: UpdatesService.disableDriversWU
+    verify: UpdatesService.statusDriversWU
+    rollback: UpdatesService.enableDriversWU
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Driver blocking requires explicit Extreme confirmation.
+    warnings: [Requires explicit Extreme confirmation, backup, verification, and rollback.]
+    evidence: [lib/features/tweaks/updates/updates_service.dart]
+  - id: utilities.hibernation
+    category: Power Plan
+    name: Hibernation
+    technical_description: Controls HibernateEnabled, ShowHibernateOption, and powercfg hibernation state.
+    expected_impact: Frees disk space and removes hibernation resume overhead on desktops.
+    risk: high
+    profiles: [performance, extreme]
+    dependencies: [Administrator rights, powercfg.exe, AC power guard for laptops]
+    detection: UtilitiesService.statusHibernation
+    apply: UtilitiesService.disableHibernation
+    verify: UtilitiesService.statusHibernation
+    rollback: UtilitiesService.enableHibernation
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Performance profile can disable hibernation when desktop and standby guards pass.
+    warnings: [Guard with hardware and workload detection before profile automation.]
+    evidence: [lib/features/tweaks/utilities/utilities_service.dart]
+  - id: utilities.fast-startup
+    category: Power Plan
+    name: Fast Startup
+    technical_description: Controls HiberbootEnabled policy and session manager values.
+    expected_impact: Avoids hybrid boot state that can retain driver and kernel issues.
+    risk: low
+    profiles: [compatibility, gaming, performance, extreme]
+    dependencies: [Administrator rights, powercfg.exe, AC power guard for laptops]
+    detection: UtilitiesService.statusFastStartup
+    apply: UtilitiesService.disableFastStartup
+    verify: UtilitiesService.statusFastStartup
+    rollback: UtilitiesService.enableFastStartup
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: All profiles prefer deterministic cold boot behavior.
+    warnings: [Back up the previous value before profile automation.]
+    evidence: [lib/features/tweaks/utilities/utilities_service.dart]
+  - id: utilities.modern-standby
+    category: Power Plan
+    name: Modern Standby
+    technical_description: Controls PlatformAoAcOverride to enable or disable Modern Standby.
+    expected_impact: Can reduce standby drain or latency surprises on selected systems.
+    risk: dangerous
+    profiles: [performance, extreme]
+    dependencies: [Administrator rights, Laptop and Modern Standby guard, Windows registry access]
+    detection: UtilitiesService.statusModernStandby
+    apply: UtilitiesService.disableModernStandby
+    verify: UtilitiesService.statusModernStandby
+    rollback: UtilitiesService.enableModernStandby
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Only aggressive profiles should touch standby platform behavior.
+    warnings: [Requires explicit Extreme confirmation, backup, verification, and rollback.]
+    evidence: [lib/features/tweaks/utilities/utilities_service.dart]
+  - id: utilities.tm-monitoring
+    category: Services
+    name: Task Manager Monitoring
+    technical_description: Controls GraphicsPerfSvc, Ndu, and DPS service startup values.
+    expected_impact: Reduces monitoring services that can run during gameplay.
+    risk: medium
+    profiles: [gaming, performance, extreme]
+    dependencies: [Administrator rights, Windows registry access]
+    detection: UtilitiesService.statusTMMonitoring
+    apply: UtilitiesService.disableTMMonitoring
+    verify: UtilitiesService.statusTMMonitoring
+    rollback: UtilitiesService.enableTMMonitoring
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Gaming profiles reduce nonessential monitoring without touching drivers.
+    warnings: [Guard with hardware and workload detection before profile automation.]
+    evidence: [lib/features/tweaks/utilities/utilities_service.dart]
+  - id: utilities.usage-reporting
+    category: Telemetry
+    name: Usage Reporting
+    technical_description: Controls diagnostic event channels, SleepStudyDisabled, DPS, diagsvc, WdiServiceHost, and WdiSystemHost.
+    expected_impact: Reduces diagnostic reporting and background diagnostic services.
+    risk: low
+    profiles: [compatibility, gaming, performance, extreme]
+    dependencies: [Administrator rights, TrustedInstaller access, Rollback snapshot]
+    detection: UtilitiesService.statusUsageReporting
+    apply: UtilitiesService.disableUsageReporting
+    verify: UtilitiesService.statusUsageReporting
+    rollback: UtilitiesService.enableUsageReporting
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Compatibility profile reduces nonessential diagnostics while preserving core services.
+    warnings: [Back up the previous value before profile automation.]
+    evidence: [lib/features/tweaks/utilities/utilities_service.dart]
+  - id: playbook.patches
+    category: Windows Update/Drivers
+    name: Main Playbook Patches
+    technical_description: Runs TweaksPatchesCommand, which disables WU driver delivery and pauses updates.
+    expected_impact: Applies current playbook micro patches without a full playbook release.
+    risk: dangerous
+    profiles: [extreme]
+    dependencies: [Administrator rights, Windows registry access]
+    detection: No direct status getter; verify underlying WU pause and driver states.
+    apply: TweaksPatchesCommand.run
+    verify: UpdatesService.statusDriversWU and UpdatesService.statusPauseUpdatesWU
+    rollback: UpdatesService.enableDriversWU and UpdatesService.disablePauseUpdatesWU
+    logs: Log detection input, requested action, exit code, registry writes, verification result, and rollback snapshot id.
+    reason: Aggregate update patches are represented so the future controller hides no tweak.
+    warnings: [Requires explicit Extreme confirmation, backup, verification, and rollback.]
+    evidence: [lib/features/tweaks/tweaks_command.dart, playbook/src/Configuration/Tasks/final.yml]

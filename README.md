@@ -21,6 +21,10 @@ A tool to personalize [ReviOS](https://www.revi.cc/) to your needs. Rewritten in
 > [!WARNING]  
 > This program is strictly intended for **ReviOS (22.10 or higher)**. It is **not meant to run on non-ReviOS systems** and may cause issues if used elsewhere.
 
+## Documentation
+
+- [Tweak and profile controller](docs/tweak-profile-controller.md)
+
 ## License
 
 Revision Tool is licensed under the [GNU General Public License v3.0](LICENSE). 

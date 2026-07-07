@@ -181,6 +181,22 @@ final class StoreService with BaseService {
         }
       }
 
+      final appTypes = <StoreAppType>{};
+      for (final String productId in packagesByProductId.keys) {
+        final StoreAppType? type = StoreAppType.fromProductId(productId);
+        if (type == null) {
+          throw UnexpectedNetworkException(
+            message: 'Unknown Store product ID: $productId',
+          );
+        }
+        appTypes.add(type);
+      }
+      if (appTypes.length > 1) {
+        throw const UnexpectedNetworkException(
+          message: 'Batch downloads must use one Store app type',
+        );
+      }
+
       final String downloadId = packagesByProductId.keys.length == 1
           ? packagesByProductId.keys.first.toUpperCase()
           : DateTime.now().millisecondsSinceEpoch.toString();

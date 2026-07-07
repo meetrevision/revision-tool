@@ -30,6 +30,23 @@ jobs:
         run: dart run slang
         working-directory: src
 
+      - name: Compile SVG vectors
+        shell: pwsh
+        working-directory: src
+        run: |
+          $svgRoot = "assets/icon/pane"
+          if (-not (Test-Path -Path $svgRoot)) {
+            throw "SVG root not found: $svgRoot"
+          }
+
+          $svgs = Get-ChildItem -Path $svgRoot -Filter *.svg -Recurse -File
+          foreach ($svg in $svgs) {
+            $inputPath = $svg.FullName
+            $outputPath = "$inputPath.vec"
+            Write-Host "Compiling $($svg.FullName) -> $outputPath"
+            dart run vector_graphics_compiler -i "$inputPath" -o "$outputPath"
+          }
+
       - name: Generate code
         run: dart run build_runner build --force-aot
         working-directory: src

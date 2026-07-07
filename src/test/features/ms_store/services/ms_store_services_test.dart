@@ -339,8 +339,11 @@ void main() {
           cancelToken: any<CancelToken?>(named: 'cancelToken'),
         ),
       ).thenAnswer((invocation) async {
+        final path = invocation.positionalArguments[1] as String;
         final callback =
             invocation.namedArguments[#onReceiveProgress] as ProgressCallback?;
+        final file = File(path)..parent.createSync(recursive: true);
+        file.writeAsBytesSync(List<int>.filled(12, 0));
         callback?.call(6, 12);
         return Result<Response<dynamic>>.success(
           Response<dynamic>(requestOptions: RequestOptions(), statusCode: 200),
@@ -615,11 +618,14 @@ void main() {
           onReceiveProgress: any<ProgressCallback?>(named: 'onReceiveProgress'),
           cancelToken: any<CancelToken?>(named: 'cancelToken'),
         ),
-      ).thenAnswer(
-        (_) async => Result<Response<dynamic>>.success(
+      ).thenAnswer((invocation) async {
+        final path = invocation.positionalArguments[1] as String;
+        final file = File(path)..parent.createSync(recursive: true);
+        file.writeAsBytesSync(const [1, 2, 3]);
+        return Result<Response<dynamic>>.success(
           Response<dynamic>(requestOptions: RequestOptions(), statusCode: 200),
-        ),
-      );
+        );
+      });
 
       try {
         final Set<StorePackageFileDownload> downloads = await service

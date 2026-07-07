@@ -38,9 +38,13 @@ abstract class WinRegistryService {
   static late final String currentUserSid;
   static const defaultUser = 'DefaultUserHive';
   static const defaultUserHivePath = r'C:\Users\Default\NTUSER.DAT';
+  static const _accessDeniedHResult = -2147024891;
+  static const _fileNotFoundHResult = -2147024894;
+  static const _pathNotFoundHResult = -2147024893;
   static const _settingsPageVisibilityPath =
       r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer';
   static const _settingsPageVisibilityName = 'SettingsPageVisibility';
+  static Future<void> _defaultUserHiveQueue = Future<void>.value();
 
   static final bool isW11 = buildNumber > 19045;
 
@@ -327,30 +331,45 @@ abstract class WinRegistryService {
       logger.i('$tag(writeRegistryValue): $path\\$name = $value');
 
       if (key == WinRegistryService.currentUser) {
-        await TrustedInstallerServiceImpl().executeCommand('reg', [
-          'load',
-          'HKU\\$defaultUser',
-          defaultUserHivePath,
-        ]);
+        await _withDefaultUserHiveLock(() async {
+          final trustedInstaller = TrustedInstallerServiceImpl();
+          var defaultUserHiveLoaded = false;
 
-        final RegistryKey reg = Registry.allUsers;
-        try {
-          final RegistryKey subKey = reg.createKey('$defaultUser\\$path');
+          await _executeTrustedInstallerCommand(trustedInstaller, 'reg', [
+            'load',
+            'HKU\\$defaultUser',
+            defaultUserHivePath,
+          ]);
+          defaultUserHiveLoaded = true;
+
           try {
-            subKey.createValue(registryValue);
+            final RegistryKey reg = Registry.allUsers;
+            try {
+              final RegistryKey subKey = reg.createKey('$defaultUser\\$path');
+              try {
+                subKey.createValue(registryValue);
+              } finally {
+                subKey.close();
+              }
+              logger.i(
+                '$tag(writeRegistryValue): $defaultUser\\$path\\$name = $value',
+              );
+            } finally {
+              reg.close();
+            }
           } finally {
-            subKey.close();
+            if (defaultUserHiveLoaded) {
+              await _unloadDefaultUserHive(trustedInstaller, [
+                'unload',
+                'HKU\\$defaultUser',
+              ]);
+            }
           }
-          logger.i(
-            '$tag(writeRegistryValue): $defaultUser\\$path\\$name = $value',
-          );
-        } finally {
-          reg.close();
-        }
+        });
       }
     } on WindowsException catch (e) {
       // 0x80070005 = ERROR_ACCESS_DENIED
-      if (e.hr == -2147024891) {
+      if (_isAccessDenied(e)) {
         logger.w(
           '$tag(writeRegistryValue): Access denied (0x80070005), retrying with TrustedInstaller: $path\\$name',
         );
@@ -386,12 +405,14 @@ abstract class WinRegistryService {
         error: e,
         stackTrace: StackTrace.current,
       );
+      rethrow;
     } catch (e) {
       logger.e(
         '$tag(writeRegistryValue): $path\\$name',
         error: e,
         stackTrace: StackTrace.current,
       );
+      rethrow;
     } finally {
       if (shouldClose) {
         key.close();
@@ -422,7 +443,7 @@ abstract class WinRegistryService {
       logger.i('$tag(deleteValue): $path\\$name');
     } on WindowsException catch (e) {
       // 0x80070005 = ERROR_ACCESS_DENIED
-      if (e.hr == -2147024891) {
+      if (_isAccessDenied(e)) {
         logger.w(
           '$tag(deleteValue): Access denied (0x80070005), retrying with TrustedInstaller: $path\\$name',
         );
@@ -448,17 +469,23 @@ abstract class WinRegistryService {
           rethrow;
         }
       }
+      if (_isNotFound(e)) {
+        logger.i('$tag(deleteValue): Missing value ignored: $path\\$name');
+        return;
+      }
       logger.e(
         '$tag(deleteValue): $path\\$name',
         error: e,
         stackTrace: StackTrace.current,
       );
+      rethrow;
     } catch (e) {
       logger.e(
         '$tag(deleteValue): $path\\$name',
         error: e,
         stackTrace: StackTrace.current,
       );
+      rethrow;
     }
   }
 
@@ -479,7 +506,7 @@ abstract class WinRegistryService {
       logger.i('$tag(deleteKey): $path');
     } on WindowsException catch (e) {
       // 0x80070005 = ERROR_ACCESS_DENIED
-      if (e.hr == -2147024891) {
+      if (_isAccessDenied(e)) {
         logger.w(
           '$tag(deleteKey): Access denied (0x80070005), retrying with TrustedInstaller: $path',
         );
@@ -504,18 +531,80 @@ abstract class WinRegistryService {
           rethrow;
         }
       }
+      if (_isNotFound(e)) {
+        logger.i('$tag(deleteKey): Missing key ignored: $path');
+        return;
+      }
       logger.e(
         '$tag(deleteKey): $path',
         error: e,
         stackTrace: StackTrace.current,
       );
+      rethrow;
     } catch (e) {
       logger.e(
         '$tag(deleteKey): $path',
         error: e,
         stackTrace: StackTrace.current,
       );
+      rethrow;
     }
+  }
+
+  static bool _isAccessDenied(WindowsException e) =>
+      e.hr == _accessDeniedHResult;
+
+  static bool _isNotFound(WindowsException e) =>
+      e.hr == _fileNotFoundHResult || e.hr == _pathNotFoundHResult;
+
+  static Future<void> _executeTrustedInstallerCommand(
+    TrustedInstallerService service,
+    String command,
+    List<String> args,
+  ) async {
+    final CommandResult result = await service.executeCommand(command, args);
+    if (result.exitCode == 0) return;
+
+    final String message = result.error.trim().isNotEmpty
+        ? result.error.trim()
+        : result.output.trim();
+    throw ProcessException(command, args, message, result.exitCode);
+  }
+
+  static Future<void> _unloadDefaultUserHive(
+    TrustedInstallerService service,
+    List<String> args,
+  ) async {
+    final CommandResult result = await service.executeCommand('reg', args);
+    if (result.exitCode == 0) return;
+
+    if (isBenignDefaultUserHiveUnloadFailure(result)) {
+      logger.w(
+        '$tag(writeRegistryValue): Default user hive was already unloaded.',
+      );
+      return;
+    }
+
+    final String message = result.error.trim().isNotEmpty
+        ? result.error.trim()
+        : result.output.trim();
+    throw ProcessException('reg', args, message, result.exitCode);
+  }
+
+  static Future<T> _withDefaultUserHiveLock<T>(Future<T> Function() action) {
+    final Future<T> next = _defaultUserHiveQueue.then((_) => action());
+    _defaultUserHiveQueue = next.then<void>((_) {}, onError: (_) {});
+    return next;
+  }
+
+  static bool isBenignDefaultUserHiveUnloadFailure(CommandResult result) {
+    if (result.exitCode == 0) return true;
+
+    final String message = '${result.error}\n${result.output}'.toLowerCase();
+    return message.contains('the parameter is incorrect') ||
+        message.contains('unable to find the specified registry key') ||
+        message.contains('cannot find the file specified') ||
+        message.contains('the system cannot find the file specified');
   }
 
   static void createKey(RegistryKey key, String path) {

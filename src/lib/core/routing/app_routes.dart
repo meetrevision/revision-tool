@@ -2,8 +2,9 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import '../../i18n/generated/strings.g.dart';
 import 'package:vector_graphics/vector_graphics.dart';
+
+import '../../i18n/generated/strings.g.dart';
 
 enum RouteSection { main, footer, search }
 
@@ -27,6 +28,11 @@ enum RouteMeta {
       width: 20,
       height: 20,
     ),
+  ),
+  tweaksController(
+    path: '/tweaks/controller',
+    section: RouteSection.search,
+    icon: msicons.FluentIcons.options_20_regular,
   ),
   msStore(
     path: '/msstore',
@@ -88,6 +94,7 @@ enum RouteMeta {
     return switch (this) {
       RouteMeta.home => t.pageHome,
       RouteMeta.tweaks => t.pageTweaks,
+      RouteMeta.tweaksController => 'Tweak Controller',
       RouteMeta.msStore => t.pageMSStore,
       RouteMeta.settings => t.pageSettings,
       RouteMeta.tweaksSecurity => t.pageTweaksSecurity,
@@ -212,6 +219,7 @@ const List<RouteMeta> _mainNavigationRoutes = [
 const List<RouteMeta> _footerNavigationRoutes = [RouteMeta.settings];
 
 const List<RouteMeta> _searchableRoutes = [
+  RouteMeta.tweaksController,
   RouteMeta.tweaksSecurity,
   RouteMeta.tweaksPerformance,
   RouteMeta.tweaksPersonalization,

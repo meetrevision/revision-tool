@@ -3,9 +3,7 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:riverpod/riverpod.dart';
-import 'package:win32_registry/win32_registry.dart';
 
-import '../../core/services/win_registry_service.dart';
 import '../../utils.dart';
 import 'performance/performance_service.dart';
 import 'personalization/personalization_service.dart';

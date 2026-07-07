@@ -30,6 +30,9 @@ class ToolUpdateService {
 
   static const _githubAPI =
       'https://api.github.com/repos/meetrevision/revision-tool/releases/latest';
+  static const _installerAssetName = 'RevisionTool-Setup.exe';
+  static const _versionSegmentCount = 3;
+  static const _versionSegmentWidth = 1000;
 
   static final Directory _tempDir = Directory.systemTemp;
 
@@ -57,7 +60,7 @@ class ToolUpdateService {
       defaultValue: '1.0.0',
     );
 
-    return int.parse(appVersion.replaceAll('.', ''));
+    return versionComparableValue(appVersion);
   }
 
   int get getLatestVersion {
@@ -65,16 +68,18 @@ class ToolUpdateService {
       logger.e('The fetched API data variable is empty');
       return -1;
     }
-    return int.parse(_data['tag_name'].toString().replaceAll('.', ''));
+    return versionComparableValue(_data['tag_name'].toString());
+  }
+
+  String get installerAssetDownloadUrl {
+    final Map<String, dynamic> asset = _installerAsset;
+    return asset['browser_download_url'] as String;
   }
 
   Future<void> downloadNewVersion() async {
     final path = '${_tempDir.path}\\RevisionTool-Setup.exe';
-    final assetList = List<Map<String, dynamic>>.from(
-      _data['assets'] as List<dynamic>,
-    );
     final Response<dynamic> download = await _dio.download(
-      assetList.first['browser_download_url'] as String,
+      installerAssetDownloadUrl,
       path,
     );
     logger.i('New Revision Tool download status: ${download.statusMessage}');
@@ -93,5 +98,53 @@ class ToolUpdateService {
 
     await Process.start(scriptPath, [], mode: ProcessStartMode.detached);
     exit(0);
+  }
+
+  static int versionComparableValue(String version) {
+    final String normalizedVersion = version.trim().replaceFirst(
+      RegExp('^[vV]'),
+      '',
+    );
+    final String coreVersion = normalizedVersion.split(RegExp(r'[-+]')).first;
+    final List<String> segments = coreVersion.split('.');
+    var comparableValue = 0;
+
+    for (var index = 0; index < _versionSegmentCount; index++) {
+      final String segment = index < segments.length ? segments[index] : '0';
+      final int segmentValue = int.parse(segment.isEmpty ? '0' : segment);
+      if (segmentValue >= _versionSegmentWidth) {
+        throw FormatException('Version segment is too large', version);
+      }
+      comparableValue =
+          (comparableValue * _versionSegmentWidth) + segmentValue;
+    }
+
+    return comparableValue;
+  }
+
+  Map<String, dynamic> get _installerAsset {
+    final assetList = List<Map<String, dynamic>>.from(
+      _data['assets'] as List<dynamic>,
+    );
+
+    for (final asset in assetList) {
+      if (_isInstallerAsset(asset)) {
+        return asset;
+      }
+    }
+
+    throw StateError('No Revision Tool installer asset found in release data');
+  }
+
+  static bool _isInstallerAsset(Map<String, dynamic> asset) {
+    final String name = (asset['name'] as String? ?? '').toLowerCase();
+    final downloadUrl = asset['browser_download_url'] as String?;
+
+    return downloadUrl != null &&
+        downloadUrl.isNotEmpty &&
+        (name == _installerAssetName.toLowerCase() ||
+            (name.endsWith('.exe') &&
+                name.contains('revisiontool') &&
+                name.contains('setup')));
   }
 }

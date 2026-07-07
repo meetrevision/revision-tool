@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:win32/win32.dart';

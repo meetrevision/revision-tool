@@ -7,6 +7,9 @@ import 'core/services/win_registry_command.dart';
 import 'core/services/win_registry_service.dart';
 import 'features/ms_store/ms_store_command.dart';
 import 'features/ms_store/store_service.dart';
+import 'features/tweaks/controller/tweak_commands.dart';
+import 'features/tweaks/controller/tweak_controller.dart';
+import 'features/tweaks/security/security_service.dart';
 import 'features/tweaks/tweaks_command.dart';
 
 import 'features/winsxs/win_package_command.dart';
@@ -32,6 +35,15 @@ Future<void> main(List<String> args) async {
   final container = ProviderContainer();
 
   logger.i('$tag Revision Tool CLI is starting');
+  final rollbackManager = RollbackManager.defaultStore();
+  final tweakController = TweakController(
+    registry: TweakOperationRegistry.fromServices(
+      security: container.read(securityServiceProvider),
+    ),
+    compatibilityChecker: CompatibilityChecker.detected(),
+    rollbackManager: rollbackManager,
+  );
+  final profileController = ProfileController(tweakController);
 
   final runner =
       CommandRunner<void>(
@@ -45,6 +57,9 @@ Future<void> main(List<String> args) async {
           WinRegistryServiceCliCommand(const WinRegistryCliService()),
         )
         ..addCommand(TweaksCommand(container: container))
+        ..addCommand(ProfileCommand(profileController))
+        ..addCommand(TweakCommand(tweakController))
+        ..addCommand(ReportCommand(rollbackManager))
         ..addCommand(WindowsPackageCommand(container: container));
   await runner.run(args);
   exit(0);

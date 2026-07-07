@@ -562,6 +562,20 @@ void main() {
       );
 
       test(
+        'enableReviPowerPlanC6States writes the values checked by status',
+        () {
+          expect(
+            PerformanceServiceImpl.reviPowerPlanC6EnabledIdlePromote,
+            equals(100),
+          );
+          expect(
+            PerformanceServiceImpl.reviPowerPlanC6EnabledIdleDemote,
+            equals(80),
+          );
+        },
+      );
+
+      test(
         'disableReviPowerPlanC6States can be called without system changes',
         () async {
           when(
@@ -610,6 +624,20 @@ void main() {
           () => mockService.setBackgroundWindowMessageRateLimit(8),
         ).called(1);
       });
+
+      test(
+        'disableBackgroundWindowMessageRateLimit can be called without registry changes',
+        () async {
+          when(
+            () => mockService.disableBackgroundWindowMessageRateLimit(),
+          ).thenAnswer((_) async => Future.value());
+
+          await mockService.disableBackgroundWindowMessageRateLimit();
+          verify(
+            () => mockService.disableBackgroundWindowMessageRateLimit(),
+          ).called(1);
+        },
+      );
 
       test(
         'enableCtfmonInput can be called without registry changes',

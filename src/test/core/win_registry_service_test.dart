@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:revitool/core/services/win_registry_service.dart';
+import 'package:revitool/core/trusted_installer/trusted_installer_service.dart';
 import 'package:win32_registry/win32_registry.dart';
 
 const String testRegistryPath = r'SOFTWARE\Revision\RevitoolTest';
@@ -284,12 +285,16 @@ void main() {
         : false,
     () {
       test('getUserServices returns iterable', () {
-        final Iterable<String> result = WinRegistryService.getUserServices('WpnUserService');
+        final Iterable<String> result = WinRegistryService.getUserServices(
+          'WpnUserService',
+        );
         expect(result, isA<Iterable<String>>());
       });
 
       test('getUserServices filters by prefix', () {
-        final Iterable<String> result = WinRegistryService.getUserServices('WpnUserService');
+        final Iterable<String> result = WinRegistryService.getUserServices(
+          'WpnUserService',
+        );
         for (final service in result) {
           expect(service, startsWith('WpnUserService'));
         }
@@ -528,6 +533,46 @@ void main() {
       });
     },
   );
+
+  group('WinRegistryService - Unit Error Handling', () {
+    test('treats missing default-user hive unload as benign cleanup', () {
+      const result = CommandResult(
+        exitCode: 1,
+        output: '',
+        error: 'ERROR: The parameter is incorrect.',
+      );
+
+      expect(
+        WinRegistryService.isBenignDefaultUserHiveUnloadFailure(result),
+        isTrue,
+      );
+    });
+
+    test('does not hide unexpected default-user hive unload failures', () {
+      const result = CommandResult(
+        exitCode: 5,
+        output: '',
+        error: 'ERROR: Access is denied.',
+      );
+
+      expect(
+        WinRegistryService.isBenignDefaultUserHiveUnloadFailure(result),
+        isFalse,
+      );
+    });
+
+    test('writeRegistryValue rethrows unsupported value types', () async {
+      await expectLater(
+        WinRegistryService.writeRegistryValue<Object>(
+          WinRegistryService.currentUser,
+          testRegistryPath,
+          'InvalidValue',
+          Object(),
+        ),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
+  });
 
   group(
     'WinRegistryService - Integration Tests',

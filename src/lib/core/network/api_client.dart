@@ -23,7 +23,7 @@ class ApiClient {
        retryPolicy = retryPolicy {
     if (_dio.httpClientAdapter is IOHttpClientAdapter) {
       (_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient =
-          createHttpClient ?? _createDefaultHttpClient;
+          createHttpClient ?? createDefaultHttpClient;
     }
 
     _dio.interceptors.add(RetryInterceptor(_dio, retryPolicy));
@@ -171,12 +171,7 @@ class ApiClient {
     }
   }
 
-  static HttpClient _createDefaultHttpClient() {
-    // Important for LTSC 2021.
-    return HttpClient()
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-  }
+  static HttpClient createDefaultHttpClient() => HttpClient();
 
   static Future<void> _deletePartialFile(String downloadPath) async {
     final file = File(downloadPath);

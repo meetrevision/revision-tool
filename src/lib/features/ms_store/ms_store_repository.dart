@@ -98,7 +98,7 @@ abstract base class StoreRepository {
     if (cached != null) return cached;
 
     final Response<dynamic> response = await _api
-        .get<void>(
+        .get<dynamic>(
           MSStoreEndpoints.productDetails(
             productId: productId,
             market: market,
@@ -221,7 +221,7 @@ final class UwpStoreRepository extends StoreRepository {
         .replaceAll('{1}', _cookie!)
         .replaceAll('{2}', categoryId)
         .replaceAll('{3}', ring.value);
-    final Result<Response<dynamic>> pkgResult = await _api.post(
+    final Result<Response<dynamic>> pkgResult = await _api.post<dynamic>(
       MSStoreEndpoints.fe3Delivery(),
       data: pkgBody,
       options: _soapOptions,
@@ -282,7 +282,7 @@ final class UwpStoreRepository extends StoreRepository {
         .replaceAll('{3}', ring.value);
 
     final Response<dynamic> response = await _api
-        .post<void>(
+        .post<dynamic>(
           MSStoreEndpoints.fe3Delivery(secured: true),
           data: body,
           options: _soapOptions,
@@ -308,7 +308,7 @@ final class UwpStoreRepository extends StoreRepository {
   Future<String> _getCookie(String cookieTemplate) async {
     if (_cookie != null) return _cookie!;
 
-    final Result<Response<dynamic>> result = await _api.post(
+    final Result<Response<dynamic>> result = await _api.post<dynamic>(
       MSStoreEndpoints.fe3Delivery(),
       data: cookieTemplate,
       options: _soapOptions,

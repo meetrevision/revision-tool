@@ -11,6 +11,14 @@ import 'package:revitool/core/network/retry_policy.dart';
 
 void main() {
   group('ApiClient', () {
+    test('does not bypass certificate validation by default', () {
+      final String source = File(
+        'lib/core/network/api_client.dart',
+      ).readAsStringSync();
+
+      expect(source, isNot(contains('badCertificateCallback')));
+    });
+
     test('maps connection failures to NetworkException', () async {
       final client = ApiClient(
         dio: Dio()

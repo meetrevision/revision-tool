@@ -18,6 +18,14 @@ class TweaksPage extends ConsumerWidget {
       padding: kScaffoldPagePadding,
       children: [
         CardHighlight(
+          icon: msicons.FluentIcons.options_20_regular,
+          label: 'Tweak Controller',
+          description: 'Profiles, guards, reports, and rollback',
+          onPressed: () => context.push(RouteMeta.tweaksController.path),
+          action: const ChevronRightAction(),
+        ),
+
+        CardHighlight(
           icon: msicons.FluentIcons.shield_lock_20_regular,
           label: t.pageTweaksSecurity,
           description: t.pageTweaksSecurityDescription,
