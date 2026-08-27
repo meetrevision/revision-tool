@@ -609,7 +609,7 @@ argParser.addOption(
         .join('\n');
     return Class(
       (b) => b
-        ..modifier = isFinalClass ? .final$ : null
+        ..modifier = .final$
         ..name = className
         ..extend = refer(_serviceBaseClassName(serviceClassName))
         ..constructors.add(
@@ -618,7 +618,7 @@ argParser.addOption(
               ..requiredParameters.add(
                 Parameter(
                   (p) => p
-                    ..name = 'service'
+                    ..name = '_service'
                     ..toSuper = true,
                 ),
               )
@@ -626,8 +626,8 @@ argParser.addOption(
           ),
         )
         ..methods.addAll([
-          _buildGetterMethod('name', 'String', 'return $nameLiteral;'),
-          _buildGetterMethod('description', 'String', 'return $descriptionLiteral;'),
+          _buildGetterMethod('name', 'String', nameLiteral),
+          _buildGetterMethod('description', 'String', descriptionLiteral),
           _buildRunMethod(returnType: 'void', bodyCode: const Code('printUsage();')),
         ]),
     );
@@ -638,6 +638,7 @@ argParser.addOption(
       (b) => b
         ..name = _serviceBaseClassName(serviceClassName)
         ..abstract = true
+        ..modifier = .final$
         ..extend = refer('Command<void>')
         ..constructors.add(
           Constructor(
@@ -645,11 +646,10 @@ argParser.addOption(
               ..requiredParameters.add(
                 Parameter(
                   (p) => p
-                    ..name = 'service'
-                    ..type = refer(serviceClassName),
+                    ..name = '_service'
+                    ..toThis = true,
                 ),
-              )
-              ..initializers.add(const Code('_service = service')),
+              ),
           ),
         )
         ..fields.add(
@@ -702,6 +702,7 @@ argParser.addOption(
     final String resolvedCommandNameLiteral = commandNameLiteral ?? _quoteLiteral(commandName!);
     return Class(
       (b) => b
+        ..modifier = .final$
         ..name = className
         ..extend = refer(_serviceBaseClassName(serviceClassName))
         ..constructors.add(
@@ -710,7 +711,7 @@ argParser.addOption(
               ..requiredParameters.add(
                 Parameter(
                   (p) => p
-                    ..name = 'service'
+                    ..name = '_service'
                     ..toSuper = true,
                 ),
               )
@@ -718,8 +719,8 @@ argParser.addOption(
           ),
         )
         ..methods.addAll([
-          _buildGetterMethod('name', 'String', 'return $resolvedCommandNameLiteral;'),
-          _buildGetterMethod('description', 'String', 'return $descriptionLiteral;'),
+          _buildGetterMethod('name', 'String', resolvedCommandNameLiteral),
+          _buildGetterMethod('description', 'String', descriptionLiteral),
           _buildRunMethod(returnType: returnType, bodyCode: runBodyCode, isAsync: isAsync),
         ]),
     );
@@ -775,6 +776,7 @@ try {
         ..type = .getter
         ..name = name
         ..returns = refer(returnType)
+        ..lambda = true
         ..body = Code(body),
     );
   }
