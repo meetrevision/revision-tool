@@ -2,12 +2,10 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 
-final class RetryPolicy {
-  const RetryPolicy({this.maxRetries = 2, this.initialDelay = const Duration(seconds: 1)});
-
-  final int maxRetries;
-  final Duration initialDelay;
-
+final class const RetryPolicy({
+  final int maxRetries = 2,
+  final Duration initialDelay = const .new(seconds: 1),
+}) {
   Duration delayForAttempt(int retryCount) {
     return initialDelay * (1 << retryCount);
   }
@@ -17,30 +15,16 @@ final class RetryPolicy {
       return false;
     }
 
-    switch (error.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.receiveTimeout:
-      case DioExceptionType.connectionError:
-      case DioExceptionType.transformTimeout:
-        return true;
-      case DioExceptionType.badResponse:
-        return (error.response?.statusCode ?? 0) >= 500;
-      case DioExceptionType.unknown:
-        return error.error is SocketException || error.error is HttpException;
-      case DioExceptionType.badCertificate:
-      case DioExceptionType.cancel:
-      case DioExceptionType.sendTimeout:
-        return false;
-    }
+    return switch (error.type) {
+      .connectionTimeout || .receiveTimeout || .connectionError || .transformTimeout => true,
+      .badResponse => (error.response?.statusCode ?? 0) >= 500,
+      .unknown => error.error is SocketException || error.error is HttpException,
+      .badCertificate || .cancel || .sendTimeout => false,
+    };
   }
 }
 
-final class RetryInterceptor extends Interceptor {
-  const RetryInterceptor(this._dio, this._policy);
-
-  final Dio _dio;
-  final RetryPolicy _policy;
-
+final class const RetryInterceptor(final Dio _dio, final RetryPolicy _policy) extends Interceptor {
   @override
   Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
     if (err.requestOptions.extra['skipRetry'] == true || !_policy.shouldRetry(err)) {

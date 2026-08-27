@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:revitool/features/tweaks/updates/updates_service.dart';
 
-class MockUpdatesService extends Mock implements UpdatesService {}
+class MockUpdatesService() extends Mock implements UpdatesService;
 
 void main() {
   const skipIntegration = bool.fromEnvironment('SKIP_INTEGRATION', defaultValue: true);

@@ -15,7 +15,7 @@ part 'updates_service.g.dart';
   name: 'updates',
   description: 'Updates related tweaks, such as Windows Updates, KGL, and certificates.',
 )
-abstract class UpdatesService {
+abstract class UpdatesService() {
   @CliAction(name: 'certificates', run: 'updateCertificates')
   Future<void> updateCertificates();
 
@@ -53,9 +53,7 @@ abstract class UpdatesService {
   Future<void> disableDriversWU();
 }
 
-class UpdatesServiceImpl implements UpdatesService {
-  const UpdatesServiceImpl();
-
+class const UpdatesServiceImpl() implements UpdatesService {
   @override
   Future<void> updateCertificates() async {
     await shell.run(

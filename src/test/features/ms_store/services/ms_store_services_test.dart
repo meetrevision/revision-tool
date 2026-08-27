@@ -636,7 +636,7 @@ void main() {
   });
 }
 
-final class _MockApiClient extends Mock implements ApiClient {}
+final class _MockApiClient() extends Mock implements ApiClient;
 
 Result<Response<dynamic>> _response({Object? data, int statusCode = 200}) {
   return Result<Response<dynamic>>.success(
@@ -658,10 +658,9 @@ Map<String, Object?> _uwpProductJson({String? wuCategoryId = 'category-id'}) {
   };
 }
 
-final class _FakeStoreRepository extends StoreRepository {
-  _FakeStoreRepository(this._packagesById) : super(api: _MockApiClient(), cache: StoreCache());
+final class _FakeStoreRepository(final Map<String, Set<PackageInfo>> _packagesById) extends StoreRepository {
+  this : super(api: _MockApiClient(), cache: StoreCache());
 
-  final Map<String, Set<PackageInfo>> _packagesById;
   static const String _downloadUrl = 'https://example.test/package.appx';
 
   @override
@@ -678,7 +677,7 @@ final class _FakeStoreRepository extends StoreRepository {
   }
 }
 
-final class _FakeUwpXmlParser extends UwpXmlParser {
+final class _FakeUwpXmlParser() extends UwpXmlParser {
   @override
   String parseCookieResponse(String xmlString) => 'cookie';
 
@@ -689,9 +688,7 @@ final class _FakeUwpXmlParser extends UwpXmlParser {
 }
 
 /// Intercepts install calls without executing real processes.
-final class _RecordingPackageFileService extends PackageFileService {
-  _RecordingPackageFileService(super.api);
-
+final class _RecordingPackageFileService(super.api) extends PackageFileService {
   final win32InstallPaths = <String>[];
 
   @override

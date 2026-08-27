@@ -14,9 +14,7 @@ import 'sections/memory_storage_section.dart';
 import 'sections/powerplan_section.dart';
 import 'sections/presentation_section.dart';
 
-class PerformancePage extends ConsumerWidget {
-  const PerformancePage({super.key});
-
+class const PerformancePage({super.key}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ScaffoldPage.scrollable(
@@ -34,8 +32,7 @@ class PerformancePage extends ConsumerWidget {
   }
 }
 
-class _IntelTSXCard extends ConsumerWidget {
-  const _IntelTSXCard();
+class const _IntelTSXCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(intelTSXStatusProvider);

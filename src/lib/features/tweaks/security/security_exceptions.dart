@@ -1,13 +1,10 @@
 import '../../../utils.dart';
 
 /// Base exception for all security feature errors.
-sealed class SecurityException implements Exception {
-  SecurityException(this.message, [this.reason]) {
+sealed class SecurityException(final String message, [final Object? reason]) implements Exception {
+  this {
     logger.e('[Security] $message${reason != null ? '; Reason: $reason' : ''}');
   }
-
-  final String message;
-  final Object? reason;
 
   @override
   String toString() {
@@ -19,9 +16,7 @@ sealed class SecurityException implements Exception {
 }
 
 /// Exception thrown when Windows Defender operations fail.
-final class DefenderOperationException extends SecurityException {
-  DefenderOperationException(super.message, [super.reason]);
-
+final class DefenderOperationException(super.message, [super.reason]) extends SecurityException {
   @override
   String toString() {
     if (reason != null) {

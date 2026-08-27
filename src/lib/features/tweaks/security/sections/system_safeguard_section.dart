@@ -6,9 +6,7 @@ import '../../../../core/widgets/card_highlight.dart';
 import '../../../../i18n/generated/strings.g.dart';
 import '../security_service.dart';
 
-class SystemSafeguardsSection extends StatelessWidget {
-  const SystemSafeguardsSection({super.key});
-
+class const SystemSafeguardsSection({super.key}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardHighlight(
@@ -21,8 +19,7 @@ class SystemSafeguardsSection extends StatelessWidget {
   }
 }
 
-class _UACCard extends ConsumerWidget {
-  const _UACCard();
+class const _UACCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(uacStatusProvider);
@@ -45,8 +42,7 @@ class _UACCard extends ConsumerWidget {
   }
 }
 
-class _VbsCard extends ConsumerWidget {
-  const _VbsCard();
+class const _VbsCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(vbsStatusProvider);
@@ -70,8 +66,7 @@ class _VbsCard extends ConsumerWidget {
   }
 }
 
-class _MemoryIntegrityCard extends ConsumerWidget {
-  const _MemoryIntegrityCard();
+class const _MemoryIntegrityCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(memoryIntegrityStatusProvider);

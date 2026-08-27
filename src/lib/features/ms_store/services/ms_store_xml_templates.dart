@@ -2,7 +2,7 @@
 /// Embedded so `dart compile exe` CLI builds work without flutter_assets.
 library;
 
-enum MsStoreXmlTemplate {
+enum MsStoreXmlTemplate(final String xml) {
   cookie(r'''
 <Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2003/05/soap-envelope">
 	<Header>
@@ -752,6 +752,4 @@ enum MsStoreXmlTemplate {
 </s:Envelope>
 ''');
 
-  const MsStoreXmlTemplate(this.xml);
-  final String xml;
 }

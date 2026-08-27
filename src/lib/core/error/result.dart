@@ -1,10 +1,8 @@
 import 'app_exception.dart';
 
-sealed class Result<T> {
-  const Result();
-
-  const factory Result.success(T value) = Success<T>;
-  const factory Result.failure(AppException exception) = Failure<T>;
+sealed class const Result<T>() {
+  const factory success(T value) = Success<T>;
+  const factory failure(AppException exception) = Failure<T>;
 
   R when<R>({
     required R Function(T value) success,
@@ -12,11 +10,7 @@ sealed class Result<T> {
   });
 }
 
-final class Success<T> extends Result<T> {
-  const Success(this.value);
-
-  final T value;
-
+final class const Success<T>(final T value) extends Result<T> {
   @override
   R when<R>({
     required R Function(T value) success,
@@ -26,11 +20,7 @@ final class Success<T> extends Result<T> {
   }
 }
 
-final class Failure<T> extends Result<T> {
-  const Failure(this.exception);
-
-  final AppException exception;
-
+final class const Failure<T>(final AppException exception) extends Result<T> {
   @override
   R when<R>({
     required R Function(T value) success,

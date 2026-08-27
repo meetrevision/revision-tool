@@ -9,9 +9,7 @@ import '../../../../core/widgets/card_highlight.dart';
 import '../../../../i18n/generated/strings.g.dart';
 import '../performance_service.dart';
 
-class BackgroundManagementSection extends StatelessWidget {
-  const BackgroundManagementSection({super.key});
-
+class const BackgroundManagementSection({super.key}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardHighlight(
@@ -27,8 +25,7 @@ class BackgroundManagementSection extends StatelessWidget {
   }
 }
 
-class _BackgroundAppsCard extends ConsumerWidget {
-  const _BackgroundAppsCard();
+class const _BackgroundAppsCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(backgroundAppsStatusProvider);
@@ -50,8 +47,7 @@ class _BackgroundAppsCard extends ConsumerWidget {
   }
 }
 
-class _CtfmonInputCard extends ConsumerWidget {
-  const _CtfmonInputCard();
+class const _CtfmonInputCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(ctfmonInputStatusProvider);
@@ -75,8 +71,7 @@ class _CtfmonInputCard extends ConsumerWidget {
   }
 }
 
-class _BackgroundWindowMessageRateCard extends ConsumerWidget {
-  const _BackgroundWindowMessageRateCard();
+class const _BackgroundWindowMessageRateCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final int status = ref.watch(backgroundWindowMessageRateLimitStatusProvider);

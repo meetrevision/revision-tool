@@ -9,9 +9,7 @@ import '../../extensions.dart';
 import '../../i18n/generated/strings.g.dart';
 import '../../utils_gui.dart';
 
-class TweaksPage extends ConsumerWidget {
-  const TweaksPage({super.key});
-
+class const TweaksPage({super.key}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ScaffoldPage.scrollable(

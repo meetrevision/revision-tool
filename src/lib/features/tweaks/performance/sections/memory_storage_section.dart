@@ -7,9 +7,7 @@ import '../../../../core/widgets/card_highlight.dart';
 import '../../../../i18n/generated/strings.g.dart';
 import '../performance_service.dart';
 
-class MemoryStorageSection extends StatelessWidget {
-  const MemoryStorageSection({super.key});
-
+class const MemoryStorageSection({super.key}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardHighlight(
@@ -28,9 +26,7 @@ class MemoryStorageSection extends StatelessWidget {
   }
 }
 
-class _SuperfetchCard extends ConsumerWidget {
-  const _SuperfetchCard();
-
+class const _SuperfetchCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(superfetchStatusProvider);
@@ -54,9 +50,7 @@ class _SuperfetchCard extends ConsumerWidget {
   }
 }
 
-class _MemoryCompressionCard extends ConsumerWidget {
-  const _MemoryCompressionCard();
-
+class const _MemoryCompressionCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool superfetchStatus = ref.watch(superfetchStatusProvider);
@@ -84,8 +78,7 @@ class _MemoryCompressionCard extends ConsumerWidget {
   }
 }
 
-class _ServicesGroupingCard extends ConsumerWidget {
-  const _ServicesGroupingCard();
+class const _ServicesGroupingCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ServiceGrouping status = ref.watch(servicesGroupingStatusProvider);
@@ -128,8 +121,7 @@ class _ServicesGroupingCard extends ConsumerWidget {
   }
 }
 
-class _LastTimeAccessCard extends ConsumerWidget {
-  const _LastTimeAccessCard();
+class const _LastTimeAccessCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(lastTimeAccessNTFSStatusProvider);
@@ -152,8 +144,7 @@ class _LastTimeAccessCard extends ConsumerWidget {
   }
 }
 
-class _Dot3NamingCard extends ConsumerWidget {
-  const _Dot3NamingCard();
+class const _Dot3NamingCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(dot3NamingNTFSStatusProvider);
@@ -176,8 +167,7 @@ class _Dot3NamingCard extends ConsumerWidget {
   }
 }
 
-class _MemoryUsageCard extends ConsumerWidget {
-  const _MemoryUsageCard();
+class const _MemoryUsageCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(memoryUsageNTFSStatusProvider);

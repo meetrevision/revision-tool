@@ -7,7 +7,7 @@ part 'search_product.g.dart';
 
 @freezed
 sealed class SearchProduct with _$SearchProduct {
-  const factory SearchProduct({
+  const factory({
     @JsonKey(name: 'productId') String? productId,
     @JsonKey(name: 'title') String? title,
     @JsonKey(name: 'description') String? description,
@@ -20,12 +20,12 @@ sealed class SearchProduct with _$SearchProduct {
     @JsonKey(name: 'previews') List<SearchProductPreviews>? previews,
   }) = _SearchProduct;
 
-  factory SearchProduct.fromJson(Map<String, Object?> json) => _$SearchProductFromJson(json);
+  factory fromJson(Map<String, Object?> json) => _$SearchProductFromJson(json);
 }
 
 @freezed
 abstract class SearchProductPreviews with _$SearchProductPreviews {
-  const factory SearchProductPreviews({
+  const factory({
     String? imageType,
     String? backgroundColor,
     String? foregroundColor,
@@ -36,6 +36,6 @@ abstract class SearchProductPreviews with _$SearchProductPreviews {
     int? height,
   }) = _SearchProductPreviews;
 
-  factory SearchProductPreviews.fromJson(Map<String, Object?> json) =>
+  factory fromJson(Map<String, Object?> json) =>
       _$SearchProductPreviewsFromJson(json);
 }

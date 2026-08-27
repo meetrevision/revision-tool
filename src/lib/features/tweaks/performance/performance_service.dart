@@ -6,7 +6,7 @@ import '../../../core/services/win_registry_service.dart';
 import '../../../core/trusted_installer/trusted_installer_service.dart';
 part 'performance_service.g.dart';
 
-enum ServiceGrouping { forced, recommended, disabled }
+enum ServiceGrouping() { forced, recommended, disabled }
 
 const _userSvcSplitDisabled = {'CDPUserSvc_', 'OneSyncSvc_', 'WpnUserService_'};
 
@@ -104,7 +104,7 @@ const _defaultSplitDisabled = {
 };
 
 @CliCommand(name: 'performance', description: 'Performance tweaks')
-abstract class PerformanceService {
+abstract class PerformanceService() {
   @CliToggle(
     name: 'powerplan',
     status: 'statusReviPowerPlan',
@@ -248,9 +248,7 @@ abstract class PerformanceService {
   Future<void> setBackgroundWindowMessageRateLimit(int milliseconds);
 }
 
-class PerformanceServiceImpl implements PerformanceService {
-  const PerformanceServiceImpl();
-
+class const PerformanceServiceImpl() implements PerformanceService {
   @override
   bool get statusReviPowerPlan {
     return WinRegistryService.readString(

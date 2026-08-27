@@ -8,9 +8,7 @@ import '../../../../core/widgets/card_highlight.dart';
 import '../../../../i18n/generated/strings.g.dart';
 import '../security_service.dart';
 
-class HardwareMitigationsSection extends StatelessWidget {
-  const HardwareMitigationsSection({super.key});
-
+class const HardwareMitigationsSection({super.key}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardHighlight(
@@ -23,8 +21,7 @@ class HardwareMitigationsSection extends StatelessWidget {
   }
 }
 
-class _MeltdownSpectreCard extends ConsumerWidget {
-  const _MeltdownSpectreCard();
+class const _MeltdownSpectreCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(meltdownSpectreStatusProvider);
@@ -50,8 +47,7 @@ class _MeltdownSpectreCard extends ConsumerWidget {
   }
 }
 
-class _DownfallCard extends ConsumerWidget {
-  const _DownfallCard();
+class const _DownfallCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(downfallStatusProvider);

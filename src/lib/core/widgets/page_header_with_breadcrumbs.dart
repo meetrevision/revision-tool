@@ -4,11 +4,7 @@ import '../routing/app_routes.dart';
 
 /// A reusable PageHeader widget that automatically displays breadcrumbs
 /// based on the current route location.
-class PageHeaderBreadcrumbs extends StatelessWidget {
-  const PageHeaderBreadcrumbs({super.key, this.trailing});
-
-  final Widget? trailing;
-
+class const PageHeaderBreadcrumbs({super.key, final Widget? trailing}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentLocation = GoRouterState.of(context).uri.toString();

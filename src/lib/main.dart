@@ -110,9 +110,7 @@ Future<void> main(List<String> args) async {
 
 bool _isSupported = false;
 
-class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
-
+class const MyApp({super.key}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppSettings appSettings = ref.watch(appSettingsProvider);

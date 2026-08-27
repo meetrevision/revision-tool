@@ -9,10 +9,10 @@ part 'ms_store_search_dto.g.dart';
 
 @freezed
 sealed class MsStoreSearchDto with _$MsStoreSearchDto {
-  const factory MsStoreSearchDto({
+  const factory({
     List<SearchProduct>? highlightedList,
     List<SearchProduct>? productsList,
   }) = _MsStoreSearchDto;
 
-  factory MsStoreSearchDto.fromJson(Map<String, Object?> json) => _$MsStoreSearchDtoFromJson(json);
+  factory fromJson(Map<String, Object?> json) => _$MsStoreSearchDtoFromJson(json);
 }

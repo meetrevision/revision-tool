@@ -9,7 +9,7 @@ part 'product_details.g.dart';
 
 @freezed
 abstract class ProductDetails with _$ProductDetails {
-  const factory ProductDetails({
+  const factory({
     @JsonKey(name: 'productId') String? productId,
     String? title,
     String? description,
@@ -55,12 +55,12 @@ abstract class ProductDetails with _$ProductDetails {
     ProductInstaller? installer,
   }) = _ProductDetails;
 
-  factory ProductDetails.fromJson(Map<String, Object?> json) => _$ProductDetailsFromJson(json);
+  factory fromJson(Map<String, Object?> json) => _$ProductDetailsFromJson(json);
 }
 
 @freezed
 abstract class ProductRating with _$ProductRating {
-  const factory ProductRating({
+  const factory({
     String? ratingSystem,
     String? ratingSystemShortName,
     String? ratingSystemId,
@@ -77,34 +77,34 @@ abstract class ProductRating with _$ProductRating {
     bool? hasInAppPurchases,
   }) = _ProductRating;
 
-  factory ProductRating.fromJson(Map<String, Object?> json) => _$ProductRatingFromJson(json);
+  factory fromJson(Map<String, Object?> json) => _$ProductRatingFromJson(json);
 }
 
 @freezed
 abstract class ProductSystemRequirements with _$ProductSystemRequirements {
-  const factory ProductSystemRequirements({
+  const factory({
     ProductSystemRequirementSection? minimum,
     ProductSystemRequirementSection? recommended,
   }) = _ProductSystemRequirements;
 
-  factory ProductSystemRequirements.fromJson(Map<String, Object?> json) =>
+  factory fromJson(Map<String, Object?> json) =>
       _$ProductSystemRequirementsFromJson(json);
 }
 
 @freezed
 abstract class ProductSystemRequirementSection with _$ProductSystemRequirementSection {
-  const factory ProductSystemRequirementSection({
+  const factory({
     String? title,
     List<ProductSystemRequirementItem>? items,
   }) = _ProductSystemRequirementSection;
 
-  factory ProductSystemRequirementSection.fromJson(Map<String, Object?> json) =>
+  factory fromJson(Map<String, Object?> json) =>
       _$ProductSystemRequirementSectionFromJson(json);
 }
 
 @freezed
 abstract class ProductSystemRequirementItem with _$ProductSystemRequirementItem {
-  const factory ProductSystemRequirementItem({
+  const factory({
     String? level,
     String? itemCode,
     String? name,
@@ -114,25 +114,25 @@ abstract class ProductSystemRequirementItem with _$ProductSystemRequirementItem 
     String? priority,
   }) = _ProductSystemRequirementItem;
 
-  factory ProductSystemRequirementItem.fromJson(Map<String, Object?> json) =>
+  factory fromJson(Map<String, Object?> json) =>
       _$ProductSystemRequirementItemFromJson(json);
 }
 
 @freezed
 abstract class ProductInstaller with _$ProductInstaller {
-  const factory ProductInstaller({
+  const factory({
     String? type,
     String? id,
     String? productCode,
     Map<String, ProductInstallerArch>? architectures,
   }) = _ProductInstaller;
 
-  factory ProductInstaller.fromJson(Map<String, Object?> json) => _$ProductInstallerFromJson(json);
+  factory fromJson(Map<String, Object?> json) => _$ProductInstallerFromJson(json);
 }
 
 @freezed
 abstract class ProductInstallerArch with _$ProductInstallerArch {
-  const factory ProductInstallerArch({
+  const factory({
     String? version,
     String? sourceUri,
     String? cdnUri,
@@ -140,6 +140,6 @@ abstract class ProductInstallerArch with _$ProductInstallerArch {
     String? hash,
   }) = _ProductInstallerArch;
 
-  factory ProductInstallerArch.fromJson(Map<String, Object?> json) =>
+  factory fromJson(Map<String, Object?> json) =>
       _$ProductInstallerArchFromJson(json);
 }

@@ -10,10 +10,10 @@ import '../../../core/services/win_registry_service.dart';
 
 part 'personalization_service.g.dart';
 
-enum NotificationMode { on, offMinimal, offFull }
+enum NotificationMode() { on, offMinimal, offFull }
 
 @CliCommand(name: 'personalization', description: 'Personalization tweaks')
-abstract class PersonalizationService {
+abstract class PersonalizationService() {
   @CliEnumSubCommand(
     name: 'notification',
     values: NotificationMode.values,
@@ -94,9 +94,7 @@ abstract class PersonalizationService {
   Future<void> disableExplorerGallery();
 }
 
-class PersonalizationServiceImpl implements PersonalizationService {
-  const PersonalizationServiceImpl();
-
+class const PersonalizationServiceImpl() implements PersonalizationService {
   static const ListEquality<dynamic> _listEquality = ListEquality();
   static final _cplValue = Uint8List.fromList([
     0,

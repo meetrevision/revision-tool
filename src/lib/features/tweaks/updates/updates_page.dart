@@ -13,9 +13,7 @@ import '../../../i18n/generated/strings.g.dart';
 import '../../../utils_gui.dart';
 import 'updates_service.dart';
 
-class UpdatesPage extends ConsumerWidget {
-  const UpdatesPage({super.key});
-
+class const UpdatesPage({super.key}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ScaffoldPage.scrollable(
@@ -33,8 +31,7 @@ class UpdatesPage extends ConsumerWidget {
   }
 }
 
-class _CertificatesCard extends ConsumerWidget {
-  const _CertificatesCard();
+class const _CertificatesCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return CardHighlight(
@@ -65,8 +62,7 @@ class _CertificatesCard extends ConsumerWidget {
   }
 }
 
-class _UpdateKGLCard extends ConsumerWidget {
-  const _UpdateKGLCard();
+class const _UpdateKGLCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return CardHighlight(
@@ -97,8 +93,7 @@ class _UpdateKGLCard extends ConsumerWidget {
   }
 }
 
-class _PauseUpdatesCard extends ConsumerWidget {
-  const _PauseUpdatesCard();
+class const _PauseUpdatesCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(pauseUpdatesWUStatusProvider);
@@ -120,8 +115,7 @@ class _PauseUpdatesCard extends ConsumerWidget {
   }
 }
 
-class _VisibilityCard extends ConsumerWidget {
-  const _VisibilityCard();
+class const _VisibilityCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(visibilityWUStatusProvider);
@@ -143,8 +137,7 @@ class _VisibilityCard extends ConsumerWidget {
   }
 }
 
-class _DriversCard extends ConsumerWidget {
-  const _DriversCard();
+class const _DriversCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(driversWUStatusProvider);

@@ -3,7 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'navigation_provider.g.dart';
 
 @riverpod
-class NavigationIndex extends _$NavigationIndex {
+class NavigationIndex() extends _$NavigationIndex {
   @override
   int build() => 0;
 

@@ -19,16 +19,16 @@ import 'app_router.dart';
 import 'app_routes.dart';
 import 'navigation_provider.dart';
 
-class AppShell extends ConsumerStatefulWidget {
-  const AppShell({super.key, required this.child, required this.shellContext});
-  final Widget child;
-  final BuildContext? shellContext;
-
+final class const AppShell({
+  super.key,
+  required final Widget child,
+  required final BuildContext? shellContext,
+}) extends ConsumerStatefulWidget {
   @override
   ConsumerState<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends ConsumerState<AppShell> {
+final class _AppShellState() extends ConsumerState<AppShell> {
   final GlobalKey<State<StatefulWidget>> _viewKey = GlobalKey(debugLabel: 'Navigation View Key');
   final GlobalKey<AutoSuggestBoxState<dynamic>> _searchKey = GlobalKey(
     debugLabel: 'Search Bar Key',

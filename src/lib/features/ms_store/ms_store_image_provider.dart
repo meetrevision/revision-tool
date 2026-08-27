@@ -8,19 +8,12 @@ import 'package:flutter/foundation.dart';
 /// Adds a configurable [fetchPadding] to prevent refetches during UI animations.
 /// Designed for MS Store images that support dynamic resizing via query parameters.
 @immutable
-class MSStoreImageProvider extends ImageProvider<MSStoreImageProvider> {
-  const MSStoreImageProvider({
-    required this.baseUrl,
-    required this.width,
-    required this.height,
-    this.fetchPadding = 100,
-  });
-
-  final String baseUrl;
-  final int width;
-  final int height;
-  final int fetchPadding;
-
+class const MSStoreImageProvider({
+    required final String baseUrl,
+    required final int width,
+    required final int height,
+    final int fetchPadding = 100,
+  }) extends ImageProvider<MSStoreImageProvider> {
   static final Map<String, ({int height, int width})> _maxFetched = {};
 
   @override

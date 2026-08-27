@@ -1,10 +1,6 @@
-enum StoreAppType {
+enum StoreAppType({required final String prefix, final String? installCommand}) {
   uwp(prefix: '9', installCommand: 'Add-AppxPackage'),
   win32(prefix: 'XP');
-
-  const StoreAppType({required this.prefix, this.installCommand});
-  final String prefix;
-  final String? installCommand;
 
   static StoreAppType? fromProductId(String productId) {
     final String id = productId.toUpperCase();
@@ -15,25 +11,19 @@ enum StoreAppType {
 }
 
 /// Release ring/channel for package updates
-enum StoreRing {
+enum StoreRing({required final String value, required final String label}) {
   retail(value: 'Retail', label: 'Retail (Base)'),
   releasePreview(value: 'RP', label: 'Release Preview'),
   insiderSlow(value: 'WIS', label: 'Insider Slow'),
   insiderFast(value: 'WIF', label: 'Insider Fast');
 
-  const StoreRing({required this.value, required this.label});
-  final String value;
-  final String label;
 }
 
 /// CPU architecture for package filtering
-enum StoreArch {
+enum StoreArch({required final String value, required final String label}) {
   auto(value: 'auto', label: 'Auto-detect'),
   x64(value: 'x64', label: 'x64'),
   arm64(value: 'arm64', label: 'ARM64'),
   all(value: 'all', label: 'All architectures');
 
-  const StoreArch({required this.value, required this.label});
-  final String value;
-  final String label;
 }

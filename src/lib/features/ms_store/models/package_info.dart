@@ -1,12 +1,13 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'uwp/uwp_package.dart';
 
 part 'package_info.freezed.dart';
 part 'package_info.g.dart';
 
 @freezed
-sealed class PackageInfo with _$PackageInfo implements Comparable<PackageInfo> {
-  factory PackageInfo({
+sealed class const PackageInfo._() with _$PackageInfo implements Comparable<PackageInfo> {
+  factory({
     required String id,
     required bool isDependency,
     required String uri,
@@ -15,9 +16,8 @@ sealed class PackageInfo with _$PackageInfo implements Comparable<PackageInfo> {
     UpdateIdentity? updateIdentity,
     String? commandLines,
   }) = _PackageInfo;
-  const PackageInfo._();
 
-  factory PackageInfo.fromJson(Map<String, dynamic> json) => _$PackageInfoFromJson(json);
+  factory fromJson(Map<String, dynamic> json) => _$PackageInfoFromJson(json);
 
   @override
   int compareTo(PackageInfo other) {

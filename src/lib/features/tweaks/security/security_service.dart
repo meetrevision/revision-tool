@@ -13,7 +13,7 @@ import 'security_exceptions.dart';
 
 part 'security_service.g.dart';
 
-enum Mitigation { meltdownSpectre, downfall }
+enum Mitigation() { meltdownSpectre, downfall }
 
 extension MitigationBits on Mitigation {
   int get bitmask {
@@ -27,7 +27,7 @@ extension MitigationBits on Mitigation {
 }
 
 @CliCommand(name: 'security', description: 'Security tweaks')
-abstract class SecurityService {
+abstract class SecurityService() {
   bool get statusDefenderProtections;
   bool get statusDefenderProtectionTamper;
   bool get statusDefenderProtectionRealtime;
@@ -80,9 +80,7 @@ abstract class SecurityService {
 }
 
 /// Implementation of SecurityService
-class SecurityServiceImpl implements SecurityService {
-  const SecurityServiceImpl();
-
+class const SecurityServiceImpl() implements SecurityService {
   String get _mpCmdRunString =>
       '${WinRegistryService.readString(LOCAL_MACHINE, r'SOFTWARE\Microsoft\Windows Defender', 'InstallLocation') ?? r'C:\Program Files\Windows Defender'}\\MpCmdRun.exe';
 

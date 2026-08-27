@@ -11,7 +11,7 @@ import 'package:win32/win32.dart';
 /// - Service Control Manager operations
 /// - Process and token manipulation
 /// - Token duplication and impersonation
-class Win32TokenHelper {
+class Win32TokenHelper() {
   static final _advapi32 = DynamicLibrary.open('advapi32.dll');
 
   static final int Function(int, int, Pointer<NativeType>, int, int, Pointer<IntPtr>)

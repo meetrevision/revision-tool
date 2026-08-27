@@ -7,8 +7,8 @@ import 'package:riverpod/riverpod.dart';
 import '../../utils.dart';
 import 'win_package_service.dart';
 
-class WindowsPackageCommand extends Command<void> {
-  WindowsPackageCommand({required this._container}) {
+class WindowsPackageCommand({required final ProviderContainer _container}) extends Command<void> {
+  this {
     final Set<String> allowedList = WinPackageType.values.map((e) => e.cliKey).toSet();
 
     argParser.addOption('download', help: 'Downloads a package', allowed: allowedList);
@@ -20,8 +20,6 @@ class WindowsPackageCommand extends Command<void> {
     argParser.addOption('install', help: 'Install a package', allowed: allowedList);
     argParser.addOption('uninstall', help: 'Uninstall a package', allowed: allowedList);
   }
-
-  final ProviderContainer _container;
 
   static const tag = 'Windows Package';
 

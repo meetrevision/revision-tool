@@ -33,7 +33,7 @@ final ProviderFamily<WinPackageService, WinPackageType> winPackageServiceProvide
       };
     });
 
-enum WinPackageType {
+enum WinPackageType({required final String packageName, required final String cliKey}) {
   systemComponentsRemoval(
     packageName: 'Revision-ReviOS-SystemPackages-Removal',
     cliKey: 'system-components-removal',
@@ -43,11 +43,6 @@ enum WinPackageType {
   oneDriveRemoval(packageName: 'Revision-ReviOS-OneDrive-Removal', cliKey: 'onedrive-removal'),
   xboxRemoval(packageName: 'Revision-ReviOS-Xbox-Removal', cliKey: 'xbox-removal');
 
-  const WinPackageType({required this.packageName, required this.cliKey});
-
-  final String packageName;
-  final String cliKey;
-
   static WinPackageType byCliKey(String key) {
     return WinPackageType.values.firstWhere(
       (e) => e.cliKey == key,
@@ -56,12 +51,7 @@ enum WinPackageType {
   }
 }
 
-abstract base class WinPackageService {
-  const WinPackageService({required this.type, required this._api});
-
-  final WinPackageType type;
-  final ApiClient _api;
-
+abstract base class const WinPackageService({required final WinPackageType type, required final ApiClient _api}) {
   static final String cabPath = p.join(Directory.systemTemp.path, 'Revision-Tool', 'CAB');
 
   static final String bundledPackagesPath = p.join(directoryExe, 'packages', 'winsxs');
@@ -238,22 +228,20 @@ abstract base class WinPackageService {
   );
 }
 
-final class SystemPackagesRemovalService extends WinPackageService {
-  const SystemPackagesRemovalService({required super.api}) : super(type: .systemComponentsRemoval);
+final class const SystemPackagesRemovalService({required super.api}) extends WinPackageService {
+  this : super(type: .systemComponentsRemoval);
 }
 
-final class OneDriveRemovalService extends WinPackageService {
-  const OneDriveRemovalService({required super.api}) : super(type: .oneDriveRemoval);
+final class const OneDriveRemovalService({required super.api}) extends WinPackageService {
+  this : super(type: .oneDriveRemoval);
 }
 
 /// [install] and [uninstall] methods are overridden to call [SecurityService] methods instead of the base class methods, to ensure that Defender is properly disabled/enabled.
 ///
 /// The [installPackage] and [uninstallPackage] methods are provided to allow calling the base class methods directly when needed.
-final class DefenderRemovalService extends WinPackageService {
-  const DefenderRemovalService({required this._security, required super.api})
+final class const DefenderRemovalService({required final SecurityService _security, required super.api}) extends WinPackageService {
+  this
     : super(type: .defenderRemoval);
-
-  final SecurityService _security;
 
   @override
   Future<void> install() async => _security.disableDefenderCLI();
@@ -269,12 +257,10 @@ final class DefenderRemovalService extends WinPackageService {
   }
 }
 
-final class AiRemovalService extends WinPackageService {
-  const AiRemovalService({required this._store, required super.api}) : super(type: .aiRemoval);
+final class const AiRemovalService({required final StoreService _store, required super.api}) extends WinPackageService {
+  this : super(type: .aiRemoval);
 
   static const _copilotStoreId = '9nht9rb2f4hd';
-
-  final StoreService _store;
 
   @override
   Future<void> install() async {
@@ -298,8 +284,8 @@ final class AiRemovalService extends WinPackageService {
   }
 }
 
-final class XboxRemovalService extends WinPackageService {
-  const XboxRemovalService({required this._store, required super.api}) : super(type: .xboxRemoval);
+final class const XboxRemovalService({required final StoreService _store, required super.api}) extends WinPackageService {
+  this : super(type: .xboxRemoval);
 
   static const _callableUiManifestPath =
       r'C:\Windows\SystemApps\Microsoft.XboxGameCallableUI_cw5n1h2txyewy\AppxManifest.xml';
@@ -313,8 +299,6 @@ final class XboxRemovalService extends WinPackageService {
     'Microsoft.XboxGamingOverlay': '9NZKPSTSNW4P',
     'Microsoft.XboxIdentityProvider': '9WZDNCRD1HKW',
   };
-
-  final StoreService _store;
 
   @override
   Future<void> install() async {

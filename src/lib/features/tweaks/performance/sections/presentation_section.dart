@@ -8,9 +8,7 @@ import '../../../../core/widgets/card_highlight.dart';
 import '../../../../i18n/generated/strings.g.dart';
 import '../performance_service.dart';
 
-class PresentationSection extends ConsumerWidget {
-  const PresentationSection({super.key});
-
+class const PresentationSection({super.key}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return CardHighlight(
@@ -22,8 +20,7 @@ class PresentationSection extends ConsumerWidget {
   }
 }
 
-class _FullscreenOptimizationCard extends ConsumerWidget {
-  const _FullscreenOptimizationCard();
+class const _FullscreenOptimizationCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(fullscreenOptimizationStatusProvider);
@@ -45,8 +42,7 @@ class _FullscreenOptimizationCard extends ConsumerWidget {
   }
 }
 
-class _WindowedOptimizationCard extends ConsumerWidget {
-  const _WindowedOptimizationCard();
+class const _WindowedOptimizationCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(windowedOptimizationStatusProvider);
@@ -68,8 +64,7 @@ class _WindowedOptimizationCard extends ConsumerWidget {
   }
 }
 
-class _MPOCard extends ConsumerWidget {
-  const _MPOCard();
+class const _MPOCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(mpoStatusProvider);

@@ -7,42 +7,42 @@ part 'win32_manifest_dto.g.dart';
 
 @freezed
 sealed class Win32ManifestDto with _$Win32ManifestDto {
-  const factory Win32ManifestDto({@JsonKey(name: 'Data') Data? data}) = _Win32ManifestDto;
+  const factory({@JsonKey(name: 'Data') Data? data}) = _Win32ManifestDto;
 
-  factory Win32ManifestDto.fromJson(Map<String, Object?> json) => _$Win32ManifestDtoFromJson(json);
+  factory fromJson(Map<String, Object?> json) => _$Win32ManifestDtoFromJson(json);
 }
 
 @freezed
 sealed class Data with _$Data {
-  const factory Data({
+  const factory({
     @JsonKey(name: 'PackageIdentifier') String? packageIdentifier,
     @JsonKey(name: 'Versions') List<Versions>? versions,
   }) = _Data;
 
-  factory Data.fromJson(Map<String, Object?> json) => _$DataFromJson(json);
+  factory fromJson(Map<String, Object?> json) => _$DataFromJson(json);
 }
 
 @freezed
 sealed class Versions with _$Versions {
-  const factory Versions({
+  const factory({
     @JsonKey(name: 'PackageVersion') String? packageVersion,
     @JsonKey(name: 'DefaultLocale') DefaultLocale? defaultLocale,
     @JsonKey(name: 'Installers') List<Installers>? installers,
   }) = _Versions;
 
-  factory Versions.fromJson(Map<String, Object?> json) => _$VersionsFromJson(json);
+  factory fromJson(Map<String, Object?> json) => _$VersionsFromJson(json);
 }
 
 @freezed
 sealed class DefaultLocale with _$DefaultLocale {
-  const factory DefaultLocale({@JsonKey(name: 'PackageName') String? packageName}) = _DefaultLocale;
+  const factory({@JsonKey(name: 'PackageName') String? packageName}) = _DefaultLocale;
 
-  factory DefaultLocale.fromJson(Map<String, Object?> json) => _$DefaultLocaleFromJson(json);
+  factory fromJson(Map<String, Object?> json) => _$DefaultLocaleFromJson(json);
 }
 
 @freezed
 sealed class Installers with _$Installers {
-  const factory Installers({
+  const factory({
     @JsonKey(name: 'InstallerSha256') String? installerSha256,
     @JsonKey(name: 'InstallerUrl') String? installerUrl,
     @JsonKey(name: 'InstallerLocale') String? installerLocale,
@@ -52,13 +52,13 @@ sealed class Installers with _$Installers {
     @JsonKey(name: 'InstallerType') String? installerType,
   }) = _Installers;
 
-  factory Installers.fromJson(Map<String, Object?> json) => _$InstallersFromJson(json);
+  factory fromJson(Map<String, Object?> json) => _$InstallersFromJson(json);
 }
 
 @freezed
 sealed class InstallerSwitches with _$InstallerSwitches {
-  const factory InstallerSwitches({@JsonKey(name: 'Silent') String? silent}) = _InstallerSwitches;
+  const factory({@JsonKey(name: 'Silent') String? silent}) = _InstallerSwitches;
 
-  factory InstallerSwitches.fromJson(Map<String, Object?> json) =>
+  factory fromJson(Map<String, Object?> json) =>
       _$InstallerSwitchesFromJson(json);
 }

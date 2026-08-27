@@ -8,7 +8,7 @@ import '../../../core/trusted_installer/trusted_installer_service.dart';
 part 'utilities_service.g.dart';
 
 @CliCommand(name: 'utilities', description: 'Utilities tweaks')
-abstract class UtilitiesService {
+abstract class UtilitiesService() {
   @CliToggle(
     name: 'hibernation',
     status: 'statusHibernation',
@@ -60,9 +60,7 @@ abstract class UtilitiesService {
   Future<void> disableUsageReporting();
 }
 
-class UtilitiesServiceImpl implements UtilitiesService {
-  const UtilitiesServiceImpl();
-
+class const UtilitiesServiceImpl() implements UtilitiesService {
   @override
   bool get statusHibernation {
     return WinRegistryService.readInt(

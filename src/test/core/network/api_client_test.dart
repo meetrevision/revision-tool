@@ -173,10 +173,7 @@ void main() {
 
 typedef _AdapterHandler = FutureOr<ResponseBody> Function(RequestOptions options, int attempt);
 
-final class _SequenceAdapter implements HttpClientAdapter {
-  _SequenceAdapter(this._handler);
-
-  final _AdapterHandler _handler;
+final class _SequenceAdapter(final _AdapterHandler _handler) implements HttpClientAdapter {
   var _attempt = 0;
 
   @override

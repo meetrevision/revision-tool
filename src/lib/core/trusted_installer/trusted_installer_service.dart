@@ -6,12 +6,11 @@ import '../../utils.dart';
 import 'trusted_installer_exception.dart';
 import 'win32_token_helper.dart';
 
-class CommandResult {
-  const CommandResult({required this.exitCode, required this.output, required this.error});
-  final int exitCode;
-  final String output;
-  final String error;
-
+class const CommandResult({
+  required final int exitCode,
+  required final String output,
+  required final String error,
+}) {
   @override
   String toString() => 'CommandResult(exitCode: $exitCode, output: $output, error: $error)';
 }
@@ -20,7 +19,7 @@ class CommandResult {
 ///
 /// This service handles token impersonation to run operations that require
 /// TrustedInstaller-level access, which is higher than Administrator.
-abstract class TrustedInstallerService {
+abstract class TrustedInstallerService() {
   /// Executes a callback with TrustedInstaller privileges.
   ///
   /// The callback will be executed with an impersonated TrustedInstaller token,
@@ -54,7 +53,7 @@ abstract class TrustedInstallerService {
   bool isTrustedInstallerAvailable();
 }
 
-class TrustedInstallerServiceImpl implements TrustedInstallerService {
+final class TrustedInstallerServiceImpl() implements TrustedInstallerService {
   static const String _serviceName = 'TrustedInstaller';
   static const int _maxRetries = 8;
   static const Duration _initialRetryDelay = Duration(milliseconds: 500);

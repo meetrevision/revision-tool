@@ -8,8 +8,7 @@ import '../cli_generator/annotations.dart';
 import '../trusted_installer/trusted_installer_service.dart';
 
 // @CliCommand(name: 'registry', description: 'Windows registry utilities')
-abstract class WinRegistryService {
-  const WinRegistryService._private();
+abstract class const WinRegistryService._private() {
   static const tag = 'await WinRegistryService';
 
   // @CliAction(name: 'hide-page', run: 'hideSettingsPage')
@@ -456,9 +455,7 @@ abstract class WinRegistryService {
   }
 }
 
-class WinRegistryCliService implements WinRegistryService {
-  const WinRegistryCliService();
-
+class const WinRegistryCliService() implements WinRegistryService {
   @override
   Future<void> hideSettingsPage(String pageName) =>
       WinRegistryService.hidePageVisibilitySettings(pageName);

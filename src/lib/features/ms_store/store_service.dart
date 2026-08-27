@@ -27,17 +27,11 @@ final storeServiceProvider = Provider<StoreService>((ref) {
   );
 });
 
-final class StoreService with BaseService {
-  const StoreService({
-    required this._uwpRepository,
-    required this._win32Repository,
-    required this._fileService,
-  });
-
-  final StoreRepository _uwpRepository;
-  final StoreRepository _win32Repository;
-  final PackageFileService _fileService;
-
+final class const StoreService({
+    required final StoreRepository _uwpRepository,
+    required final StoreRepository _win32Repository,
+    required final PackageFileService _fileService,
+  }) with BaseService {
   static final _locks = <String, RandomAccessFile>{};
 
   @override

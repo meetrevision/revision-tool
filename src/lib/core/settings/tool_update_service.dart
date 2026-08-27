@@ -4,11 +4,10 @@ import 'package:dio/dio.dart';
 
 import '../../utils.dart';
 
-class ToolUpdateService {
-  factory ToolUpdateService() {
+class const ToolUpdateService._private() {
+  factory() {
     return _instance;
   }
-  const ToolUpdateService._private();
   static final Map<String, dynamic> _data = {};
   Map<String, dynamic> get data => _data;
 

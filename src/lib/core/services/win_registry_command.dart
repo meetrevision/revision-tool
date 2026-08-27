@@ -7,14 +7,10 @@ import '../../utils.dart';
 
 // CLI generated but for some reason using `part '.g.dart'` has issues
 
-abstract class _WinRegistryServiceCommandBase extends Command<void> {
-  _WinRegistryServiceCommandBase(this._service);
+abstract class _WinRegistryServiceCommandBase(final WinRegistryService _service) extends Command<void>;
 
-  final WinRegistryService _service;
-}
-
-final class WinRegistryServiceCliCommand extends _WinRegistryServiceCommandBase {
-  WinRegistryServiceCliCommand(super.service) {
+final class WinRegistryServiceCliCommand(super.service) extends _WinRegistryServiceCommandBase {
+  this {
     addSubcommand(_ActionHidePageCommand(_service));
     addSubcommand(_ActionUnhidePageCommand(_service));
   }
@@ -35,8 +31,8 @@ final class WinRegistryServiceCliCommand extends _WinRegistryServiceCommandBase 
   }
 }
 
-class _ActionHidePageCommand extends _WinRegistryServiceCommandBase {
-  _ActionHidePageCommand(super.service) {
+class _ActionHidePageCommand(super.service) extends _WinRegistryServiceCommandBase {
+  this {
     argParser.addOption('value', mandatory: true, help: 'The value (type: String)');
   }
 
@@ -64,8 +60,8 @@ class _ActionHidePageCommand extends _WinRegistryServiceCommandBase {
   }
 }
 
-class _ActionUnhidePageCommand extends _WinRegistryServiceCommandBase {
-  _ActionUnhidePageCommand(super.service) {
+class _ActionUnhidePageCommand(super.service) extends _WinRegistryServiceCommandBase {
+  this {
     argParser.addOption('value', mandatory: true, help: 'The value (type: String)');
   }
 

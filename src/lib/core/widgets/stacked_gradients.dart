@@ -1,9 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-class StackedGradient extends StatelessWidget {
-  const StackedGradient(this._gradients, {super.key});
-  final List<Gradient> _gradients;
-
+class const StackedGradient(final List<Gradient> _gradients, {super.key}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (_gradients.isEmpty) return const SizedBox.shrink();

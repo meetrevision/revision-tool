@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:revitool/features/tweaks/performance/performance_service.dart';
 
-class MockPerformanceService extends Mock implements PerformanceService {}
+class MockPerformanceService() extends Mock implements PerformanceService;
 
 void main() {
   const skipIntegration = bool.fromEnvironment('SKIP_INTEGRATION', defaultValue: true);

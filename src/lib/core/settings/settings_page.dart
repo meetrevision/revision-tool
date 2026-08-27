@@ -21,9 +21,7 @@ final List<ComboBoxItem<String>> languageList = AppLocale.values
     )
     .toList();
 
-class SettingsPage extends ConsumerWidget {
-  const SettingsPage({super.key});
-
+class const SettingsPage({super.key}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ScaffoldPage.scrollable(
@@ -38,9 +36,7 @@ class SettingsPage extends ConsumerWidget {
   }
 }
 
-class _ThemeModeCard extends ConsumerWidget {
-  const _ThemeModeCard();
-
+class const _ThemeModeCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppSettings appSettings = ref.watch(appSettingsProvider);
@@ -49,25 +45,20 @@ class _ThemeModeCard extends ConsumerWidget {
       icon: msicons.FluentIcons.paint_brush_20_regular,
       label: t.settingsCT,
       description: t.settingsCTDescription,
-      action: ComboBox(
+      action: ComboBox<ThemeMode>(
         value: appSettings.themeMode,
         onChanged: ref.read(appSettingsProvider.notifier).updateThemeMode,
         items: [
-          ComboBoxItem(
-            value: ThemeMode.system,
-            child: Text(ThemeMode.system.name.uppercaseFirst()),
-          ),
-          ComboBoxItem(value: ThemeMode.light, child: Text(ThemeMode.light.name.uppercaseFirst())),
-          ComboBoxItem(value: ThemeMode.dark, child: Text(ThemeMode.dark.name.uppercaseFirst())),
+          .new(value: .system, child: Text(ThemeMode.system.name.uppercaseFirst())),
+          .new(value: .light, child: Text(ThemeMode.light.name.uppercaseFirst())),
+          .new(value: .dark, child: Text(ThemeMode.dark.name.uppercaseFirst())),
         ],
       ),
     );
   }
 }
 
-class _ExperimentalCard extends ConsumerWidget {
-  const _ExperimentalCard();
-
+class const _ExperimentalCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(settingsExperimentalStatus);
@@ -93,14 +84,12 @@ class _ExperimentalCard extends ConsumerWidget {
   }
 }
 
-class _UpdateCard extends ConsumerStatefulWidget {
-  const _UpdateCard();
-
+class const _UpdateCard() extends ConsumerStatefulWidget {
   @override
   ConsumerState<_UpdateCard> createState() => _UpdateCardState();
 }
 
-class _UpdateCardState extends ConsumerState<_UpdateCard> {
+class _UpdateCardState() extends ConsumerState<_UpdateCard> {
   static const _defaultTitle = 'Check for Updates';
 
   final _toolUpdateService = ToolUpdateService();
@@ -210,9 +199,7 @@ class _UpdateCardState extends ConsumerState<_UpdateCard> {
   }
 }
 
-class _LanguageCard extends ConsumerWidget {
-  const _LanguageCard();
-
+class const _LanguageCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return CardHighlight(

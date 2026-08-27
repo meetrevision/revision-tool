@@ -1,15 +1,11 @@
 export 'package:args/command_runner.dart';
+
 export '../../utils.dart';
 
 /// Marks an abstract service as a generated CLI command group.
 ///
 /// The generator creates `XxxCliCommand` with this [name] and [description].
-class CliCommand {
-  const CliCommand({required this.name, required this.description});
-
-  final String name;
-  final String description;
-}
+final class const CliCommand({required final String name, required final String description});
 
 /// Marks a boolean status getter that has enable/disable companion methods.
 ///
@@ -26,23 +22,14 @@ class CliCommand {
 /// )
 /// bool get statusExample;
 /// ```
-class CliToggle {
-  const CliToggle({
-    required this.name,
-    required this.status,
-    required this.enable,
-    required this.disable,
-    this.enableForce,
-    this.disableForce,
-  });
-
-  final String name;
-  final String status;
-  final String enable;
-  final String disable;
-  final String? enableForce;
-  final String? disableForce;
-}
+final class const CliToggle({
+  required final String name,
+  required final String status,
+  required final String enable,
+  required final String disable,
+  final String? enableForce,
+  final String? disableForce,
+});
 
 /// Marks a getter that returns a value and has a setter method.
 ///
@@ -58,13 +45,11 @@ class CliToggle {
 /// )
 /// int get statusRateLimit;
 /// ```
-class CliValue {
-  const CliValue({required this.name, required this.status, this.set});
-
-  final String name;
-  final String status;
-  final String? set;
-}
+final class const CliValue({
+  required final String name,
+  required final String status,
+  final String? set,
+});
 
 /// Marks an action-only method that runs once and does not expose status.
 ///
@@ -75,32 +60,17 @@ class CliValue {
 /// @CliAction(name: 'update-kgl', run: 'updateKGL')
 /// Future<void> updateKGL();
 /// ```
-class CliAction {
-  const CliAction({required this.name, required this.run});
-
-  final String name;
-  final String run;
-}
+final class const CliAction({required final String name, required final String run});
 
 /// Marks an enum-based command group.
 ///
 /// Use [values] from your enum and optional [help] for `allowedHelp` labels.
-class CliEnumSubCommand<T extends Enum> {
-  const CliEnumSubCommand({
-    required this.name,
-    required this.values,
-    required this.status,
-    this.enableMethod,
-    this.disableMethod,
-    this.setMethod,
-    this.help = const {},
-  });
-
-  final String name;
-  final List<T> values;
-  final String status;
-  final String? enableMethod;
-  final String? disableMethod;
-  final String? setMethod;
-  final Map<String, String> help;
-}
+final class const CliEnumSubCommand<T extends Enum>({
+  required final String name,
+  required final List<T> values,
+  required final String status,
+  final String? enableMethod,
+  final String? disableMethod,
+  final String? setMethod,
+  final Map<String, String> help = const {},
+});

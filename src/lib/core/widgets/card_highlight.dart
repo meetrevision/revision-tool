@@ -28,36 +28,20 @@ const _cardDescStyleForLight = TextStyle(
 
 const _imgXY = 48.0;
 
-class CardHighlight extends StatelessWidget {
-  const CardHighlight({
+class const CardHighlight({
     super.key,
-    this.icon,
-    required this.label,
-    this.description,
-    this.descriptionLink,
-    this.image,
-    this.action,
-    this.children,
-    this.onPressed,
-    this.initiallyExpanded = false,
-    this.backgroundColor,
-  }) : assert(icon == null || image == null, 'Cannot provide both icon and image');
-
-  final IconData? icon;
-  final String label;
-
-  final String? description;
-  final String? descriptionLink;
-
-  final String? image;
-  final Widget? action;
-  final List<Widget>? children;
-
-  final VoidCallback? onPressed;
-
-  final bool initiallyExpanded;
-
-  final Color? backgroundColor;
+    final IconData? icon,
+    required final String label,
+    final String? description,
+    final String? descriptionLink,
+    final String? image,
+    final Widget? action,
+    final List<Widget>? children,
+    final VoidCallback? onPressed,
+    final bool initiallyExpanded = false,
+    final Color? backgroundColor,
+  }) extends StatelessWidget {
+  this : assert(icon == null || image == null, 'Cannot provide both icon and image');
 
   @override
   Widget build(BuildContext context) {
@@ -111,34 +95,22 @@ class CardHighlight extends StatelessWidget {
   }
 }
 
-class _ExpandableCard extends ConsumerStatefulWidget {
-  const _ExpandableCard({
-    required this.pageStorageKey,
-    required this.initiallyExpanded,
-    required this.leadingWidget,
-    required this.label,
-    required this.description,
-    required this.descriptionLink,
-    required this.action,
-    required this.children,
-    this.backgroundColor,
-  });
-
-  final int pageStorageKey;
-  final bool initiallyExpanded;
-  final Widget leadingWidget;
-  final String label;
-  final String? description;
-  final String? descriptionLink;
-  final Widget? action;
-  final List<Widget>? children;
-  final Color? backgroundColor;
-
+class const _ExpandableCard({
+    required final int pageStorageKey,
+    required final bool initiallyExpanded,
+    required final Widget leadingWidget,
+    required final String label,
+    required final String? description,
+    required final String? descriptionLink,
+    required final Widget? action,
+    required final List<Widget>? children,
+    final Color? backgroundColor,
+  }) extends ConsumerStatefulWidget {
   @override
   ConsumerState<_ExpandableCard> createState() => _ExpandableCardState();
 }
 
-class _ExpandableCardState extends ConsumerState<_ExpandableCard> {
+class _ExpandableCardState() extends ConsumerState<_ExpandableCard> {
   bool _isHovered = false;
   bool _isExpanded = false;
 
@@ -260,27 +232,16 @@ class _ExpandableCardState extends ConsumerState<_ExpandableCard> {
   }
 }
 
-class _ClickableCardChevron extends StatelessWidget {
-  const _ClickableCardChevron({
-    required this.pageStorageKey,
-    required this.onPressed,
-    required this.leadingWidget,
-    required this.label,
-    required this.description,
-    required this.descriptionLink,
-    required this.action,
-    this.backgroundColor,
-  });
-
-  final int pageStorageKey;
-  final VoidCallback? onPressed;
-  final Widget leadingWidget;
-  final String label;
-  final String? description;
-  final String? descriptionLink;
-  final Widget? action;
-  final Color? backgroundColor;
-
+class const _ClickableCardChevron({
+    required final int pageStorageKey,
+    required final VoidCallback? onPressed,
+    required final Widget leadingWidget,
+    required final String label,
+    required final String? description,
+    required final String? descriptionLink,
+    required final Widget? action,
+    final Color? backgroundColor,
+  }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final FluentThemeData theme = context.theme;
@@ -327,29 +288,18 @@ class _ClickableCardChevron extends StatelessWidget {
 }
 
 /// A list tile widget used in [CardHighlight] for children.
-class CardListTile extends StatelessWidget {
-  const CardListTile({
+class const CardListTile({
     super.key,
-    this.leading,
-    required this.title,
-    this.description,
-    this.descriptionLink,
-    this.trailing,
-    this.contentPadding = const .symmetric(horizontal: 17.0, vertical: 9.0),
-    this.extraTrailingPadding = true,
-  });
-
-  final Widget? leading;
-  final String title;
-  final String? description;
-  final String? descriptionLink;
-  final Widget? trailing;
-  final EdgeInsetsGeometry contentPadding;
-
-  /// Whether to add extra 28px padding on the right when trailing is present.
+    final Widget? leading,
+    required final String title,
+    final String? description,
+    final String? descriptionLink,
+    final Widget? trailing,
+    final EdgeInsetsGeometry contentPadding = const .symmetric(horizontal: 17.0, vertical: 9.0),
+    /// Whether to add extra 28px padding on the right when trailing is present.
   /// Set to false for standalone cards, true for Expander children.
-  final bool extraTrailingPadding;
-
+  final bool extraTrailingPadding = true,
+  }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final FluentThemeData theme = context.theme;
@@ -407,20 +357,13 @@ class CardListTile extends StatelessWidget {
 }
 
 /// A toggle switch widget used in [CardHighlight] for actions.
-class CardToggleSwitch extends StatelessWidget {
-  const CardToggleSwitch({
+class const CardToggleSwitch({
     super.key,
-    required this.value,
-    required this.onChanged,
-    this.requiresRestart = false,
-    this.enabled = true,
-  });
-
-  final bool value;
-  final ValueChanged<bool> onChanged;
-  final bool requiresRestart;
-  final bool enabled;
-
+    required final bool value,
+    required final ValueChanged<bool> onChanged,
+    final bool requiresRestart = false,
+    final bool enabled = true,
+  }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -447,9 +390,7 @@ class CardToggleSwitch extends StatelessWidget {
   }
 }
 
-class ChevronRightAction extends StatelessWidget {
-  const ChevronRightAction({super.key});
-
+class const ChevronRightAction({super.key}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Icon(msicons.FluentIcons.chevron_right_20_regular);
@@ -459,12 +400,9 @@ class ChevronRightAction extends StatelessWidget {
 /// A status text widget that shows on/off status.
 ///
 /// Useful when you want to show status but without an interactive switch.
-class CardStatusText extends StatelessWidget {
-  const CardStatusText({super.key, required this.value});
-
+class const CardStatusText({super.key, 
   /// Status value to display
-  final bool value;
-
+  required final bool value}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(value ? t.onStatus : t.offStatus);

@@ -9,9 +9,7 @@ import '../../../utils_gui.dart';
 import 'personalization_service.dart';
 import 'sections/desktop_section.dart';
 
-class PersonalizationPage extends ConsumerWidget {
-  const PersonalizationPage({super.key});
-
+class const PersonalizationPage({super.key}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ScaffoldPage.scrollable(
@@ -25,8 +23,7 @@ class PersonalizationPage extends ConsumerWidget {
   }
 }
 
-class _InputPersonalizationCard extends ConsumerWidget {
-  const _InputPersonalizationCard();
+class const _InputPersonalizationCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(inputPersonalizationStatusProvider);
@@ -48,8 +45,7 @@ class _InputPersonalizationCard extends ConsumerWidget {
   }
 }
 
-class _CapsLockCard extends ConsumerWidget {
-  const _CapsLockCard();
+class const _CapsLockCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(capsLockStatusProvider);

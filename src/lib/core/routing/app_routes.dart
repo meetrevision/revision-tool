@@ -7,12 +7,20 @@ import 'package:vector_graphics/vector_graphics.dart';
 
 import '../../i18n/generated/strings.g.dart';
 
-enum RouteSection { main, footer, search }
+enum RouteSection() {
+  main,
+  footer,
+  search
+}
 
-enum RouteMeta {
+enum RouteMeta({
+  required final String path,
+  required final RouteSection section,
+  required final Object? icon,
+}) {
   home(
     path: '/',
-    section: RouteSection.main,
+    section: .main,
     icon: SvgPicture(
       AssetBytesLoader('assets/icon/pane/ic_revi_fluent_home_color.svg.vec'),
       width: 20,
@@ -21,7 +29,7 @@ enum RouteMeta {
   ),
   tweaks(
     path: '/tweaks',
-    section: RouteSection.main,
+    section: .main,
     icon: SvgPicture(
       AssetBytesLoader('assets/icon/pane/ic_revi_fluent_wrench_24_color.svg.vec'),
       width: 20,
@@ -30,7 +38,7 @@ enum RouteMeta {
   ),
   msStore(
     path: '/msstore',
-    section: RouteSection.main,
+    section: .main,
     icon: SvgPicture(
       AssetBytesLoader('assets/icon/pane/ic_revi_fluent_ms_store_48_color.svg.vec'),
       width: 24,
@@ -39,7 +47,7 @@ enum RouteMeta {
   ),
   settings(
     path: '/settings',
-    section: RouteSection.footer,
+    section: .footer,
     icon: SvgPicture(
       AssetBytesLoader('assets/icon/pane/ic_fluent_settings_48_color.svg.vec'),
       width: 20,
@@ -48,47 +56,41 @@ enum RouteMeta {
   ),
   tweaksSecurity(
     path: '/tweaks/security',
-    section: RouteSection.search,
+    section: .search,
     icon: msicons.FluentIcons.shield_lock_20_regular,
   ),
   tweaksPerformance(
     path: '/tweaks/performance',
-    section: RouteSection.search,
+    section: .search,
     icon: msicons.FluentIcons.top_speed_24_regular,
   ),
   tweaksPersonalization(
     path: '/tweaks/personalization',
-    section: RouteSection.search,
+    section: .search,
     icon: msicons.FluentIcons.color_24_regular,
   ),
   tweaksUtilities(
     path: '/tweaks/utilities',
-    section: RouteSection.search,
+    section: .search,
     icon: msicons.FluentIcons.toolbox_24_regular,
   ),
   tweaksUpdates(
     path: '/tweaks/updates',
-    section: RouteSection.search,
+    section: .search,
     icon: msicons.FluentIcons.arrow_download_24_regular,
   );
 
-  const RouteMeta({required this.path, required this.section, required this.icon});
-
-  final String path;
-  final RouteSection section;
-  final Object? icon;
-
   String get label {
     return switch (this) {
-      RouteMeta.home => t.pageHome,
-      RouteMeta.tweaks => t.pageTweaks,
-      RouteMeta.msStore => t.pageMSStore,
-      RouteMeta.settings => t.pageSettings,
-      RouteMeta.tweaksSecurity => t.pageTweaksSecurity,
-      RouteMeta.tweaksPerformance => t.pageTweaksPerformance,
-      RouteMeta.tweaksPersonalization => t.pageTweaksPersonalization,
-      RouteMeta.tweaksUtilities => t.pageTweaksUtilities,
-      RouteMeta.tweaksUpdates => t.pageTweaksUpdates,
+      .home => t.pageHome,
+      .tweaks => t.pageTweaks,
+      .msStore => t.pageMSStore,
+      .settings => t.pageSettings,
+      .tweaksSecurity => t.pageTweaksSecurity,
+      .tweaksPerformance => t.pageTweaksPerformance,
+      .tweaksPersonalization => t.pageTweaksPersonalization,
+      .tweaksUtilities => t.pageTweaksUtilities,
+      .tweaksUpdates => t.pageTweaksUpdates,
     };
   }
 
@@ -105,7 +107,7 @@ enum RouteMeta {
   }
 }
 
-class AppRoutes {
+class AppRoutes() {
   static const String unsupported = '/unsupported';
 
   static const List<RouteMeta> navigationRoutes = _navigationRoutes;
@@ -180,19 +182,19 @@ class AppRoutes {
   }
 }
 
-const List<RouteMeta> _mainNavigationRoutes = [RouteMeta.home, RouteMeta.tweaks, RouteMeta.msStore];
+const _mainNavigationRoutes = <RouteMeta>[.home, .tweaks, .msStore];
 
-const List<RouteMeta> _footerNavigationRoutes = [RouteMeta.settings];
+const _footerNavigationRoutes = <RouteMeta>[.settings];
 
-const List<RouteMeta> _searchableRoutes = [
-  RouteMeta.tweaksSecurity,
-  RouteMeta.tweaksPerformance,
-  RouteMeta.tweaksPersonalization,
-  RouteMeta.tweaksUtilities,
-  RouteMeta.tweaksUpdates,
+const _searchableRoutes = <RouteMeta>[
+  .tweaksSecurity,
+  .tweaksPerformance,
+  .tweaksPersonalization,
+  .tweaksUtilities,
+  .tweaksUpdates,
 ];
 
-const List<RouteMeta> _navigationRoutes = [..._mainNavigationRoutes, ..._footerNavigationRoutes];
+const _navigationRoutes = <RouteMeta>[..._mainNavigationRoutes, ..._footerNavigationRoutes];
 
 List<NavigationPaneItem> _buildPaneItems(List<RouteMeta> routes) {
   return routes

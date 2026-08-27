@@ -6,9 +6,7 @@ import '../../../../core/widgets/card_highlight.dart';
 import '../../../../i18n/generated/strings.g.dart';
 import '../performance_service.dart';
 
-class PowerplanSection extends ConsumerWidget {
-  const PowerplanSection({super.key});
-
+class const PowerplanSection({super.key}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(reviPowerPlanStatusProvider);

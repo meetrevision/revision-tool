@@ -12,14 +12,12 @@ import 'store_enums.dart';
 import 'store_providers.dart';
 import 'widgets/ms_store_product_card.dart';
 
-class MSStorePage extends ConsumerStatefulWidget {
-  const MSStorePage({super.key});
-
+class const MSStorePage({super.key}) extends ConsumerStatefulWidget {
   @override
   ConsumerState<MSStorePage> createState() => _MSStorePageState();
 }
 
-class _MSStorePageState extends ConsumerState<MSStorePage> {
+class _MSStorePageState() extends ConsumerState<MSStorePage> {
   final _textEditingController = TextEditingController();
   static const _spacing = 16.0;
 

@@ -29,16 +29,12 @@ Color parseHexColor(String hexColor) {
   }
 }
 
-class MSStoreProductPage extends ConsumerStatefulWidget {
-  const MSStoreProductPage({super.key, required this.productId});
-
-  final String productId;
-
+class const MSStoreProductPage({super.key, required final String productId}) extends ConsumerStatefulWidget {
   @override
   ConsumerState<MSStoreProductPage> createState() => _MSStoreProductPageState();
 }
 
-class _MSStoreProductPageState extends ConsumerState<MSStoreProductPage> {
+class _MSStoreProductPageState() extends ConsumerState<MSStoreProductPage> {
   late final ScrollController _scrollController;
   late final ValueNotifier<bool> _showStickyCard;
 
@@ -154,12 +150,7 @@ class _MSStoreProductPageState extends ConsumerState<MSStoreProductPage> {
   }
 }
 
-class _ContentCards extends StatelessWidget {
-  const _ContentCards({required this.title, required this.content});
-
-  final String title;
-  final Widget content;
-
+class const _ContentCards({required final String title, required final Widget content}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -190,12 +181,7 @@ class _ContentCards extends StatelessWidget {
   }
 }
 
-class _HeroSection extends ConsumerWidget {
-  const _HeroSection({required this.details, required this.onGet});
-
-  final ProductDetails details;
-  final VoidCallback onGet;
-
+class const _HeroSection({required final ProductDetails details, required final VoidCallback onGet}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final FluentThemeData theme = context.theme;
@@ -447,15 +433,12 @@ class _HeroSection extends ConsumerWidget {
   }
 }
 
-class _ShareButton extends StatefulWidget {
-  const _ShareButton({required this.productId});
-  final String productId;
-
+class const _ShareButton({required final String productId}) extends StatefulWidget {
   @override
   State<_ShareButton> createState() => _ShareButtonState();
 }
 
-class _ShareButtonState extends State<_ShareButton> {
+class _ShareButtonState() extends State<_ShareButton> {
   late final FlyoutController _controller;
   bool _finished = false;
 
@@ -525,12 +508,7 @@ class _ShareButtonState extends State<_ShareButton> {
   }
 }
 
-class _InstallActionBar extends ConsumerWidget {
-  const _InstallActionBar({required this.productId, required this.onGet});
-
-  final String productId;
-  final VoidCallback onGet;
-
+class const _InstallActionBar({required final String productId, required final VoidCallback onGet}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final StoreDownloadState state = ref.watch(storeControllerProvider.select((s) => s.download));
@@ -561,13 +539,7 @@ class _InstallActionBar extends ConsumerWidget {
   }
 }
 
-class _InstallPrimaryAction extends ConsumerWidget {
-  const _InstallPrimaryAction({required this.productId, required this.state, required this.onGet});
-
-  final String productId;
-  final StoreDownloadState state;
-  final VoidCallback onGet;
-
+class const _InstallPrimaryAction({required final String productId, required final StoreDownloadState state, required final VoidCallback onGet}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final Widget child = state.maybeWhen(
@@ -680,24 +652,15 @@ class _InstallPrimaryAction extends ConsumerWidget {
   }
 }
 
-class _InstallProgressCard extends StatelessWidget {
-  const _InstallProgressCard({
+class const _InstallProgressCard({
     super.key,
-    required this.progress,
-    required this.title,
-    required this.subtitle,
-    this.onPause,
-    this.onResume,
-    this.onCancel,
-  });
-
-  final double progress;
-  final String title;
-  final String subtitle;
-  final VoidCallback? onPause;
-  final VoidCallback? onResume;
-  final VoidCallback? onCancel;
-
+    required final double progress,
+    required final String title,
+    required final String subtitle,
+    final VoidCallback? onPause,
+    final VoidCallback? onResume,
+    final VoidCallback? onCancel,
+  }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final FluentThemeData theme = context.theme;
@@ -788,16 +751,12 @@ class _InstallProgressCard extends StatelessWidget {
   }
 }
 
-class _InstallMoreButton extends StatefulWidget {
-  const _InstallMoreButton({required this.productId});
-
-  final String productId;
-
+class const _InstallMoreButton({required final String productId}) extends StatefulWidget {
   @override
   State<_InstallMoreButton> createState() => _InstallMoreButtonState();
 }
 
-class _InstallMoreButtonState extends State<_InstallMoreButton> {
+class _InstallMoreButtonState() extends State<_InstallMoreButton> {
   late final FlyoutController _controller;
 
   @override
@@ -834,11 +793,7 @@ class _InstallMoreButtonState extends State<_InstallMoreButton> {
   }
 }
 
-class _MoreMenuFlyout extends StatelessWidget {
-  const _MoreMenuFlyout({required this.productId});
-
-  final String productId;
-
+class const _MoreMenuFlyout({required final String productId}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MenuFlyout(
@@ -869,12 +824,7 @@ double _overallProgress(Map<String, double> fileProgress, int downloadedBytes, i
   return totalProgress / fileProgress.length;
 }
 
-class _HeroIcon extends StatelessWidget {
-  const _HeroIcon({required this.iconUrl, this.color});
-
-  final String? iconUrl;
-  final Color? color;
-
+class const _HeroIcon({required final String? iconUrl, final Color? color}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return iconUrl != null && iconUrl!.isNotEmpty
@@ -897,19 +847,12 @@ class _HeroIcon extends StatelessWidget {
   }
 }
 
-class _StickyCard extends StatelessWidget {
-  const _StickyCard({
-    required this.visible,
-    required this.details,
-    required this.scrollController,
-    required this.onGet,
-  });
-
-  final bool visible;
-  final ProductDetails details;
-  final ScrollController scrollController;
-  final VoidCallback onGet;
-
+class const _StickyCard({
+    required final bool visible,
+    required final ProductDetails details,
+    required final ScrollController scrollController,
+    required final VoidCallback onGet,
+  }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!visible) return const SizedBox.shrink();
@@ -949,11 +892,7 @@ class _StickyCard extends StatelessWidget {
   }
 }
 
-class _RatingSection extends StatelessWidget {
-  const _RatingSection({required this.details});
-
-  final ProductDetails details;
-
+class const _RatingSection({required final ProductDetails details}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double ratingValue = details.averageRating ?? 0;
@@ -991,16 +930,12 @@ class _RatingSection extends StatelessWidget {
   }
 }
 
-class _ScreenshotCarousel extends StatefulWidget {
-  const _ScreenshotCarousel({required this.screenshots});
-
-  final List<SearchProductPreviews> screenshots;
-
+class const _ScreenshotCarousel({required final List<SearchProductPreviews> screenshots}) extends StatefulWidget {
   @override
   State<_ScreenshotCarousel> createState() => _ScreenshotCarouselState();
 }
 
-class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
+class _ScreenshotCarouselState() extends State<_ScreenshotCarousel> {
   final _pageController = PageController(viewportFraction: 0.85);
 
   @override
@@ -1037,11 +972,7 @@ class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
   }
 }
 
-class _AdditionalInfoSection extends StatelessWidget {
-  const _AdditionalInfoSection({required this.details});
-
-  final ProductDetails details;
-
+class const _AdditionalInfoSection({required final ProductDetails details}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = <(IconData, String, String)>[];

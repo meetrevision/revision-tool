@@ -6,12 +6,11 @@ part 'download_state.freezed.dart';
 
 @freezed
 sealed class StoreDownloadState with _$StoreDownloadState {
-  const factory StoreDownloadState.idle() = _Idle;
+  const factory idle() = _Idle;
 
-  const factory StoreDownloadState.preparing({required String productId, String? message}) =
-      _Preparing;
+  const factory preparing({required String productId, String? message}) = _Preparing;
 
-  const factory StoreDownloadState.downloading({
+  const factory downloading({
     required String productId,
     required Map<String, double> progress,
     required int completedCount,
@@ -20,7 +19,7 @@ sealed class StoreDownloadState with _$StoreDownloadState {
     required int totalBytes,
   }) = _Downloading;
 
-  const factory StoreDownloadState.paused({
+  const factory paused({
     required String productId,
     required Map<String, double> progress,
     required int completedCount,
@@ -29,14 +28,13 @@ sealed class StoreDownloadState with _$StoreDownloadState {
     required int totalBytes,
   }) = _Paused;
 
-  const factory StoreDownloadState.completed({
+  const factory completed({
     required String productId,
     required Map<String, ProcessResult> installResults,
     required bool installed,
   }) = _Completed;
 
-  const factory StoreDownloadState.error({required String productId, required String message}) =
-      _Error;
+  const factory error({required String productId, required String message}) = _Error;
 }
 
 extension StoreDownloadStateX on StoreDownloadState {

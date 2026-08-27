@@ -4,7 +4,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import '../../extensions.dart';
 
 /// Visibility state for collection control buttons.
-enum PipsPagerButtonVisibility {
+enum PipsPagerButtonVisibility() {
   /// Button is not visible and does not take layout space (default).
   collapsed,
 
@@ -26,59 +26,37 @@ enum PipsPagerButtonVisibility {
 /// - `children` are the pages shown in the pager.
 /// - Navigation buttons can be configured to auto-hide at boundaries.
 /// - Pips scroll when exceeding [maxVisiblePips] (default: 5).
-class PipsPager extends StatefulWidget {
-  const PipsPager({
+class const PipsPager({
     super.key,
-    required this.itemExtent,
-    required this.children,
-    this.controller,
-    this.previousButtonVisibility = .collapsed,
-    this.nextButtonVisibility = .collapsed,
-    this.maxVisiblePips = 5,
-    this.showIndicator = true,
-    this.enabled = true,
-    this.padEnds = true,
-    this.onPageChanged,
-  });
-
-  /// Height of the page area.
-  final double itemExtent;
-
-  /// Pages to show.
-  final List<Widget> children;
-
-  /// Optional external [PageController]. If not provided an internal one is used.
-  final PageController? controller;
-
-  /// Visibility state of the previous button.
-  final PipsPagerButtonVisibility previousButtonVisibility;
-
-  /// Visibility state of the next button.
-  final PipsPagerButtonVisibility nextButtonVisibility;
-
-  /// Maximum number of visible pips. If [children.length] > this, pips scroll
+    /// Height of the page area.
+  required final double itemExtent,
+    /// Pages to show.
+  required final List<Widget> children,
+    /// Optional external [PageController]. If not provided an internal one is used.
+  final PageController? controller,
+    /// Visibility state of the previous button.
+  final PipsPagerButtonVisibility previousButtonVisibility = .collapsed,
+    /// Visibility state of the next button.
+  final PipsPagerButtonVisibility nextButtonVisibility = .collapsed,
+    /// Maximum number of visible pips. If [children.length] > this, pips scroll
   /// to center the current page. Default is 5.
-  final int maxVisiblePips;
-
-  /// Whether to show the pips indicator below the page area.
-  final bool showIndicator;
-
-  /// Whether the pager is enabled. When false, pips are visible but not
+  final int maxVisiblePips = 5,
+    /// Whether to show the pips indicator below the page area.
+  final bool showIndicator = true,
+    /// Whether the pager is enabled. When false, pips are visible but not
   /// interactive (page indicator only).
-  final bool enabled;
-
-  /// Whether the first and last pages are padded to center in the viewport.
+  final bool enabled = true,
+    /// Whether the first and last pages are padded to center in the viewport.
   /// Set to false to avoid extra horizontal space with viewportFraction.
-  final bool padEnds;
-
-  /// Called when the page changes.
-  final ValueChanged<int>? onPageChanged;
-
+  final bool padEnds = true,
+    /// Called when the page changes.
+  final ValueChanged<int>? onPageChanged,
+  }) extends StatefulWidget {
   @override
   State<PipsPager> createState() => _PipsPagerState();
 }
 
-class _PipsPagerState extends State<PipsPager> {
+class _PipsPagerState() extends State<PipsPager> {
   late final PageController _controller;
   late final ScrollController _pipsScrollController;
   int _index = 0;
@@ -250,19 +228,12 @@ class _PipsPagerState extends State<PipsPager> {
 }
 
 /// Isolated navigation button widget to prevent parent rebuilds on hover.
-class _NavButton extends StatelessWidget {
-  const _NavButton({
-    required this.icon,
-    required this.onPressed,
-    required this.visibility,
-    required this.parentHovered,
-  });
-
-  final IconData icon;
-  final VoidCallback? onPressed;
-  final PipsPagerButtonVisibility visibility;
-  final bool parentHovered;
-
+class const _NavButton({
+    required final IconData icon,
+    required final VoidCallback? onPressed,
+    required final PipsPagerButtonVisibility visibility,
+    required final bool parentHovered,
+  }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool shouldShow =

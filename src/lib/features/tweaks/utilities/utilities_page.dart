@@ -9,9 +9,7 @@ import '../../../i18n/generated/strings.g.dart';
 import '../../../utils_gui.dart';
 import 'utilities_service.dart';
 
-class UtilitiesPage extends ConsumerWidget {
-  const UtilitiesPage({super.key});
-
+class const UtilitiesPage({super.key}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool hibernationStatus = ref.watch(hibernationStatusProvider);
@@ -31,8 +29,7 @@ class UtilitiesPage extends ConsumerWidget {
   }
 }
 
-class _HibernationCard extends ConsumerWidget {
-  const _HibernationCard();
+class const _HibernationCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(hibernationStatusProvider);
@@ -54,8 +51,7 @@ class _HibernationCard extends ConsumerWidget {
   }
 }
 
-class _FastStartupCard extends ConsumerWidget {
-  const _FastStartupCard();
+class const _FastStartupCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(fastStartupStatusProvider);
@@ -78,9 +74,7 @@ class _FastStartupCard extends ConsumerWidget {
   }
 }
 
-class _ModernStandbyCard extends ConsumerWidget {
-  const _ModernStandbyCard();
-
+class const _ModernStandbyCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return CardHighlight(
@@ -93,8 +87,7 @@ class _ModernStandbyCard extends ConsumerWidget {
   }
 }
 
-class _TMMonitoringCard extends ConsumerWidget {
-  const _TMMonitoringCard();
+class const _TMMonitoringCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(tmMonitoringStatusProvider);
@@ -117,8 +110,7 @@ class _TMMonitoringCard extends ConsumerWidget {
   }
 }
 
-class _UsageReportingCard extends ConsumerWidget {
-  const _UsageReportingCard();
+class const _UsageReportingCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(usageReportingStatusProvider);

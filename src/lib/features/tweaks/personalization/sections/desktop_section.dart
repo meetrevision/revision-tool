@@ -6,9 +6,7 @@ import '../../../../core/widgets/card_highlight.dart';
 import '../../../../i18n/generated/strings.g.dart';
 import '../personalization_service.dart';
 
-class DesktopSection extends StatelessWidget {
-  const DesktopSection({super.key});
-
+class const DesktopSection({super.key}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardHighlight(
@@ -27,8 +25,7 @@ class DesktopSection extends StatelessWidget {
   }
 }
 
-class _NotificationCard extends ConsumerWidget {
-  const _NotificationCard();
+class const _NotificationCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final NotificationMode status = ref.watch(notificationStatusProvider);
@@ -61,8 +58,7 @@ class _NotificationCard extends ConsumerWidget {
   }
 }
 
-class _LegacyBalloonCard extends ConsumerWidget {
-  const _LegacyBalloonCard();
+class const _LegacyBalloonCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(legacyBalloonStatusProvider);
@@ -84,8 +80,7 @@ class _LegacyBalloonCard extends ConsumerWidget {
   }
 }
 
-class _ScreenEdgeSwipeCard extends ConsumerWidget {
-  const _ScreenEdgeSwipeCard();
+class const _ScreenEdgeSwipeCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(screenEdgeSwipeStatusProvider);
@@ -106,8 +101,7 @@ class _ScreenEdgeSwipeCard extends ConsumerWidget {
   }
 }
 
-class _NewContextMenuCard extends ConsumerWidget {
-  const _NewContextMenuCard();
+class const _NewContextMenuCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(newContextMenuStatusProvider);
@@ -127,8 +121,7 @@ class _NewContextMenuCard extends ConsumerWidget {
   }
 }
 
-class _ExplorerHomeCard extends ConsumerWidget {
-  const _ExplorerHomeCard();
+class const _ExplorerHomeCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(explorerHomeStatusProvider);
@@ -149,8 +142,7 @@ class _ExplorerHomeCard extends ConsumerWidget {
   }
 }
 
-class _ExplorerGalleryCard extends ConsumerWidget {
-  const _ExplorerGalleryCard();
+class const _ExplorerGalleryCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool status = ref.watch(explorerGalleryStatusProvider);

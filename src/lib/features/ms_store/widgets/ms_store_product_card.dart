@@ -15,12 +15,7 @@ const _innerPadding = 11.0;
 const _cardBorder = 1.5;
 const _hoverScale = 1.05;
 
-class MSStoreProductCard extends StatefulWidget {
-  const MSStoreProductCard({super.key, required this.product, this.onPressed});
-
-  final SearchProduct product;
-  final VoidCallback? onPressed;
-
+class const MSStoreProductCard({super.key, required final SearchProduct product, final VoidCallback? onPressed}) extends StatefulWidget {
   /// Fixed grid row height — poster fills the remaining space, so the card is
   /// width-independent and never overflows its cell.
   static const cardHeight = 366.0;
@@ -29,7 +24,7 @@ class MSStoreProductCard extends StatefulWidget {
   State<MSStoreProductCard> createState() => _MSStoreProductCardState();
 }
 
-class _MSStoreProductCardState extends State<MSStoreProductCard> {
+class _MSStoreProductCardState() extends State<MSStoreProductCard> {
   final ValueNotifier<bool> _extendedHoverNotifier = ValueNotifier(false);
   final OverlayPortalController _overlayController = OverlayPortalController();
   final LayerLink _layerLink = LayerLink();
@@ -226,17 +221,11 @@ class _MSStoreProductCardState extends State<MSStoreProductCard> {
   }
 }
 
-class _HoverGetButton extends StatelessWidget {
-  const _HoverGetButton({
-    required this.isHovered,
-    required this.trailingText,
-    required this.onPressed,
-  });
-
-  final bool isHovered;
-  final String trailingText;
-  final VoidCallback? onPressed;
-
+class const _HoverGetButton({
+    required final bool isHovered,
+    required final String trailingText,
+    required final VoidCallback? onPressed,
+  }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ResourceDictionary resources = context.theme.resources;
@@ -262,11 +251,7 @@ class _HoverGetButton extends StatelessWidget {
   }
 }
 
-class _Poster extends StatelessWidget {
-  const _Poster({required this.preview});
-
-  final SearchProductPreviews preview;
-
+class const _Poster({required final SearchProductPreviews preview}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final FluentThemeData theme = FluentTheme.of(context);

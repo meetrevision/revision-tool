@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:revitool/features/tweaks/personalization/personalization_service.dart';
 
-class MockPersonalizationService extends Mock implements PersonalizationService {}
+class MockPersonalizationService() extends Mock implements PersonalizationService;
 
 void main() {
   const skipIntegration = bool.fromEnvironment('SKIP_INTEGRATION', defaultValue: true);

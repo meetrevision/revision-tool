@@ -14,22 +14,25 @@ import 'locale_config.dart';
 part 'app_settings_provider.freezed.dart';
 part 'app_settings_provider.g.dart';
 
-enum NavigationIndicators { sticky, end }
+enum NavigationIndicators() {
+  sticky,
+  end
+}
 
 @Riverpod(keepAlive: true)
-class AppSettingsNotifier extends _$AppSettingsNotifier {
+class AppSettingsNotifier() extends _$AppSettingsNotifier {
   @override
   AppSettings build() {
     final AppLocale appLocale = LocaleConfig.parse(appLanguage);
-    return AppSettings(
+    return .new(
       accentColor: getSystemAccentColor(SystemTheme.accentColor),
       themeMode: SettingsService.themeMode(),
-      displayMode: PaneDisplayMode.auto,
-      indicator: NavigationIndicators.sticky,
+      displayMode: .auto,
+      indicator: .sticky,
       windowEffect: WinRegistryService.themeTransparencyEffect
-          ? (WinRegistryService.isW11 ? WindowEffect.mica : WindowEffect.disabled)
-          : WindowEffect.disabled,
-      textDirection: TextDirection.ltr,
+          ? (WinRegistryService.isW11 ? .mica : .disabled)
+          : .disabled,
+      textDirection: .ltr,
       locale: appLocale.flutterLocale,
     );
   }
@@ -60,7 +63,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   Future<void> setEffect(Color micaBackgroundColor, bool isDark) async {
     await Window.setEffect(
       effect: state.windowEffect,
-      color: state.windowEffect == WindowEffect.mica
+      color: state.windowEffect == .mica
           ? micaBackgroundColor.withValues(alpha: 0.05)
           : Colors.transparent,
       dark: isDark,
@@ -73,7 +76,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     double alpha = 0.05,
     bool modifyColors = false,
   }) {
-    if (state.windowEffect != WindowEffect.disabled) {
+    if (state.windowEffect != .disabled) {
       if (micaBackgroundColor != null) {
         return micaBackgroundColor;
       }
@@ -97,43 +100,43 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
       state = state.copyWith(locale: appLocale.flutterLocale);
     } catch (e) {
       logger.w('Failed to update locale: $e');
-      LocaleSettings.setLocale(AppLocale.en);
+      LocaleSettings.setLocale(.en);
       state = state.copyWith(locale: AppLocale.en.flutterLocale);
     }
   }
 
   Color? cardLightHoverBottomBorderColor() {
-    final Color color = const Color.fromARGB(255, 0, 0, 0).withValues(alpha: 0.11);
-    if (state.windowEffect != WindowEffect.disabled) {
+    final Color color = const .fromARGB(255, 0, 0, 0).withValues(alpha: 0.11);
+    if (state.windowEffect != .disabled) {
       return effectColor(color, modifyColors: true);
     }
     return color;
   }
 
   FluentThemeData buildDarkTheme(AccentColor accentColor, bool isLargeScreen) {
-    return FluentThemeData(
-      brightness: Brightness.dark,
+    return .new(
+      brightness: .dark,
       accentColor: accentColor,
-      navigationPaneTheme: NavigationPaneThemeData(
+      navigationPaneTheme: .new(
         iconPadding: const EdgeInsetsDirectional.only(start: 10.5, end: 10),
-        backgroundColor: effectColor(const Color.fromARGB(255, 32, 32, 32)),
+        backgroundColor: effectColor(const .fromARGB(255, 32, 32, 32)),
         overlayBackgroundColor: const .fromARGB(255, 32, 32, 32),
       ),
-      scaffoldBackgroundColor: effectColor(const Color.fromARGB(255, 32, 32, 32)),
-      visualDensity: VisualDensity.standard,
-      focusTheme: FocusThemeData(glowFactor: isLargeScreen ? 2.0 : 0.0),
-      resources: ResourceDictionary.dark(
+      scaffoldBackgroundColor: effectColor(const .fromARGB(255, 32, 32, 32)),
+      visualDensity: .standard,
+      focusTheme: .new(glowFactor: isLargeScreen ? 2.0 : 0.0),
+      resources: .dark(
         cardStrokeColorDefault: effectColor(
-          const Color.fromARGB(255, 0, 0, 0).withValues(alpha: 0.32),
+          const .fromARGB(255, 0, 0, 0).withValues(alpha: 0.32),
           // const Color(0xFF1D1D1D),
           modifyColors: true,
         )!,
         cardBackgroundFillColorDefault: effectColor(
           const Color(0xFF2B2B2B),
-          micaBackgroundColor: const Color.fromARGB(255, 255, 255, 255).withValues(alpha: 0.05),
+          micaBackgroundColor: const .fromARGB(255, 255, 255, 255).withValues(alpha: 0.05),
         )!,
         cardBackgroundFillColorSecondary: effectColor(
-          const Color.fromARGB(255, 255, 255, 255).withValues(alpha: 0.03),
+          const .fromARGB(255, 255, 255, 255).withValues(alpha: 0.03),
           // const Color(0xFF323232),
           modifyColors: true,
         )!,
@@ -142,28 +145,28 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   }
 
   FluentThemeData buildLightTheme(AccentColor accentColor, bool isLargeScreen) {
-    return FluentThemeData(
+    return .new(
       accentColor: accentColor,
-      visualDensity: VisualDensity.standard,
-      navigationPaneTheme: NavigationPaneThemeData(
+      visualDensity: .standard,
+      navigationPaneTheme: .new(
         iconPadding: const EdgeInsetsDirectional.only(start: 10.5, end: 10),
         backgroundColor: effectColor(null),
-        overlayBackgroundColor: const Color.fromRGBO(243, 243, 243, 100),
+        overlayBackgroundColor: const .fromRGBO(243, 243, 243, 100),
       ),
-      scaffoldBackgroundColor: effectColor(const Color.fromRGBO(243, 243, 243, 100)),
-      focusTheme: FocusThemeData(glowFactor: isLargeScreen ? 2.0 : 0.0),
-      resources: ResourceDictionary.light(
+      scaffoldBackgroundColor: effectColor(const .fromRGBO(243, 243, 243, 100)),
+      focusTheme: .new(glowFactor: isLargeScreen ? 2.0 : 0.0),
+      resources: .light(
         cardStrokeColorDefault: effectColor(
-          const Color.fromARGB(22, 0, 0, 0), // border color
+          const .fromARGB(22, 0, 0, 0), // border color
           modifyColors: true,
         )!,
         cardBackgroundFillColorDefault: effectColor(
           // card color
           const Color(0xFFFBFBFB),
-          micaBackgroundColor: const Color.fromARGB(255, 251, 251, 251),
+          micaBackgroundColor: const .fromARGB(255, 251, 251, 251),
         )!,
         cardBackgroundFillColorSecondary: effectColor(
-          const Color.fromARGB(255, 0, 0, 0).withValues(alpha: 0.02), // hover color
+          const .fromARGB(255, 0, 0, 0).withValues(alpha: 0.02), // hover color
           modifyColors: true,
         )!,
       ),
@@ -173,7 +176,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
 
 @freezed
 sealed class AppSettings with _$AppSettings {
-  const factory AppSettings({
+  const factory({
     required AccentColor accentColor,
     required ThemeMode themeMode,
     required PaneDisplayMode displayMode,
@@ -185,10 +188,8 @@ sealed class AppSettings with _$AppSettings {
 }
 
 AccentColor getSystemAccentColor(SystemAccentColor accentColor) {
-  if ((defaultTargetPlatform == TargetPlatform.windows ||
-          defaultTargetPlatform == TargetPlatform.android) &&
-      !kIsWeb) {
-    return AccentColor.swatch({
+  if ((defaultTargetPlatform == .windows || defaultTargetPlatform == .android) && !kIsWeb) {
+    return .swatch({
       'darkest': accentColor.darkest,
       'darker': accentColor.darker,
       'dark': accentColor.dark,
@@ -201,20 +202,16 @@ AccentColor getSystemAccentColor(SystemAccentColor accentColor) {
   return Colors.red;
 }
 
-class SettingsService {
-  factory SettingsService() => _instance;
-  SettingsService._();
-  static final SettingsService _instance = SettingsService._();
+class SettingsService._() {
+  factory() => _instance;
+  static final _instance = SettingsService._();
 
   static ThemeMode themeMode() {
-    switch (WinRegistryService.themeModeReg) {
-      case 'light':
-        return ThemeMode.light;
-      case 'dark':
-        return ThemeMode.dark;
-      default:
-        return ThemeMode.system;
-    }
+    return switch (WinRegistryService.themeModeReg) {
+      'light' => .light,
+      'dark' => .dark,
+      _ => .system,
+    };
   }
 
   static void updateThemeMode(ThemeMode theme) {

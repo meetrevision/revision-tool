@@ -51,7 +51,7 @@ typedef _ProgressTotals = ({int completed, int total, int downloadedBytes, int t
 const _ProgressTotals _zeroTotals = (completed: 0, total: 0, downloadedBytes: 0, totalBytes: 0);
 
 @Riverpod(keepAlive: true)
-class StoreController extends _$StoreController {
+class StoreController() extends _$StoreController {
   static const _progressUpdateDelay = Duration(milliseconds: 300);
 
   CancelToken? _cancelToken;
@@ -366,7 +366,7 @@ class StoreController extends _$StoreController {
 }
 
 @riverpod
-class StoreProductDetails extends _$StoreProductDetails {
+class StoreProductDetails() extends _$StoreProductDetails {
   @override
   FutureOr<ProductDetails> build(String productId) async {
     final Result<ProductDetails> result = await ref

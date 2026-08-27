@@ -4,17 +4,15 @@ import 'package:revitool/core/trusted_installer/trusted_installer_exception.dart
 import 'package:revitool/core/trusted_installer/trusted_installer_service.dart';
 
 /// Mock implementation of TrustedInstallerService for testing
-class MockTrustedInstallerService extends Mock implements TrustedInstallerService {}
+class MockTrustedInstallerService() extends Mock implements TrustedInstallerService;
 
-class FakeCommandResult extends Fake implements CommandResult {
-  FakeCommandResult({required this.exitCode, required this.output, required this.error});
+class FakeCommandResult({
   @override
-  final int exitCode;
+  required final int exitCode, 
   @override
-  final String output;
+  required final String output, 
   @override
-  final String error;
-}
+  required final String error}) extends Fake implements CommandResult;
 
 void main() {
   group('TrustedInstallerService - Mocked Tests (CI Safe)', () {

@@ -1,4 +1,4 @@
-abstract final class MSStoreEndpoints {
+abstract final class MSStoreEndpoints() {
   static Uri search({
     required String query,
     required String market,

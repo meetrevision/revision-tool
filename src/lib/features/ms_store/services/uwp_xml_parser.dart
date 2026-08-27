@@ -7,9 +7,7 @@ final storeUwpXmlParserProvider = Provider<UwpXmlParser>((_) => const UwpXmlPars
 
 /// Stateless parser for UWP-related XML responses.
 /// Designed to be run in an isolate via [compute].
-class UwpXmlParser {
-  const UwpXmlParser();
-
+class const UwpXmlParser() {
   static const _knownPackageArch = {'x86', 'x64', 'arm64', 'arm', 'neutral'};
 
   /// Parses the encrypted cookie from the SOAP response

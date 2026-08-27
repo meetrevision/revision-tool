@@ -14,9 +14,7 @@ import 'sections/hw_mitigation_section.dart';
 import 'sections/system_safeguard_section.dart';
 import 'security_service.dart';
 
-class SecurityPage extends ConsumerWidget {
-  const SecurityPage({super.key});
-
+class const SecurityPage({super.key}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ScaffoldPage.scrollable(
@@ -30,8 +28,7 @@ class SecurityPage extends ConsumerWidget {
   }
 }
 
-class _DefenderCard extends ConsumerWidget {
-  const _DefenderCard();
+class const _DefenderCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool defenderStatus = ref.watch(defenderStatusProvider);

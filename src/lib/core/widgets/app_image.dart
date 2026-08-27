@@ -4,30 +4,18 @@ import 'package:fluent_ui/fluent_ui.dart';
 
 import '../../features/ms_store/ms_store_image_provider.dart';
 
-class AppImage extends StatelessWidget {
-  const AppImage({
+class const AppImage({
     super.key,
-    required this.baseUrl,
-    this.fit = .cover,
-    this.alignment = .center,
-    this.borderRadius,
-    this.clipBehavior = .hardEdge,
-    this.fetchPadding = 100,
-    this.placeholderColor,
-    this.loadingWidget,
-    this.errorWidget,
-  });
-
-  final String baseUrl;
-  final BoxFit fit;
-  final Alignment alignment;
-  final int fetchPadding;
-  final BorderRadiusGeometry? borderRadius;
-  final Clip clipBehavior;
-  final Color? placeholderColor;
-  final Widget? loadingWidget;
-  final Widget? errorWidget;
-
+    required final String baseUrl,
+    final BoxFit fit = .cover,
+    final Alignment alignment = .center,
+    final BorderRadiusGeometry? borderRadius,
+    final Clip clipBehavior = .hardEdge,
+    final int fetchPadding = 100,
+    final Color? placeholderColor,
+    final Widget? loadingWidget,
+    final Widget? errorWidget,
+  }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget image = LayoutBuilder(

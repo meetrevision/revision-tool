@@ -7,14 +7,14 @@ import 'package:source_gen/source_gen.dart';
 
 import '../annotations.dart';
 
-class CliCommandGenerator extends GeneratorForAnnotation<CliCommand> {
+class CliCommandGenerator() extends GeneratorForAnnotation<CliCommand> {
   static const _cliToggleChecker = TypeChecker.typeNamed(CliToggle);
   static const _cliValueChecker = TypeChecker.typeNamed(CliValue);
   static const _cliActionChecker = TypeChecker.typeNamed(CliAction);
   static const _cliEnumChecker = TypeChecker.typeNamed(CliEnumSubCommand);
-  static final RegExp _dartIdentifierPattern = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
-  static final RegExp _leadingDigitPattern = RegExp(r'^[0-9]');
-  static final RegExp _genericCharsPattern = RegExp(r'[<>, ]');
+  static final _dartIdentifierPattern = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
+  static final _leadingDigitPattern = RegExp(r'^[0-9]');
+  static final _genericCharsPattern = RegExp(r'[<>, ]');
 
   @override
   String generateForAnnotatedElement(
@@ -726,20 +726,15 @@ argParser.addOption(
   }
 
   String _generateValueParser(String type, String valueVar) {
-    switch (type) {
-      case 'int':
-        return 'int.parse($valueVar)';
-      case 'double':
-        return 'double.parse($valueVar)';
-      case 'bool':
-        return "($valueVar.toLowerCase() == 'true')";
-      case 'String':
-        return valueVar;
-      default:
-        throw InvalidGenerationSourceError(
-          '@CliValue: unsupported parameter type "$type". Supported types: int, double, bool, String.',
-        );
-    }
+    return switch (type) {
+      'int' => 'int.parse($valueVar)',
+      'double' => 'double.parse($valueVar)',
+      'bool' => "($valueVar.toLowerCase() == 'true')",
+      'String' => valueVar,
+      _ => throw InvalidGenerationSourceError(
+        '@CliValue: unsupported parameter type "$type". Supported types: int, double, bool, String.',
+      ),
+    };
   }
 
   bool _isSupportedValueType(String type) {
@@ -777,7 +772,7 @@ try {
     return Method(
       (m) => m
         ..annotations.add(refer('override'))
-        ..type = MethodType.getter
+        ..type = .getter
         ..name = name
         ..returns = refer(returnType)
         ..body = Code(body),
@@ -1014,9 +1009,9 @@ extension _ConstantReaderX on ConstantReader {
 
 extension _CliStringX on String {
   String toCliPascal() {
-    final List<String> words = split(
-      RegExp(r'[^A-Za-z0-9]+'),
-    ).where((w) => w.isNotEmpty).toList(growable: false);
+    final List<String> words = split(RegExp(r'[^A-Za-z0-9]+'))
+        .where((w) => w.isNotEmpty)
+        .toList(growable: false);
     if (words.isEmpty) return 'Generated';
     final String candidate = words.map((w) => w[0].toUpperCase() + w.substring(1)).join();
     return CliCommandGenerator._leadingDigitPattern.hasMatch(candidate)
@@ -1044,53 +1039,32 @@ typedef _GroupLeafNames = ({
   String statusLeaf,
 });
 
-sealed class _CliMeta {
-  const _CliMeta(this.name, this.status);
-  final String name;
-  final String status;
+sealed class const _CliMeta(final String name, final String status);
+
+final class const _CliMetaToggle(
+  super.name,
+  super.status, {
+  required final String enableMethod,
+  required final String disableMethod,
+  final String? enableForceMethod,
+  final String? disableForceMethod,
+}) extends _CliMeta;
+
+final class const _CliMetaValue(super.name, super.status, {final String? setMethod})
+    extends _CliMeta;
+
+final class const _CliMetaAction(String name, final String runMethod) extends _CliMeta {
+  this : super(name, '');
 }
 
-class _CliMetaToggle extends _CliMeta {
-  const _CliMetaToggle(
-    super.name,
-    super.status, {
-    required this.enableMethod,
-    required this.disableMethod,
-    this.enableForceMethod,
-    this.disableForceMethod,
-  });
-
-  final String enableMethod;
-  final String disableMethod;
-  final String? enableForceMethod;
-  final String? disableForceMethod;
-}
-
-class _CliMetaValue extends _CliMeta {
-  const _CliMetaValue(super.name, super.status, {this.setMethod});
-  final String? setMethod;
-}
-
-class _CliMetaAction extends _CliMeta {
-  const _CliMetaAction(String name, this.runMethod) : super(name, '');
-
-  final String runMethod;
-}
-
-class _CliMetaEnum extends _CliMeta {
-  const _CliMetaEnum(
-    super.name,
-    super.status, {
-    this.enableMethodName,
-    this.disableMethodName,
-    this.setMethodName,
-    required this.help,
-  });
-  final String? enableMethodName;
-  final String? disableMethodName;
-  final String? setMethodName;
-  final Map<String, String> help;
-}
+final class const _CliMetaEnum(
+  super.name,
+  super.status, {
+  final String? enableMethodName,
+  final String? disableMethodName,
+  final String? setMethodName,
+  required final Map<String, String> help,
+}) extends _CliMeta;
 
 const _toggleForceFlagCode = '''
 argParser.addFlag(

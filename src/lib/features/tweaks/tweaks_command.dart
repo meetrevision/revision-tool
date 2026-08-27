@@ -11,8 +11,8 @@ import 'security/security_service.dart';
 import 'updates/updates_service.dart';
 import 'utilities/utilities_service.dart';
 
-class TweaksCommand extends Command<void> {
-  TweaksCommand({required this._container}) {
+class TweaksCommand({required final ProviderContainer _container}) extends Command<void> {
+  this {
     addSubcommand(TweaksPatchesCommand());
     // Code-generated:
     addSubcommand(PerformanceServiceCliCommand(const PerformanceServiceImpl()));
@@ -22,8 +22,6 @@ class TweaksCommand extends Command<void> {
     addSubcommand(UtilitiesServiceCliCommand(const UtilitiesServiceImpl()));
   }
 
-  final ProviderContainer _container;
-
   @override
   final String name = 'tweaks';
 
@@ -31,7 +29,7 @@ class TweaksCommand extends Command<void> {
   final String description = 'Manage system tweaks by category';
 }
 
-class TweaksPatchesCommand extends Command<void> {
+class TweaksPatchesCommand() extends Command<void> {
   @override
   String get name => 'patches';
 

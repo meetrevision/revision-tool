@@ -11,8 +11,8 @@ import 'models/store_download_info.dart';
 import 'store_enums.dart';
 import 'store_service.dart';
 
-class MSStoreCommand extends Command<void> {
-  MSStoreCommand({required this._service}) {
+class MSStoreCommand({required final StoreService _service}) extends Command<void> {
+  this {
     argParser.addMultiOption('id', help: 'The ID of the app to download, e.g. 9WZDNCRFJ3TJ');
     argParser.addOption(
       'ring',
@@ -35,8 +35,6 @@ class MSStoreCommand extends Command<void> {
   static const bundledProductIds = {'9NBLGGH3FRZM', '9NBLGGH4RV3K'};
 
   static final String bundledPackagesPath = p.join(directoryExe, 'packages', 'appx');
-
-  final StoreService _service;
 
   String get tag => 'MS Store';
 

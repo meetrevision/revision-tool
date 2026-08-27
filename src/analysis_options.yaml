@@ -15,6 +15,13 @@ analyzer:
     - '**/*.pb.dart'
     - '**/*.g.dart'
     - '**/*.mocks.dart' # Mockito @GenerateMocks
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
   plugins:
     - riverpod_lint
 
@@ -209,7 +216,7 @@ linter:
     - type_literal_in_constant_pattern
     - unintended_html_in_doc_comment # DIFFERENT FROM FLUTTER/FLUTTER: Disabled due to an issue that has been fixed, so just hasn't been adopted there yet.
     - unawaited_futures # DIFFERENT FROM FLUTTER/FLUTTER: It's disabled there for "too many false positives"; that's not an issue here, and missing awaits have caused production issues in plugins.
-    - unnecessary_await_in_return
+    # - unnecessary_await_in_return
     - unnecessary_brace_in_string_interps
     - unnecessary_breaks
     - unnecessary_const
@@ -263,4 +270,11 @@ linter:
     # TODO: Remove this lint once the Dart SDK in Flutter is on version 3.13.
     - var_with_no_type_annotation
     - void_checks
-
+    ## Dart 3.13 lints
+    - use_primary_constructors
+    - use_declaring_parameters
+    - unnecessary_type_name_in_constructor
+    - unnecessary_primary_constructor_body
+    - unnecessary_const_in_enum_constructor
+    - empty_container_bodies
+    - initialize_in_field_declaration

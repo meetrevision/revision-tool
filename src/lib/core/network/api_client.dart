@@ -14,13 +14,12 @@ final apiClientProvider = Provider<ApiClient>((ref) {
   return ApiClient();
 });
 
-class ApiClient {
-  ApiClient({
-    Dio? dio,
-    RetryPolicy retryPolicy = const RetryPolicy(),
-    HttpClient Function()? createHttpClient,
-  }) : _dio = dio ?? Dio(_baseOptions),
-       retryPolicy = retryPolicy {
+class ApiClient({
+  Dio? dio,
+  final RetryPolicy retryPolicy = const RetryPolicy(),
+  HttpClient Function()? createHttpClient,
+}) {
+  this {
     if (_dio.httpClientAdapter is IOHttpClientAdapter) {
       (_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient =
           createHttpClient ?? _createDefaultHttpClient;
@@ -42,9 +41,7 @@ class ApiClient {
     },
   );
 
-  final Dio _dio;
-  final RetryPolicy retryPolicy;
-
+  final Dio _dio = dio ?? Dio(_baseOptions);
   Future<Result<Response<T>>> get<T>(
     Uri uri, {
     Options? options,

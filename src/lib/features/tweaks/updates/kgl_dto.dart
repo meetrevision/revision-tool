@@ -1,13 +1,11 @@
-class KGLModel {
-  const KGLModel({
-    required this.uri,
-    required this.hash,
-    required this.version,
-    required this.activateOnUpdate,
-    required this.versionCheckTimeout,
-  });
-
-  factory KGLModel.fromJson(Map<String, dynamic> json) {
+class const KGLModel({
+    required final String uri,
+    required final String hash,
+    required final int version,
+    required final int activateOnUpdate,
+    required final int versionCheckTimeout,
+  }) {
+  factory fromJson(Map<String, dynamic> json) {
     return KGLModel(
       uri: json['URI'] as String,
       hash: json['HASH'] as String,
@@ -16,9 +14,4 @@ class KGLModel {
       versionCheckTimeout: int.parse(json['VERSIONCHECKTIMEOUT'] as String),
     );
   }
-  final String uri;
-  final String hash;
-  final int version;
-  final int activateOnUpdate;
-  final int versionCheckTimeout;
 }

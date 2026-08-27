@@ -1,9 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:window_plus/window_plus.dart';
 
-class UnsupportedWidget extends StatelessWidget {
-  const UnsupportedWidget({super.key});
-
+class const UnsupportedWidget({super.key}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage(

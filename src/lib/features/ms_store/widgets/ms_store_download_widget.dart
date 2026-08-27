@@ -14,28 +14,22 @@ import '../store_enums.dart';
 import '../store_providers.dart';
 import '../store_service.dart';
 
-final class StorePackagePickerDialog extends ConsumerStatefulWidget {
-  const StorePackagePickerDialog({
+final class const StorePackagePickerDialog({
     super.key,
-    required this.productId,
-    this.ring = .releasePreview,
-    this.arch = .auto,
-  });
-
-  final String productId;
-  final StoreRing ring;
-  final StoreArch arch;
-
+    required final String productId,
+    final StoreRing ring = .releasePreview,
+    final StoreArch arch = .auto,
+  }) extends ConsumerStatefulWidget {
   @override
   ConsumerState<StorePackagePickerDialog> createState() => _StorePackagePickerDialogState();
 }
 
-enum _PickerPhase { selecting, running }
+enum _PickerPhase() { selecting, running }
 
 final NotifierProvider<_PackagePickerSelection, Set<String>> _packagePickerSelectionProvider =
     NotifierProvider.autoDispose<_PackagePickerSelection, Set<String>>(_PackagePickerSelection.new);
 
-final class _PackagePickerSelection extends Notifier<Set<String>> {
+final class _PackagePickerSelection() extends Notifier<Set<String>> {
   @override
   Set<String> build() => {};
 
@@ -48,7 +42,7 @@ final class _PackagePickerSelection extends Notifier<Set<String>> {
   }
 }
 
-final class _StorePackagePickerDialogState extends ConsumerState<StorePackagePickerDialog> {
+final class _StorePackagePickerDialogState() extends ConsumerState<StorePackagePickerDialog> {
   late StoreRing ring;
   late StoreArch arch;
   Future<StorePackagesByProductId>? packagesFuture;
@@ -204,29 +198,17 @@ final class _StorePackagePickerDialogState extends ConsumerState<StorePackagePic
   }
 }
 
-final class _PickerContent extends ConsumerWidget {
-  const _PickerContent({
-    required this.ring,
-    required this.arch,
-    required this.loading,
-    required this.loadError,
-    required this.downloadError,
-    required this.packages,
-    required this.running,
-    required this.onRingChanged,
-    required this.onArchChanged,
-  });
-
-  final StoreRing ring;
-  final StoreArch arch;
-  final bool loading;
-  final Object? loadError;
-  final String? downloadError;
-  final List<PackageInfo> packages;
-  final bool running;
-  final ValueChanged<StoreRing> onRingChanged;
-  final ValueChanged<StoreArch> onArchChanged;
-
+final class const _PickerContent({
+    required final StoreRing ring,
+    required final StoreArch arch,
+    required final bool loading,
+    required final Object? loadError,
+    required final String? downloadError,
+    required final List<PackageInfo> packages,
+    required final bool running,
+    required final ValueChanged<StoreRing> onRingChanged,
+    required final ValueChanged<StoreArch> onArchChanged,
+  }) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final String? liveError = running
@@ -297,18 +279,12 @@ final class _PickerContent extends ConsumerWidget {
   }
 }
 
-final class _PackageListTile extends ConsumerWidget {
-  const _PackageListTile({
+final class const _PackageListTile({
     super.key,
-    required this.package,
-    required this.packages,
-    required this.running,
-  });
-
-  final PackageInfo package;
-  final List<PackageInfo> packages;
-  final bool running;
-
+    required final PackageInfo package,
+    required final List<PackageInfo> packages,
+    required final bool running,
+  }) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool selected = ref.watch(
@@ -370,12 +346,7 @@ final class _PackageListTile extends ConsumerWidget {
   }
 }
 
-final class _PickerCloseButton extends ConsumerWidget {
-  const _PickerCloseButton({required this.running, required this.onPressed});
-
-  final bool running;
-  final VoidCallback onPressed;
-
+final class const _PickerCloseButton({required final bool running, required final VoidCallback onPressed}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool activeRunning =
@@ -384,23 +355,14 @@ final class _PickerCloseButton extends ConsumerWidget {
   }
 }
 
-final class _PickerDownloadButton extends ConsumerWidget {
-  const _PickerDownloadButton({
-    required this.install,
-    required this.running,
-    required this.loading,
-    required this.loadError,
-    required this.openInExplorerPath,
-    required this.onPressed,
-  });
-
-  final bool install;
-  final bool running;
-  final bool loading;
-  final Object? loadError;
-  final String? openInExplorerPath;
-  final VoidCallback onPressed;
-
+final class const _PickerDownloadButton({
+    required final bool install,
+    required final bool running,
+    required final bool loading,
+    required final Object? loadError,
+    required final String? openInExplorerPath,
+    required final VoidCallback onPressed,
+  }) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool canOpenExplorer = !install && !running && openInExplorerPath != null;

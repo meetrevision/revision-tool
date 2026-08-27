@@ -39,12 +39,7 @@ String _packageKey(String productId, StoreRing ring) {
 }
 
 /// Abstract repository for MS Store data fetching, with separate implementations for UWP and Win32 apps due to differences in API endpoints and response formats.
-abstract base class StoreRepository {
-  const StoreRepository({required this._api, required this._cache});
-
-  final ApiClient _api;
-  final StoreCache _cache;
-
+abstract base class const StoreRepository({required final ApiClient _api, required final StoreCache _cache}) {
   Future<List<SearchProduct>> searchProducts(
     String query, {
     String market = 'US',
@@ -126,11 +121,7 @@ abstract base class StoreRepository {
   }
 }
 
-final class UwpStoreRepository extends StoreRepository {
-  const UwpStoreRepository({required super.api, required super.cache, required this._xmlParser});
-
-  final UwpXmlParser _xmlParser;
-
+final class const UwpStoreRepository({required super.api, required super.cache, required final UwpXmlParser _xmlParser}) extends StoreRepository {
   static String? _cookie;
 
   static final _soapOptions = Options(
@@ -293,11 +284,7 @@ final class UwpStoreRepository extends StoreRepository {
   }
 }
 
-final class Win32StoreRepository extends StoreRepository {
-  const Win32StoreRepository({required super.api, required super.cache, required this._xmlParser});
-
-  final UwpXmlParser _xmlParser;
-
+final class const Win32StoreRepository({required super.api, required super.cache, required final UwpXmlParser _xmlParser}) extends StoreRepository {
   /// ProductDetails for Win32 apps usually contains download metadata.
   /// If it is empty, fetching falls back to the Manifest API.
   @override

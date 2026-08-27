@@ -7,9 +7,7 @@ import '../../extensions.dart';
 import '../../i18n/generated/strings.g.dart';
 import '../../utils_gui.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
+class const HomePage({super.key}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final homeCardButtons = [
@@ -63,9 +61,7 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class _HomePageContent extends StatelessWidget {
-  const _HomePageContent();
-
+class const _HomePageContent() extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(

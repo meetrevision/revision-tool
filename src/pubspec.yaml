@@ -1,4 +1,4 @@
-﻿name: revitool
+name: revitool
 description: A tool to personalize ReviOS to your needs
 publish_to: "none"
 
@@ -6,18 +6,18 @@ publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.12.0
+  sdk: ^3.13.0
 
 dependencies:
   flutter:
     sdk: flutter
 
   # Localization
-  slang: ^4.18.0
-  slang_flutter: ^4.18.0
+  slang: ^4.19.0
+  slang_flutter: ^4.19.0
 
   # UI
-  fluent_ui: ^4.16.0
+  fluent_ui: ^4.16.1
   system_theme: ^3.3.0
   flutter_acrylic: ^1.1.4
   fluentui_system_icons: ^1.1.273
@@ -28,21 +28,21 @@ dependencies:
   adaptive_palette: ^3.1.0
 
   # State management
-  riverpod: ^3.3.2 # for CLI
-  flutter_riverpod: ^3.3.2
-  riverpod_annotation: ^4.0.3
+  riverpod: ^3.4.2 # for CLI
+  flutter_riverpod: ^3.4.2
+  riverpod_annotation: ^4.0.6
 
   # Path
   path: ^1.9.1
 
   # Network
-  dio: ^5.10.0
+  dio: ^5.11.0
 
   # Shell
-  process_run: ^1.3.4
+  process_run: ^1.3.5
 
   # Interactivity with Windows
-  win32: ^6.3.0
+  win32: ^6.4.0
   win32_registry: ^3.0.3
 
   # Code generation
@@ -55,7 +55,7 @@ dependencies:
   args: ^2.7.0
 
   # Routing
-  go_router: ^17.3.0
+  go_router: ^18.0.0
 
   # Other
   collection: ^1.19.1
@@ -65,22 +65,23 @@ dependencies:
   flutter_svg: ^2.3.0
 
   # Code generation dependencies
-  analyzer: ^12.1.0
-  build: ^4.0.6
+  analyzer: ^13.3.0
+  build: ^4.0.10
   code_builder: ^4.11.1
-  source_gen: ^4.2.3
+  source_gen: ^4.2.4
 
+  vector_graphics: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  riverpod_lint: ^3.1.4
-  build_runner: ^2.15.0
-  freezed: ^3.2.6-dev.1
-  json_serializable: ^6.14.0
-  riverpod_generator: ^4.0.4
+  riverpod_lint: ^3.1.8
+  build_runner: ^2.16.0
+  freezed: ^4.0.0
+  json_serializable: ^6.14.1
+  riverpod_generator: ^4.0.8
   mocktail: ^1.0.5
-  slang_build_runner: ^4.18.0
+  slang_build_runner: ^4.19.0
 
   
 

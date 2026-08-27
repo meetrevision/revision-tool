@@ -5,16 +5,11 @@ import '../models/product_details/product_details.dart';
 
 final storeCacheProvider = Provider<StoreCache>((ref) => StoreCache());
 
-final class _PackageCacheEntry {
-  const _PackageCacheEntry({required this.packages, required this.expiryDate});
-
-  final Set<PackageInfo> packages;
-  final DateTime expiryDate;
-
+final class const _PackageCacheEntry({required final Set<PackageInfo> packages, required final DateTime expiryDate}) {
   bool get isExpired => DateTime.now().isAfter(expiryDate);
 }
 
-final class StoreCache {
+final class StoreCache() {
   final _details = <String, ProductDetails>{};
   final _packages = <String, _PackageCacheEntry>{};
 

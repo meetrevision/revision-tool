@@ -1,8 +1,6 @@
 import '../../i18n/generated/strings.g.dart';
 
-class LocaleConfig {
-  LocaleConfig._();
-
+final class LocaleConfig._() {
   static const languageNames = {
     'en': 'English',
     'ptBr': 'Portuguese (Brazil)',
@@ -24,9 +22,9 @@ class LocaleConfig {
 
   static AppLocale parse(String name) {
     try {
-      return AppLocale.values.byName(name);
+      return .values.byName(name);
     } catch (e) {
-      return AppLocale.en;
+      return .en;
     }
   }
 }

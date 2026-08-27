@@ -1,35 +1,30 @@
-sealed class AppException implements Exception {
-  const AppException(this.message, {this.cause});
-
-  final String message;
-  final Object? cause;
-
+sealed class const AppException(final String message, {final Object? cause}) implements Exception {
   @override
   String toString() => message;
 }
 
-final class NetworkException extends AppException {
-  const NetworkException({Object? cause}) : super('Network connection failed', cause: cause);
+final class const NetworkException({super.cause}) extends AppException {
+  this : super('Network connection failed');
 }
 
-final class TimeoutException extends AppException {
-  const TimeoutException({Object? cause}) : super('The network request timed out', cause: cause);
+final class const TimeoutException({super.cause}) extends AppException {
+  this : super('The network request timed out');
 }
 
-final class HttpStatusException extends AppException {
-  const HttpStatusException(this.statusCode, String message, {this.responseBody, Object? cause})
-    : super(message, cause: cause);
+final class const HttpStatusException(
+  final int statusCode,
+  super.message, {
+  final Object? responseBody,
+  super.cause,
+}) extends AppException;
 
-  final int statusCode;
-  final Object? responseBody;
+final class const CancelledRequestException({super.cause}) extends AppException {
+  this : super('The network request was cancelled');
 }
 
-final class CancelledRequestException extends AppException {
-  const CancelledRequestException({Object? cause})
-    : super('The network request was cancelled', cause: cause);
-}
-
-final class UnexpectedNetworkException extends AppException {
-  const UnexpectedNetworkException({String message = 'Unexpected network error', Object? cause})
-    : super(message, cause: cause);
+final class const UnexpectedNetworkException({
+  String message = 'Unexpected network error',
+  Object? cause,
+}) extends AppException {
+  this : super(message, cause: cause);
 }
