@@ -62,30 +62,30 @@ abstract base class const WinPackageService({
   static const cbsPackagesRegPath =
       r'SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages\';
 
-  static bool checkPackageInstalled(WinPackageType packageType) {
-    final String? key = LOCAL_MACHINE
-        .open(cbsPackagesRegPath)
-        .keys
-        .lastWhereOrNull((e) => e.startsWith(packageType.packageName));
+  static bool checkPackageInstalled(WinPackageType p) {
+    final RegistryKey packageRoot = LOCAL_MACHINE.open(cbsPackagesRegPath);
+    try {
+      final String? key = packageRoot.keys.lastWhereOrNull((e) => e.startsWith(p.packageName));
+      if (key == null) return false;
 
-    if (key == null) {
-      return false;
+      final int? currentState = WinRegistryService.readInt(
+        LOCAL_MACHINE,
+        '$cbsPackagesRegPath$key',
+        'CurrentState',
+      );
+      final int? lastError = WinRegistryService.readInt(
+        LOCAL_MACHINE,
+        '$cbsPackagesRegPath$key',
+        'LastError',
+      );
+
+      // installation codes - https://forums.ivanti.com/s/article/Understand-Patch-installation-failure-codes?language=en_US
+      return currentState != null &&
+          (currentState != 5 || currentState != 4294967264) &&
+          lastError == null;
+    } finally {
+      packageRoot.close();
     }
-
-    final int currentState = WinRegistryService.readInt(
-      LOCAL_MACHINE,
-      cbsPackagesRegPath + key,
-      'CurrentState',
-    )!;
-
-    final int? lastError = WinRegistryService.readInt(
-      LOCAL_MACHINE,
-      cbsPackagesRegPath + key,
-      'LastError',
-    );
-
-    // installation codes - https://forums.ivanti.com/s/article/Understand-Patch-installation-failure-codes?language=en_US
-    return (currentState != 5 || currentState != 4294967264) && lastError == null;
   }
 
   static String? getBundledPackagePath(WinPackageType packageType) {
