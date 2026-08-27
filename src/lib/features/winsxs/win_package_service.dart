@@ -268,7 +268,7 @@ final class const AiRemovalService({required final StoreService _store, required
 
   static const _copilotStoreId = '9nht9rb2f4hd';
   static const _fabricAIPath =
-      r' C:\Windows\SystemApps\Microsoft.AIFabric.CBS.1.6_8wekyb3d8bbwe\AppxManifest.xml';
+      r'C:\Windows\SystemApps\Microsoft.AIFabric.CBS.1.6_8wekyb3d8bbwe\AppxManifest.xml';
 
   @override
   Future<void> install() async {
