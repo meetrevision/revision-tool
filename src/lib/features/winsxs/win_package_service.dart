@@ -51,7 +51,10 @@ enum WinPackageType({required final String packageName, required final String cl
   }
 }
 
-abstract base class const WinPackageService({required final WinPackageType type, required final ApiClient _api}) {
+abstract base class const WinPackageService({
+  required final WinPackageType type,
+  required final ApiClient _api,
+}) {
   static final String cabPath = p.join(Directory.systemTemp.path, 'Revision-Tool', 'CAB');
 
   static final String bundledPackagesPath = p.join(directoryExe, 'packages', 'winsxs');
@@ -239,9 +242,11 @@ final class const OneDriveRemovalService({required super.api}) extends WinPackag
 /// [install] and [uninstall] methods are overridden to call [SecurityService] methods instead of the base class methods, to ensure that Defender is properly disabled/enabled.
 ///
 /// The [installPackage] and [uninstallPackage] methods are provided to allow calling the base class methods directly when needed.
-final class const DefenderRemovalService({required final SecurityService _security, required super.api}) extends WinPackageService {
-  this
-    : super(type: .defenderRemoval);
+final class const DefenderRemovalService({
+  required final SecurityService _security,
+  required super.api,
+}) extends WinPackageService {
+  this : super(type: .defenderRemoval);
 
   @override
   Future<void> install() async => _security.disableDefenderCLI();
@@ -257,10 +262,13 @@ final class const DefenderRemovalService({required final SecurityService _securi
   }
 }
 
-final class const AiRemovalService({required final StoreService _store, required super.api}) extends WinPackageService {
+final class const AiRemovalService({required final StoreService _store, required super.api})
+    extends WinPackageService {
   this : super(type: .aiRemoval);
 
   static const _copilotStoreId = '9nht9rb2f4hd';
+  static const _fabricAIPath =
+      r' C:\Windows\SystemApps\Microsoft.AIFabric.CBS.1.6_8wekyb3d8bbwe\AppxManifest.xml';
 
   @override
   Future<void> install() async {
@@ -268,6 +276,9 @@ final class const AiRemovalService({required final StoreService _store, required
     await WinRegistryService.hidePageVisibilitySettings('privacy-systemaimodels');
     await runPSCommand('Disable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart');
     await runPSCommand('Get-AppxPackage -AllUsers Microsoft.Copilot* | Remove-AppxPackage');
+    await runPSCommand(
+      r"Get-AppxPackage -Name 'Microsoft.AIFabric.CBS.1.6*' | Remove-AppxPackage -PreserveRoamableApplicationData",
+    );
 
     await super.install();
   }
@@ -281,10 +292,17 @@ final class const AiRemovalService({required final StoreService _store, required
 
     await runPSCommand('Enable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart');
     await _installStorePackages(store: _store, ids: {_copilotStoreId});
+    if (File(_fabricAIPath).existsSync()) {
+      logger.i('winsxs: Re-registering Microsoft.AIFabric.CBS.1.6 package...');
+      await runPSCommand(
+        'Add-AppxPackage -Register -DisableDevelopmentMode -Path "$_fabricAIPath"',
+      );
+    }
   }
 }
 
-final class const XboxRemovalService({required final StoreService _store, required super.api}) extends WinPackageService {
+final class const XboxRemovalService({required final StoreService _store, required super.api})
+    extends WinPackageService {
   this : super(type: .xboxRemoval);
 
   static const _callableUiManifestPath =
