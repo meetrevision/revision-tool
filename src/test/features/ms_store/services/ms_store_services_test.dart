@@ -8,17 +8,20 @@ import 'package:mocktail/mocktail.dart';
 import 'package:revitool/core/error/app_exception.dart';
 import 'package:revitool/core/error/result.dart';
 import 'package:revitool/core/network/api_client.dart';
-import 'package:revitool/features/ms_store/data/store_cache.dart';
-import 'package:revitool/features/ms_store/models/package_info.dart';
-import 'package:revitool/features/ms_store/models/product_details/product_details.dart';
-import 'package:revitool/features/ms_store/models/search/search_product.dart';
-import 'package:revitool/features/ms_store/models/store_download_info.dart';
-import 'package:revitool/features/ms_store/models/uwp/uwp_package.dart';
-import 'package:revitool/features/ms_store/ms_store_repository.dart';
-import 'package:revitool/features/ms_store/services/package_file_service.dart';
-import 'package:revitool/features/ms_store/services/uwp_xml_parser.dart';
-import 'package:revitool/features/ms_store/store_enums.dart';
-import 'package:revitool/features/ms_store/store_service.dart';
+import 'package:revitool/features/ms_store/data/cache/store_cache.dart';
+import 'package:revitool/features/ms_store/data/datasources/fe3_delivery_client.dart';
+import 'package:revitool/features/ms_store/data/datasources/store_catalog_client.dart';
+import 'package:revitool/features/ms_store/data/datasources/store_edge_client.dart';
+import 'package:revitool/features/ms_store/data/models/uwp/uwp_package.dart';
+import 'package:revitool/features/ms_store/data/repositories/ms_store_repository.dart';
+import 'package:revitool/features/ms_store/data/services/package_file_service.dart';
+import 'package:revitool/features/ms_store/data/services/uwp_xml_parser.dart';
+import 'package:revitool/features/ms_store/domain/entities/package_info.dart';
+import 'package:revitool/features/ms_store/domain/entities/product_details.dart';
+import 'package:revitool/features/ms_store/domain/entities/search_product.dart';
+import 'package:revitool/features/ms_store/domain/entities/store_download_info.dart';
+import 'package:revitool/features/ms_store/domain/entities/store_enums.dart';
+import 'package:revitool/features/ms_store/domain/services/store_service.dart';
 
 void main() {
   setUpAll(() {
@@ -35,38 +38,36 @@ void main() {
     });
 
     test('search parses products from ApiClient response', () async {
-      when(
-        () => apiClient.get<dynamic>(any<Uri>(), options: any<Options?>(named: 'options')),
-      ).thenAnswer(
-        (_) async => Result<Response<dynamic>>.success(
-          Response<dynamic>(
-            requestOptions: RequestOptions(),
-            statusCode: 200,
-            data: {
-              'productsList': [
-                {'productId': '9TEST', 'title': 'Test App'},
-              ],
-            },
-          ),
-        ),
-      );
+      when(() => apiClient.get<dynamic>(any<Uri>(), options: any<Options?>(named: 'options')))
+          .thenAnswer(
+            (_) async => Result<Response<dynamic>>.success(
+              Response<dynamic>(
+                requestOptions: RequestOptions(),
+                statusCode: 200,
+                data: {
+                  'productsList': [
+                    {'productId': '9TEST', 'title': 'Test App'},
+                  ],
+                },
+              ),
+            ),
+          );
 
       final List<SearchProduct> products = await _uwpRepository(apiClient).searchProducts('test');
-      expect(products.single.productId, '9TEST');
+      expect(products.single.id, '9TEST');
     });
 
     test('product details parses ApiClient response', () async {
-      when(
-        () => apiClient.get<dynamic>(any<Uri>(), options: any<Options?>(named: 'options')),
-      ).thenAnswer(
-        (_) async => Result<Response<dynamic>>.success(
-          Response<dynamic>(
-            requestOptions: RequestOptions(),
-            statusCode: 200,
-            data: {'productId': '9TEST', 'title': 'Test App'},
-          ),
-        ),
-      );
+      when(() => apiClient.get<dynamic>(any<Uri>(), options: any<Options?>(named: 'options')))
+          .thenAnswer(
+            (_) async => Result<Response<dynamic>>.success(
+              Response<dynamic>(
+                requestOptions: RequestOptions(),
+                statusCode: 200,
+                data: {'productId': '9TEST', 'title': 'Test App'},
+              ),
+            ),
+          );
 
       final ProductDetails details = await _uwpRepository(apiClient).getProductDetails('9TEST');
 
@@ -75,13 +76,12 @@ void main() {
 
     test('UWP repository parses packages and resolves session URL', () async {
       final parser = _FakeUwpXmlParser();
-      final repository = UwpStoreRepository(api: apiClient, cache: StoreCache(), xmlParser: parser);
+      final UwpStoreRepository repository = _uwpRepositoryWithParser(apiClient, parser);
       var unsecurePostCalls = 0;
       var downloadUriCalls = 0;
 
-      when(
-        () => apiClient.get<dynamic>(any<Uri>()),
-      ).thenAnswer((_) async => _response(data: _uwpProductJson()));
+      when(() => apiClient.get<dynamic>(any<Uri>()))
+          .thenAnswer((_) async => _response(data: _uwpProductJson()));
       when(
         () => apiClient.post<dynamic>(
           any<Uri>(),
@@ -118,10 +118,9 @@ void main() {
     });
 
     test('UWP repository propagates category HTTP failure', () async {
-      final repository = UwpStoreRepository(
-        api: apiClient,
-        cache: StoreCache(),
-        xmlParser: _FakeUwpXmlParser(),
+      final UwpStoreRepository repository = _uwpRepositoryWithParser(
+        apiClient,
+        _FakeUwpXmlParser(),
       );
 
       when(
@@ -131,9 +130,8 @@ void main() {
           options: any<Options?>(named: 'options'),
         ),
       ).thenAnswer((_) async => _response(data: '<cookie />'));
-      when(
-        () => apiClient.get<dynamic>(any<Uri>()),
-      ).thenAnswer((_) async => _response(statusCode: 500, data: 'category failure'));
+      when(() => apiClient.get<dynamic>(any<Uri>()))
+          .thenAnswer((_) async => _response(statusCode: 500, data: 'category failure'));
 
       expect(
         () => repository.getPackages(productId: '9TEST', ring: StoreRing.retail),
@@ -142,10 +140,9 @@ void main() {
     });
 
     test('UWP repository fails when product misses WU category ID', () async {
-      final repository = UwpStoreRepository(
-        api: apiClient,
-        cache: StoreCache(),
-        xmlParser: _FakeUwpXmlParser(),
+      final UwpStoreRepository repository = _uwpRepositoryWithParser(
+        apiClient,
+        _FakeUwpXmlParser(),
       );
 
       when(
@@ -155,9 +152,8 @@ void main() {
           options: any<Options?>(named: 'options'),
         ),
       ).thenAnswer((_) async => _response(data: '<cookie />'));
-      when(
-        () => apiClient.get<dynamic>(any<Uri>()),
-      ).thenAnswer((_) async => _response(data: _uwpProductJson(wuCategoryId: null)));
+      when(() => apiClient.get<dynamic>(any<Uri>()))
+          .thenAnswer((_) async => _response(data: _uwpProductJson(wuCategoryId: null)));
 
       expect(
         () => repository.getPackages(productId: '9TEST', ring: StoreRing.retail),
@@ -167,17 +163,16 @@ void main() {
 
     test('Win32 repository uses product details installer first', () async {
       final Win32StoreRepository repository = _win32Repository(apiClient);
-      when(
-        () => apiClient.get<dynamic>(any<Uri>(), options: any<Options?>(named: 'options')),
-      ).thenAnswer(
-        (_) async => Result<Response<dynamic>>.success(
-          Response<dynamic>(
-            requestOptions: RequestOptions(),
-            statusCode: 200,
-            data: _win32DetailsJson,
-          ),
-        ),
-      );
+      when(() => apiClient.get<dynamic>(any<Uri>(), options: any<Options?>(named: 'options')))
+          .thenAnswer(
+            (_) async => Result<Response<dynamic>>.success(
+              Response<dynamic>(
+                requestOptions: RequestOptions(),
+                statusCode: 200,
+                data: _win32DetailsJson,
+              ),
+            ),
+          );
 
       final Set<PackageInfo> packages = await repository.getPackages(
         productId: 'XPTEST',
@@ -193,17 +188,16 @@ void main() {
     });
 
     test('Win32 repository falls back to manifest API', () async {
-      when(
-        () => apiClient.get<dynamic>(any<Uri>(), options: any<Options?>(named: 'options')),
-      ).thenAnswer(
-        (_) async => Result<Response<dynamic>>.success(
-          Response<dynamic>(
-            requestOptions: RequestOptions(),
-            statusCode: 200,
-            data: {'productId': 'XPTEST'},
-          ),
-        ),
-      );
+      when(() => apiClient.get<dynamic>(any<Uri>(), options: any<Options?>(named: 'options')))
+          .thenAnswer(
+            (_) async => Result<Response<dynamic>>.success(
+              Response<dynamic>(
+                requestOptions: RequestOptions(),
+                statusCode: 200,
+                data: {'productId': 'XPTEST'},
+              ),
+            ),
+          );
       when(() => apiClient.get<dynamic>(any<Uri>())).thenAnswer(
         (_) async => Result<Response<dynamic>>.success(
           Response<dynamic>(
@@ -214,9 +208,8 @@ void main() {
         ),
       );
 
-      final Set<PackageInfo> packages = await _win32Repository(
-        apiClient,
-      ).getPackages(productId: 'XPTEST', ring: StoreRing.retail);
+      final Set<PackageInfo> packages = await _win32Repository(apiClient)
+          .getPackages(productId: 'XPTEST', ring: StoreRing.retail);
       final PackageInfo package = packages.single;
 
       expect(package.uri, 'https://example.test/manifest.msi');
@@ -226,20 +219,18 @@ void main() {
     });
 
     test('Win32 repository propagates manifest API failure', () async {
-      when(
-        () => apiClient.get<dynamic>(any<Uri>(), options: any<Options?>(named: 'options')),
-      ).thenAnswer(
-        (_) async => Result<Response<dynamic>>.success(
-          Response<dynamic>(
-            requestOptions: RequestOptions(),
-            statusCode: 200,
-            data: {'productId': 'XPTEST'},
-          ),
-        ),
-      );
-      when(
-        () => apiClient.get<dynamic>(any<Uri>()),
-      ).thenAnswer((_) async => const Result<Response<dynamic>>.failure(NetworkException()));
+      when(() => apiClient.get<dynamic>(any<Uri>(), options: any<Options?>(named: 'options')))
+          .thenAnswer(
+            (_) async => Result<Response<dynamic>>.success(
+              Response<dynamic>(
+                requestOptions: RequestOptions(),
+                statusCode: 200,
+                data: {'productId': 'XPTEST'},
+              ),
+            ),
+          );
+      when(() => apiClient.get<dynamic>(any<Uri>()))
+          .thenAnswer((_) async => const Result<Response<dynamic>>.failure(NetworkException()));
 
       expect(
         () => _win32Repository(apiClient).getPackages(productId: 'XPTEST', ring: StoreRing.retail),
@@ -315,6 +306,59 @@ void main() {
 
         expect(result, isA<Success<Set<StorePackageFileDownload>>>());
         expect(progress, [0.5, 1]);
+      } finally {
+        await service.cleanup();
+      }
+    });
+
+    test('cancelled download does not succeed or poison the next download', () async {
+      final StoreService service = _service(
+        apiClient,
+        uwpRepository: _FakeStoreRepository({
+          '9TEST': {_sharedPackage(digest: 'digest', size: 12)},
+        }),
+      );
+      final PackageInfo package = _sharedPackage(digest: 'digest', size: 12);
+      var attempts = 0;
+      final firstToken = CancelToken();
+
+      when(
+        () => apiClient.downloadFile(
+          any<Uri>(),
+          any<String>(),
+          onReceiveProgress: any<ProgressCallback?>(named: 'onReceiveProgress'),
+          cancelToken: any<CancelToken?>(named: 'cancelToken'),
+        ),
+      ).thenAnswer((invocation) async {
+        attempts++;
+        final path = invocation.positionalArguments[1] as String;
+        final file = File(path)..parent.createSync(recursive: true);
+        if (attempts == 1) {
+          file.writeAsStringSync('partial');
+          firstToken.cancel('cancelled');
+          return const Result<Response<dynamic>>.failure(CancelledRequestException());
+        }
+        file.writeAsStringSync('complete data');
+        return _response();
+      });
+
+      try {
+        final Result<Set<StorePackageFileDownload>> firstResult = await service.download(
+          ring: StoreRing.retail,
+          packagesByProductId: {'9TEST': [package]},
+          cancelToken: firstToken,
+          onProgress: (_) {},
+        );
+        expect(firstResult, isA<Failure<Set<StorePackageFileDownload>>>());
+
+        final Result<Set<StorePackageFileDownload>> secondResult = await service.download(
+          ring: StoreRing.retail,
+          packagesByProductId: {'9TEST': [package]},
+          cancelToken: CancelToken(),
+          onProgress: (_) {},
+        );
+        expect(secondResult, isA<Success<Set<StorePackageFileDownload>>>());
+        expect(attempts, 2);
       } finally {
         await service.cleanup();
       }
@@ -491,8 +535,20 @@ void main() {
       }
     });
 
-    test('mixed app type batch fails clearly', () async {
+    test('mixed app type batch succeeds', () async {
       final StoreService service = _service(apiClient);
+      when(
+        () => apiClient.downloadFile(
+          any<Uri>(),
+          any<String>(),
+          onReceiveProgress: any<ProgressCallback?>(named: 'onReceiveProgress'),
+          cancelToken: any<CancelToken?>(named: 'cancelToken'),
+        ),
+      ).thenAnswer(
+        (_) async => Result<Response<dynamic>>.success(
+          Response<dynamic>(requestOptions: RequestOptions(), statusCode: 200),
+        ),
+      );
       final Result<Set<StorePackageFileDownload>> result = await service.download(
         ring: StoreRing.retail,
         packagesByProductId: {
@@ -503,11 +559,7 @@ void main() {
         onProgress: (_) {},
       );
 
-      expect(result, isA<Failure<Set<StorePackageFileDownload>>>());
-      expect(
-        (result as Failure<Set<StorePackageFileDownload>>).exception.toString(),
-        contains('Batch downloads must use one Store app type'),
-      );
+      expect(result, isA<Success<Set<StorePackageFileDownload>>>());
     });
 
     test('install delegates selected packages', () async {
@@ -658,10 +710,28 @@ Map<String, Object?> _uwpProductJson({String? wuCategoryId = 'category-id'}) {
   };
 }
 
-final class _FakeStoreRepository(final Map<String, Set<PackageInfo>> _packagesById) extends StoreRepository {
-  this : super(api: _MockApiClient(), cache: StoreCache());
-
+final class _FakeStoreRepository(final Map<String, Set<PackageInfo>> _packagesById)
+    extends StoreRepository {
   static const String _downloadUrl = 'https://example.test/package.appx';
+
+  @override
+  Future<List<SearchProduct>> searchProducts(
+    String query, {
+    String market = 'US',
+    String locale = 'en-us',
+    String mediaType = 'all',
+    String age = 'all',
+    String price = 'all',
+    String category = 'all',
+    String subscription = 'all',
+  }) async => const [];
+
+  @override
+  Future<ProductDetails> getProductDetails(
+    String productId, {
+    String market = 'US',
+    String locale = 'en-us',
+  }) async => throw UnimplementedError();
 
   @override
   Future<Set<PackageInfo>> getPackages({required String productId, required StoreRing ring}) async {
@@ -706,11 +776,33 @@ final class _RecordingPackageFileService(super.api) extends PackageFileService {
 }
 
 UwpStoreRepository _uwpRepository(ApiClient apiClient) {
-  return UwpStoreRepository(api: apiClient, cache: StoreCache(), xmlParser: const UwpXmlParser());
+  final cache = StoreCache();
+  return UwpStoreRepository(
+    catalog: StoreCatalogClient(api: apiClient, cache: cache),
+    edge: StoreEdgeClient(api: apiClient),
+    fe3: Fe3DeliveryClient(api: apiClient, parser: const UwpXmlParser()),
+    cache: cache,
+  );
+}
+
+UwpStoreRepository _uwpRepositoryWithParser(ApiClient apiClient, UwpXmlParser parser) {
+  final cache = StoreCache();
+  return UwpStoreRepository(
+    catalog: StoreCatalogClient(api: apiClient, cache: cache),
+    edge: StoreEdgeClient(api: apiClient),
+    fe3: Fe3DeliveryClient(api: apiClient, parser: parser),
+    cache: cache,
+  );
 }
 
 Win32StoreRepository _win32Repository(ApiClient apiClient) {
-  return Win32StoreRepository(api: apiClient, cache: StoreCache(), xmlParser: const UwpXmlParser());
+  final cache = StoreCache();
+  return Win32StoreRepository(
+    catalog: StoreCatalogClient(api: apiClient, cache: cache),
+    edge: StoreEdgeClient(api: apiClient),
+    cache: cache,
+    xmlParser: const UwpXmlParser(),
+  );
 }
 
 StoreService _service(
@@ -769,12 +861,12 @@ PackageInfo _mainPackage({
 }
 
 PackageInfo _win32Package() {
-  return PackageInfo(
+  return const PackageInfo(
     id: 'XPTEST',
     isDependency: false,
     uri: 'https://example.test/app.exe',
     arch: 'x64',
-    fileModel: const FileModel(
+    fileModel: FileModel(
       fileName: 'app.exe',
       fileType: 'exe',
       digest: 'digest',

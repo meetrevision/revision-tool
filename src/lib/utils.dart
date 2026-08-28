@@ -85,6 +85,8 @@ Future<ProcessResult> runPSCommand(
     '-NoProfile',
     '-NonInteractive',
     '-NoLogo',
+    '-WindowStyle',
+    'Hidden',
     if (encodedCommand) ...[
       '-EncodedCommand',
       _toUtf16LeBase64(command),
@@ -93,17 +95,26 @@ Future<ProcessResult> runPSCommand(
       command,
     ],
   ];
-  final ProcessResult result = await Process.run('powershell', args, runInShell: true);
+  try {
+    final ProcessResult result = await Process.run('powershell.exe', args);
 
-  if (result.exitCode != 0) {
-    logger.e('ps_command', error: result.stderr, stackTrace: StackTrace.current);
-    throw ProcessException('powershell', args, result.stderr.toString(), result.exitCode);
-  }
-  if (loggerInfoOutput) {
-    logger.i('ps_command: $command; ${stdout ? result.stdout : ''}');
-  }
+    if (result.exitCode != 0) {
+      logger.e(
+        'ps_command failed (exitCode=${result.exitCode}): $command',
+        error: result.stderr,
+        stackTrace: StackTrace.current,
+      );
+      throw ProcessException('powershell.exe', args, result.stderr.toString(), result.exitCode);
+    }
+    if (loggerInfoOutput) {
+      logger.i('ps_command: $command; ${stdout ? result.stdout : ''}');
+    }
 
-  return result;
+    return result;
+  } catch (error, stackTrace) {
+    logger.e('ps_command failed: $command', error: error, stackTrace: stackTrace);
+    rethrow;
+  }
 }
 
 String _toUtf16LeBase64(String value) {

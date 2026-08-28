@@ -4,8 +4,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../extensions.dart';
 import '../../features/home/home_page.dart';
-import '../../features/ms_store/ms_store_page.dart';
-import '../../features/ms_store/ms_store_product_page.dart';
+import '../../features/ms_store/presentation/pages/ms_store_page.dart';
+import '../../features/ms_store/presentation/pages/ms_store_product_page.dart';
 import '../../features/tweaks/performance/performance_page.dart';
 import '../../features/tweaks/personalization/personalization_page.dart';
 import '../../features/tweaks/security/security_page.dart';

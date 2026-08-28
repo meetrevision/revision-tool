@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../extensions.dart';
-import '../../features/ms_store/ms_store_image_provider.dart';
+import '../../features/ms_store/presentation/providers/ms_store_image_provider.dart';
 import '../../i18n/generated/strings.g.dart';
 import '../../utils_gui.dart';
 import '../extensions/gui/image_cache_size.dart';

@@ -12,9 +12,9 @@ import '../../core/network/api_client.dart';
 import '../../core/network/network_endpoints.dart';
 import '../../core/services/win_registry_service.dart';
 import '../../utils.dart';
-import '../ms_store/models/store_download_info.dart';
-import '../ms_store/store_enums.dart';
-import '../ms_store/store_service.dart';
+import '../ms_store/domain/entities/store_download_info.dart';
+import '../ms_store/domain/entities/store_enums.dart';
+import '../ms_store/domain/services/store_service.dart';
 import '../tweaks/security/security_service.dart';
 import 'winsxs_exceptions.dart';
 

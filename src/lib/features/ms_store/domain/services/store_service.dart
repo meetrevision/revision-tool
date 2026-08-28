@@ -1,0 +1,368 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:riverpod/riverpod.dart';
+
+import '../../../../core/error/app_exception.dart';
+import '../../../../core/error/result.dart';
+import '../../../../core/extensions/int_bytes.dart';
+import '../../../../core/services/win_registry_service.dart';
+import '../../../../core/utils/base_service.dart';
+import '../../../../utils.dart';
+import '../../data/repositories/ms_store_repository.dart';
+import '../../data/services/package_file_service.dart';
+
+import '../entities/package_info.dart';
+import '../entities/product_details.dart';
+import '../entities/search_product.dart';
+import '../entities/store_download_info.dart';
+import '../entities/store_enums.dart';
+
+final _punctuationRegex = RegExp(r'[^A-Za-z0-9,]'); // remove all punctuation except commas
+
+final storeServiceProvider = Provider<StoreService>((ref) {
+  return StoreService(
+    uwpRepository: ref.read(uwpStoreRepositoryProvider),
+    win32Repository: ref.read(win32StoreRepositoryProvider),
+    fileService: ref.read(storePackageFileServiceProvider),
+  );
+});
+
+final class const StoreService({
+  required final StoreRepository _uwpRepository,
+  required final StoreRepository _win32Repository,
+  required final PackageFileService _fileService,
+}) with BaseService {
+  static final _locks = <String, RandomAccessFile>{};
+
+  @override
+  ErrorMapper get errorMapper => (error, stackTrace) {
+    if (error is AppException) return error;
+    return UnexpectedNetworkException(cause: error);
+  };
+
+  @override
+  String get logTag => 'StoreService';
+
+  void _lockFile(String path) {
+    if (_locks.containsKey(path)) return;
+    final file = File(path);
+    // Skip lock if file not on disk (e.g. mocked download in tests).
+    // Real download always creates file before lock.
+    if (!file.existsSync()) return;
+    try {
+      final RandomAccessFile lock = file.openSync();
+      lock.lockSync(FileLock.blockingShared);
+      _locks[path] = lock;
+    } on FileSystemException {
+      // Lock failed, ignore. File may be missing or locked elsewhere.
+      return;
+    }
+  }
+
+  void _unlockFile(String path) {
+    final RandomAccessFile? lock = _locks.remove(path);
+    if (lock == null) return;
+    try {
+      lock.unlockSync();
+    } finally {
+      lock.closeSync();
+    }
+  }
+
+  /// Releases locks held for download-only flows, cancel, or cleanup.
+  void releaseDownloadLocks() {
+    _locks.keys.toList().forEach(_unlockFile);
+  }
+
+  void _trackDownloadedFile(String path) => _lockFile(path);
+
+  Future<Result<List<SearchProduct>>> searchProducts(String query) => run(
+    () async => _uwpRepository.searchProducts(query).then((r) {
+      return r.where((p) => p.displayPrice == 'Free').toList(growable: false);
+    }),
+  );
+
+  Future<Result<ProductDetails>> getProductDetails(String productId) async {
+    return run(() {
+      if (productId.isEmpty) {
+        throw ArgumentError.value(productId, 'productId', 'Must not be empty');
+      }
+
+      productId = productId.replaceAll(_punctuationRegex, '');
+
+      productId = productId.split(',').first.trim();
+      if (StoreAppType.fromProductId(productId) == null) {
+        throw ArgumentError.value(productId, 'productId', 'Unknown product ID');
+      }
+      return _win32Repository.getProductDetails(productId);
+    });
+  }
+
+  Future<Result<StorePackagesByProductId>> getPackages({
+    required Iterable<String> productIds,
+    StoreRing ring = .releasePreview,
+    StoreArch arch = .auto,
+  }) async {
+    return run(() async {
+      final Map<StoreAppType, Set<String>> idsByType = productIds
+          .map((id) => id.toUpperCase())
+          .map((id) => (StoreAppType.fromProductId(id)!, id))
+          .fold<Map<StoreAppType, Set<String>>>({}, (m, e) {
+            m.putIfAbsent(e.$1, () => {}).add(e.$2);
+            return m;
+          });
+
+      if (idsByType.isEmpty) {
+        throw const UnexpectedNetworkException(message: 'At least one product ID required');
+      }
+
+      final String resolvedArch = arch == .auto
+          ? (WinRegistryService.cpuArch == 'amd64' ? 'x64' : 'arm64')
+          : arch.value;
+
+      final merged = <String, Set<PackageInfo>>{};
+
+      // Fetch for each type in parallel
+      for (final MapEntry<StoreAppType, Set<String>> entry in idsByType.entries) {
+        final StoreAppType type = entry.key;
+        final StoreRepository repo = type == .uwp ? _uwpRepository : _win32Repository;
+        await Future.wait(
+          entry.value.map((productId) async {
+            final Set<PackageInfo> packages =
+                (await repo.getPackages(productId: productId, ring: ring)).where((p) {
+                  if (arch == .all) return true;
+                  final String a = p.arch.toLowerCase();
+                  if (a == 'neutral' || a == resolvedArch) return true;
+                  return p.isDependency &&
+                      ((resolvedArch == 'x64' && a == 'x86') ||
+                          (resolvedArch == 'arm64' && a == 'arm'));
+                }).toSet();
+
+            if (packages.isEmpty) {
+              throw UnexpectedNetworkException(
+                cause: Exception('No matching packages for $productId arch=${arch.value}'),
+              );
+            }
+            merged[productId] = packages;
+          }),
+        );
+      }
+      return merged;
+    });
+  }
+
+  Future<Result<Set<StorePackageFileDownload>>> download({
+    required StoreRing ring,
+    required Map<String, Iterable<PackageInfo>> packagesByProductId,
+    required void Function(StorePackageDownloadProgress) onProgress,
+    required CancelToken cancelToken,
+    String? downloadPath,
+  }) async {
+    return run(() async {
+      if (downloadPath != null && downloadPath.isNotEmpty) {
+        final dir = Directory(downloadPath);
+        if (!dir.existsSync()) dir.createSync(recursive: true);
+      }
+
+      final flat = <({PackageInfo package, String productId})>{};
+      for (final MapEntry<String, Iterable<PackageInfo>> entry in packagesByProductId.entries) {
+        for (final PackageInfo pkg in entry.value) {
+          flat.add((package: pkg, productId: entry.key.toUpperCase()));
+        }
+      }
+
+      final String downloadId = packagesByProductId.keys.length == 1
+          ? packagesByProductId.keys.first.toUpperCase()
+          : DateTime.now().millisecondsSinceEpoch.toString();
+
+      final int totalPackages = flat.length;
+      final int totalBytes = flat.fold<int>(0, (s, e) => s + e.package.expectedBytes);
+      var downloadedBytes = 0;
+      var completedCount = 0;
+      final downloads = <StorePackageFileDownload>{};
+      if (cancelToken.isCancelled) return downloads;
+
+      for (final item in flat) {
+        if (cancelToken.isCancelled) return downloads;
+
+        final PackageInfo package = item.package;
+        final String productId = item.productId;
+        final StoreAppType type = .fromProductId(productId)!;
+
+        // Build local path
+        final String tempDir = downloadPath ?? _fileService.downloadPath(downloadId, ring);
+        final String fileName = package.downloadName;
+        var storedPath = package.isDependency
+            ? '$tempDir\\Dependencies\\$fileName'
+            : '$tempDir\\$fileName';
+        if (!fileName.endsWith('.${package.fileExt}')) {
+          storedPath += '.${package.fileExt}';
+        }
+
+        // Use cache if valid
+        var cacheHit = false;
+        final cachedFile = File(storedPath);
+        if (cachedFile.existsSync()) {
+          final bool valid = package.hasDigest
+              ? await _fileService.verifyFileDigest(
+                  file: cachedFile,
+                  digest: package.digest!,
+                  algorithm: package.algorithm!,
+                )
+              : package.expectedBytes <= 0 || cachedFile.lengthSync() == package.expectedBytes;
+          if (valid) {
+            downloads.add(
+              StorePackageFileDownload(
+                downloadId: downloadId,
+                ring: ring,
+                appType: type,
+                package: package,
+                path: storedPath,
+                bytes: package.expectedBytes,
+              ),
+            );
+            cacheHit = true;
+            _trackDownloadedFile(storedPath);
+          }
+        }
+        if (cacheHit) {
+          completedCount++;
+          downloadedBytes += package.expectedBytes;
+          onProgress(
+            StorePackageDownloadProgress(
+              fileName: package.progressName,
+              fileProgress: 1.0,
+              completedCount: completedCount,
+              totalCount: totalPackages,
+              downloadedBytes: totalBytes > 0
+                  ? downloadedBytes.clampBytes(totalBytes)
+                  : downloadedBytes,
+              totalBytes: totalBytes > 0 ? totalBytes : package.expectedBytes,
+            ),
+          );
+          continue;
+        }
+
+        if (cancelToken.isCancelled) throw const CancelledRequestException();
+
+        // Get download URL using the correct repository
+        final String url = switch (type) {
+          .uwp => await _uwpRepository.getPackageDownloadUrl(package: package, ring: ring),
+          .win32 => await _win32Repository.getPackageDownloadUrl(package: package, ring: ring),
+        };
+        if (cancelToken.isCancelled) throw const CancelledRequestException();
+
+        // Download with progress
+        var lastCount = 0;
+        int lastTotal = package.expectedBytes;
+        final Result<void> result = await _fileService.download(
+          url,
+          storedPath,
+          cancelToken: cancelToken,
+          onProgress: (count, total) {
+            if (cancelToken.isCancelled) return;
+            final int resolvedTotal = total > 0 ? total : package.expectedBytes;
+            if (resolvedTotal <= 0) return;
+            lastCount = count;
+            lastTotal = resolvedTotal;
+            onProgress(
+              StorePackageDownloadProgress(
+                fileName: package.progressName,
+                fileProgress: count / resolvedTotal,
+                completedCount: completedCount,
+                totalCount: totalPackages,
+                downloadedBytes: totalBytes > 0
+                    ? (downloadedBytes + count).clampBytes(totalBytes)
+                    : downloadedBytes + count,
+                totalBytes: totalBytes > 0 ? totalBytes : resolvedTotal,
+              ),
+            );
+          },
+        );
+        if (result is Failure) {
+          final file = File(storedPath);
+          if (file.existsSync()) await file.delete();
+          throw result.exception;
+        }
+
+        final download = StorePackageFileDownload(
+          downloadId: downloadId,
+          ring: ring,
+          appType: type,
+          package: package,
+          path: storedPath,
+          bytes: lastTotal > 0 ? lastTotal : lastCount,
+        );
+        downloads.add(download);
+        _trackDownloadedFile(storedPath);
+        completedCount++;
+        downloadedBytes += download.bytes;
+
+        onProgress(
+          StorePackageDownloadProgress(
+            fileName: package.progressName,
+            fileProgress: 1.0,
+            completedCount: completedCount,
+            totalCount: totalPackages,
+            downloadedBytes: totalBytes > 0
+                ? downloadedBytes.clampBytes(totalBytes)
+                : downloadedBytes,
+            totalBytes: totalBytes > 0 ? totalBytes : download.bytes,
+          ),
+        );
+      }
+      return downloads;
+    });
+  }
+
+  /// Installs a mixed set of downloads. UWP dependencies are installed first.
+  Future<Result<Map<String, ProcessResult>>> install({
+    required Set<StorePackageFileDownload> downloads,
+  }) async {
+    return run(() async {
+      if (downloads.isEmpty) {
+        throw ArgumentError.value(downloads, 'downloads', 'Must not be empty');
+      }
+
+      final List<StorePackageFileDownload> ordered = [
+        ...downloads.where((d) => d.appType == .uwp && d.package.isDependency),
+        ...downloads.where((d) => !(d.appType == .uwp && d.package.isDependency)),
+      ];
+
+      final results = <String, ProcessResult>{};
+      for (final download in ordered) {
+        final PackageInfo package = download.package;
+        if (package.hasDigest) {
+          final bool ok = await _fileService.verifyFileDigest(
+            file: File(download.path),
+            digest: package.digest!,
+            algorithm: package.algorithm!,
+          );
+          if (!ok) {
+            throw Exception('Hash verification failed for ${package.progressName}');
+          }
+          logger.i('Hash verified for ${package.progressName}');
+        } else {
+          logger.w('Hash verification unavailable for ${package.progressName}');
+        }
+
+        final ProcessResult installResult = switch (download.appType) {
+          .uwp => await _fileService.runAppxInstall(File(download.path).path),
+          .win32 => await _fileService.runWin32Install(
+            File(download.path).path,
+            package.commandLines?.split(' ') ?? const [],
+          ),
+        };
+        results[package.id] = installResult;
+        if (installResult.exitCode == 0) _unlockFile(download.path);
+      }
+      return results;
+    });
+  }
+
+  Future<Result<void>> cleanup() => run(() async {
+    releaseDownloadLocks();
+    await _fileService.cleanup();
+  });
+}

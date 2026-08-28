@@ -103,9 +103,11 @@ class ApiClient({
 
         if (!canRetry) {
           logger.e(
-            '$tag(downloadFile): Failed to download $uri',
+            '$tag(downloadFile): Failed to download $uri '
+            '(attempt=${attempt + 1}, type=${e.type}, status=${e.response?.statusCode}, '
+            'error=${e.error})',
             error: exception,
-            stackTrace: StackTrace.current,
+            stackTrace: e.stackTrace,
           );
           return Result<Response<dynamic>>.failure(exception);
         }
@@ -129,9 +131,10 @@ class ApiClient({
       final AppException exception = _mapException(e);
 
       logger.e(
-        '$tag($label): Failed to connect to $uri',
+        '$tag($label): Failed to connect to $uri '
+        '(type=${e.type}, status=${e.response?.statusCode}, error=${e.error})',
         error: exception,
-        stackTrace: StackTrace.current,
+        stackTrace: e.stackTrace,
       );
       return Result<Response<T>>.failure(exception);
     }

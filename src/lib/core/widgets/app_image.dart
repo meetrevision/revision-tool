@@ -2,7 +2,7 @@ import 'dart:developer' as developer;
 
 import 'package:fluent_ui/fluent_ui.dart';
 
-import '../../features/ms_store/ms_store_image_provider.dart';
+import '../../features/ms_store/presentation/providers/ms_store_image_provider.dart';
 
 class const AppImage({
     super.key,

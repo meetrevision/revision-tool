@@ -5,10 +5,9 @@ import 'package:riverpod/riverpod.dart';
 
 import 'core/services/win_registry_command.dart';
 import 'core/services/win_registry_service.dart';
-import 'features/ms_store/ms_store_command.dart';
-import 'features/ms_store/store_service.dart';
+import 'features/ms_store/domain/services/store_service.dart';
+import 'features/ms_store/presentation/commands/ms_store_command.dart';
 import 'features/tweaks/tweaks_command.dart';
-
 import 'features/winsxs/win_package_command.dart';
 import 'utils.dart';
 
