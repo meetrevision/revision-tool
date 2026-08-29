@@ -36,7 +36,6 @@ class const _BackgroundAppsCard() extends ConsumerWidget {
       description: t.tweaksPerformanceBADescription,
       trailing: CardToggleSwitch(
         value: status,
-        semanticLabel: t.tweaksPerformanceBA,
         onChanged: (value) async {
           value
               ? await ref.read(performanceServiceProvider).enableBackgroundApps()
@@ -60,7 +59,6 @@ class const _CtfmonInputCard() extends ConsumerWidget {
       descriptionLink: 'https://ctfmon.vercel.app/',
       trailing: CardToggleSwitch(
         value: !status,
-        semanticLabel: t.tweaksPerformanceCtfmonInput,
         requiresRestart: true,
         onChanged: (value) async {
           value
@@ -82,7 +80,6 @@ class const _BackgroundWindowMessageRateCard() extends ConsumerWidget {
       // icon: msicons.FluentIcons.group_20_regular,
       title: t.tweaksPerformanceBWMR,
       description: t.tweaksPerformanceBWMRDescription,
-      semanticLabel: t.tweaksPerformanceBWMR,
       trailing: ComboBox<int>(
         value: 1000 ~/ status,
 

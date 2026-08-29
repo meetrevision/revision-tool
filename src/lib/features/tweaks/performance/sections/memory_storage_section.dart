@@ -37,7 +37,6 @@ class const _SuperfetchCard() extends ConsumerWidget {
       description: t.tweaksPerformanceRdyBoostDescription,
       trailing: CardToggleSwitch(
         value: status,
-        semanticLabel: t.tweaksPerformanceRdyBoost,
         requiresRestart: true,
         onChanged: (value) async {
           value
@@ -67,7 +66,6 @@ class const _MemoryCompressionCard() extends ConsumerWidget {
       description: t.tweaksPerformanceMemoryCompressionDescription,
       trailing: CardToggleSwitch(
         value: memoryCompressionStatus,
-        semanticLabel: t.tweaksPerformanceMemoryCompression,
         requiresRestart: true,
         onChanged: (value) async {
           value
@@ -89,7 +87,6 @@ class const _ServicesGroupingCard() extends ConsumerWidget {
       // icon: msicons.FluentIcons.group_20_regular,
       title: t.tweaksPerformanceServiceGrouping,
       description: t.tweaksPerformanceServiceGroupingDescription,
-      semanticLabel: t.tweaksPerformanceServiceGrouping,
       trailing: ComboBox<ServiceGrouping>(
         value: status,
         onChanged: (value) async {
@@ -135,7 +132,6 @@ class const _LastTimeAccessCard() extends ConsumerWidget {
       description: t.tweaksPerformanceLastTimeAccessDescription,
       trailing: CardToggleSwitch(
         value: status,
-        semanticLabel: t.tweaksPerformanceLastTimeAccess,
         requiresRestart: true,
         onChanged: (value) async {
           value
@@ -159,7 +155,6 @@ class const _Dot3NamingCard() extends ConsumerWidget {
       description: t.tweaksPerformance8dot3NamingDescription,
       trailing: CardToggleSwitch(
         value: status,
-        semanticLabel: t.tweaksPerformance8dot3Naming,
         requiresRestart: true,
         onChanged: (value) async {
           value
@@ -183,7 +178,6 @@ class const _MemoryUsageCard() extends ConsumerWidget {
       description: t.tweaksPerformancePagedPoolLimitDescription,
       trailing: CardToggleSwitch(
         value: status,
-        semanticLabel: t.tweaksPerformancePagedPoolLimit,
         requiresRestart: true,
         onChanged: (value) async {
           value

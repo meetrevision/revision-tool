@@ -104,7 +104,6 @@ class const _PauseUpdatesCard() extends ConsumerWidget {
       description: t.tweaksUpdatesWUPauseDescription,
       action: CardToggleSwitch(
         value: status,
-        semanticLabel: t.tweaksUpdatesWUPause,
         onChanged: (value) async {
           value
               ? await ref.read(updatesServiceProvider).enablePauseUpdatesWU()
@@ -127,7 +126,6 @@ class const _VisibilityCard() extends ConsumerWidget {
       description: t.tweaksUpdatesWUPageDescription,
       action: CardToggleSwitch(
         value: status,
-        semanticLabel: t.tweaksUpdatesWUPage,
         onChanged: (value) async {
           value
               ? await ref.read(updatesServiceProvider).disableVisibilityWU()
@@ -150,7 +148,6 @@ class const _DriversCard() extends ConsumerWidget {
       description: t.tweaksUpdatesWUDriversDescription,
       action: CardToggleSwitch(
         value: status,
-        semanticLabel: t.tweaksUpdatesWUDrivers,
         onChanged: (value) async {
           value
               ? await ref.read(updatesServiceProvider).enableDriversWU()

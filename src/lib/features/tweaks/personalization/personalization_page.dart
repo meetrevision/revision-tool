@@ -34,7 +34,6 @@ class const _InputPersonalizationCard() extends ConsumerWidget {
       description: t.tweaksPersonalizationInkingAndTypingPersonalizationDescription,
       action: CardToggleSwitch(
         value: status,
-        semanticLabel: t.tweaksPersonalizationInkingAndTypingPersonalization,
         onChanged: (value) async {
           value
               ? await ref.read(personalizationServiceProvider).enableInputPersonalization()
@@ -56,7 +55,6 @@ class const _CapsLockCard() extends ConsumerWidget {
       label: t.tweaksPersonalizationCapsLock,
       action: CardToggleSwitch(
         value: status,
-        semanticLabel: t.tweaksPersonalizationCapsLock,
         onChanged: (value) async {
           value
               ? await ref.read(personalizationServiceProvider).disableCapsLock()

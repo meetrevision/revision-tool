@@ -43,7 +43,6 @@ class const _IntelTSXCard() extends ConsumerWidget {
       description: t.tweaksPerformanceIntelTSXDescription,
       action: CardToggleSwitch(
         value: status,
-        semanticLabel: t.tweaksPerformanceIntelTSX,
         requiresRestart: true,
         onChanged: (value) async {
           value

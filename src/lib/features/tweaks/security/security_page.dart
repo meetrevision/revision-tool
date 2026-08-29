@@ -37,7 +37,6 @@ class const _DefenderCard() extends ConsumerWidget {
     final Widget action = !protectionsStatus
         ? CardToggleSwitch(
             value: defenderStatus,
-            semanticLabel: t.tweaksSecurityDefender,
             onChanged: (value) async {
               unawaited(showLoadingDialog(context, ''));
               try {

@@ -33,7 +33,6 @@ class const _MeltdownSpectreCard() extends ConsumerWidget {
 
       trailing: CardToggleSwitch(
         value: status,
-        semanticLabel: t.tweaksSecuritySMitigation,
         requiresRestart: true,
         onChanged: (value) async {
           value
@@ -60,7 +59,6 @@ class const _DownfallCard() extends ConsumerWidget {
       trailing: CardToggleSwitch(
         enabled: WinRegistryService.isIntelCpu || kDebugMode,
         value: !WinRegistryService.isAmdCpu && status,
-        semanticLabel: t.tweaksSecurityDownfallMitigation,
         requiresRestart: true,
         onChanged: (value) async {
           value

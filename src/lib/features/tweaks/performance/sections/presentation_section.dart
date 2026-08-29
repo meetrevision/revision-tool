@@ -31,7 +31,6 @@ class const _FullscreenOptimizationCard() extends ConsumerWidget {
       description: t.tweaksPerformanceFSODescription,
       trailing: CardToggleSwitch(
         value: status,
-        semanticLabel: t.tweaksPerformanceFSO,
         onChanged: (value) async {
           value
               ? await ref.read(performanceServiceProvider).enableFullscreenOptimization()
@@ -54,7 +53,6 @@ class const _WindowedOptimizationCard() extends ConsumerWidget {
       trailing: CardToggleSwitch(
         enabled: WinRegistryService.isW11 || kDebugMode,
         value: !!WinRegistryService.isW11 && status,
-        semanticLabel: t.tweaksPerformanceOWG,
         onChanged: (value) async {
           value
               ? await ref.read(performanceServiceProvider).enableWindowedOptimization()
@@ -77,7 +75,6 @@ class const _MPOCard() extends ConsumerWidget {
       description: t.tweaksPerformanceMPODescription,
       trailing: CardToggleSwitch(
         value: status,
-        semanticLabel: t.tweaksPerformanceMPO,
         onChanged: (value) async {
           value
               ? await ref.read(performanceServiceProvider).enableMPO()

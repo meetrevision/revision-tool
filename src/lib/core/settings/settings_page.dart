@@ -45,17 +45,14 @@ class const _ThemeModeCard() extends ConsumerWidget {
       icon: msicons.FluentIcons.paint_brush_20_regular,
       label: t.settingsCT,
       description: t.settingsCTDescription,
-      action: Semantics(
-        label: t.settingsCT,
-        child: ComboBox<ThemeMode>(
-          value: appSettings.themeMode,
-          onChanged: ref.read(appSettingsProvider.notifier).updateThemeMode,
-          items: [
-            .new(value: .system, child: Text(ThemeMode.system.name.uppercaseFirst())),
-            .new(value: .light, child: Text(ThemeMode.light.name.uppercaseFirst())),
-            .new(value: .dark, child: Text(ThemeMode.dark.name.uppercaseFirst())),
-          ],
-        ),
+      action: ComboBox<ThemeMode>(
+        value: appSettings.themeMode,
+        onChanged: ref.read(appSettingsProvider.notifier).updateThemeMode,
+        items: [
+          .new(value: .system, child: Text(ThemeMode.system.name.uppercaseFirst())),
+          .new(value: .light, child: Text(ThemeMode.light.name.uppercaseFirst())),
+          .new(value: .dark, child: Text(ThemeMode.dark.name.uppercaseFirst())),
+        ],
       ),
     );
   }
@@ -73,7 +70,6 @@ class const _ExperimentalCard() extends ConsumerWidget {
       // description: t.settingsEPTDescription,
       action: CardToggleSwitch(
         value: status,
-        semanticLabel: t.settingsEPT,
         onChanged: (value) async {
           await WinRegistryService.writeRegistryValue(
             LOCAL_MACHINE,
@@ -210,22 +206,19 @@ class const _LanguageCard() extends ConsumerWidget {
       icon: msicons.FluentIcons.local_language_20_regular,
       label: t.settingsLanguage,
       description: t.settingsLanguageDescription,
-      action: Semantics(
-        label: t.settingsLanguage,
-        child: ComboBox(
-          value: TranslationProvider.of(context).locale.name,
-          onChanged: (value) async {
-            final String localeName = value ?? AppLocale.en.name;
-            await WinRegistryService.writeRegistryValue(
-              LOCAL_MACHINE,
-              r'SOFTWARE\Revision\Revision Tool',
-              'Language',
-              localeName,
-            );
-            ref.read(appSettingsProvider.notifier).updateLocale(localeName);
-          },
-          items: languageList,
-        ),
+      action: ComboBox(
+        value: TranslationProvider.of(context).locale.name,
+        onChanged: (value) async {
+          final String localeName = value ?? AppLocale.en.name;
+          await WinRegistryService.writeRegistryValue(
+            LOCAL_MACHINE,
+            r'SOFTWARE\Revision\Revision Tool',
+            'Language',
+            localeName,
+          );
+          ref.read(appSettingsProvider.notifier).updateLocale(localeName);
+        },
+        items: languageList,
       ),
     );
   }
