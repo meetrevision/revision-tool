@@ -215,11 +215,12 @@ List<NavigationPaneItem> _buildPaneItems(
             final SvgPicture svg => svg,
             _ => const SizedBox.shrink(),
           },
-          // Wrapping the title in an explicit `Semantics(button: true)` exposes
-          // a proper "button" role to Windows screen readers (NVDA/Narrator).
-          // fluent_ui's PaneItem only sets a `selected` flag on its internal
-          // Semantics node, which is not announced by NVDA on Windows, leaving
-          // the navigation items as silent tab stops.
+          // Navigation pane items get an explicit accessible label and button
+          // role so screen readers announce e.g. "Home, button, selected"
+          // instead of a bare label. ExcludeSemantics prevents the label from
+          // being merged twice (PaneItem extracts the title text for its own
+          // Semantics node). Search results must keep a plain Text title, since
+          // the search box reads the title as a Text.
           title: exposeButtonSemantics
               ? Semantics(
                   label: route.label,

@@ -290,7 +290,18 @@ final class _AppShellState() extends ConsumerState<AppShell> {
                         )
                       else
                         const PageHeaderBreadcrumbs(),
-                      Expanded(child: widget.child),
+                      // The ShellRoute nests a Navigator here. Its route scope
+                      // (`Semantics(scopesRoute: true, explicitChildNodes: true)`)
+                      // blocks the previously-painted navigation pane from the
+                      // semantics tree, which left the pane items unreadable by
+                      // screen readers. A semantic boundary contains the route
+                      // scope so the pane remains exposed to NVDA/Narrator.
+                      Expanded(
+                        child: Semantics(
+                          container: true,
+                          child: widget.child,
+                        ),
+                      ),
                     ],
                   ),
                 ),
