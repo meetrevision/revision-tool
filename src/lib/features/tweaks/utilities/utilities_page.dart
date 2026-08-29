@@ -40,6 +40,7 @@ class const _HibernationCard() extends ConsumerWidget {
       description: t.tweaksUtilitiesHibernateDescription,
       action: CardToggleSwitch(
         value: status,
+        semanticLabel: t.tweaksUtilitiesHibernate,
         onChanged: (value) async {
           value
               ? await ref.read(utilitiesServiceProvider).enableHibernation()
@@ -62,6 +63,7 @@ class const _FastStartupCard() extends ConsumerWidget {
       description: t.tweaksUtilitiesFastStartupDescription,
       action: CardToggleSwitch(
         value: status,
+        semanticLabel: t.tweaksUtilitiesFastStartup,
         requiresRestart: true,
         onChanged: (value) async {
           value
@@ -81,7 +83,10 @@ class const _ModernStandbyCard() extends ConsumerWidget {
       icon: msicons.FluentIcons.power_20_regular,
       label: t.tweaksUtilitiesModernStandby,
       description: t.tweaksUtilitiesModernStandbyDescription,
-      action: CardToggleSwitch(value: false, onChanged: (value) {}),
+      action: CardToggleSwitch(
+        value: false,
+        semanticLabel: t.tweaksUtilitiesModernStandby,
+        onChanged: (value) {}),
       children: [CardListTile(title: t.tweaksUtilitiesModernStandbyFullDescription)],
     );
   }
@@ -98,6 +103,7 @@ class const _TMMonitoringCard() extends ConsumerWidget {
       description: t.tweaksUtilitiesTMMonitoringDescription,
       action: CardToggleSwitch(
         value: status,
+        semanticLabel: t.tweaksUtilitiesTMMonitoring,
         requiresRestart: true,
         onChanged: (value) async {
           value
@@ -121,6 +127,7 @@ class const _UsageReportingCard() extends ConsumerWidget {
       description: t.tweaksUtilitiesUsageReportingDescription,
       action: CardToggleSwitch(
         value: status,
+        semanticLabel: t.tweaksUtilitiesUsageReporting,
         onChanged: (value) async {
           value
               ? await ref.read(utilitiesServiceProvider).enableUsageReporting()

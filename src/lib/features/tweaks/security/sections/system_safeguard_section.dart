@@ -30,6 +30,7 @@ class const _UACCard() extends ConsumerWidget {
       description: t.tweaksSecurityUACDescription,
       trailing: CardToggleSwitch(
         value: status,
+        semanticLabel: t.tweaksSecurityUAC,
         requiresRestart: true,
         onChanged: (value) async {
           value
@@ -53,6 +54,7 @@ class const _VbsCard() extends ConsumerWidget {
       description: t.tweaksSecurityVBSDescription,
       trailing: CardToggleSwitch(
         value: status,
+        semanticLabel: t.tweaksSecurityVBS,
         requiresRestart: true,
         onChanged: (value) async {
           value
@@ -77,6 +79,7 @@ class const _MemoryIntegrityCard() extends ConsumerWidget {
       description: t.tweaksSecurityMemoryIntegrityDescription,
       trailing: CardToggleSwitch(
         value: status,
+        semanticLabel: t.tweaksSecurityMemoryIntegrity,
         requiresRestart: true,
         onChanged: (value) async {
           value

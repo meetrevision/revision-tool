@@ -473,34 +473,37 @@ class _ShareButtonState() extends State<_ShareButton> {
                   key: ValueKey('checkmark'),
                   onPressed: null,
                 )
-              : IconButton(
-                  key: const ValueKey('share'),
-                  icon: const Icon(msicons.FluentIcons.share_20_regular, size: 20),
-                  onPressed: () {
-                    _controller.showFlyout<void>(
-                      autoModeConfiguration: .new(preferredMode: .bottomLeft),
-                      barrierColor: Colors.transparent,
-                      navigatorKey: rootNavigatorKey.currentState,
-                      builder: (context) {
-                        return MenuFlyout(
-                          items: [
-                            MenuFlyoutItem(
-                              leading: const WindowsIcon(WindowsIcons.copy),
-                              text: Text(t.msstoreCopyLink),
-                              onPressed: () {
-                                Clipboard.setData(
-                                  ClipboardData(
-                                    text: 'https://apps.microsoft.com/detail/${widget.productId}',
-                                  ),
-                                );
-                                setState(() => _finished = true);
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
+              : Tooltip(
+                  message: t.share,
+                  child: IconButton(
+                    key: const ValueKey('share'),
+                    icon: const Icon(msicons.FluentIcons.share_20_regular, size: 20),
+                    onPressed: () {
+                      _controller.showFlyout<void>(
+                        autoModeConfiguration: .new(preferredMode: .bottomLeft),
+                        barrierColor: Colors.transparent,
+                        navigatorKey: rootNavigatorKey.currentState,
+                        builder: (context) {
+                          return MenuFlyout(
+                            items: [
+                              MenuFlyoutItem(
+                                leading: const WindowsIcon(WindowsIcons.copy),
+                                text: Text(t.msstoreCopyLink),
+                                onPressed: () {
+                                  Clipboard.setData(
+                                    ClipboardData(
+                                      text: 'https://apps.microsoft.com/detail/${widget.productId}',
+                                    ),
+                                  );
+                                  setState(() => _finished = true);
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
         ),
       ),

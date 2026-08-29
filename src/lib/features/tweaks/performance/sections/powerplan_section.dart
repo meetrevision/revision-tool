@@ -17,6 +17,7 @@ class const PowerplanSection({super.key}) extends ConsumerWidget {
       description: t.tweaksPerformancePowerPlanDescription,
       action: CardToggleSwitch(
         value: status,
+        semanticLabel: t.tweaksPerformancePowerPlan,
         onChanged: (value) async {
           value
               ? await ref.read(performanceServiceProvider).enableReviPowerPlan()
@@ -33,6 +34,7 @@ class const PowerplanSection({super.key}) extends ConsumerWidget {
           trailing: CardToggleSwitch(
             enabled: status,
             value: ref.watch(reviPowerPlanC6StatesStatusProvider),
+            semanticLabel: t.tweaksPerformanceCStates,
             onChanged: (value) async {
               value
                   ? await ref.read(performanceServiceProvider).disableReviPowerPlanC6States()

@@ -34,6 +34,7 @@ class const _NotificationCard() extends ConsumerWidget {
       // icon: msicons.FluentIcons.alert_20_regular,
       title: t.tweaksPersonalizationNotifications,
       description: t.tweaksPersonalizationNotificationsDescription,
+      semanticLabel: t.tweaksPersonalizationNotifications,
       trailing: ComboBox<NotificationMode>(
         value: status,
         onChanged: (value) async {
@@ -69,6 +70,7 @@ class const _LegacyBalloonCard() extends ConsumerWidget {
       description: t.tweaksPersonalizationLegacyNotificationBalloonsDescription,
       trailing: CardToggleSwitch(
         value: status,
+        semanticLabel: t.tweaksPersonalizationLegacyNotificationBalloons,
         onChanged: (value) async {
           value
               ? await ref.read(personalizationServiceProvider).enableLegacyBalloon()
@@ -90,6 +92,7 @@ class const _ScreenEdgeSwipeCard() extends ConsumerWidget {
       description: t.tweaksPersonalizationScreenEdgeSwipeDescription,
       trailing: CardToggleSwitch(
         value: status,
+        semanticLabel: t.tweaksPersonalizationScreenEdgeSwipe,
         onChanged: (value) async {
           value
               ? await ref.read(personalizationServiceProvider).enableScreenEdgeSwipe()
@@ -110,6 +113,7 @@ class const _NewContextMenuCard() extends ConsumerWidget {
       title: t.tweaksPersonalizationNewContextMenu,
       trailing: CardToggleSwitch(
         value: status,
+        semanticLabel: t.tweaksPersonalizationNewContextMenu,
         onChanged: (value) async {
           value
               ? await ref.read(personalizationServiceProvider).enableNewContextMenu()
@@ -131,6 +135,7 @@ class const _ExplorerHomeCard() extends ConsumerWidget {
       description: t.tweaksPersonalizationExplorerHomeDescription,
       trailing: CardToggleSwitch(
         value: status,
+        semanticLabel: t.tweaksPersonalizationExplorerHome,
         onChanged: (value) async {
           value
               ? await ref.read(personalizationServiceProvider).enableExplorerHome()
@@ -152,6 +157,7 @@ class const _ExplorerGalleryCard() extends ConsumerWidget {
       description: t.tweaksPersonalizationExplorerGalleryDescription,
       trailing: CardToggleSwitch(
         value: status,
+        semanticLabel: t.tweaksPersonalizationExplorerGallery,
         onChanged: (value) async {
           value
               ? await ref.read(personalizationServiceProvider).enableExplorerGallery()

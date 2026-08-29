@@ -299,6 +299,10 @@ class const CardListTile({
     /// Whether to add extra 28px padding on the right when trailing is present.
   /// Set to false for standalone cards, true for Expander children.
   final bool extraTrailingPadding = true,
+    /// Accessible name applied to [trailing] (e.g. a [ComboBox]) so screen
+  /// readers can associate the control with its title. Defaults to null,
+  /// which leaves decorative trailing widgets unlabeled.
+  final String? semanticLabel,
   }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -333,7 +337,11 @@ class const CardListTile({
       ],
     );
 
-    if (trailing != null) {
+    final Widget? trailingWidget = trailing;
+    if (trailingWidget != null) {
+      final Widget resolvedTrailing = semanticLabel != null
+          ? Semantics(label: semanticLabel, child: trailingWidget)
+          : trailingWidget;
       return Padding(
         padding: .only(
           left: contentPadding.resolve(.ltr).left + (leading != null ? 0 : 40),
@@ -346,7 +354,7 @@ class const CardListTile({
           children: [
             ?leading,
             Expanded(child: content),
-            trailing!,
+            resolvedTrailing,
           ],
         ),
       );
@@ -363,6 +371,10 @@ class const CardToggleSwitch({
     required final ValueChanged<bool> onChanged,
     final bool requiresRestart = false,
     final bool enabled = true,
+    /// Accessible name for the switch. Without it, screen readers announce
+    /// only "toggle switch, on/off" with no indication of what the switch
+    /// controls. This is passed through to [Semantics.label].
+    final String? semanticLabel,
   }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -376,6 +388,7 @@ class const CardToggleSwitch({
         const SizedBox(width: 10.0),
         ToggleSwitch(
           checked: value,
+          semanticLabel: semanticLabel,
           onChanged: enabled
               ? (newValue) async {
                   onChanged(newValue);
