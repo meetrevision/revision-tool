@@ -112,8 +112,14 @@ class AppRoutes() {
 
   static const List<RouteMeta> navigationRoutes = _navigationRoutes;
 
-  static final List<NavigationPaneItem> mainPaneItems = _buildPaneItems(_mainNavigationRoutes);
-  static final List<NavigationPaneItem> footerPaneItems = _buildPaneItems(_footerNavigationRoutes);
+  static final List<NavigationPaneItem> mainPaneItems = _buildPaneItems(
+    _mainNavigationRoutes,
+    exposeButtonSemantics: true,
+  );
+  static final List<NavigationPaneItem> footerPaneItems = _buildPaneItems(
+    _footerNavigationRoutes,
+    exposeButtonSemantics: true,
+  );
   static final List<NavigationPaneItem> searchableItems = _buildPaneItems(_searchableRoutes);
 
   static String getRouteName(String path, BuildContext context) {
@@ -196,7 +202,10 @@ const _searchableRoutes = <RouteMeta>[
 
 const _navigationRoutes = <RouteMeta>[..._mainNavigationRoutes, ..._footerNavigationRoutes];
 
-List<NavigationPaneItem> _buildPaneItems(List<RouteMeta> routes) {
+List<NavigationPaneItem> _buildPaneItems(
+  List<RouteMeta> routes, {
+  bool exposeButtonSemantics = false,
+}) {
   return routes
       .map(
         (route) => PaneItem(
@@ -206,7 +215,18 @@ List<NavigationPaneItem> _buildPaneItems(List<RouteMeta> routes) {
             final SvgPicture svg => svg,
             _ => const SizedBox.shrink(),
           },
-          title: Text(route.label),
+          // Wrapping the title in an explicit `Semantics(button: true)` exposes
+          // a proper "button" role to Windows screen readers (NVDA/Narrator).
+          // fluent_ui's PaneItem only sets a `selected` flag on its internal
+          // Semantics node, which is not announced by NVDA on Windows, leaving
+          // the navigation items as silent tab stops.
+          title: exposeButtonSemantics
+              ? Semantics(
+                  label: route.label,
+                  button: true,
+                  child: ExcludeSemantics(child: Text(route.label)),
+                )
+              : Text(route.label),
           body: const SizedBox.shrink(),
         ),
       )
