@@ -67,6 +67,8 @@
     "settingsLanguage": "Language",
     "settingsLanguageDescription": "Languages are not guraranteed to be fully translated or correct",
     "pageMSStore": "Microsoft Store",
+    "msstoreRing": "Update ring",
+    "msstoreRingDescription": "Select which update channel to download packages from",
     "msstoreSearchingPackages": "Searching for packages",
     "msstoreDownloadingPackages": "Downloading packages ($completed/$total)",
     "msstoreDownloadCompleted": "Download completed",
