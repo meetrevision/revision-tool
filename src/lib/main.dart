@@ -22,6 +22,10 @@ String? initialRoute;
 
 Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Force the semantics tree to be built and exposed to Windows assistive
+  // technology (NVDA/Narrator). The Windows embedder only enables it when a
+  // screen reader query is detected, which is unreliable for NVDA.
+  SemanticsBinding.instance.ensureSemantics();
   const tag = 'gui_main:';
 
   if (kDebugMode) {

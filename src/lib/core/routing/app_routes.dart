@@ -112,8 +112,14 @@ class AppRoutes() {
 
   static const List<RouteMeta> navigationRoutes = _navigationRoutes;
 
-  static final List<NavigationPaneItem> mainPaneItems = _buildPaneItems(_mainNavigationRoutes);
-  static final List<NavigationPaneItem> footerPaneItems = _buildPaneItems(_footerNavigationRoutes);
+  static final List<NavigationPaneItem> mainPaneItems = _buildPaneItems(
+    _mainNavigationRoutes,
+    exposeButtonSemantics: true,
+  );
+  static final List<NavigationPaneItem> footerPaneItems = _buildPaneItems(
+    _footerNavigationRoutes,
+    exposeButtonSemantics: true,
+  );
   static final List<NavigationPaneItem> searchableItems = _buildPaneItems(_searchableRoutes);
 
   static String getRouteName(String path, BuildContext context) {
@@ -196,7 +202,10 @@ const _searchableRoutes = <RouteMeta>[
 
 const _navigationRoutes = <RouteMeta>[..._mainNavigationRoutes, ..._footerNavigationRoutes];
 
-List<NavigationPaneItem> _buildPaneItems(List<RouteMeta> routes) {
+List<NavigationPaneItem> _buildPaneItems(
+  List<RouteMeta> routes, {
+  bool exposeButtonSemantics = false,
+}) {
   return routes
       .map(
         (route) => PaneItem(
@@ -206,7 +215,19 @@ List<NavigationPaneItem> _buildPaneItems(List<RouteMeta> routes) {
             final SvgPicture svg => svg,
             _ => const SizedBox.shrink(),
           },
-          title: Text(route.label),
+          // Navigation pane items get an explicit accessible label and button
+          // role so screen readers announce e.g. "Home, button, selected"
+          // instead of a bare label. ExcludeSemantics prevents the label from
+          // being merged twice (PaneItem extracts the title text for its own
+          // Semantics node). Search results must keep a plain Text title, since
+          // the search box reads the title as a Text.
+          title: exposeButtonSemantics
+              ? Semantics(
+                  label: route.label,
+                  button: true,
+                  child: ExcludeSemantics(child: Text(route.label)),
+                )
+              : Text(route.label),
           body: const SizedBox.shrink(),
         ),
       )

@@ -71,15 +71,18 @@ class _MSStorePageState() extends ConsumerState<MSStorePage> {
                 onSubmitted: (_) => _onSearchButtonPressed(),
               ),
             ),
-            ComboBox<StoreRing>(
-              value: selectedRing,
-              onChanged: (value) {
-                if (value == null) return;
-                ref.read(storeControllerProvider.notifier).setRing(value);
-              },
-              items: StoreRing.values.map((ring) {
-                return ComboBoxItem(value: ring, child: Text(ring.label));
-              }).toList(),
+            Semantics(
+              label: t.msstoreRing,
+              child: ComboBox<StoreRing>(
+                value: selectedRing,
+                onChanged: (value) {
+                  if (value == null) return;
+                  ref.read(storeControllerProvider.notifier).setRing(value);
+                },
+                items: StoreRing.values.map((ring) {
+                  return ComboBoxItem(value: ring, child: Text(ring.label));
+                }).toList(),
+              ),
             ),
           ],
         ),

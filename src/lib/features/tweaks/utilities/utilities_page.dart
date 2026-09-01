@@ -81,7 +81,9 @@ class const _ModernStandbyCard() extends ConsumerWidget {
       icon: msicons.FluentIcons.power_20_regular,
       label: t.tweaksUtilitiesModernStandby,
       description: t.tweaksUtilitiesModernStandbyDescription,
-      action: CardToggleSwitch(value: false, onChanged: (value) {}),
+      action: CardToggleSwitch(
+        value: false,
+        onChanged: (value) {}),
       children: [CardListTile(title: t.tweaksUtilitiesModernStandbyFullDescription)],
     );
   }

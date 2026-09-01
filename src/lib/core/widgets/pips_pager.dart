@@ -2,6 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
 import '../../extensions.dart';
+import '../../i18n/generated/strings.g.dart';
 
 /// Visibility state for collection control buttons.
 enum PipsPagerButtonVisibility() {
@@ -160,6 +161,7 @@ class _PipsPagerState() extends State<PipsPager> {
                       alignment: .centerLeft,
                       child: _NavButton(
                         icon: msicons.FluentIcons.caret_left_20_filled,
+                        semanticLabel: t.previous,
                         onPressed: widget.enabled ? _prev : null,
                         visibility: widget.previousButtonVisibility,
                         parentHovered: _isHovered,
@@ -175,6 +177,7 @@ class _PipsPagerState() extends State<PipsPager> {
                       alignment: .centerRight,
                       child: _NavButton(
                         icon: msicons.FluentIcons.caret_right_20_filled,
+                        semanticLabel: t.next,
                         onPressed: widget.enabled ? _next : null,
                         visibility: widget.nextButtonVisibility,
                         parentHovered: _isHovered,
@@ -233,6 +236,7 @@ class const _NavButton({
     required final VoidCallback? onPressed,
     required final PipsPagerButtonVisibility visibility,
     required final bool parentHovered,
+    required final String semanticLabel,
   }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -252,19 +256,22 @@ class const _NavButton({
             color: context.theme.cardColor,
             border: .all(color: context.theme.resources.cardStrokeColorDefault),
           ),
-          child: HoverButton(
-            onPressed: onPressed,
-            builder: (context, states) {
-              return Center(
-                child: Icon(
-                  icon,
-                  size: 16,
-                  color: states.isHovered
-                      ? context.theme.resources.textFillColorPrimary
-                      : context.theme.resources.textFillColorTertiary,
-                ),
-              );
-            },
+          child: Semantics(
+            label: semanticLabel,
+            child: HoverButton(
+              onPressed: onPressed,
+              builder: (context, states) {
+                return Center(
+                  child: Icon(
+                    icon,
+                    size: 16,
+                    color: states.isHovered
+                        ? context.theme.resources.textFillColorPrimary
+                        : context.theme.resources.textFillColorTertiary,
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
