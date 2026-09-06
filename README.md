@@ -1,5 +1,8 @@
 
 
+> [!NOTE]
+> **Fork notice:** this repository is a fork of [meetrevision/revision-tool](https://github.com/meetrevision/revision-tool). The release badges, downloads, support channels, and product documentation below belong to the upstream Revision project. Download official builds and report product issues upstream. This fork remains covered by the original GPL-3.0 license.
+
 <div align="center">
   <img src="src/windows/runner/resources/app_icon.ico" width="64" height="64" />
 
