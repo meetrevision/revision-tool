@@ -6,14 +6,14 @@ publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.13.0
+  sdk: ^3.13.2
 
 dependencies:
   flutter:
     sdk: flutter
 
   # Localization
-  slang: ^4.19.0
+  slang: ^4.19.1
   slang_flutter: ^4.19.0
 
   # UI
@@ -28,15 +28,15 @@ dependencies:
   adaptive_palette: ^3.1.0
 
   # State management
-  riverpod: ^3.4.2 # for CLI
-  flutter_riverpod: ^3.4.2
-  riverpod_annotation: ^4.0.6
+  riverpod: ^3.4.3 # for CLI
+  flutter_riverpod: ^3.4.3
+  riverpod_annotation: ^4.0.7
 
   # Path
   path: ^1.9.1
 
   # Network
-  dio: ^5.11.0
+  dio: ^5.11.1
 
   # Shell
   process_run: ^1.3.5
@@ -50,12 +50,12 @@ dependencies:
   json_annotation: ^4.12.0
 
   # Logging
-  logger: ^2.7.0
+  logger: ^2.8.0
   # Command line
   args: ^2.7.0
 
   # Routing
-  go_router: ^18.0.0
+  go_router: ^18.0.1
 
   # Other
   collection: ^1.19.1
@@ -65,21 +65,22 @@ dependencies:
   flutter_svg: ^2.3.0
 
   # Code generation dependencies
-  analyzer: ^13.3.0
-  build: ^4.0.10
-  code_builder: ^4.11.1
-  source_gen: ^4.2.4
+  analyzer: ^14.3.0
+  build: ^4.0.11
+  code_builder: ^4.12.0
+  source_gen: ^4.3.0
 
-  vector_graphics: any
+  vector_graphics: ^1.2.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  riverpod_lint: ^3.1.8
-  build_runner: ^2.16.0
-  freezed: ^4.0.0
+  riverpod_lint: ^3.1.9
+  build_runner: ^2.16.1
+  freezed: ^4.0.1
   json_serializable: ^6.14.1
-  riverpod_generator: ^4.0.8
+  riverpod_generator: ^4.0.9
   mocktail: ^1.0.5
   slang_build_runner: ^4.19.0
 
