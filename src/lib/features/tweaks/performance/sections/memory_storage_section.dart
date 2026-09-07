@@ -131,12 +131,12 @@ class const _LastTimeAccessCard() extends ConsumerWidget {
       title: t.tweaksPerformanceLastTimeAccess,
       description: t.tweaksPerformanceLastTimeAccessDescription,
       trailing: CardToggleSwitch(
-        value: status,
+        value: !status, // flip it, because the title starts with "Turn off"
         requiresRestart: true,
         onChanged: (value) async {
           value
-              ? await ref.read(performanceServiceProvider).enableLastTimeAccessNTFS()
-              : await ref.read(performanceServiceProvider).disableLastTimeAccessNTFS();
+              ? await ref.read(performanceServiceProvider).disableLastTimeAccessNTFS()
+              : await ref.read(performanceServiceProvider).enableLastTimeAccessNTFS();
           ref.invalidate(lastTimeAccessNTFSStatusProvider);
         },
       ),
@@ -154,12 +154,12 @@ class const _Dot3NamingCard() extends ConsumerWidget {
       title: t.tweaksPerformance8dot3Naming,
       description: t.tweaksPerformance8dot3NamingDescription,
       trailing: CardToggleSwitch(
-        value: status,
+        value: !status, // flip it, because the title starts with "Turn off"
         requiresRestart: true,
         onChanged: (value) async {
           value
-              ? await ref.read(performanceServiceProvider).enable8dot3NamingNTFS()
-              : await ref.read(performanceServiceProvider).disable8dot3NamingNTFS();
+              ? await ref.read(performanceServiceProvider).disable8dot3NamingNTFS()
+              : await ref.read(performanceServiceProvider).enable8dot3NamingNTFS();
           ref.invalidate(dot3NamingNTFSStatusProvider);
         },
       ),
