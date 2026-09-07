@@ -1,0 +1,4 @@
+interface:
+  display_name: "Naming"
+  short_description: "Name code and UI text consistently"
+  default_prompt: "Use $naming to choose or review names for this change."

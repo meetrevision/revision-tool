@@ -1,4 +1,4 @@
-﻿{
+{
   "okButton": "OK",
   "notNowButton": "Ahora no",
   "restartDialog": "Reinicie su PC para que los cambios surtan efecto",
@@ -66,6 +66,7 @@
   "msstoreSearchingPackages": "Buscando Paquetes",
   "msstoreDownloadingPackages": "Descargando Paquetes ($completed/$total)",
   "msstoreDownloadCompleted": "Descarga Completada",
+    "msstoreRingDescription": "Selecciona el canal de actualización para descargar paquetes",
   "msstoreWait": "Por favor espere...",
   "msstorePackagesPrompt": "Desea instalar los siguientes paquetes?",
   "msstorePackagesNotFound": "No se han encontrado paquetes",
@@ -138,10 +139,10 @@
   "tweaksPerformanceServiceGrouping": "Modo Agrupación de Servicios",
   "tweaksPerformanceServiceGroupingDescription": "La opción recomendada es la Predeterminada en ReviOS. Utiliza la opción \u0027Forzado\u0027 para reducir considerablemente el consumo de memoria; sin embargo, es posible que algunas funciones, como Xbox, no funcionen como se espera.",
   "tweaksPerformanceServiceGroupingDialog": "Esta opción puede provocar fallos en algunos servicios como Xbox. Úsala bajo tu propia responsabilidad. Se puede revertir volviendo a seleccionar \u0027Recomendado\u0027.",
-  "tweaksPerformanceLastTimeAccess": "Desactivar el último acceso de NTFS",
-  "tweaksPerformanceLastTimeAccessDescription": "Impide que NTFS registre la hora del último acceso a los archivos. Reduce la E/S del disco y mejora el rendimiento del sistema de archivos",
-  "tweaksPerformance8dot3Naming": "Desactivar la denominación NTFS 8.3",
-  "tweaksPerformance8dot3NamingDescription": "Desactiva la creación de nombres de archivo cortos 8.3 heredados. Mejora el rendimiento de NTFS y reduce la superficie de ataque",
+  "tweaksPerformanceLastTimeAccess": "Desactivar la hora del último acceso de NTFS",
+  "tweaksPerformanceLastTimeAccessDescription": "Impide que NTFS registre cuándo se accedió por última vez a un archivo. Esta opción reduce la actividad del disco",
+  "tweaksPerformance8dot3Naming": "Desactivar los nombres NTFS 8.3",
+  "tweaksPerformance8dot3NamingDescription": "Impide que NTFS cree nombres de archivo 8.3 heredados. Esta opción reduce la actividad del disco y la superficie de ataque",
   "tweaksPerformancePagedPoolLimit": "Aumentar límite de Memoria NTFS",
   "tweaksPerformancePagedPoolLimitDescription": "Aumenta la memoria asignada a la gestión de archivos. Esto puede acelerar las tareas que implican el manejo simultáneo de muchos archivos, pero puede reducir la memoria disponible para tus apps y la caché del sistema. Resulta especialmente útil para sistemas con gran capacidad de RAM y que requieren una indexación intensiva de archivos.",
   "tweaksPerformanceBackground": "Gestión de Operaciones en 2do. Plano",
