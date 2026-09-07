@@ -115,6 +115,12 @@ class _ExpandableCardState() extends ConsumerState<_ExpandableCard> {
   bool _isExpanded = false;
 
   @override
+  void initState() {
+    super.initState();
+    _isExpanded = widget.initiallyExpanded;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final FluentThemeData theme = context.theme;
     final ResourceDictionary resources = theme.resources;
@@ -182,28 +188,36 @@ class _ExpandableCardState() extends ConsumerState<_ExpandableCard> {
                 ),
                 contentPadding: .zero,
                 content: widget.children != null
-                    ? DecoratedBox(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            top: BorderSide(color: hoverBottomBorderColor, width: 1.5),
+                    ? ExcludeSemantics(
+                        excluding: !_isExpanded,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            border: Border(
+                              top: BorderSide(color: hoverBottomBorderColor, width: 1.5),
+                            ),
                           ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: .start,
-                          mainAxisSize: .min,
-                          children: [
-                            for (int index = 0; index < widget.children!.length; index++)
-                              DecoratedBox(
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: index == widget.children!.length - 1
-                                        ? .none
-                                        : BorderSide(color: defaultBorderColor, width: 2),
+                          child: Column(
+                            crossAxisAlignment: .start,
+                            mainAxisSize: .min,
+                            children: [
+                              for (int index = 0; index < widget.children!.length; index++)
+                                DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: index == widget.children!.length - 1
+                                          ? .none
+                                          : BorderSide(color: defaultBorderColor, width: 2),
+                                    ),
                                   ),
+                                  // Merge each child row into a single semantics
+                                  // node so its title/description and control
+                                  // (toggle or combo box) are announced together
+                                  // as "Title, <description>, <state>" instead of
+                                  // leaking into one big group.
+                                  child: MergeSemantics(child: widget.children![index]),
                                 ),
-                                child: widget.children![index],
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
                       )
                     : const SizedBox.shrink(),
@@ -333,7 +347,8 @@ class const CardListTile({
       ],
     );
 
-    if (trailing != null) {
+    final Widget? trailingWidget = trailing;
+    if (trailingWidget != null) {
       return Padding(
         padding: .only(
           left: contentPadding.resolve(.ltr).left + (leading != null ? 0 : 40),
@@ -346,7 +361,7 @@ class const CardListTile({
           children: [
             ?leading,
             Expanded(child: content),
-            trailing!,
+            trailingWidget,
           ],
         ),
       );
@@ -369,9 +384,11 @@ class const CardToggleSwitch({
     return Row(
       mainAxisSize: .min,
       children: [
-        Text(
-          value ? t.onStatus : t.offStatus,
-          style: enabled ? null : TextStyle(color: context.theme.resources.textFillColorDisabled),
+        ExcludeSemantics(
+          child: Text(
+            value ? t.onStatus : t.offStatus,
+            style: enabled ? null : TextStyle(color: context.theme.resources.textFillColorDisabled),
+          ),
         ),
         const SizedBox(width: 10.0),
         ToggleSwitch(

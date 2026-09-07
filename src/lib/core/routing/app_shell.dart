@@ -172,10 +172,14 @@ final class _AppShellState() extends ConsumerState<AppShell> {
                     }
                   : null;
 
-              return PaneBackButton(
-                enabled: onPressed != null,
-                onPressed: onPressed,
-                backIcon: const Center(child: Icon(FluentIcons.back, size: 12.0)),
+              return Semantics(
+                label: t.back,
+                button: true,
+                child: PaneBackButton(
+                  enabled: onPressed != null,
+                  onPressed: onPressed,
+                  backIcon: const Center(child: Icon(FluentIcons.back, size: 12.0)),
+                ),
               );
             }(),
             // To match W11's Settings app title bar style, `leftHeader` must be the title, when width > 800 `title` must be a search [IconButton] that spawns an overlay otherwise it must be null and the search [AutoSuggestBox] must be in `content`
@@ -196,13 +200,16 @@ final class _AppShellState() extends ConsumerState<AppShell> {
                         Positioned(top: 50, left: 25, right: 25, child: autoSuggestBox),
                       ],
                     ),
-                    child: IconButton(
-                      icon: const Icon(msicons.FluentIcons.search_20_regular),
-                      onPressed: () {
-                        _overlayPortalController.show();
-                        _searchFocusNode.requestFocus();
-                        _overlayFocusNode.requestFocus();
-                      },
+                    child: Tooltip(
+                      message: t.search,
+                      child: IconButton(
+                        icon: const Icon(msicons.FluentIcons.search_20_regular),
+                        onPressed: () {
+                          _overlayPortalController.show();
+                          _searchFocusNode.requestFocus();
+                          _overlayFocusNode.requestFocus();
+                        },
+                      ),
                     ),
                   ),
             content: MediaQuery.widthOf(context) > 800
@@ -283,7 +290,18 @@ final class _AppShellState() extends ConsumerState<AppShell> {
                         )
                       else
                         const PageHeaderBreadcrumbs(),
-                      Expanded(child: widget.child),
+                      // The ShellRoute nests a Navigator here. Its route scope
+                      // (`Semantics(scopesRoute: true, explicitChildNodes: true)`)
+                      // blocks the previously-painted navigation pane from the
+                      // semantics tree, which left the pane items unreadable by
+                      // screen readers. A semantic boundary contains the route
+                      // scope so the pane remains exposed to NVDA/Narrator.
+                      Expanded(
+                        child: Semantics(
+                          container: true,
+                          child: widget.child,
+                        ),
+                      ),
                     ],
                   ),
                 ),
