@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,22 +27,26 @@ final class const StorePackagePickerDialog({
 
 enum _PickerPhase() {
   selecting,
-  running
+  running,
 }
 
-final NotifierProvider<_PackagePickerSelection, Set<String>> _packagePickerSelectionProvider =
-    NotifierProvider.autoDispose<_PackagePickerSelection, Set<String>>(_PackagePickerSelection.new);
+final NotifierProvider<_PackagePickerSelection, ISet<String>> _packagePickerSelectionProvider =
+    NotifierProvider.autoDispose<_PackagePickerSelection, ISet<String>>(
+      _PackagePickerSelection.new,
+    );
 
-final class _PackagePickerSelection() extends Notifier<Set<String>> {
+final class _PackagePickerSelection() extends Notifier<ISet<String>> {
   @override
-  Set<String> build() => {};
+  ISet<String> build() => const ISet.empty();
 
-  void setAll(Iterable<String> ids) => state = ids.toSet();
+  void setAll(Iterable<String> ids) => state = ids.toISet();
 
-  void clear() => state = {};
+  void clear() => state = const ISet.empty();
 
+  // FIC toggle: adds if absent, removes if present, with structural sharing.
+  // No manual spread copies, no ConcurrentModificationError.
   void toggle(String id, bool selected) {
-    state = selected ? {...state, id} : (Set<String>.from(state)..remove(id));
+    state = selected ? state.add(id) : state.remove(id);
   }
 }
 
@@ -49,7 +54,7 @@ final class _StorePackagePickerDialogState() extends ConsumerState<StorePackageP
   late StoreRing ring;
   late StoreArch arch;
   Future<StorePackagesByProductId>? packagesFuture;
-  List<PackageInfo> packages = const [];
+  IList<PackageInfo> packages = const .empty();
   Object? loadError;
   bool loading = true;
   _PickerPhase phase = .selecting;
@@ -91,12 +96,12 @@ final class _StorePackagePickerDialogState() extends ConsumerState<StorePackageP
     setState(() {
       loading = true;
       loadError = null;
-      packages = const [];
+      packages = const .empty();
     });
     ref.read(_packagePickerSelectionProvider.notifier).clear();
     final Future<StorePackagesByProductId> future = ref
         .read(storeServiceProvider)
-        .getPackages(productIds: {widget.productId}, ring: ring, arch: arch)
+        .getPackages(productIds: {widget.productId}.lock, ring: ring, arch: arch)
         .then(
           (result) =>
               result.when(success: (value) => value, failure: (exception) => throw exception),
@@ -106,8 +111,10 @@ final class _StorePackagePickerDialogState() extends ConsumerState<StorePackageP
         .then((p) {
           if (!mounted || packagesFuture != future) return;
 
-          packages = p.values.single.toList()
-            ..sort((a, b) => a.progressName.compareTo(b.progressName));
+          // IList.sort returns a new sorted IList (no in-place mutation).
+          packages = p.values.single.toIList().sort(
+            (a, b) => a.progressName.compareTo(b.progressName),
+          );
 
           setState(() {
             loading = false;
@@ -124,8 +131,8 @@ final class _StorePackagePickerDialogState() extends ConsumerState<StorePackageP
   }
 
   void _start({required bool install}) {
-    final Set<String> selectedIds = ref.read(_packagePickerSelectionProvider);
-    final Set<PackageInfo> selected = packages.where((p) => selectedIds.contains(p.id)).toSet();
+    final ISet<String> selectedIds = ref.read(_packagePickerSelectionProvider);
+    final ISet<PackageInfo> selected = packages.where((p) => selectedIds.contains(p.id)).toISet();
     setState(() {
       phase = .running;
       downloadError = null;
@@ -207,7 +214,7 @@ final class const _PickerContent({
   required final bool loading,
   required final Object? loadError,
   required final String? downloadError,
-  required final List<PackageInfo> packages,
+  required final IList<PackageInfo> packages,
   required final bool running,
   required final ValueChanged<StoreRing> onRingChanged,
   required final ValueChanged<StoreArch> onArchChanged,
@@ -285,7 +292,7 @@ final class const _PickerContent({
 final class const _PackageListTile({
   super.key,
   required final PackageInfo package,
-  required final List<PackageInfo> packages,
+  required final IList<PackageInfo> packages,
   required final bool running,
 }) extends ConsumerWidget {
   @override

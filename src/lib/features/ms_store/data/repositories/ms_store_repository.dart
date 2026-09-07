@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:riverpod/riverpod.dart';
 
 import '../../../../core/error/app_exception.dart';
@@ -39,7 +40,7 @@ String _packageKey(String productId, StoreRing ring) {
 // Thin repository. Delegates HTTP to clients, does only mapping + cache.
 // Search and details use catalog client. Packages use edge + fe3 clients.
 abstract base class const StoreRepository() {
-  Future<List<SearchProduct>> searchProducts(
+  Future<IList<SearchProduct>> searchProducts(
     String query, {
     String market = 'US',
     String locale = 'en-us',
@@ -56,7 +57,7 @@ abstract base class const StoreRepository() {
     String locale = 'en-us',
   });
 
-  Future<Set<PackageInfo>> getPackages({required String productId, required StoreRing ring});
+  Future<ISet<PackageInfo>> getPackages({required String productId, required StoreRing ring});
 
   Future<String> getPackageDownloadUrl({
     required PackageInfo package,
@@ -76,7 +77,7 @@ final class const UwpStoreRepository({
   required final StoreCache cache,
 }) extends StoreRepository {
   @override
-  Future<List<SearchProduct>> searchProducts(
+  Future<IList<SearchProduct>> searchProducts(
     String query, {
     String market = 'US',
     String locale = 'en-us',
@@ -104,7 +105,7 @@ final class const UwpStoreRepository({
   }) => catalog.getDetails(productId, market: market, locale: locale);
 
   @override
-  Future<Set<PackageInfo>> getPackages({
+  Future<ISet<PackageInfo>> getPackages({
     required String productId,
     required StoreRing ring,
     String market = 'US',
@@ -112,7 +113,7 @@ final class const UwpStoreRepository({
     String deviceFamily = 'Windows.Desktop',
   }) async {
     final String cacheKey = _packageKey(productId, ring);
-    final Set<PackageInfo>? cached = cache.getPackages(cacheKey);
+    final ISet<PackageInfo>? cached = cache.getPackages(cacheKey);
     if (cached != null) return cached;
 
     final ProductDto product = await edge.getProductCategory(
@@ -123,7 +124,7 @@ final class const UwpStoreRepository({
     );
 
     final DateTime? expiryUtc = product.expiryUtc;
-    final List<Skus> skus = product.payload?.skus ?? const [];
+    final IList<Skus> skus = product.payload?.skus ?? const .empty();
     String? categoryId = skus
         .where((s) => s.skuType == .full)
         .map((s) => s.fulfillmentData?.wuCategoryId)
@@ -142,7 +143,7 @@ final class const UwpStoreRepository({
       ring: ring.value,
     );
 
-    final Set<PackageInfo> packages = uwpRes.updates
+    final ISet<PackageInfo> packages = uwpRes.updates
         .expand(
           (u) => u.xml.fileModel.map(
             (f) => PackageInfo(
@@ -155,7 +156,7 @@ final class const UwpStoreRepository({
             ),
           ),
         )
-        .toSet();
+        .toISet();
 
     cache.putPackages(cacheKey, packages, expiryUtc);
     return packages;
@@ -192,7 +193,7 @@ final class const Win32StoreRepository({
   required final UwpXmlParser _xmlParser,
 }) extends StoreRepository {
   @override
-  Future<List<SearchProduct>> searchProducts(
+  Future<IList<SearchProduct>> searchProducts(
     String query, {
     String market = 'US',
     String locale = 'en-us',
@@ -220,37 +221,42 @@ final class const Win32StoreRepository({
   }) => catalog.getDetails(productId, market: market, locale: locale);
 
   @override
-  Future<Set<PackageInfo>> getPackages({required String productId, required StoreRing ring}) async {
+  Future<ISet<PackageInfo>> getPackages({
+    required String productId,
+    required StoreRing ring,
+  }) async {
     final String cacheKey = _packageKey(productId, ring);
-    final Set<PackageInfo>? cached = cache.getPackages(cacheKey);
+    final ISet<PackageInfo>? cached = cache.getPackages(cacheKey);
     if (cached != null) return cached;
 
-    var packages = <PackageInfo>{};
+    var packages = const ISet<PackageInfo>.empty();
     try {
       final ProductDetails details = await getProductDetails(productId);
-      packages = (details.installer?.architectures ?? {}).entries
-          .where((e) => e.value.sourceUri?.isNotEmpty == true)
-          .map((e) {
-            final String url = e.value.sourceUri!;
+      packages =
+          details.installer?.architectures.where((k, v) => v.sourceUri?.isNotEmpty == true).mapTo((
+            k,
+            v,
+          ) {
+            final String url = v.sourceUri!;
             final String fileName = url.split('/').last;
             final int dot = fileName.lastIndexOf('.');
             return PackageInfo(
               id: productId,
               isDependency: false,
               uri: url,
-              arch: e.key.toLowerCase(),
+              arch: k.toLowerCase(),
               fileModel: FileModel(
                 fileName: fileName,
                 fileType: dot == -1 ? 'exe' : fileName.substring(dot + 1),
-                digest: e.value.hash?.toLowerCase(),
-                digestAlgorithm: e.value.hash == null ? null : 'SHA256',
+                digest: v.hash?.toLowerCase(),
+                digestAlgorithm: v.hash == null ? null : 'SHA256',
               ),
-              commandLines: e.value.args?.replaceAll('"', ''),
+              commandLines: v.args?.replaceAll('"', ''),
             );
-          })
-          .toSet();
+          }).toISet() ??
+          const .empty();
     } on Object {
-      packages = <PackageInfo>{};
+      packages = const .empty();
     }
 
     if (packages.isEmpty) {
@@ -265,7 +271,7 @@ final class const Win32StoreRepository({
     return packages;
   }
 
-  Future<Set<PackageInfo>> _getPackagesFromManifest(String productId) async {
+  Future<ISet<PackageInfo>> _getPackagesFromManifest(String productId) async {
     final Win32ManifestDto manifest = await edge.getPackageManifest(productId);
     final seen = <String>{};
     final result = <PackageInfo>{};
@@ -303,6 +309,6 @@ final class const Win32StoreRepository({
         );
       }
     }
-    return result;
+    return result.lock;
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'download_state.freezed.dart';
@@ -12,7 +13,7 @@ sealed class StoreDownloadState with _$StoreDownloadState {
 
   const factory downloading({
     required String productId,
-    required Map<String, double> progress,
+    required IMap<String, double> progress,
     required int completedCount,
     required int totalCount,
     required int downloadedBytes,
@@ -21,7 +22,7 @@ sealed class StoreDownloadState with _$StoreDownloadState {
 
   const factory paused({
     required String productId,
-    required Map<String, double> progress,
+    required IMap<String, double> progress,
     required int completedCount,
     required int totalCount,
     required int downloadedBytes,
@@ -30,7 +31,7 @@ sealed class StoreDownloadState with _$StoreDownloadState {
 
   const factory completed({
     required String productId,
-    required Map<String, ProcessResult> installResults,
+    required IMap<String, ProcessResult> installResults,
     required bool installed,
   }) = _Completed;
 
@@ -52,7 +53,7 @@ extension StoreDownloadStateX on StoreDownloadState {
   bool get isTerminal =>
       maybeWhen(completed: (_, _, _) => true, error: (_, _) => true, orElse: () => false);
 
-  Map<String, ProcessResult>? get installResults =>
+  IMap<String, ProcessResult>? get installResults =>
       maybeWhen(completed: (_, r, _) => r, orElse: () => null);
 
   String? get errorMessage => maybeWhen(error: (_, m) => m, orElse: () => null);

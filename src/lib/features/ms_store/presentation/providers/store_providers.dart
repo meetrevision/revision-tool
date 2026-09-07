@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:adaptive_palette/adaptive_palette.dart';
 import 'package:dio/dio.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/widgets.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -19,23 +20,27 @@ import '../../domain/services/store_service.dart';
 
 part 'store_providers.g.dart';
 
+/// Dart 3 record + FIC: 100% type-safe, immutable, value-equal state in a
+/// single line. No freezed, no Equatable props to forget, no build_runner.
+/// IList/ISet/IMap compare by value, so Riverpod dedupes identical emissions
+/// synchronously instead of rebuilding on every identical List/Set/Map.
 typedef StoreState = ({
   StoreRing ring,
-  AsyncValue<List<SearchProduct>> search,
+  AsyncValue<IList<SearchProduct>> search,
   StoreDownloadState download,
   StorePackagesByProductId? sessionPackages,
   bool sessionInstallAfter,
-  Set<StorePackageFileDownload> sessionDownloads,
+  ISet<StorePackageFileDownload> sessionDownloads,
 });
 
 extension StoreStateX on StoreState {
   StoreState copyWith({
     StoreRing? ring,
-    AsyncValue<List<SearchProduct>>? search,
+    AsyncValue<IList<SearchProduct>>? search,
     StoreDownloadState? download,
     StorePackagesByProductId? sessionPackages,
     bool? sessionInstallAfter,
-    Set<StorePackageFileDownload>? sessionDownloads,
+    ISet<StorePackageFileDownload>? sessionDownloads,
   }) => (
     ring: ring ?? this.ring,
     search: search ?? this.search,
@@ -57,6 +62,8 @@ class StoreController() extends _$StoreController {
   CancelToken? _cancelToken;
   Timer? _progressTimer;
 
+  // Mutable pending buffer for high-frequency progress callbacks.
+  // Locked into IMap only on flush (every 300ms), so per-chunk updates stay O(1).
   final Map<String, double> _pendingProgress = {};
   _ProgressTotals _pendingTotals = _zeroTotals;
 
@@ -69,11 +76,11 @@ class StoreController() extends _$StoreController {
 
     return (
       ring: .releasePreview,
-      search: const .data([]),
+      search: const .data(IListConst([])),
       download: const .idle(),
       sessionPackages: null,
       sessionInstallAfter: false,
-      sessionDownloads: const {},
+      sessionDownloads: const ISetConst({}),
     );
   }
 
@@ -81,12 +88,12 @@ class StoreController() extends _$StoreController {
 
   Future<void> search(String query) async {
     state = state.copyWith(search: const .loading());
-    final Result<List<SearchProduct>> result = await ref
+    final Result<IList<SearchProduct>> result = await ref
         .read(storeServiceProvider)
         .searchProducts(query);
     state = result.when(
-      success: (products) => state.copyWith(search: AsyncValue.data(products)),
-      failure: (error) => state.copyWith(search: AsyncValue.error(error, StackTrace.current)),
+      success: (p) => state.copyWith(search: .data(p)),
+      failure: (e) => state.copyWith(search: .error(e, .current)),
     );
   }
 
@@ -105,14 +112,14 @@ class StoreController() extends _$StoreController {
   Future<void> downloadPackages({
     required String productId,
     required StoreRing ring,
-    required Set<PackageInfo> packages,
+    required ISet<PackageInfo> packages,
     bool install = false,
   }) => _start(
     productId: productId,
     ring: ring,
-    arch: StoreArch.auto,
+    arch: .auto,
     install: install,
-    existingPackages: {productId: packages},
+    existingPackages: IMap({productId: packages}),
   );
 
   void pause() {
@@ -175,7 +182,7 @@ class StoreController() extends _$StoreController {
       download: const .idle(),
       sessionPackages: null,
       sessionInstallAfter: false,
-      sessionDownloads: const {},
+      sessionDownloads: const ISetConst({}),
     );
   }
 
@@ -218,7 +225,7 @@ class StoreController() extends _$StoreController {
         ring: ring,
         sessionPackages: packages,
         sessionInstallAfter: install,
-        sessionDownloads: const {},
+        sessionDownloads: const ISetConst({}),
         download: .preparing(productId: productId, message: t.msstorePreparingToDownload),
       );
 
@@ -237,22 +244,20 @@ class StoreController() extends _$StoreController {
     required StoreArch arch,
   }) async => ref
       .read(storeServiceProvider)
-      .getPackages(productIds: {productId}, ring: ring, arch: arch)
+      .getPackages(productIds: {productId}.lock, ring: ring, arch: arch)
       .then((r) => r.when(success: (v) => v, failure: (e) => throw e));
 
   Future<void> _performDownload({required String productId, StoreDownloadState? resumeFrom}) async {
     final StorePackagesByProductId packages = state.sessionPackages!;
-    final int totalCount = packages.values.fold<int>(0, (sum, p) => sum + p.length);
-    final int totalBytes = packages.values
-        .expand((e) => e)
-        .fold<int>(0, (s, p) => s + p.expectedBytes);
+    final int totalCount = packages.totalPackageCount;
+    final int totalBytes = packages.totalExpectedBytes;
 
     final bool resuming =
         resumeFrom?.mapOrNull(
           paused: (p) {
             _pendingProgress
               ..clear()
-              ..addAll(p.progress);
+              ..addAll(p.progress.unlockView);
             _pendingTotals = (
               completed: p.completedCount,
               total: totalCount,
@@ -268,7 +273,7 @@ class StoreController() extends _$StoreController {
       state = state.copyWith(
         download: .downloading(
           productId: productId,
-          progress: const {},
+          progress: const IMapConst({}),
           completedCount: 0,
           totalCount: totalCount,
           downloadedBytes: 0,
@@ -279,7 +284,7 @@ class StoreController() extends _$StoreController {
 
     final CancelToken cancelToken = _cancelToken!;
     try {
-      final Set<StorePackageFileDownload> downloads = await ref
+      final ISet<StorePackageFileDownload> downloads = await ref
           .read(storeServiceProvider)
           .download(
             ring: state.ring,
@@ -298,7 +303,11 @@ class StoreController() extends _$StoreController {
       } else {
         ref.read(storeServiceProvider).releaseDownloadLocks();
         state = state.copyWith(
-          download: .completed(productId: productId, installResults: const {}, installed: false),
+          download: .completed(
+            productId: productId,
+            installResults: const IMapConst({}),
+            installed: false,
+          ),
         );
       }
     } on Exception {
@@ -314,7 +323,7 @@ class StoreController() extends _$StoreController {
       download: .preparing(productId: productId, message: t.msstoreInstalling),
     );
 
-    final Map<String, ProcessResult> result = await ref
+    final IMap<String, ProcessResult> result = await ref
         .read(storeServiceProvider)
         .install(downloads: state.sessionDownloads)
         .then((r) => r.when(success: (v) => v, failure: (e) => throw e));
@@ -353,7 +362,9 @@ class StoreController() extends _$StoreController {
     state = state.copyWith(
       download: state.download.maybeMap(
         downloading: (d) => d.copyWith(
-          progress: .unmodifiable(_pendingProgress),
+          // Lock once per flush: O(n) copy every 300ms instead of O(log n)
+          // structural update per downloaded chunk.
+          progress: _pendingProgress.lock,
           completedCount: _pendingTotals.completed,
           totalCount: _pendingTotals.total,
           downloadedBytes: _pendingTotals.downloadedBytes,
@@ -379,7 +390,7 @@ class StoreProductDetails() extends _$StoreProductDetails {
 }
 
 @Riverpod(keepAlive: true)
-Future<List<Color>?> msStoreProductPalette(
+Future<IList<Color>?> msStoreProductPalette(
   Ref ref,
   String productId,
   String baseImageUrl, {
@@ -395,7 +406,8 @@ Future<List<Color>?> msStoreProductPalette(
       name: 'msStoreProductPalette',
     );
     final resizeImage = NetworkImage(url);
-    return await FluidPaletteExtractor.extractColors(resizeImage);
+    final List<Color> colors = await FluidPaletteExtractor.extractColors(resizeImage);
+    return colors.lock;
   } catch (e) {
     dev.log(
       'Error extracting palette for $productId: $e',

@@ -1,5 +1,6 @@
 // ignore_for_file: invalid_annotation_target
 
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/product_details.dart' as domain;
@@ -14,18 +15,18 @@ sealed class ProductDetailsDto with _$ProductDetailsDto {
     String? title,
     String? description,
     String? publisherName,
-    @Default([]) List<String> categories,
+    @Default(IListConst([])) IList<String> categories,
     String? iconUrl,
     String? iconUrlBackground,
     String? heroImageUrl,
-    @Default([]) List<ProductImageDto> screenshots,
-    @Default([]) List<ProductImageDto> images,
-    @Default([]) List<ProductImageDto> previews,
-    @Default([]) List<String> features,
+    @Default(IListConst([])) IList<ProductImageDto> screenshots,
+    @Default(IListConst([])) IList<ProductImageDto> images,
+    @Default(IListConst([])) IList<ProductImageDto> previews,
+    @Default(IListConst([])) IList<String> features,
     double? averageRating,
     int? ratingCount,
     String? ratingCountFormatted,
-    @Default([]) List<ProductRatingDto> productRatings,
+    @Default(IListConst([])) IList<ProductRatingDto> productRatings,
     ProductSystemRequirementsDto? systemRequirements,
     int? approximateSizeInBytes,
     String? lastUpdateDateUtc,
@@ -40,11 +41,11 @@ extension ProductDetailsDtoX on ProductDetailsDto {
   domain.ProductDetails toDomain() {
     final String id = (productId ?? '').trim().toUpperCase();
 
-    final List<ProductImageDto> rawShots = screenshots.isNotEmpty
+    final IList<ProductImageDto> rawShots = screenshots.isNotEmpty
         ? screenshots
         : (previews.isNotEmpty ? previews : images);
 
-    final List<domain.ProductImage> shots = rawShots
+    final IList<domain.ProductImage> shots = rawShots
         .where((p) => (p.url ?? '').isNotEmpty)
         .map(
           (p) => domain.ProductImage(
@@ -55,9 +56,9 @@ extension ProductDetailsDtoX on ProductDetailsDto {
             caption: (p.caption ?? '').trim(),
           ),
         )
-        .toList(growable: false);
+        .toIList();
 
-    final List<domain.ProductRating> ratings = productRatings
+    final IList<domain.ProductRating> ratings = productRatings
         .map(
           (r) => domain.ProductRating(
             ratingId: r.ratingId,
@@ -67,7 +68,7 @@ extension ProductDetailsDtoX on ProductDetailsDto {
             interactiveElements: r.interactiveElements,
           ),
         )
-        .toList(growable: false);
+        .toIList();
 
     domain.ProductSystemRequirements? sysReq;
     if (systemRequirements != null) {
@@ -77,11 +78,11 @@ extension ProductDetailsDtoX on ProductDetailsDto {
           title: s.title,
           items: s.items
               .map((i) => domain.RequirementItem(name: i.name, description: i.description))
-              .toList(growable: false),
+              .toIList(),
         );
       }
 
-      sysReq = .new(
+      sysReq = domain.ProductSystemRequirements(
         minimum: mapSection(systemRequirements!.minimum),
         recommended: mapSection(systemRequirements!.recommended),
       );
@@ -89,17 +90,19 @@ extension ProductDetailsDtoX on ProductDetailsDto {
 
     domain.ProductInstaller? inst;
     if (installer != null) {
-      final archMap = <String, domain.InstallerArch>{};
-      installer!.architectures.forEach((k, v) {
-        archMap[k] = .new(
-          version: v.version,
-          sourceUri: v.sourceUri,
-          cdnUri: v.cdnUri,
-          args: v.args,
-          hash: v.hash,
-        );
-      });
-      inst = .new(
+      final IMap<String, domain.InstallerArch> archMap = installer!.architectures.map(
+        (k, v) => MapEntry(
+          k,
+          domain.InstallerArch(
+            version: v.version,
+            sourceUri: v.sourceUri,
+            cdnUri: v.cdnUri,
+            args: v.args,
+            hash: v.hash,
+          ),
+        ),
+      );
+      inst = domain.ProductInstaller(
         type: installer!.type,
         id: installer!.id,
         productCode: installer!.productCode,
@@ -107,7 +110,7 @@ extension ProductDetailsDtoX on ProductDetailsDto {
       );
     }
 
-    return .new(
+    return domain.ProductDetails(
       id: id,
       title: (title ?? '').trim(),
       description: (description ?? '').trim(),
@@ -157,8 +160,8 @@ abstract class ProductRatingDto with _$ProductRatingDto {
     String? ratingValue,
     String? ratingId,
     String? ratingValueLogoUrl,
-    @Default([]) List<String> ratingDescriptors,
-    @Default([]) List<String> interactiveElements,
+    @Default(IListConst([])) IList<String> ratingDescriptors,
+    @Default(IListConst([])) IList<String> interactiveElements,
     int? ratingAge,
     String? longName,
     String? shortName,
@@ -181,8 +184,10 @@ abstract class ProductSystemRequirementsDto with _$ProductSystemRequirementsDto 
 
 @freezed
 abstract class ProductSystemRequirementSectionDto with _$ProductSystemRequirementSectionDto {
-  const factory({String? title, @Default([]) List<ProductSystemRequirementItemDto> items}) =
-      _ProductSystemRequirementSectionDto;
+  const factory({
+    String? title,
+    @Default(IListConst([])) IList<ProductSystemRequirementItemDto> items,
+  }) = _ProductSystemRequirementSectionDto;
 
   factory fromJson(Map<String, dynamic> json) => _$ProductSystemRequirementSectionDtoFromJson(json);
 }
@@ -208,7 +213,7 @@ abstract class ProductInstallerDto with _$ProductInstallerDto {
     String? type,
     String? id,
     String? productCode,
-    @Default({}) Map<String, ProductInstallerArchDto> architectures,
+    @Default(IMapConst({})) IMap<String, ProductInstallerArchDto> architectures,
   }) = _ProductInstallerDto;
 
   factory fromJson(Map<String, dynamic> json) => _$ProductInstallerDtoFromJson(json);

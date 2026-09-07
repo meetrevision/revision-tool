@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -53,7 +54,7 @@ class _MSStorePageState() extends ConsumerState<MSStorePage> {
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<List<SearchProduct>> searchState = ref.watch(
+    final AsyncValue<IList<SearchProduct>> searchState = ref.watch(
       storeControllerProvider.select((s) => s.search),
     );
     final StoreRing selectedRing = ref.watch(storeControllerProvider.select((s) => s.ring));

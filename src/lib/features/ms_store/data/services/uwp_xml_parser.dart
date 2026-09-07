@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:xml/xml.dart';
 
@@ -7,6 +8,10 @@ final storeUwpXmlParserProvider = Provider<UwpXmlParser>((_) => const UwpXmlPars
 
 /// Stateless parser for UWP-related XML responses.
 /// Designed to be run in an isolate via [compute].
+///
+/// Internals build with mutable collections (fastest for parsing), then
+/// [.lock] once at the boundary into [ISet] for value equality + structural
+/// sharing downstream.
 class const UwpXmlParser() {
   static const _knownPackageArch = {'x86', 'x64', 'arm64', 'arm', 'neutral'};
 
@@ -35,7 +40,7 @@ class const UwpXmlParser() {
     final updatesMap = <String, UpdateModel>{};
 
     final XmlElement? syncUpdatesResult = document.findAllElements('SyncUpdatesResult').firstOrNull;
-    if (syncUpdatesResult == null) return const UwpPackageResponse(updates: {});
+    if (syncUpdatesResult == null) return const UwpPackageResponse(updates: .empty());
 
     // 1. Parse ExtendedUpdateInfo for files and metadata
     final XmlElement? extendedUpdateInfo = syncUpdatesResult.getElement('ExtendedUpdateInfo');
@@ -76,8 +81,8 @@ class const UwpXmlParser() {
                 digestAlgorithm: fileElement.getAttribute('DigestAlgorithm'),
                 additionalDigest: additionalDigest?.innerText.trim(),
                 additionalDigestAlgorithm: additionalDigest?.getAttribute('Algorithm'),
-                size: int.tryParse(fileElement.getAttribute('Size') ?? '0'),
-                modifiedDate: DateTime.tryParse(fileElement.getAttribute('Modified') ?? ''),
+                size: .tryParse(fileElement.getAttribute('Size') ?? '0'),
+                modifiedDate: .tryParse(fileElement.getAttribute('Modified') ?? ''),
               ),
             );
           }
@@ -89,14 +94,16 @@ class const UwpXmlParser() {
               ? ExtendedProperties(
                   contentType: propsElement.getAttribute('ContentType'),
                   isAppxFramework: propsElement.getAttribute('IsAppxFramework') == 'true',
-                  creationDate: DateTime.tryParse(propsElement.getAttribute('CreationDate') ?? ''),
+                  creationDate: .tryParse(propsElement.getAttribute('CreationDate') ?? ''),
                   packageIdentityName: propsElement.getAttribute('PackageIdentityName'),
                 )
               : null;
 
           updatesMap[id] = UpdateModel(
             id: id,
-            xml: ElementXml(fileModel: files, extendedProperties: extendedProperties),
+            // lockUnsafe: `files` is a fresh local that never escapes this
+            // iteration, so skipping the defensive copy is safe (FIC §2.5).
+            xml: ElementXml(fileModel: files.lockUnsafe, extendedProperties: extendedProperties),
           );
         }
       }
@@ -171,7 +178,7 @@ class const UwpXmlParser() {
       }
     }
 
-    return UwpPackageResponse(updates: latestPackages.values.toSet());
+    return UwpPackageResponse(updates: latestPackages.values.toISet());
   }
 
   // Pick SHA256 digest if present, else use first available.

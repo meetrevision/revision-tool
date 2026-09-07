@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:riverpod/riverpod.dart';
 
 import '../../../../core/error/app_exception.dart';
@@ -18,10 +19,13 @@ final storeCatalogClientProvider = Provider<StoreCatalogClient>((ref) {
   return StoreCatalogClient(api: ref.read(apiClientProvider), cache: ref.read(storeCacheProvider));
 });
 
-class const StoreCatalogClient({required final ApiClient _api, required final StoreCache _cache}) {
+final class const StoreCatalogClient({
+  required final ApiClient _api,
+  required final StoreCache _cache,
+}) {
   // Search for products. API returns highlighted + products list.
   // Filter out items without id. Free filter is in StoreService.
-  Future<List<SearchProduct>> search(
+  Future<IList<SearchProduct>> search(
     String query, {
     String market = 'US',
     String locale = 'en-us',
@@ -55,11 +59,9 @@ class const StoreCatalogClient({required final ApiClient _api, required final St
     }
 
     final dto = MsStoreSearchDto.fromJson(response.data as Map<String, Object?>);
-    final List<SearchProductDto> raw = [...dto.highlightedList, ...dto.productsList];
-    return raw
-        .map<SearchProduct>((d) => d.toDomain())
-        .where((e) => e.id.isNotEmpty)
-        .toList(growable: false);
+    // dto lists are already IList; concatenate without intermediate mutable List.
+    final IList<SearchProductDto> raw = dto.highlightedList.addAll(dto.productsList);
+    return raw.map<SearchProduct>((d) => d.toDomain()).where((e) => e.id.isNotEmpty).toIList();
   }
 
   // Get product details by id. Uses cache if present.

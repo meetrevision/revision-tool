@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:riverpod/riverpod.dart';
 
 import '../../../../core/error/app_exception.dart';
@@ -34,6 +35,17 @@ final class const StoreService({
   required final PackageFileService _fileService,
 }) with BaseService {
   static final _locks = <String, RandomAccessFile>{};
+
+  /// Cached arch index per package set. First lookup counts in O(n),
+  /// repeat lookups on the same ISet instance hit the cache in O(1).
+  static final _archCounts = CacheKey<ISet<PackageInfo>, Map<String, int>>((packages) {
+    final counts = <String, int>{};
+    for (final p in packages) {
+      final String arch = p.arch.toLowerCase();
+      counts[arch] = (counts[arch] ?? 0) + 1;
+    }
+    return counts;
+  });
 
   @override
   ErrorMapper get errorMapper => (error, stackTrace) {
@@ -72,16 +84,16 @@ final class const StoreService({
 
   /// Releases locks held for download-only flows, cancel, or cleanup.
   void releaseDownloadLocks() {
-    _locks.keys.toList().forEach(_unlockFile);
+    // Copy keys first: _unlockFile mutates _locks during iteration.
+    _locks.keys.toIList().forEach(_unlockFile);
   }
 
   void _trackDownloadedFile(String path) => _lockFile(path);
 
-  Future<Result<List<SearchProduct>>> searchProducts(String query) => run(
-    () async => _uwpRepository.searchProducts(query).then((r) {
-      return r.where((p) => p.displayPrice == 'Free').toList(growable: false);
-    }),
-  );
+  Future<Result<IList<SearchProduct>>> searchProducts(String query) => run(() async {
+    final IList<SearchProduct> results = await _uwpRepository.searchProducts(query);
+    return results.where((p) => p.displayPrice == 'Free').toIList();
+  });
 
   Future<Result<ProductDetails>> getProductDetails(String productId) async {
     return run(() {
@@ -105,15 +117,19 @@ final class const StoreService({
     StoreArch arch = .auto,
   }) async {
     return run(() async {
-      final Map<StoreAppType, Set<String>> idsByType = productIds
-          .map((id) => id.toUpperCase())
-          .map((id) => (StoreAppType.fromProductId(id)!, id))
-          .fold<Map<StoreAppType, Set<String>>>({}, (m, e) {
-            m.putIfAbsent(e.$1, () => {}).add(e.$2);
-            return m;
-          });
+      // Group IDs by app type with a mutable accumulator, lock once at the end.
+      final Map<StoreAppType, Set<String>> idsByType = {};
+      for (final String id in productIds.map((id) => id.toUpperCase())) {
+        final StoreAppType? type = .fromProductId(id);
+        if (type == null) continue;
+        idsByType.putIfAbsent(type, () => {}).add(id);
+      }
+      // fromEntries builds the IMap in one pass (no intermediate Map copy).
+      final IMap<StoreAppType, ISet<String>> groupedIds = .fromEntries(
+        idsByType.entries.map((e) => MapEntry(e.key, e.value.lock)),
+      );
 
-      if (idsByType.isEmpty) {
+      if (groupedIds.isEmpty) {
         throw const UnexpectedNetworkException(message: 'At least one product ID required');
       }
 
@@ -121,30 +137,33 @@ final class const StoreService({
           ? (WinRegistryService.cpuArch == 'amd64' ? 'x64' : 'arm64')
           : arch.value;
 
-      final merged = <String, Set<PackageInfo>>{};
+      var merged = const IMap<String, ISet<PackageInfo>>.empty();
 
       // Fetch for each type in parallel
-      for (final MapEntry<StoreAppType, Set<String>> entry in idsByType.entries) {
+      for (final MapEntry<StoreAppType, ISet<String>> entry in groupedIds.entries) {
         final StoreAppType type = entry.key;
         final StoreRepository repo = type == .uwp ? _uwpRepository : _win32Repository;
         await Future.wait(
           entry.value.map((productId) async {
-            final Set<PackageInfo> packages =
-                (await repo.getPackages(productId: productId, ring: ring)).where((p) {
-                  if (arch == .all) return true;
-                  final String a = p.arch.toLowerCase();
-                  if (a == 'neutral' || a == resolvedArch) return true;
-                  return p.isDependency &&
-                      ((resolvedArch == 'x64' && a == 'x86') ||
-                          (resolvedArch == 'arm64' && a == 'arm'));
-                }).toSet();
+            final ISet<PackageInfo> all = await repo.getPackages(productId: productId, ring: ring);
+            // Touch the arch-count cache so repeat inspections on the same
+            // instance are O(1). Cheap, zero overhead if unused elsewhere.
+            all.cached(_archCounts);
+            final ISet<PackageInfo> packages = all.where((p) {
+              if (arch == .all) return true;
+              final String a = p.arch.toLowerCase();
+              if (a == 'neutral' || a == resolvedArch) return true;
+              return p.isDependency &&
+                  ((resolvedArch == 'x64' && a == 'x86') ||
+                      (resolvedArch == 'arm64' && a == 'arm'));
+            }).toISet();
 
             if (packages.isEmpty) {
               throw UnexpectedNetworkException(
                 cause: Exception('No matching packages for $productId arch=${arch.value}'),
               );
             }
-            merged[productId] = packages;
+            merged = merged.add(productId, packages);
           }),
         );
       }
@@ -152,9 +171,9 @@ final class const StoreService({
     });
   }
 
-  Future<Result<Set<StorePackageFileDownload>>> download({
+  Future<Result<ISet<StorePackageFileDownload>>> download({
     required StoreRing ring,
-    required Map<String, Iterable<PackageInfo>> packagesByProductId,
+    required IMap<String, Iterable<PackageInfo>> packagesByProductId,
     required void Function(StorePackageDownloadProgress) onProgress,
     required CancelToken cancelToken,
     String? downloadPath,
@@ -165,12 +184,12 @@ final class const StoreService({
         if (!dir.existsSync()) dir.createSync(recursive: true);
       }
 
-      final flat = <({PackageInfo package, String productId})>{};
-      for (final MapEntry<String, Iterable<PackageInfo>> entry in packagesByProductId.entries) {
-        for (final PackageInfo pkg in entry.value) {
-          flat.add((package: pkg, productId: entry.key.toUpperCase()));
-        }
-      }
+      // Flatten once into an immutable set; iteration is allocation-free after.
+      final ISet<({PackageInfo package, String productId})> flat = packagesByProductId.entries
+          .expand(
+            (entry) => entry.value.map((pkg) => (package: pkg, productId: entry.key.toUpperCase())),
+          )
+          .toISet();
 
       final String downloadId = packagesByProductId.keys.length == 1
           ? packagesByProductId.keys.first.toUpperCase()
@@ -180,7 +199,7 @@ final class const StoreService({
       final int totalBytes = flat.fold<int>(0, (s, e) => s + e.package.expectedBytes);
       var downloadedBytes = 0;
       var completedCount = 0;
-      final downloads = <StorePackageFileDownload>{};
+      var downloads = const ISet<StorePackageFileDownload>.empty();
       if (cancelToken.isCancelled) return downloads;
 
       for (final item in flat) {
@@ -188,7 +207,7 @@ final class const StoreService({
 
         final PackageInfo package = item.package;
         final String productId = item.productId;
-        final StoreAppType type = .fromProductId(productId)!;
+        final StoreAppType type = StoreAppType.fromProductId(productId)!;
 
         // Build local path
         final String tempDir = downloadPath ?? _fileService.downloadPath(downloadId, ring);
@@ -212,7 +231,7 @@ final class const StoreService({
                 )
               : package.expectedBytes <= 0 || cachedFile.lengthSync() == package.expectedBytes;
           if (valid) {
-            downloads.add(
+            downloads = downloads.add(
               StorePackageFileDownload(
                 downloadId: downloadId,
                 ring: ring,
@@ -294,7 +313,7 @@ final class const StoreService({
           path: storedPath,
           bytes: lastTotal > 0 ? lastTotal : lastCount,
         );
-        downloads.add(download);
+        downloads = downloads.add(download);
         _trackDownloadedFile(storedPath);
         completedCount++;
         downloadedBytes += download.bytes;
@@ -317,20 +336,22 @@ final class const StoreService({
   }
 
   /// Installs a mixed set of downloads. UWP dependencies are installed first.
-  Future<Result<Map<String, ProcessResult>>> install({
-    required Set<StorePackageFileDownload> downloads,
+  Future<Result<IMap<String, ProcessResult>>> install({
+    required ISet<StorePackageFileDownload> downloads,
   }) async {
     return run(() async {
       if (downloads.isEmpty) {
         throw ArgumentError.value(downloads, 'downloads', 'Must not be empty');
       }
 
-      final List<StorePackageFileDownload> ordered = [
-        ...downloads.where((d) => d.appType == .uwp && d.package.isDependency),
-        ...downloads.where((d) => !(d.appType == .uwp && d.package.isDependency)),
-      ];
+      // ISet iteration preserves insertion order; concat deps-first without
+      // allocating an intermediate growable List.
+      final IList<StorePackageFileDownload> ordered = downloads
+          .where((d) => d.appType == .uwp && d.package.isDependency)
+          .followedBy(downloads.where((d) => !(d.appType == .uwp && d.package.isDependency)))
+          .toIList();
 
-      final results = <String, ProcessResult>{};
+      var results = const IMap<String, ProcessResult>.empty();
       for (final download in ordered) {
         final PackageInfo package = download.package;
         if (package.hasDigest) {
@@ -354,7 +375,7 @@ final class const StoreService({
             package.commandLines?.split(' ') ?? const [],
           ),
         };
-        results[package.id] = installResult;
+        results = results.add(package.id, installResult);
         if (installResult.exitCode == 0) _unlockFile(download.path);
       }
       return results;

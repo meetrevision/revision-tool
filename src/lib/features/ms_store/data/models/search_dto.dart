@@ -1,5 +1,6 @@
 // ignore_for_file: invalid_annotation_target
 
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/search_product.dart';
@@ -10,8 +11,8 @@ part 'search_dto.g.dart';
 @freezed
 sealed class MsStoreSearchDto with _$MsStoreSearchDto {
   const factory({
-    @Default([]) List<SearchProductDto> highlightedList,
-    @Default([]) List<SearchProductDto> productsList,
+    @Default(IListConst([])) IList<SearchProductDto> highlightedList,
+    @Default(IListConst([])) IList<SearchProductDto> productsList,
   }) = _MsStoreSearchDto;
 
   factory fromJson(Map<String, Object?> json) => _$MsStoreSearchDtoFromJson(json);
@@ -28,8 +29,8 @@ sealed class SearchProductDto with _$SearchProductDto {
     @JsonKey(name: 'productFamilyName') String? productFamilyName,
     @JsonKey(name: 'iconUrl') String? iconUrl,
     @JsonKey(name: 'iconUrlBackground') String? iconUrlBackground,
-    @JsonKey(name: 'previews') @Default([]) List<SearchPreviewDto> previews,
-    @JsonKey(name: 'images') @Default([]) List<SearchPreviewDto> images,
+    @JsonKey(name: 'previews') @Default(IListConst([])) IList<SearchPreviewDto> previews,
+    @JsonKey(name: 'images') @Default(IListConst([])) IList<SearchPreviewDto> images,
   }) = _SearchProductDto;
 
   factory fromJson(Map<String, Object?> json) => _$SearchProductDtoFromJson(json);

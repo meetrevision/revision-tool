@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 import 'package:flutter/services.dart';
@@ -195,7 +196,7 @@ class const _HeroSection({required final ProductDetails details, required final 
     const divider = Divider(size: 16, direction: .vertical);
 
     final bool isWideScreen = MediaQuery.widthOf(context) >= 550;
-    final AsyncValue<List<Color>?> paletteAsync = details.heroImageUrl.isNotEmpty
+    final AsyncValue<IList<Color>?> paletteAsync = details.heroImageUrl.isNotEmpty
         ? ref.watch(msStoreProductPaletteProvider(details.id, details.heroImageUrl))
         : const AsyncValue.data(null);
     final Color iconUrlBackgroundColor = parseHexColor(details.iconUrlBackground);
@@ -825,7 +826,7 @@ class const _MoreMenuFlyout({required final String productId}) extends Stateless
   }
 }
 
-double _overallProgress(Map<String, double> fileProgress, int downloadedBytes, int totalBytes) {
+double _overallProgress(IMap<String, double> fileProgress, int downloadedBytes, int totalBytes) {
   if (totalBytes > 0) return downloadedBytes / totalBytes;
   if (fileProgress.isEmpty) return 0;
   final double totalProgress = fileProgress.values.fold<double>(
@@ -943,7 +944,7 @@ class const _RatingSection({required final ProductDetails details}) extends Stat
   }
 }
 
-class const _ScreenshotCarousel({required final List<ProductImage> screenshots})
+class const _ScreenshotCarousel({required final IList<ProductImage> screenshots})
     extends StatefulWidget {
   @override
   State<_ScreenshotCarousel> createState() => _ScreenshotCarouselState();

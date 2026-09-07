@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:path/path.dart' as p;
 import 'package:riverpod/misc.dart';
 import 'package:riverpod/riverpod.dart';
@@ -291,7 +292,7 @@ final class const AiRemovalService({required final StoreService _store, required
     await super.uninstall();
 
     await runPSCommand('Enable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart');
-    await _installStorePackages(store: _store, ids: {_copilotStoreId});
+    await _installStorePackages(store: _store, ids: {_copilotStoreId}.lock);
     if (File(_fabricAIPath).existsSync()) {
       logger.i('winsxs: Re-registering Microsoft.AIFabric.CBS.1.6 package...');
       await runPSCommand(
@@ -347,40 +348,36 @@ final class const XboxRemovalService({required final StoreService _store, requir
         xboxStoreIds.add(value);
       }
     }
-    await _installStorePackages(store: _store, ids: xboxStoreIds);
+    await _installStorePackages(store: _store, ids: xboxStoreIds.lock);
   }
 }
 
 Future<void> _installStorePackages({
   required StoreService store,
-  required Set<String> ids,
+  required ISet<String> ids,
   StoreRing ring = .releasePreview,
   StoreArch arch = .auto,
 }) async {
   final StorePackagesByProductId packagesByProductId = await store
       .getPackages(productIds: ids, ring: ring, arch: arch)
-      .then(
-        (result) => result.when(success: (value) => value, failure: (exception) => throw exception),
-      );
-  final Set<StorePackageFileDownload> downloads = await store
+      .then((r) => r.when(success: (v) => v, failure: (e) => throw e));
+
+  final ISet<StorePackageFileDownload> downloads = await store
       .download(
         ring: ring,
         packagesByProductId: packagesByProductId,
         cancelToken: CancelToken(),
         onProgress: (_) {},
       )
-      .then(
-        (result) => result.when(success: (value) => value, failure: (exception) => throw exception),
-      );
-  final Map<String, ProcessResult> installResults = await store
+      .then((r) => r.when(success: (v) => v, failure: (e) => throw e));
+
+  final IMap<String, ProcessResult> installResults = await store
       .install(downloads: downloads)
-      .then(
-        (result) => result.when(success: (value) => value, failure: (exception) => throw exception),
-      );
-  final List<ProcessResult> failed = installResults.values
-      .where((result) => result.exitCode != 0)
-      .toList();
+      .then((r) => r.when(success: (v) => v, failure: (e) => throw e));
+
+  final IList<ProcessResult> failed = installResults.values.where((r) => r.exitCode != 0).toIList();
+
   if (failed.isNotEmpty) {
-    throw Exception(failed.map((result) => result.stderr).join('\n'));
+    throw Exception(failed.map((r) => r.stderr).join('\n'));
   }
 }

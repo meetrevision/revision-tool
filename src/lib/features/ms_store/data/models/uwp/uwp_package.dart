@@ -1,13 +1,26 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'uwp_package.freezed.dart';
 part 'uwp_package.g.dart';
 
 @freezed
-sealed class UwpPackageResponse with _$UwpPackageResponse {
-  const factory({required Set<UpdateModel> updates}) = _UwpPackageResponse;
+@immutable
+sealed class const UwpPackageResponse._() with _$UwpPackageResponse {
+  const factory({required ISet<UpdateModel> updates}) = _UwpPackageResponse;
 
   factory fromJson(Map<String, Object?> json) => _$UwpPackageResponseFromJson(json);
+
+  // Custom == backs freezed's DeepCollectionEquality off (see `equal` in
+  // freezed_annotation): ISet already compares by value with a cached-hash
+  // O(1) mismatch fast path, so a deep walk would only be slower.
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UwpPackageResponse && other.runtimeType == runtimeType && other.updates == updates;
+
+  @override
+  int get hashCode => Object.hash(runtimeType, updates);
 }
 
 @freezed
@@ -18,15 +31,31 @@ sealed class UpdateModel with _$UpdateModel {
 }
 
 @freezed
-sealed class ElementXml with _$ElementXml {
+@immutable
+sealed class const ElementXml._() with _$ElementXml {
   const factory({
     UpdateIdentity? updateIdentity,
     String? packageMoniker,
     ExtendedProperties? extendedProperties,
-    required Set<FileModel> fileModel,
+    required ISet<FileModel> fileModel,
   }) = _ElementXml;
 
   factory fromJson(Map<String, Object?> json) => _$ElementXmlFromJson(json);
+
+  // Same as above: direct == keeps ISet's cached-hash fast path.
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ElementXml &&
+          other.runtimeType == runtimeType &&
+          other.updateIdentity == updateIdentity &&
+          other.packageMoniker == packageMoniker &&
+          other.extendedProperties == extendedProperties &&
+          other.fileModel == fileModel;
+
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, updateIdentity, packageMoniker, extendedProperties, fileModel);
 }
 
 @freezed

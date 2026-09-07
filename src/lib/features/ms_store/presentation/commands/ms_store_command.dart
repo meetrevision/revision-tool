@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:dio/dio.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:path/path.dart' as p;
 
 import '../../../../core/services/win_registry_service.dart';
@@ -18,7 +19,7 @@ class MSStoreCommand({required final StoreService _service}) extends Command<voi
       'ring',
       abbr: 'r',
       defaultsTo: 'Retail',
-      allowed: StoreRing.values.map((e) => e.value).toList(),
+      allowed: StoreRing.values.map((e) => e.value).toIList().unlockView,
       help: 'Channel',
     );
     argParser.addOption('download', help: 'Download to specified path.', defaultsTo: '');
@@ -27,12 +28,12 @@ class MSStoreCommand({required final StoreService _service}) extends Command<voi
       abbr: 'a',
       help: 'Filter downloads by following architectures:',
       defaultsTo: 'auto',
-      allowed: StoreArch.values.map((e) => e.value).toList(),
+      allowed: StoreArch.values.map((e) => e.value).toIList().unlockView,
     );
   }
 
   /// VCLibs frameworks shipped under [bundledPackagesPath].
-  static const bundledProductIds = {'9NBLGGH3FRZM', '9NBLGGH4RV3K'};
+  static final ISet<String> bundledProductIds = {'9NBLGGH3FRZM', '9NBLGGH4RV3K'}.lock;
 
   static final String bundledPackagesPath = p.join(directoryExe, 'packages', 'appx');
 
@@ -46,15 +47,15 @@ class MSStoreCommand({required final StoreService _service}) extends Command<voi
 
   @override
   FutureOr<void> run() async {
-    final Set<String> ids = (argResults?['id'] as Iterable<String>)
+    final ISet<String> ids = (argResults?['id'] as Iterable<String>)
         .map((id) => id.toUpperCase())
-        .toSet();
+        .toISet();
     final ringValue = argResults?['ring'] as String;
     final archValue = argResults?['arch'] as String;
     final download = argResults?['download'] as String?;
 
-    final StoreRing ring = .values.firstWhere((e) => e.value == ringValue);
-    final StoreArch arch = .values.firstWhere((e) => e.value == archValue);
+    final StoreRing ring = StoreRing.values.firstWhere((e) => e.value == ringValue);
+    final StoreArch arch = StoreArch.values.firstWhere((e) => e.value == archValue);
     final bool downloadOnly = download != null && download.isNotEmpty;
 
     try {
@@ -65,7 +66,7 @@ class MSStoreCommand({required final StoreService _service}) extends Command<voi
                 result.when(success: (value) => value, failure: (exception) => throw exception),
           );
 
-      final Set<StorePackageFileDownload> downloads = await _service
+      final ISet<StorePackageFileDownload> downloads = await _service
           .download(
             downloadPath: downloadOnly ? download : null,
             ring: ring,
@@ -90,21 +91,21 @@ class MSStoreCommand({required final StoreService _service}) extends Command<voi
         exit(0);
       }
 
-      final Map<String, ProcessResult> installResults = await _service
+      final IMap<String, ProcessResult> installResults = await _service
           .install(downloads: downloads)
           .then(
             (result) =>
                 result.when(success: (value) => value, failure: (exception) => throw exception),
           );
 
-      final List<ProcessResult> failed = installResults.values
+      final IList<ProcessResult> failed = installResults.values
           .where((r) => r.exitCode != 0)
-          .toList();
+          .toIList();
       if (failed.isNotEmpty) {
         throw Exception(failed.map((r) => r.stderr).join('\n'));
       }
     } catch (e, st) {
-      if (downloadOnly || !ids.every(bundledProductIds.contains)) rethrow;
+      if (downloadOnly || !bundledProductIds.containsAll(ids)) rethrow;
       logger.w('$name: Store failed, installing bundled appx', error: e, stackTrace: st);
       await _installBundled(arch: arch);
     }
@@ -122,7 +123,7 @@ class MSStoreCommand({required final StoreService _service}) extends Command<voi
         ? (WinRegistryService.cpuArch == 'amd64' ? 'x64' : 'arm64')
         : arch.value;
 
-    final List<File> files = dir.listSync().whereType<File>().where((f) {
+    final IList<File> files = dir.listSync().whereType<File>().where((f) {
       final String name = p.basename(f.path).toLowerCase();
 
       if (!name.endsWith('.appx') && !name.endsWith('.msix')) return false;
@@ -132,7 +133,7 @@ class MSStoreCommand({required final StoreService _service}) extends Command<voi
       if (resolvedArch == 'x64' && name.contains('_x86_')) return true;
       if (resolvedArch == 'arm64' && name.contains('_arm_')) return true;
       return false;
-    }).toList();
+    }).toIList();
 
     if (files.isEmpty) {
       throw Exception('No bundled AppX packages found in $bundledPackagesPath');

@@ -59,6 +59,7 @@ dependencies:
 
   # Other
   collection: ^1.19.1
+  fast_immutable_collections: ^11.2.0
   xml: ^7.0.1
   ffi: ^2.2.0
   crypto: ^3.0.7

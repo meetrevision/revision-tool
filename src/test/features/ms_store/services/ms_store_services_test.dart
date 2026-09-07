@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:revitool/core/error/app_exception.dart';
@@ -53,7 +54,7 @@ void main() {
             ),
           );
 
-      final List<SearchProduct> products = await _uwpRepository(apiClient).searchProducts('test');
+      final IList<SearchProduct> products = await _uwpRepository(apiClient).searchProducts('test');
       expect(products.single.id, '9TEST');
     });
 
@@ -99,7 +100,7 @@ void main() {
         return _response(data: unsecurePostCalls == 1 ? '<cookie />' : _uwpPackageXml);
       });
 
-      final Set<PackageInfo> packages = await repository.getPackages(
+      final ISet<PackageInfo> packages = await repository.getPackages(
         productId: '9TEST',
         ring: StoreRing.retail,
       );
@@ -174,7 +175,7 @@ void main() {
             ),
           );
 
-      final Set<PackageInfo> packages = await repository.getPackages(
+      final ISet<PackageInfo> packages = await repository.getPackages(
         productId: 'XPTEST',
         ring: StoreRing.retail,
       );
@@ -208,7 +209,7 @@ void main() {
         ),
       );
 
-      final Set<PackageInfo> packages = await _win32Repository(apiClient)
+      final ISet<PackageInfo> packages = await _win32Repository(apiClient)
           .getPackages(productId: 'XPTEST', ring: StoreRing.retail);
       final PackageInfo package = packages.single;
 
@@ -295,16 +296,16 @@ void main() {
       });
 
       try {
-        final Result<Set<StorePackageFileDownload>> result = await service.download(
+        final Result<ISet<StorePackageFileDownload>> result = await service.download(
           ring: StoreRing.retail,
           packagesByProductId: {
             '9TEST': [_sharedPackage(digest: 'digest', size: 12)],
-          },
+          }.lock,
           cancelToken: CancelToken(),
           onProgress: (value) => progress.add(value.fileProgress),
         );
 
-        expect(result, isA<Success<Set<StorePackageFileDownload>>>());
+        expect(result, isA<Success<ISet<StorePackageFileDownload>>>());
         expect(progress, [0.5, 1]);
       } finally {
         await service.cleanup();
@@ -343,21 +344,25 @@ void main() {
       });
 
       try {
-        final Result<Set<StorePackageFileDownload>> firstResult = await service.download(
+        final Result<ISet<StorePackageFileDownload>> firstResult = await service.download(
           ring: StoreRing.retail,
-          packagesByProductId: {'9TEST': [package]},
+          packagesByProductId: {
+            '9TEST': [package],
+          }.lock,
           cancelToken: firstToken,
           onProgress: (_) {},
         );
-        expect(firstResult, isA<Failure<Set<StorePackageFileDownload>>>());
+        expect(firstResult, isA<Failure<ISet<StorePackageFileDownload>>>());
 
-        final Result<Set<StorePackageFileDownload>> secondResult = await service.download(
+        final Result<ISet<StorePackageFileDownload>> secondResult = await service.download(
           ring: StoreRing.retail,
-          packagesByProductId: {'9TEST': [package]},
+          packagesByProductId: {
+            '9TEST': [package],
+          }.lock,
           cancelToken: CancelToken(),
           onProgress: (_) {},
         );
-        expect(secondResult, isA<Success<Set<StorePackageFileDownload>>>());
+        expect(secondResult, isA<Success<ISet<StorePackageFileDownload>>>());
         expect(attempts, 2);
       } finally {
         await service.cleanup();
@@ -369,9 +374,9 @@ void main() {
       final String digest = base64.encode(sha256.convert(bytes).bytes);
       final StoreService service = _service(apiClient);
       final PackageInfo package = _sharedPackage(digest: digest, size: 0);
-      final packagesByProductId = {
+      final IMap<String, List<PackageInfo>> packagesByProductId = {
         '9TEST': [package],
-      };
+      }.lock;
 
       when(
         () => apiClient.downloadFile(
@@ -510,14 +515,14 @@ void main() {
               (result) =>
                   result.when(success: (value) => value, failure: (exception) => throw exception),
             );
-        final Result<Set<StorePackageFileDownload>> result = await service.download(
+        final Result<ISet<StorePackageFileDownload>> result = await service.download(
           ring: StoreRing.retail,
           packagesByProductId: packagesByProductId,
           cancelToken: CancelToken(),
           onProgress: (value) => progress.add(value.completedCount),
         );
 
-        expect(result, isA<Success<Set<StorePackageFileDownload>>>());
+        expect(result, isA<Success<ISet<StorePackageFileDownload>>>());
         verify(
           () => apiClient.downloadFile(
             any<Uri>(),
@@ -549,17 +554,17 @@ void main() {
           Response<dynamic>(requestOptions: RequestOptions(), statusCode: 200),
         ),
       );
-      final Result<Set<StorePackageFileDownload>> result = await service.download(
+      final Result<ISet<StorePackageFileDownload>> result = await service.download(
         ring: StoreRing.retail,
         packagesByProductId: {
           '9TEST': [_sharedPackage(digest: 'digest', size: 12)],
           'XPTEST': [_win32Package()],
-        },
+        }.lock,
         cancelToken: CancelToken(),
         onProgress: (_) {},
       );
 
-      expect(result, isA<Success<Set<StorePackageFileDownload>>>());
+      expect(result, isA<Success<ISet<StorePackageFileDownload>>>());
     });
 
     test('install delegates selected packages', () async {
@@ -587,12 +592,12 @@ void main() {
       );
 
       try {
-        final Set<StorePackageFileDownload> downloads = await service
+        final ISet<StorePackageFileDownload> downloads = await service
             .download(
               ring: StoreRing.retail,
               packagesByProductId: {
                 'XPTEST': [package],
-              },
+              }.lock,
               cancelToken: CancelToken(),
               onProgress: (_) {},
             )
@@ -600,11 +605,11 @@ void main() {
               (result) =>
                   result.when(success: (value) => value, failure: (exception) => throw exception),
             );
-        final Result<Map<String, ProcessResult>> installResult = await service.install(
+        final Result<IMap<String, ProcessResult>> installResult = await service.install(
           downloads: downloads,
         );
 
-        expect(installResult, isA<Success<Map<String, ProcessResult>>>());
+        expect(installResult, isA<Success<IMap<String, ProcessResult>>>());
         expect(recording.win32InstallPaths, isNotEmpty);
       } finally {
         await service.cleanup();
@@ -715,7 +720,7 @@ final class _FakeStoreRepository(final Map<String, Set<PackageInfo>> _packagesBy
   static const String _downloadUrl = 'https://example.test/package.appx';
 
   @override
-  Future<List<SearchProduct>> searchProducts(
+  Future<IList<SearchProduct>> searchProducts(
     String query, {
     String market = 'US',
     String locale = 'en-us',
@@ -724,7 +729,7 @@ final class _FakeStoreRepository(final Map<String, Set<PackageInfo>> _packagesBy
     String price = 'all',
     String category = 'all',
     String subscription = 'all',
-  }) async => const [];
+  }) async => const .empty();
 
   @override
   Future<ProductDetails> getProductDetails(
@@ -734,8 +739,11 @@ final class _FakeStoreRepository(final Map<String, Set<PackageInfo>> _packagesBy
   }) async => throw UnimplementedError();
 
   @override
-  Future<Set<PackageInfo>> getPackages({required String productId, required StoreRing ring}) async {
-    return _packagesById[productId] ?? <PackageInfo>{};
+  Future<ISet<PackageInfo>> getPackages({
+    required String productId,
+    required StoreRing ring,
+  }) async {
+    return (_packagesById[productId] ?? <PackageInfo>{}).lock;
   }
 
   @override

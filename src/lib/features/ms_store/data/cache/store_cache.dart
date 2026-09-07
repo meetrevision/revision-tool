@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:riverpod/riverpod.dart';
 
 import '../../domain/entities/package_info.dart';
@@ -6,7 +7,7 @@ import '../../domain/entities/product_details.dart';
 final storeCacheProvider = Provider<StoreCache>((ref) => StoreCache());
 
 final class const _PackageCacheEntry({
-  required final Set<PackageInfo> packages,
+  required final ISet<PackageInfo> packages,
   required final DateTime expiryDate,
 }) {
   bool get isExpired => DateTime.now().isAfter(expiryDate);
@@ -27,15 +28,17 @@ final class StoreCache() {
     _details[key] = value;
   }
 
-  Set<PackageInfo>? getPackages(String key) {
+  /// Returns the cached immutable set directly. ISet is already immutable and
+  /// value-equal, so no defensive [Set.unmodifiable] wrapper (O(n)) is needed.
+  ISet<PackageInfo>? getPackages(String key) {
     final _PackageCacheEntry? entry = _packages.remove(key);
     if (entry == null) return null;
     if (entry.isExpired) return null;
     _packages[key] = entry;
-    return .unmodifiable(entry.packages);
+    return entry.packages;
   }
 
-  void putPackages(String key, Set<PackageInfo> packages, DateTime expiry) {
+  void putPackages(String key, ISet<PackageInfo> packages, DateTime expiry) {
     if (_packages.length >= _maxCacheLength) {
       _packages.remove(_packages.keys.first);
     }

@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'product_dto.freezed.dart';
@@ -22,7 +23,7 @@ sealed class Payload with _$Payload {
   const factory({
     // Keep only Skus. Other fields like Title, Platforms are not needed.
     // Skus hold the WuCategoryId needed for FE3 SyncUpdates.
-    @JsonKey(name: 'Skus') @Default([]) List<Skus> skus,
+    @JsonKey(name: 'Skus') @Default(IListConst([])) IList<Skus> skus,
   }) = _Payload;
 
   factory fromJson(Map<String, Object?> json) => _$PayloadFromJson(json);

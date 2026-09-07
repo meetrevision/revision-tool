@@ -1,5 +1,6 @@
 // ignore_for_file: invalid_annotation_target
 
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'win32_manifest_dto.freezed.dart';
@@ -14,14 +15,15 @@ sealed class Win32ManifestDto with _$Win32ManifestDto {
 
 @freezed
 sealed class Data with _$Data {
-  const factory({@JsonKey(name: 'Versions') @Default([]) List<Versions> versions}) = _Data;
+  const factory({@JsonKey(name: 'Versions') @Default(IListConst([])) IList<Versions> versions}) =
+      _Data;
 
   factory fromJson(Map<String, Object?> json) => _$DataFromJson(json);
 }
 
 @freezed
 sealed class Versions with _$Versions {
-  const factory({@JsonKey(name: 'Installers') @Default([]) List<Installers> installers}) =
+  const factory({@JsonKey(name: 'Installers') @Default(IListConst([])) IList<Installers> installers}) =
       _Versions;
 
   factory fromJson(Map<String, Object?> json) => _$VersionsFromJson(json);
