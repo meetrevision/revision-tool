@@ -19,6 +19,7 @@ class WindowsPackageCommand({required final ProviderContainer _container}) exten
     );
     argParser.addOption('install', help: 'Install a package', allowed: allowedList);
     argParser.addOption('uninstall', help: 'Uninstall a package', allowed: allowedList);
+    argParser.addFlag('force', help: 'Reinstall even when the installed version is current');
   }
 
   static const tag = 'Windows Package';
@@ -35,6 +36,7 @@ class WindowsPackageCommand({required final ProviderContainer _container}) exten
     final String? installOption = argResults?.option('install');
     final String? uninstallOption = argResults?.option('uninstall');
     final String? downloadPath = argResults?.option('download-path');
+    final bool force = argResults?.flag('force') ?? false;
 
     final String? cliKey = downloadOption ?? installOption ?? uninstallOption;
     if (cliKey == null) {
@@ -49,7 +51,7 @@ class WindowsPackageCommand({required final ProviderContainer _container}) exten
       if (downloadOption != null) {
         stdout.writeln(await service.download(path: downloadPath));
       } else if (installOption != null) {
-        await service.install();
+        await service.install(force: force);
       } else {
         await service.uninstall();
       }

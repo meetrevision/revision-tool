@@ -33,13 +33,22 @@ final class WinSxSPackageDownloadException(super.message, [super.reason]) extend
 }
 
 /// Exception thrown when a WinSxS package file is missing or inaccessible.
-final class WinSxSPackageFileNotFoundException(super.message, [super.reason]) extends WinSxSException {
+final class WinSxSPackageFileNotFoundException(super.message, [super.reason])
+    extends WinSxSException {
   @override
   String toString() => 'WinSxSPackageFileNotFoundException: $message';
 }
 
 /// Exception thrown when a WinSxS package signature is invalid or missing.
-final class InvalidWinSxSPackageSignatureException(super.message, [super.reason]) extends WinSxSException {
+final class InvalidWinSxSPackageSignatureException(super.message, [super.reason])
+    extends WinSxSException {
   @override
   String toString() => 'InvalidWinSxSPackageSignatureException: $message';
+}
+
+/// Exception thrown when a WinSxS package version is invalid or unparseable.
+final class InvalidWinSxSPackageVersionException(super.message, [super.reason])
+    extends WinSxSException {
+  @override
+  String toString() => 'InvalidWinSxSPackageVersionException: $message';
 }

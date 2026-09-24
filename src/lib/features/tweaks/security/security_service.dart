@@ -13,7 +13,10 @@ import 'security_exceptions.dart';
 
 part 'security_service.g.dart';
 
-enum Mitigation() { meltdownSpectre, downfall }
+enum Mitigation() {
+  meltdownSpectre,
+  downfall,
+}
 
 extension MitigationBits on Mitigation {
   int get bitmask {
@@ -43,9 +46,9 @@ abstract class SecurityService() {
   )
   bool get statusDefender;
   Future<void> enableDefender();
-  Future<void> disableDefender();
+  Future<void> disableDefender({bool force = false});
   Future<void> enableDefenderCLI();
-  Future<void> disableDefenderCLI();
+  Future<void> disableDefenderCLI({bool force = false});
 
   @CliToggle(name: 'uac', status: 'statusUAC', enable: 'enableUAC', disable: 'disableUAC')
   bool get statusUAC;
@@ -364,7 +367,7 @@ class const SecurityServiceImpl() implements SecurityService {
   }
 
   @override
-  Future<void> disableDefender() async {
+  Future<void> disableDefender({bool force = false}) async {
     try {
       /// Internal helper
       Future<void> applyPolicyWrites() async {
@@ -430,7 +433,7 @@ class const SecurityServiceImpl() implements SecurityService {
         'RevisionEnableDefenderCMD',
       );
 
-      await DefenderRemovalService(security: this, api: ApiClient()).installPackage();
+      await DefenderRemovalService(security: this, api: ApiClient()).installPackage(force: force);
     } on Exception catch (e) {
       throw DefenderOperationException('Failed to disable Windows Defender', e);
     }
@@ -446,8 +449,8 @@ class const SecurityServiceImpl() implements SecurityService {
   }
 
   @override
-  Future<void> disableDefenderCLI() async {
-    if (!statusDefender) {
+  Future<void> disableDefenderCLI({bool force = false}) async {
+    if (!statusDefender && !force) {
       logger.i('security: Windows Defender is already disabled');
       return;
     }
@@ -472,7 +475,7 @@ class const SecurityServiceImpl() implements SecurityService {
     }
 
     await Process.run('taskkill', ['/f', '/im', 'SecHealthUI.exe']);
-    await disableDefender();
+    await disableDefender(force: force);
   }
 
   @override

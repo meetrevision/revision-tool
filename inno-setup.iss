@@ -66,3 +66,9 @@ begin
   Dependency_AddVC2015To2022;
   Result := True;
 end;
+
+[InstallDelete]
+Type: filesandordirs
+Name: "{app}\data\flutter_assets\additionals"
+Type: filesandordirs
+Name: "{app}\data\flutter_assets\assets"

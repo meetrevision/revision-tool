@@ -14,7 +14,7 @@ final class FakeWinPackageService() extends WinPackageService {
   this : super(type: .defenderRemoval, api: ApiClient());
 
   @override
-  Future<void> install() async {}
+  Future<void> install({bool force = false}) async {}
 
   @override
   Future<void> uninstall() async {}

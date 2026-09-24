@@ -52,6 +52,12 @@ enum WinPackageType({required final String packageName, required final String cl
   }
 }
 
+typedef WinPackageVersion = (int, int, int, int);
+
+typedef WinPackageDownload = ({String path, WinPackageVersion version});
+
+typedef WinPackageAsset = Map<String, dynamic>;
+
 abstract base class const WinPackageService({
   required final WinPackageType type,
   required final ApiClient _api,
@@ -119,10 +125,36 @@ abstract base class const WinPackageService({
     return null;
   }
 
+  /// Matches the version suffix of both installed CBS package names (`~~1.2.3.4`)
+  /// and cab file names (`~1.2.3.4`), capturing the four version components.
+  static final _versionSuffixPattern = RegExp(r'~{1,2}(\d+\.\d+\.\d+\.\d+)$');
+
+  static WinPackageVersion? parsePackageVersion(String packageName) {
+    final RegExpMatch? match = _versionSuffixPattern.firstMatch(packageName.trim());
+    if (match?.group(1) case final version?) {
+      final IList<int> parts = version.split('.').map(int.parse).toIList();
+      return (parts[0], parts[1], parts[2], parts[3]);
+    }
+    return null;
+  }
+
+  static int comparePackageVersions(WinPackageVersion left, WinPackageVersion right) {
+    for (final (leftPart, rightPart) in [
+      (left.$1, right.$1),
+      (left.$2, right.$2),
+      (left.$3, right.$3),
+      (left.$4, right.$4),
+    ]) {
+      final int result = leftPart.compareTo(rightPart);
+      if (result != 0) return result;
+    }
+    return 0;
+  }
+
   /// Downloads [type] from GitHub or uses the bundled package if available.
   ///
-  /// Returns [String] path of the downloaded package.
-  Future<String> download({String? path}) async {
+  /// Returns [WinPackageDownload] with the path and version of the package.
+  Future<WinPackageDownload> download({String? path}) async {
     final String downloadPath = path ?? cabPath;
 
     try {
@@ -130,29 +162,35 @@ abstract base class const WinPackageService({
 
       Directory(downloadPath).createSync(recursive: true);
 
-      final Result<Response<dynamic>> releaseResult = await _api.get<dynamic>(
-        NetworkEndpoints.githubLatestRelease(GitHubRepositoryEndpoint.cabPackages),
-      );
-      final Response<dynamic> releaseResponse = releaseResult.when(
-        success: (response) => response,
-        failure: (exception) => throw exception,
-      );
+      final Response<WinPackageAsset> response = await _api
+          .get<WinPackageAsset>(
+            NetworkEndpoints.githubLatestRelease(GitHubRepositoryEndpoint.cabPackages),
+          )
+          .then((r) => r.when(success: (v) => v, failure: (e) => throw e));
 
-      final releaseData = releaseResponse.data as Map<String, dynamic>;
-      final assets = List<Map<String, dynamic>>.from(releaseData['assets'] as List<dynamic>);
-      var name = '';
+      final IMap<String, dynamic> releaseData = response.data!.lock;
 
-      final Map<String, dynamic>? asset = assets.firstWhereOrNull((Map<String, dynamic> e) {
-        final n = e['name'] as String?;
-        return n != null &&
-            n.startsWith('${type.packageName}31bf3856ad364e35') &&
-            n.contains(WinRegistryService.cpuArch);
+      final String tagName = releaseData['tag_name'] as String? ?? '';
+
+      final WinPackageVersion? releaseVersion = parsePackageVersion('~~$tagName');
+      if (releaseVersion == null) {
+        throw InvalidWinSxSPackageVersionException('Invalid release version: $tagName');
+      }
+
+      final IList<WinPackageAsset> assets = List<WinPackageAsset>.from(
+        releaseData['assets'] as List<dynamic>,
+      ).lock;
+
+      final WinPackageAsset? asset = assets.firstWhereOrNull((e) {
+        if (e['name'] case final String name) {
+          return name.startsWith('${type.packageName}31bf3856ad364e35') &&
+              name.contains(WinRegistryService.cpuArch);
+        }
+        return false;
       });
 
       final downloadUrl = asset?['browser_download_url'] as String?;
-      if (asset != null) {
-        name = asset['name'] as String? ?? '';
-      }
+      final String assetName = asset?['name'] as String? ?? '';
 
       if (downloadUrl == null) {
         throw WinSxSPackageNotFoundException(
@@ -160,7 +198,7 @@ abstract base class const WinPackageService({
         );
       }
 
-      final String filePath = p.join(downloadPath, name);
+      final String filePath = p.join(downloadPath, assetName);
 
       final Result<Response<dynamic>> downloadResult = await _api.downloadFile(
         Uri.parse(downloadUrl),
@@ -168,27 +206,36 @@ abstract base class const WinPackageService({
       );
       downloadResult.when(success: (_) {}, failure: (exception) => throw exception);
       if (!File(filePath).existsSync()) {
-        throw WinSxSPackageDownloadException('Failed to download package: $name');
+        throw WinSxSPackageDownloadException('Failed to download package: $assetName');
       }
 
       logger.i('Successfully downloaded package from GitHub: $filePath');
-      return filePath;
-    } catch (e) {
-      logger.w('Failed to download from GitHub: $e');
+      return (path: filePath, version: releaseVersion);
+    } catch (e, stackTrace) {
+      logger.w('Failed to download from GitHub', error: e, stackTrace: stackTrace);
       logger.i('Falling back to bundled packages...');
 
       final String? bundledPath = getBundledPackagePath(type);
       if (bundledPath != null && File(bundledPath).existsSync()) {
         logger.i('Using bundled package: $bundledPath');
 
-        if (path != null) {
-          final String targetPath = p.join(path, p.basename(bundledPath));
-          Directory(path).createSync(recursive: true);
-          await File(bundledPath).copy(targetPath);
-          return targetPath;
+        final String targetPath = switch (path) {
+          null => bundledPath,
+          final dir => p.join(dir, p.basename(bundledPath)),
+        };
+        if (path case final dir?) {
+          Directory(dir).createSync(recursive: true);
+          File(bundledPath).copySync(targetPath);
         }
-
-        return bundledPath;
+        final WinPackageVersion? bundledVersion = parsePackageVersion(
+          p.basenameWithoutExtension(targetPath),
+        );
+        if (bundledVersion == null) {
+          throw InvalidWinSxSPackageVersionException(
+            'Invalid bundled package version: $targetPath',
+          );
+        }
+        return (path: targetPath, version: bundledVersion);
       }
 
       throw WinSxSPackageDownloadException(
@@ -198,15 +245,62 @@ abstract base class const WinPackageService({
     }
   }
 
-  Future<void> install() async {
+  Future<void> install({bool force = false}) async {
     logger.i('winsxs: Downloading package=${type.packageName}');
-    final String packagePath = await download();
+    final (path: String packagePath, version: WinPackageVersion packageVersion) = await download();
+    await _installCab(packagePath, packageVersion: packageVersion, force: force);
+  }
+
+  Future<void> _installCab(
+    String packagePath, {
+    required WinPackageVersion packageVersion,
+    required bool force,
+  }) async {
     logger.i('winsxs: Installing package=${type.packageName}, path=$packagePath');
 
     if (!File(packagePath).existsSync()) {
       throw WinSxSPackageFileNotFoundException('Package file does not exist: $packagePath');
     }
 
+    final IList<String> installedPackageNames = await _installedPackageNames();
+    final IList<WinPackageVersion?> installedVersions = installedPackageNames
+        .map(parsePackageVersion)
+        .toIList();
+    if (installedVersions.any((version) => version == null)) {
+      throw InvalidWinSxSPackageVersionException(
+        'Invalid installed package version for ${type.packageName}',
+      );
+    }
+    if (installedVersions.isNotEmpty) {
+      final WinPackageVersion latestInstalledVersion = installedVersions
+          .whereType<WinPackageVersion>()
+          .reduce((left, right) => comparePackageVersions(left, right) >= 0 ? left : right);
+
+      if (!force && comparePackageVersions(packageVersion, latestInstalledVersion) <= 0) {
+        logger.i('winsxs: Skipping package=${type.packageName}; installed version is current');
+        _deleteTemporaryPackage(packagePath);
+        return;
+      }
+    }
+
+    await _installCabOnly(packagePath);
+    await _uninstallOlderCabs(p.basenameWithoutExtension(packagePath));
+  }
+
+  Future<IList<String>> _installedPackageNames() async {
+    final ProcessResult result = await runPSCommand(
+      '(Get-WindowsPackage -Online -PackageName "${type.packageName}*").PackageName',
+      stdout: true,
+    );
+    return result.stdout
+        .toString()
+        .split(RegExp(r'\r?\n'))
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty)
+        .toIList();
+  }
+
+  Future<void> _installCabOnly(String packagePath, {bool deletePackage = true}) async {
     final String certValue = (await runPSCommand(
       '(Get-AuthenticodeSignature -FilePath "$packagePath").SignerCertificate.Extensions.EnhancedKeyUsages.Value',
     )).stdout.toString().trim();
@@ -224,12 +318,37 @@ abstract base class const WinPackageService({
     await runPSCommand(
       'Add-WindowsPackage -Online -NoRestart -IgnoreCheck -PackagePath "$packagePath"',
     );
-    await File(packagePath).delete();
+    if (deletePackage) _deleteTemporaryPackage(packagePath);
   }
 
-  Future<void> uninstall() async => runPSCommand(
-    'Get-WindowsPackage -Online -PackageName "${type.packageName}*" | Remove-WindowsPackage -Online -NoRestart',
+  Future<void> uninstall() async {
+    Future<void> uninstallMatchingCabs() => runPSCommand(
+      'Get-WindowsPackage -Online -PackageName "${type.packageName}*" | Remove-WindowsPackage -Online -NoRestart',
+    );
+
+    try {
+      await uninstallMatchingCabs();
+    } catch (error) {
+      try {
+        final String packagePath = (await download()).path;
+        await _installCabOnly(packagePath, deletePackage: false);
+        await uninstallMatchingCabs();
+        _deleteTemporaryPackage(packagePath);
+      } catch (retryError) {
+        throw Exception(
+          'Failed to uninstall ${type.packageName} after recovery attempt. Contact support at https://revi.cc/. Original error: $error; Retry error: $retryError',
+        );
+      }
+    }
+  }
+
+  Future<void> _uninstallOlderCabs(String installedPackageName) async => runPSCommand(
+    'Get-WindowsPackage -Online -PackageName "${type.packageName}*" | Where-Object { \$_.PackageName -ne "$installedPackageName" } | Remove-WindowsPackage -Online -NoRestart',
   );
+
+  void _deleteTemporaryPackage(String packagePath) {
+    if (!p.isWithin(bundledPackagesPath, packagePath)) File(packagePath).deleteSync();
+  }
 }
 
 final class const SystemPackagesRemovalService({required super.api}) extends WinPackageService {
@@ -250,17 +369,14 @@ final class const DefenderRemovalService({
   this : super(type: .defenderRemoval);
 
   @override
-  Future<void> install() async => _security.disableDefenderCLI();
+  Future<void> install({bool force = false}) => _security.disableDefenderCLI(force: force);
+
   @override
-  Future<void> uninstall() async => _security.enableDefenderCLI();
+  Future<void> uninstall() => _security.enableDefenderCLI();
 
-  Future<void> installPackage() async {
-    await super.install();
-  }
+  Future<void> installPackage({bool force = false}) => super.install(force: force);
 
-  Future<void> uninstallPackage() async {
-    await super.uninstall();
-  }
+  Future<void> uninstallPackage() => super.uninstall();
 }
 
 final class const AiRemovalService({required final StoreService _store, required super.api})
@@ -272,7 +388,7 @@ final class const AiRemovalService({required final StoreService _store, required
       r'C:\Windows\SystemApps\Microsoft.AIFabric.CBS.1.6_8wekyb3d8bbwe\AppxManifest.xml';
 
   @override
-  Future<void> install() async {
+  Future<void> install({bool force = false}) async {
     await WinRegistryService.hidePageVisibilitySettings('aicomponents');
     await WinRegistryService.hidePageVisibilitySettings('privacy-systemaimodels');
     await runPSCommand('Disable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart');
@@ -289,7 +405,7 @@ final class const AiRemovalService({required final StoreService _store, required
       0,
     );
 
-    await super.install();
+    await super.install(force: force);
   }
 
   @override
@@ -333,14 +449,14 @@ final class const XboxRemovalService({required final StoreService _store, requir
   };
 
   @override
-  Future<void> install() async {
+  Future<void> install({bool force = false}) async {
     await runPSCommand(
       r"Get-AppxPackage -Name 'Microsoft.XboxGameCallableUI' | Remove-AppxPackage -PreserveRoamableApplicationData",
     );
     await runPSCommand(
       r"'Microsoft.Xbox.TCUI','Microsoft.XboxApp','Microsoft.GamingApp','Microsoft.GamingServices','Microsoft.Edge.GameAssist','Microsoft.XboxGamingOverlay','Microsoft.XboxIdentityProvider' | ForEach-Object { Get-AppxPackage -AllUsers -Name $_ | Remove-AppxPackage -AllUsers }",
     );
-    await super.install();
+    await super.install(force: force);
   }
 
   @override
