@@ -110,7 +110,7 @@ extension ProductDetailsDtoX on ProductDetailsDto {
       );
     }
 
-    return domain.ProductDetails(
+    return (
       id: id,
       title: (title ?? '').trim(),
       description: (description ?? '').trim(),

@@ -52,7 +52,7 @@ extension SearchProductDtoX on SearchProductDto {
         .firstWhere((c) => c.isNotEmpty, orElse: () => '');
     final String posterBg = bgFromPreviews.isNotEmpty ? bgFromPreviews : (iconUrlBackground ?? '');
 
-    return SearchProduct(
+    return (
       id: id,
       title: (title ?? '').trim(),
       description: (description ?? '').trim(),

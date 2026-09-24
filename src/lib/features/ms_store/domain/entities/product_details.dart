@@ -1,75 +1,31 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
-import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 /// Domain entities use FIC collections for value equality, structural sharing,
 /// and O(1)/O(log N) copy-on-write updates. Records + FIC give 100% type-safe,
 /// immutable, value-equal state without codegen (see StoreState in
 /// presentation/providers/store_providers.dart).
-@immutable
-class const ProductDetails({
-  required final String id,
-  required final String title,
-  required final String description,
-  required final String publisherName,
-  required final IList<String> categories,
-  required final String iconUrl,
-  required final String iconUrlBackground,
-  required final String heroImageUrl,
-  required final IList<ProductImage> screenshots,
-  required final IList<String> features,
-  required final double? averageRating,
-  required final int? ratingCount,
-  required final String? ratingCountFormatted,
-  required final IList<ProductRating> productRatings,
-  required final ProductSystemRequirements? systemRequirements,
-  required final int? approximateSizeBytes,
-  required final String? lastUpdateUtc,
-  required final String? releaseDateUtc,
-  required final ProductInstaller? installer,
-}) {
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ProductDetails &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          title == other.title &&
-          description == other.description &&
-          publisherName == other.publisherName &&
-          categories == other.categories &&
-          iconUrl == other.iconUrl &&
-          iconUrlBackground == other.iconUrlBackground &&
-          heroImageUrl == other.heroImageUrl &&
-          screenshots == other.screenshots &&
-          features == other.features &&
-          averageRating == other.averageRating &&
-          ratingCount == other.ratingCount &&
-          ratingCountFormatted == other.ratingCountFormatted &&
-          productRatings == other.productRatings &&
-          systemRequirements == other.systemRequirements &&
-          approximateSizeBytes == other.approximateSizeBytes &&
-          lastUpdateUtc == other.lastUpdateUtc &&
-          releaseDateUtc == other.releaseDateUtc &&
-          installer == other.installer;
-
-  @override
-  int get hashCode => Object.hash(
-    id,
-    title,
-    publisherName,
-    categories,
-    iconUrl,
-    heroImageUrl,
-    screenshots,
-    features,
-    averageRating,
-    ratingCount,
-    productRatings,
-    systemRequirements,
-    approximateSizeBytes,
-    installer,
-  );
-}
+typedef ProductDetails = ({
+  String id,
+  String title,
+  String description,
+  String publisherName,
+  IList<String> categories,
+  String iconUrl,
+  String iconUrlBackground,
+  String heroImageUrl,
+  IList<ProductImage> screenshots,
+  IList<String> features,
+  double? averageRating,
+  int? ratingCount,
+  String? ratingCountFormatted,
+  IList<ProductRating> productRatings,
+  ProductSystemRequirements? systemRequirements,
+  int? approximateSizeBytes,
+  String? lastUpdateUtc,
+  String? releaseDateUtc,
+  ProductInstaller? installer,
+});
 
 extension ProductDetailsX on ProductDetails {
   /// Cached index of screenshots by URL. First call is O(n), then O(1).
