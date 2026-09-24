@@ -277,8 +277,16 @@ final class const AiRemovalService({required final StoreService _store, required
     await WinRegistryService.hidePageVisibilitySettings('privacy-systemaimodels');
     await runPSCommand('Disable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart');
     await runPSCommand('Get-AppxPackage -AllUsers Microsoft.Copilot* | Remove-AppxPackage');
+
     await runPSCommand(
       r"Get-AppxPackage -Name 'Microsoft.AIFabric.CBS.1.6*' | Remove-AppxPackage -PreserveRoamableApplicationData",
+    );
+    // Since 26200.9278 update, removing AIFabric components reverts Explorer ribbon to Win10 style. 58375086 aka 1561856655 should be set to 0 to keep the Win11 style ribbon.
+    await WinRegistryService.writeRegistryValue(
+      LOCAL_MACHINE,
+      r'SYSTEM\ControlSet001\Policies\Microsoft\FeatureManagement\Overrides',
+      '1561856655',
+      0,
     );
 
     await super.install();
@@ -297,6 +305,11 @@ final class const AiRemovalService({required final StoreService _store, required
       logger.i('winsxs: Re-registering Microsoft.AIFabric.CBS.1.6 package...');
       await runPSCommand(
         'Add-AppxPackage -Register -DisableDevelopmentMode -Path "$_fabricAIPath"',
+      );
+      await WinRegistryService.deleteValue(
+        LOCAL_MACHINE,
+        r'SYSTEM\ControlSet001\Policies\Microsoft\FeatureManagement\Overrides',
+        '1561856655',
       );
     }
   }
