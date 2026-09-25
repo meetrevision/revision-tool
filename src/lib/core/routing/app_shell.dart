@@ -14,6 +14,7 @@ import 'package:window_plus/window_plus.dart';
 import '../../extensions.dart';
 import '../../i18n/generated/strings.g.dart';
 import '../services/win_registry_service.dart';
+import '../widgets/app_icon_image.dart';
 import '../widgets/page_header_with_breadcrumbs.dart';
 import 'app_router.dart';
 import 'app_routes.dart';
@@ -104,6 +105,20 @@ final class _AppShellState() extends ConsumerState<AppShell> {
     super.dispose();
   }
 
+  VoidCallback? backButtonAvailable(BuildContext context) {
+    final GoRouter router = ref.read(appRouterProvider);
+    final List<RouteMatchBase> matches = router.routerDelegate.currentConfiguration.matches;
+    final firstMatch = matches.first as ShellRouteMatch;
+
+    final VoidCallback? onPressed = firstMatch.matches.length > 1
+        ? () {
+            context.pop();
+            _updateNavigationIndex();
+          }
+        : null;
+    return onPressed;
+  }
+
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasFluentTheme(context));
@@ -160,30 +175,33 @@ final class _AppShellState() extends ConsumerState<AppShell> {
           ),
           titleBar: TitleBar(
             backButton: () {
-              final GoRouter router = ref.read(appRouterProvider);
-              final List<RouteMatchBase> matches =
-                  router.routerDelegate.currentConfiguration.matches;
-              final firstMatch = matches.first as ShellRouteMatch;
+              final VoidCallback? onPressed = backButtonAvailable(context);
 
-              final VoidCallback? onPressed = firstMatch.matches.length > 1
-                  ? () {
-                      context.pop();
-                      _updateNavigationIndex();
-                    }
-                  : null;
+              if (onPressed == null) return const SizedBox.shrink();
 
               return Semantics(
                 label: t.back,
                 button: true,
                 child: PaneBackButton(
-                  enabled: onPressed != null,
                   onPressed: onPressed,
                   backIcon: const Center(child: Icon(FluentIcons.back, size: 12.0)),
                 ),
               );
             }(),
             // To match W11's Settings app title bar style, `leftHeader` must be the title, when width > 800 `title` must be a search [IconButton] that spawns an overlay otherwise it must be null and the search [AutoSuggestBox] must be in `content`
-            leftHeader: const Text('Revision Tool', style: TextStyle(fontSize: 12)),
+            leftHeader: Padding(
+              padding: backButtonAvailable(context) == null
+                  ? const EdgeInsetsDirectional.only(start: 14)
+                  : .zero,
+              child: const Row(
+                spacing: 8,
+                mainAxisSize: .min,
+                children: [
+                  AppIconImage(size: 24.0, fallback: SizedBox.shrink()),
+                  Text('Revision Tool', style: TextStyle(fontSize: 12)),
+                ],
+              ),
+            ),
             title: MediaQuery.widthOf(context) > 800
                 ? null
                 : OverlayPortal(
@@ -296,12 +314,7 @@ final class _AppShellState() extends ConsumerState<AppShell> {
                       // semantics tree, which left the pane items unreadable by
                       // screen readers. A semantic boundary contains the route
                       // scope so the pane remains exposed to NVDA/Narrator.
-                      Expanded(
-                        child: Semantics(
-                          container: true,
-                          child: widget.child,
-                        ),
-                      ),
+                      Expanded(child: Semantics(container: true, child: widget.child)),
                     ],
                   ),
                 ),
