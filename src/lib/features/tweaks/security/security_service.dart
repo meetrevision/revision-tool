@@ -8,7 +8,7 @@ import '../../../core/cli_generator/annotations.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/services/win_registry_service.dart';
 import '../../../core/trusted_installer/trusted_installer_service.dart';
-import '../../winsxs/win_package_service.dart';
+import '../../winsxs/winsxs.dart';
 import 'security_exceptions.dart';
 
 part 'security_service.g.dart';
@@ -185,7 +185,10 @@ class const SecurityServiceImpl() implements SecurityService {
         ),
       ]);
 
-      await DefenderRemovalService(security: this, api: ApiClient()).uninstallPackage();
+      await DefenderRemovalService(
+        security: this,
+        repository: WinPackageService.createRepository(ApiClient()),
+      ).uninstallPackage().then((r) => r.when(success: (_) {}, failure: (e) => throw e));
 
       await runPSCommand(r'& $env:SystemRoot\System32\gpupdate.exe /Target:Computer /Force');
 
@@ -433,7 +436,10 @@ class const SecurityServiceImpl() implements SecurityService {
         'RevisionEnableDefenderCMD',
       );
 
-      await DefenderRemovalService(security: this, api: ApiClient()).installPackage(force: force);
+      await DefenderRemovalService(
+        security: this,
+        repository: WinPackageService.createRepository(ApiClient()),
+      ).installPackage(force: force).then((r) => r.when(success: (_) {}, failure: (e) => throw e));
     } on Exception catch (e) {
       throw DefenderOperationException('Failed to disable Windows Defender', e);
     }

@@ -1,23 +1,29 @@
+// Test fakes are unreachable from main by design.
 // ignore_for_file: unreachable_from_main
 
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:revitool/core/error/result.dart';
 import 'package:revitool/core/network/api_client.dart';
 import 'package:revitool/features/tweaks/security/security_service.dart';
-import 'package:revitool/features/winsxs/win_package_service.dart';
+import 'package:revitool/features/winsxs/winsxs.dart';
 
 class MockSecurityService() extends Mock implements SecurityService;
 
 final class FakeWinPackageService() extends WinPackageService {
-  this : super(type: .defenderRemoval, api: ApiClient());
+  this : super(type: .defenderRemoval, repository: WinPackageService.createRepository(ApiClient()));
 
   @override
-  Future<void> install({bool force = false}) async {}
+  Future<Result<void>> install({bool force = false}) async {
+    return const Result<void>.success(null);
+  }
 
   @override
-  Future<void> uninstall() async {}
+  Future<Result<void>> uninstall() async {
+    return const Result<void>.success(null);
+  }
 }
 
 void main() {
@@ -327,18 +333,16 @@ void main() {
       });
 
       test('enableMitigation can be called without system changes', () async {
-        when(
-          () => mockService.enableMitigation(Mitigation.meltdownSpectre),
-        ).thenAnswer((_) async => Future.value());
+        when(() => mockService.enableMitigation(Mitigation.meltdownSpectre))
+            .thenAnswer((_) async => Future.value());
 
         await mockService.enableMitigation(Mitigation.meltdownSpectre);
         verify(() => mockService.enableMitigation(Mitigation.meltdownSpectre)).called(1);
       });
 
       test('disableMitigation can be called without system changes', () async {
-        when(
-          () => mockService.disableMitigation(Mitigation.downfall),
-        ).thenAnswer((_) async => Future.value());
+        when(() => mockService.disableMitigation(Mitigation.downfall))
+            .thenAnswer((_) async => Future.value());
 
         await mockService.disableMitigation(Mitigation.downfall);
         verify(() => mockService.disableMitigation(Mitigation.downfall)).called(1);

@@ -1,4 +1,4 @@
-import '../../utils.dart';
+import '../../../utils.dart';
 
 /// Base exception for all WinSxS package-related errors.
 sealed class WinSxSException(final String message, [final Object? reason]) implements Exception {
@@ -51,4 +51,10 @@ final class InvalidWinSxSPackageVersionException(super.message, [super.reason])
     extends WinSxSException {
   @override
   String toString() => 'InvalidWinSxSPackageVersionException: $message';
+}
+
+/// Exception thrown when a WinSxS package uninstall fails, even after recovery.
+final class WinSxSPackageUninstallException(super.message, [super.reason]) extends WinSxSException {
+  @override
+  String toString() => 'WinSxSPackageUninstallException: $message';
 }

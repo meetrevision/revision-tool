@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:riverpod/riverpod.dart';
 
-import '../../utils.dart';
-import 'win_package_service.dart';
+import '../../../utils.dart';
+import 'win_package_providers.dart';
 
 class WindowsPackageCommand({required final ProviderContainer _container}) extends Command<void> {
   this {
@@ -49,11 +49,12 @@ class WindowsPackageCommand({required final ProviderContainer _container}) exten
 
     try {
       if (downloadOption != null) {
-        stdout.writeln(await service.download(path: downloadPath));
+        (await service.download(path: downloadPath))
+            .when(success: (package) => stdout.writeln(package.path), failure: (e) => throw e);
       } else if (installOption != null) {
-        await service.install(force: force);
+        (await service.install(force: force)).when(success: (_) {}, failure: (e) => throw e);
       } else {
-        await service.uninstall();
+        (await service.uninstall()).when(success: (_) {}, failure: (e) => throw e);
       }
     } catch (e) {
       logger.e(
