@@ -35,36 +35,46 @@ class const CardHighlight({
     final String? description,
     final String? descriptionLink,
     final String? image,
+    final Widget? leading,
     final Widget? action,
     final List<Widget>? children,
     final VoidCallback? onPressed,
     final bool initiallyExpanded = false,
     final Color? backgroundColor,
   }) extends StatelessWidget {
-  this : assert(icon == null || image == null, 'Cannot provide both icon and image');
+  this : assert(
+         icon == null || image == null,
+         'Cannot provide both icon and image',
+       ),
+       assert(
+         leading == null || (icon == null && image == null),
+         'Cannot provide leading with icon or image',
+       );
 
   @override
   Widget build(BuildContext context) {
     // Use label hash for stable PageStorageKey to prevent unnecessary rebuilds
     final pageStorageKey = label.hashCode;
 
-    // Build the leading widget (icon or image)
-    final Widget leadingWidget = image != null
-        ? ClipRRect(
-            clipBehavior: .hardEdge,
-            borderRadius: _cardBorderRadius,
-            child: Image(
-              image: MSStoreImageProvider(
-                baseUrl: image!,
-                width: _imgXY.cacheSize(context),
-                height: _imgXY.cacheSize(context),
-                fetchPadding: 0,
-              ),
-              width: _imgXY,
-              height: _imgXY,
-            ),
-          )
-        : Icon(icon, size: 24);
+    // Build the leading widget (custom leading, network image, or icon)
+    final Widget leadingWidget =
+        leading ??
+        (image != null
+            ? ClipRRect(
+                clipBehavior: .hardEdge,
+                borderRadius: _cardBorderRadius,
+                child: Image(
+                  image: MSStoreImageProvider(
+                    baseUrl: image!,
+                    width: _imgXY.cacheSize(context),
+                    height: _imgXY.cacheSize(context),
+                    fetchPadding: 0,
+                  ),
+                  width: _imgXY,
+                  height: _imgXY,
+                ),
+              )
+            : Icon(icon, size: 24));
 
     // If it's a clickable card (no children, has ChevronRightAction), build custom HoverButton
     if (children == null && action is ChevronRightAction || onPressed != null) {

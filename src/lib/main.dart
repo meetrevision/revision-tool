@@ -15,6 +15,7 @@ import 'core/services/win_registry_service.dart';
 import 'core/settings/app_settings_provider.dart';
 import 'core/settings/locale_config.dart';
 import 'core/trusted_installer/trusted_installer_service.dart';
+import 'core/widgets/app_icon_image.dart';
 import 'i18n/generated/strings.g.dart';
 import 'utils.dart';
 
@@ -109,7 +110,15 @@ Future<void> main(List<String> args) async {
   );
   await WindowPlus.instance.setMinimumSize(const Size(515, 330));
 
-  runApp(ProviderScope(child: TranslationProvider(child: const MyApp())));
+  logger.i('$tag Loading app icon');
+  final Uint8List? appIconBytes = findExeIconPng();
+
+  runApp(
+    ProviderScope(
+      overrides: [appIconProvider.overrideWithValue(appIconBytes)],
+      child: TranslationProvider(child: const MyApp()),
+    ),
+  );
 }
 
 bool _isSupported = false;
