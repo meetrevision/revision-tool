@@ -35,12 +35,19 @@ jobs:
         working-directory: native_utils
       
       - name: Download bundled WinSxS packages
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN }}
         run: |
           $path = "src\additionals\packages\winsxs"
           New-Item -Path $path -ItemType Directory -Force | Out-Null
 
           Write-Host "Fetching latest packages from meetrevision/packages..."
-          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/meetrevision/packages/releases/latest"
+          $headers = @{
+            Authorization = "Bearer $env:GH_TOKEN"
+            Accept = "application/vnd.github+json"
+            "X-GitHub-Api-Version" = "2022-11-28"
+          }
+          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/meetrevision/packages/releases/latest" -Headers $headers
           
           $cabAssets = $release.assets | Where-Object { $_.name -like "*.cab" }
           Write-Host "Downloading $($cabAssets.Count) packages..."
