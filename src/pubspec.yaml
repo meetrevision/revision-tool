@@ -87,6 +87,39 @@ dev_dependencies:
   riverpod_generator: ^4.0.9
   mocktail: ^1.0.5
   slang_build_runner: ^4.19.0
+  melos: ^8.9.0
+
+workspace:
+  - packages/*
+
+melos:
+  useRootAsPackage: true
+  command:
+    version:
+      versionPrivatePackages: true
+    bootstrap:
+      runPubGetInParallel: true
+  scripts:
+    analyze:
+      description: Analyze all packages.
+      exec:
+        command: dart analyze --fatal-infos
+    format:
+      description: Format all packages.
+      exec:
+        command: dart format .
+    test:
+      description: Run tests for all packages with tests.
+      exec:
+        command: flutter test --reporter=expanded --dart-define=SKIP_INTEGRATION=true
+      packageFilters:
+        dirExists: test
+    codegen:
+      description: Run slang plus build_runner for the app.
+      exec:
+        command: dart run slang && dart run build_runner build --delete-conflicting-outputs
+      packageFilters:
+        scope: revitool
 
   
 
