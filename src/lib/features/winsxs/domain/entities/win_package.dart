@@ -23,6 +23,20 @@ typedef WinPackageVersion = (int, int, int, int);
 /// Public key token shared by every ReviOS WinSxS removal package name.
 const String winPackagePublicKeyToken = '31bf3856ad364e35';
 
+/// Whether [fileName] is the installable CAB for [type] on [cpuArch].
+///
+/// Current release cabs separate fields with dots
+/// (`Revision-ReviOS-AI-Removal.31bf3856ad364e35.amd64.2.3.1.0.cab`),
+/// older ones use tildes. It matches cabs only and skips
+/// `.txt` checksum files.
+bool isWinPackageFile(String fileName, WinPackageType type, String cpuArch) {
+  final String name = fileName.trim();
+  return (name.startsWith('${type.packageName}.$winPackagePublicKeyToken') ||
+          name.startsWith('${type.packageName}~$winPackagePublicKeyToken')) &&
+      name.contains(cpuArch) &&
+      name.endsWith('.cab');
+}
+
 final class const CabAsset({required final String name, required final String downloadUrl});
 
 final class const WinPackageRelease({
@@ -35,9 +49,10 @@ final class const DownloadedPackage({
   required final WinPackageVersion version,
 });
 
-/// Matches the version suffix of both installed CBS package names (`~~1.2.3.4`)
-/// and cab file names (`~1.2.3.4`), capturing the four version components.
-final RegExp _versionSuffixPattern = RegExp(r'~{1,2}(\d+\.\d+\.\d+\.\d+)$');
+/// Matches the version suffix of installed CBS package names (`~~1.2.3.4`),
+/// legacy cab file names (`~~1.2.3.4`) and current dot-separated cab file
+/// names (`.1.2.3.4`), capturing the four version components.
+final RegExp _versionSuffixPattern = RegExp(r'(?:~{1,2}|\.)(\d+\.\d+\.\d+\.\d+)$');
 
 WinPackageVersion? parsePackageVersion(String packageName) {
   final RegExpMatch? match = _versionSuffixPattern.firstMatch(packageName.trim());

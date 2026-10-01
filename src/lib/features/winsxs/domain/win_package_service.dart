@@ -74,9 +74,7 @@ abstract base class const WinPackageService({
         }
 
         final CabAsset? asset = release.assets.firstWhereOrNull(
-          (a) =>
-              a.name.startsWith('${_type.packageName}$winPackagePublicKeyToken') &&
-              a.name.contains(WinRegistryService.cpuArch),
+          (a) => isWinPackageFile(a.name, _type, WinRegistryService.cpuArch),
         );
         if (asset == null) {
           throw WinSxSPackageNotFoundException(

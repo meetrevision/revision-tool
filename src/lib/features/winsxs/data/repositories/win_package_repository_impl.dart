@@ -86,10 +86,7 @@ final class const WinPackageRepositoryImpl({required final ApiCabDataSource api}
           .whereType<File>()
           .map((file) => p.basename(file.path))
           .firstWhereOrNull(
-            (name) =>
-                name.startsWith('${type.packageName}$winPackagePublicKeyToken') &&
-                name.contains(WinRegistryService.cpuArch) &&
-                name.endsWith('.cab'),
+            (name) => isWinPackageFile(name, type, WinRegistryService.cpuArch),
           );
 
       if (packageFile != null) {
