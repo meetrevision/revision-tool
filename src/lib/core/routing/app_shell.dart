@@ -9,6 +9,11 @@ import 'package:win32/win32.dart';
 import 'package:win32_registry/win32_registry.dart';
 // ignore: implementation_imports
 import 'package:window_plus/src/common.dart' show WM_CAPTIONAREA;
+// ignore: implementation_imports
+import 'package:window_plus/src/widgets/win32/utils.dart' show WindowButtonColors;
+// ignore: implementation_imports
+import 'package:window_plus/src/widgets/win32/widgets.dart'
+    show WindowCloseButton, WindowMinimizeButton, WindowRestoreMaximizeButton;
 import 'package:window_plus/window_plus.dart';
 
 import '../../extensions.dart';
@@ -239,7 +244,7 @@ final class _AppShellState() extends ConsumerState<AppShell> {
                     ),
                   )
                 : null,
-            captionControls: WindowCaption(),
+            captionControls: _CaptionControls(),
             onDragStarted: () {
               PostMessage(WindowPlus.instance.hwnd, WM_CAPTIONAREA, const .new(0), const .new(0));
             },
@@ -323,6 +328,67 @@ final class _AppShellState() extends ConsumerState<AppShell> {
           },
         ),
       ),
+    );
+  }
+}
+
+// ignore: prefer_const_constructors_in_immutables -- const would freeze live window-state reads on rebuilds
+final class _CaptionControls() extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Builder(
+      builder: (context) {
+        if (!WindowPlus.instance.enableCustomFrame) return const SizedBox.shrink();
+
+        return FutureBuilder<bool>(
+          future: WindowPlus.instance.fullscreen,
+          builder: (context, snapshot) {
+            if (snapshot.data case true) {
+              return SizedBox(width: .infinity, height: WindowPlus.instance.captionHeight);
+            }
+            final double buttonWidth = WindowPlus.instance.captionButtonSize.width;
+
+            // FluentTheme brightness drives the system caption colors per WASDK guidelines.
+            final isDark = context.theme.brightness == .dark;
+            final foreground = isDark ? const Color(0xFFFFFFFF) : const Color(0xFF000000);
+            final regular = WindowButtonColors(
+              normal: const Color(0x00000000),
+              mouseOver: foreground.withValues(alpha: 0.04),
+              mouseDown: foreground.withValues(alpha: 0.08),
+              iconNormal: foreground,
+              iconMouseOver: foreground,
+              iconMouseDown: foreground,
+            );
+            final close = WindowButtonColors(
+              normal: const Color(0x00000000),
+              mouseOver: const Color(0xFFC42B1C),
+              mouseDown: const Color(0xFFC83F31),
+              iconNormal: foreground,
+              iconMouseOver: const Color(0xFFFFFFFF),
+              iconMouseDown: const Color(0xFFFFFFFF),
+            );
+
+            return Row(
+              mainAxisAlignment: .end,
+              crossAxisAlignment: .stretch,
+              children: [
+                SizedBox(
+                  width: buttonWidth,
+                  child: WindowMinimizeButton(colors: regular),
+                ),
+                SizedBox(
+                  width: buttonWidth,
+                  child: WindowRestoreMaximizeButton(colors: regular),
+                ),
+                SizedBox(
+                  width: buttonWidth,
+                  child: WindowCloseButton(colors: close),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

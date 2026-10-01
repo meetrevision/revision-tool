@@ -48,3 +48,5 @@ app.*.map.json
 
 # SVG Vector files
 *.svg.vec
+# Widget Preview related
+.widget_preview/

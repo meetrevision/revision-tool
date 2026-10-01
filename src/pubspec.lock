@@ -292,11 +292,12 @@ packages:
   fluent_ui:
     dependency: "direct main"
     description:
-      name: fluent_ui
-      sha256: "64c2b9dd208f8e3134d3e38db107235ee30c1dd9b792843274687a7ecc063590"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.16.1"
+      path: "."
+      ref: b034c5
+      resolved-ref: b034c57d701f831869593d88cde3db2b6ea4050d
+      url: "https://github.com/bdlukaa/fluent_ui"
+    source: git
+    version: "4.17.0"
   fluentui_system_icons:
     dependency: "direct main"
     description:
@@ -577,10 +578,10 @@ packages:
     dependency: transitive
     description:
       name: material_ui
-      sha256: "9c0156b0cf8b3f56d365c8ffe051a720be3cae9eec55119f01e01b986ffb7101"
+      sha256: "32d98f11cf5942a095a8c3e01b03e4de3b17941437713dcf36b1088fb62e23d2"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.1"
+    version: "1.5.0"
   math_expressions:
     dependency: transitive
     description:
@@ -1189,4 +1190,4 @@ packages:
     version: "2.2.4"
 sdks:
   dart: ">=3.13.2 <4.0.0"
-  flutter: ">=3.44.0"
+  flutter: ">=3.47.0"

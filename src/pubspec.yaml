@@ -17,7 +17,10 @@ dependencies:
   slang_flutter: ^4.19.0
 
   # UI
-  fluent_ui: ^4.16.1
+  fluent_ui:
+    git:
+      url: https://github.com/bdlukaa/fluent_ui
+      ref: b034c5
   system_theme: ^3.3.0
   flutter_acrylic: ^1.1.4
   fluentui_system_icons: ^1.1.273

@@ -35,17 +35,12 @@ class const HomePage({super.key}) extends StatelessWidget {
       ),
     ];
     if (context.mqSize.width >= 800 && context.mqSize.height >= 400) {
-      return Padding(
+      return ScaffoldPage(
         padding: kScaffoldPagePadding,
-        child: ScaffoldPage(
-          content: const _HomePageContent(),
-          bottomBar: Padding(
-            padding: const EdgeInsets.only(top: 5.0),
-            child: Row(
-              spacing: 5,
-              children: homeCardButtons.map((e) => Expanded(child: e)).toList(),
-            ),
-          ),
+        content: const _HomePageContent(),
+        footer: Padding(
+          padding: const EdgeInsets.only(top: 5.0),
+          child: Row(spacing: 5, children: homeCardButtons.map((e) => Expanded(child: e)).toList()),
         ),
       );
     } else {
