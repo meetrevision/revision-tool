@@ -1,0 +1,25 @@
+[package]
+name = "revitool_native"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+anyhow = "1.0"
+flutter_rust_bridge = "=2.13.0"
+windows = { version = "0.62", features = ["Management_Deployment", "ApplicationModel"] }
+# PackageManager's Find methods name windows-collections types in their
+# signatures and `windows` does not re-export that crate, so the shared
+# iteration helper imports it directly. Pinned to the version `windows` uses,
+# so cargo resolves a single copy.
+windows-collections = "0.3.2"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
+
+[lints.clippy]
+all = { level = "deny", priority = 1 }
+redundant_clone = { level = "deny", priority = 0 }
+needless_pass_by_value = { level = "deny", priority = 0 }

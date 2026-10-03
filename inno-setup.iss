@@ -51,6 +51,7 @@ Source: "{#SourcePath}\src\build\windows\x64\runner\Release\flutter_acrylic_plug
 Source: "{#SourcePath}\src\build\windows\x64\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; FFI
 Source: "{#SourcePath}\native_utils\process_checker.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\revitool_native.dll"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

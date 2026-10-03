@@ -1,0 +1,19 @@
+name: revitool_native
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ^3.13.2
+
+resolution: workspace
+
+dependencies:
+  flutter_rust_bridge: 2.13.0
+  flutter_rust_bridge_hooks: 2.13.0
+  freezed_annotation: ^3.1.0
+
+# Required by flutter_rust_bridge_codegen. It emits freezed mirror types and
+# drives build_runner to generate them.
+dev_dependencies:
+  build_runner: ^2.16.1
+  freezed: ^4.0.1

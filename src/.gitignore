@@ -31,9 +31,15 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
-/lib/l10n/generated/
+**/build/
+coverage/
+**/target/
+
+# Generated files
 *.g.dart
 *.freezed.dart
+*assets.dart
+/lib/l10n/generated/
 
 # Symbolication related
 app.*.symbols

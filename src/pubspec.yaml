@@ -47,6 +47,9 @@ dependencies:
   # Interactivity with Windows
   win32: ^6.4.0
   win32_registry: ^3.0.3
+  ffi: ^2.2.0
+  revitool_native:
+    path: ./packages/revitool_native
 
   # Code generation
   freezed_annotation: ^3.1.0
@@ -64,7 +67,6 @@ dependencies:
   collection: ^1.19.1
   fast_immutable_collections: ^11.2.0
   xml: ^7.0.1
-  ffi: ^2.2.0
   crypto: ^3.0.7
   flutter_svg: ^2.3.0
 
@@ -90,7 +92,7 @@ dev_dependencies:
   melos: ^8.9.0
 
 workspace:
-  - packages/*
+  - packages/revitool_native
 
 melos:
   useRootAsPackage: true
@@ -120,6 +122,18 @@ melos:
         command: dart run slang && dart run build_runner build --delete-conflicting-outputs
       packageFilters:
         scope: revitool
+    frb:
+      description: Regenerate the Rust bridge and its Dart bindings.
+      exec:
+        command: flutter_rust_bridge_codegen generate
+      packageFilters:
+        scope: revitool_native
+    rust:
+      description: Lint and test the Rust crate.
+      exec:
+        command: cd rust && cargo clippy --all-targets --all-features --locked -- -D warnings && cargo test && cargo build --release
+      packageFilters:
+        dirExists: rust
 
   
 

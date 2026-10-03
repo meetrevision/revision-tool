@@ -1,0 +1,5 @@
+[toolchain]
+# native_toolchain_rust requires an exact channel version/date for reproducible builds.
+# Add "aarch64-pc-windows-msvc" to targets if ARM64 Windows is ever targeted.
+channel = "1.96.0"
+targets = ["x86_64-pc-windows-msvc"]

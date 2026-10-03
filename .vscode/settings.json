@@ -1,15 +1,18 @@
 {
     "[dart]": {
         "editor.rulers": [
-            80
+            100
         ]
     },
-    "dart.lineLength": 80,
+    "dart.lineLength": 100,
+    "rust-analyzer.linkedProjects": [
+        "src/packages/revitool_native/rust/Cargo.toml"
+    ],
     "spellright.language": [
         "en"
     ],
     "spellright.documentTypes": [
         "markdown",
         "latex"
-    ],
+    ]
 }

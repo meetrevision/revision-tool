@@ -95,6 +95,18 @@ jobs:
       - name: Build revitool CLI
         run: dart compile exe src/lib/main_cli.dart -o revitool.exe --define=APP_VERSION=${{ env.NEW_VERSION }}
 
+      # `dart compile exe` skips build hooks, so revitool_native.dll is never
+      # built. `dart build cli` runs them but has no --define, so it is used for
+      # the DLL alone. The AppX bridge loads the DLL by bare name, which Windows
+      # resolves against the executable's directory, hence the copy.
+      - name: Build AppX bridge DLL
+        working-directory: src
+        run: dart build cli -t lib/main_cli.dart -o build/cli
+
+      - name: Stage AppX bridge DLL next to the CLI
+        shell: pwsh
+        run: Copy-Item src/build/cli/bundle/lib/revitool_native.dll revitool.exe -Force
+
       # fix meetrevision/playbook/issues/219
       # todo: when AME Wizard allows certain tasks to run iso:true (like !run), we can remove this step
       - name: Download bundled AppX packages

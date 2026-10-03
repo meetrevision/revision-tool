@@ -12,6 +12,7 @@ import '../../../core/network/api_client.dart';
 import '../../../core/services/win_registry_service.dart';
 import '../../../core/utils/base_service.dart';
 import '../../../utils.dart';
+import '../../appx/appx.dart';
 import '../../ms_store/domain/entities/store_download_info.dart';
 import '../../ms_store/domain/entities/store_enums.dart';
 import '../../ms_store/domain/services/store_service.dart';
@@ -231,8 +232,11 @@ final class const DefenderRemovalService({
   Future<Result<void>> uninstallPackage() => super.uninstall();
 }
 
-final class const AiRemovalService({required final StoreService _store, required super.repository})
-    extends WinPackageService {
+final class const AiRemovalService({
+  required final StoreService _store,
+  required final AppxService _appx,
+  required super.repository,
+}) extends WinPackageService {
   this : super(type: .aiRemoval);
 
   static const _copilotStoreId = '9nht9rb2f4hd';
@@ -244,11 +248,18 @@ final class const AiRemovalService({required final StoreService _store, required
     await WinRegistryService.hidePageVisibilitySettings('aicomponents');
     await WinRegistryService.hidePageVisibilitySettings('privacy-systemaimodels');
     await runPSCommand('Disable-WindowsOptionalFeature -Online -FeatureName Recall -NoRestart');
-    await runPSCommand('Get-AppxPackage -AllUsers Microsoft.Copilot* | Remove-AppxPackage');
 
-    await runPSCommand(
-      r"Get-AppxPackage -Name 'Microsoft.AIFabric.CBS.1.6*' | Remove-AppxPackage -PreserveRoamableApplicationData",
-    );
+    (await _appx.removePackages(
+      prefixes: const {'Microsoft.Copilot'},
+      allUsers: true,
+    )).when(success: (_) {}, failure: (e) => throw e);
+    // AIFabric is restored by re-registering its on-disk manifest, so roaming
+    // user data must survive for that restore to re-attach to it.
+    (await _appx.removePackages(
+      prefixes: const {'Microsoft.AIFabric.CBS.1.6'},
+      preserveRoaming: true,
+    )).when(success: (_) {}, failure: (e) => throw e);
+
     // Since 26200.9278 update, removing AIFabric components reverts Explorer ribbon to Win10 style. 58375086 aka 1561856655 should be set to 0 to keep the Win11 style ribbon.
     await WinRegistryService.writeRegistryValue(
       LOCAL_MACHINE,
@@ -287,6 +298,7 @@ final class const AiRemovalService({required final StoreService _store, required
 
 final class const XboxRemovalService({
   required final StoreService _store,
+  required final AppxService _appx,
   required super.repository,
 }) extends WinPackageService {
   this : super(type: .xboxRemoval);
@@ -304,14 +316,19 @@ final class const XboxRemovalService({
     'Microsoft.XboxIdentityProvider': '9WZDNCRD1HKW',
   };
 
+  static const _callableUiPrefix = 'Microsoft.XboxGameCallableUI';
+
   @override
   Future<Result<void>> install({bool force = false}) async {
-    await runPSCommand(
-      r"Get-AppxPackage -Name 'Microsoft.XboxGameCallableUI' | Remove-AppxPackage -PreserveRoamableApplicationData",
-    );
-    await runPSCommand(
-      r"'Microsoft.Xbox.TCUI','Microsoft.XboxApp','Microsoft.GamingApp','Microsoft.GamingServices','Microsoft.Edge.GameAssist','Microsoft.XboxGamingOverlay','Microsoft.XboxIdentityProvider' | ForEach-Object { Get-AppxPackage -AllUsers -Name $_ | Remove-AppxPackage -AllUsers }",
-    );
+    // Restored by re-registering its on-disk manifest, so keep roaming data.
+    (await _appx.removePackages(
+      prefixes: const {_callableUiPrefix},
+      preserveRoaming: true,
+    )).when(success: (_) {}, failure: (e) => throw e);
+    (await _appx.removePackages(
+      prefixes: _storePackages.keys.toSet(),
+      allUsers: true,
+    )).when(success: (_) {}, failure: (e) => throw e);
     return super.install(force: force);
   }
 

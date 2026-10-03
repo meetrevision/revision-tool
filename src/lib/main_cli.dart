@@ -5,6 +5,7 @@ import 'package:riverpod/riverpod.dart';
 
 import 'core/services/win_registry_command.dart';
 import 'core/services/win_registry_service.dart';
+import 'features/appx/appx.dart';
 import 'features/ms_store/domain/services/store_service.dart';
 import 'features/ms_store/presentation/commands/ms_store_command.dart';
 import 'features/tweaks/tweaks_command.dart';
@@ -36,10 +37,16 @@ Future<void> main(List<String> args) async {
           'revitool',
           "Revision Tool CLI v${const String.fromEnvironment('APP_VERSION', defaultValue: '1.0.0')}",
         )
+        ..addCommand(AppxCommand(container: container))
         ..addCommand(MSStoreCommand(service: container.read(storeServiceProvider)))
         ..addCommand(WinRegistryServiceCliCommand(const WinRegistryCliService()))
         ..addCommand(TweaksCommand(container: container))
         ..addCommand(WindowsPackageCommand(container: container));
-  await runner.run(args);
+  try {
+    await runner.run(args);
+  } on UsageException catch (e) {
+    logger.e('cli: ${e.message}');
+    exit(appxExitUsage);
+  }
   exit(0);
 }

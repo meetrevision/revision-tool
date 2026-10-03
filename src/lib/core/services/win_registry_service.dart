@@ -444,6 +444,16 @@ abstract class const WinRegistryService._private() {
     }
   }
 
+  /// Whether [path] exists under [hive].
+  static bool keyExists(BaseRegistryKey hive, String path) {
+    try {
+      hive.open(path).close();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   static void createKey(BaseRegistryKey key, String path) {
     try {
       final RegistryKey subKey = key.create(path);

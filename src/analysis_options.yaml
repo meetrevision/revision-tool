@@ -16,6 +16,8 @@ analyzer:
     - '**/*.g.dart'
     - '**/*.freezed.dart'
     - '**/*.mocks.dart' # Mockito @GenerateMocks
+    # flutter_rust_bridge codegen output, rewritten by `generate`
+    - 'packages/revitool_native/lib/src/rust/**'
     - build/**
     - android/**
     - ios/**
