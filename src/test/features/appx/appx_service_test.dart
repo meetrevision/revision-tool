@@ -353,5 +353,28 @@ void main() {
       expect(removed, hasLength(1));
       expect(repository.removedFullNames, [copilotRow.fullName]);
     });
+
+    test('does not pass preserveRoamable when allUsers is true', () async {
+      const failedOutcome = RemovalOutcomeModel(
+        identifier: 'fail',
+        extendedErrorCode: 0x80073CFA,
+        errorText: 'System package removal failed',
+      );
+      final repository = FakeAppxRepository(
+        rows: const [desktopInstallerRow],
+        users: const [
+          PackageUserStateModel(
+            sid: 'S-1-5-21-1000-2000-3000-1001',
+            installState: InstallStateModel.installed(),
+          ),
+        ],
+        outcomes: const [failedOutcome, failedOutcome],
+      );
+      final service = AppxService(repository: repository);
+
+      await service.removePackages(prefixes: {desktopInstallerRow.fullName}, allUsers: true);
+
+      expect(repository.preserveRoamingCalls, isNot(contains(true)));
+    });
   });
 }

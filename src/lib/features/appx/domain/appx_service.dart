@@ -92,6 +92,9 @@ final class const AppxService({required final AppxRepository repository}) with B
   }) async {
     if (await _familyOf(fullName) case final familyName?) {
       await _markDeprovisioned(familyName);
+      if (allUsers) {
+        await _deprovision(familyName);
+      }
     }
 
     await _removeInboxApp(fullName);
@@ -119,21 +122,22 @@ final class const AppxService({required final AppxRepository repository}) with B
       if (_isSuccess(outcome)) return outcome.toDomain();
     }
 
-    // Attempt 3: Guaranteed unregistration fallback.
-    outcome = await repository.removePackage(
-      fullName: fullName,
-      allUsers: allUsers,
-      preserveRoamable: true,
-    );
-    if (_isSuccess(outcome)) return outcome.toDomain();
-
-    // Attempt 4: Clean up staged package state across all users.
-    if (allUsers) {
-      outcome = await repository.removePackage(fullName: fullName, allUsers: true);
+    // Attempt 3: Guaranteed unregistration fallback (preserveRoamable requires per-user).
+    if (!allUsers) {
+      outcome = await repository.removePackage(fullName: fullName, preserveRoamable: true);
       if (_isSuccess(outcome)) return outcome.toDomain();
     }
 
     return _accepted(outcome);
+  }
+
+  /// Deprovisions [familyName] machine-wide if supported.
+  Future<void> _deprovision(String familyName) async {
+    try {
+      await repository.deprovision(familyName: familyName);
+    } on Object catch (error) {
+      logger.w('[AppX] Could not deprovision $familyName', error: error);
+    }
   }
 
   /// Finds the package family of [fullName], if installed.
