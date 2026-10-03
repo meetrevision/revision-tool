@@ -306,13 +306,7 @@ final class _AppShellState() extends ConsumerState<AppShell> {
                   padding: const EdgeInsetsDirectional.only(top: 9),
                   child: Column(
                     children: [
-                      if (NavigationView.of(context).displayMode == .minimal)
-                        const Padding(
-                          padding: EdgeInsetsDirectional.only(start: 13),
-                          child: PageHeaderBreadcrumbs(),
-                        )
-                      else
-                        const PageHeaderBreadcrumbs(),
+                      const PageHeaderBreadcrumbs(),
                       // The ShellRoute nests a Navigator here. Its route scope
                       // (`Semantics(scopesRoute: true, explicitChildNodes: true)`)
                       // blocks the previously-painted navigation pane from the
