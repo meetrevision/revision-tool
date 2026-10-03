@@ -33,6 +33,32 @@ jobs:
           (Get-Content -Path "inno-setup.iss") -replace '#define MyAppVersion "[\d\.]+"', "#define MyAppVersion `"${{ env.NEW_VERSION }}`"" | Set-Content -Path "inno-setup.iss"
         shell: pwsh
       
+      - name: Cache flutter_rust_bridge_codegen
+        uses: actions/cache@v4
+        id: cache-frb
+        with:
+          path: ~/.cargo/bin/flutter_rust_bridge_codegen.exe
+          key: ${{ runner.os }}-frb-${{ hashFiles('src/packages/revitool_native/pubspec.yaml', 'src/packages/revitool_native/rust/Cargo.lock') }}
+
+      - name: Install flutter_rust_bridge_codegen
+        shell: pwsh
+        run: |
+          $targetVer = (Get-Content src/packages/revitool_native/pubspec.yaml | Select-String 'flutter_rust_bridge:\s*([\d\.]+)').Matches.Groups[1].Value
+          $currentVer = if (Get-Command flutter_rust_bridge_codegen -ErrorAction SilentlyContinue) {
+            ((flutter_rust_bridge_codegen --version) -split ' ')[1]
+          } else { $null }
+
+          if ($currentVer -ne $targetVer) {
+            Write-Host "Installing flutter_rust_bridge_codegen v$targetVer (current: $currentVer)..."
+            cargo install flutter_rust_bridge_codegen --version $targetVer --locked
+          } else {
+            Write-Host "flutter_rust_bridge_codegen v$currentVer already cached and matches target."
+          }
+
+      - name: Generate Rust bridge code
+        run: melos run frb
+        working-directory: src
+
       - name: Compile C code
         run: melos run compile:c
         working-directory: src
