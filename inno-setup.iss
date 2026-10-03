@@ -33,6 +33,7 @@ UninstallDisplayIcon={app}\{#MyAppExeName}
 WizardStyle=modern
 PrivilegesRequired=admin
 RestartApplications=yes
+ChangesEnvironment=yes
 
 
 [Languages]
@@ -61,11 +62,62 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: runascurrentuser nowait postinstall skipifsilent
 
+[Registry]
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+    ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; \
+    Check: NeedsAddPath(ExpandConstant('{app}')); Flags: preservestringtype
+
 [Code]
 function InitializeSetup: Boolean;
 begin
   Dependency_AddVC2015To2022;
   Result := True;
+end;
+
+function NeedsAddPath(Param: string): Boolean;
+var
+  OrigPath: string;
+begin
+  if not RegQueryStringValue(HKEY_LOCAL_MACHINE,
+    'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
+    'Path', OrigPath)
+  then begin
+    Result := True;
+    exit;
+  end;
+  Result := Pos(';' + UpperCase(Param) + ';', ';' + UpperCase(OrigPath) + ';') = 0;
+end;
+
+procedure RemovePath(Path: string);
+var
+  OrigPath: string;
+  P, L: Integer;
+begin
+  if RegQueryStringValue(HKEY_LOCAL_MACHINE,
+    'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
+    'Path', OrigPath)
+  then begin
+    P := Pos(';' + UpperCase(Path) + ';', ';' + UpperCase(OrigPath) + ';');
+    if P > 0 then begin
+      P := Pos(UpperCase(Path), UpperCase(OrigPath));
+      L := Length(Path);
+      if (P + L <= Length(OrigPath)) and (OrigPath[P + L] = ';') then
+        Delete(OrigPath, P, L + 1)
+      else if (P > 1) and (OrigPath[P - 1] = ';') then
+        Delete(OrigPath, P - 1, L + 1)
+      else
+        Delete(OrigPath, P, L);
+      RegWriteExpandStringValue(HKEY_LOCAL_MACHINE,
+        'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
+        'Path', OrigPath);
+    end;
+  end;
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usPostUninstall then
+    RemovePath(ExpandConstant('{app}'));
 end;
 
 [InstallDelete]
