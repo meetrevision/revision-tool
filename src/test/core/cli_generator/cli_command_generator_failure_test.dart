@@ -3,9 +3,14 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  const skipIntegration = bool.fromEnvironment('SKIP_INTEGRATION', defaultValue: true);
+
   group('CliCommandGenerator failures', () {
     test(
       'throws explicit error when @CliEnumSubCommand status is missing',
+      skip: skipIntegration
+          ? 'Skipped in CI (use --dart-define=SKIP_INTEGRATION=false to run)'
+          : false,
       () async {
         final String root = Directory.current.path;
         final testDir = Directory('$root/test/core/cli_generator/test');

@@ -15,6 +15,9 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Set up Melos
+        run: dart pub global activate melos
+
       # https://github.com/subosito/flutter-action/issues/278
       # - name: Export pub environment variable
       #   run: |
@@ -31,117 +34,33 @@ jobs:
         shell: pwsh
       
       - name: Compile C code
-        run: gcc -shared -o process_checker.dll process_checker.c -lpsapi -O3
-        working-directory: native_utils
+        run: melos run compile:c
+        working-directory: src
       
       - name: Download bundled WinSxS packages
         env:
           GH_TOKEN: ${{ secrets.TOKEN }}
-        run: |
-          $path = "src\additionals\packages\winsxs"
-          New-Item -Path $path -ItemType Directory -Force | Out-Null
-
-          Write-Host "Fetching latest packages from meetrevision/packages..."
-          $headers = @{
-            Authorization = "Bearer $env:GH_TOKEN"
-            Accept = "application/vnd.github+json"
-            "X-GitHub-Api-Version" = "2022-11-28"
-          }
-          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/meetrevision/packages/releases/latest" -Headers $headers
-          
-          $cabAssets = $release.assets | Where-Object { $_.name -like "*.cab" }
-          Write-Host "Downloading $($cabAssets.Count) packages..."
-          
-          foreach ($asset in $cabAssets) {
-            $fileName = $asset.name
-            $downloadUrl = $asset.browser_download_url
-            $filePath = "$path\$fileName"
-            
-            Write-Host "  Downloading $fileName..."
-            Invoke-WebRequest -Uri $downloadUrl -OutFile $filePath
-          }
-          
-          Write-Host "Downloaded $($cabAssets.Count) packages successfully"
-        shell: pwsh
-
-      - run: dart run slang
+        run: melos run bundle:winsxs
         working-directory: src
 
-      - name: Compile SVG vectors
-        shell: pwsh
-        working-directory: src
-        run: |
-          $svgRoot = "assets/icon/pane"
-          if (-not (Test-Path -Path $svgRoot)) {
-            throw "SVG root not found: $svgRoot"
-          }
-
-          $svgs = Get-ChildItem -Path $svgRoot -Filter *.svg -Recurse -File
-          if ($svgs.Count -eq 0) {
-            Write-Host "No SVG files found under $svgRoot"
-            exit 0
-          }
-
-          foreach ($svg in $svgs) {
-            $inputPath = $svg.FullName
-            $outputPath = "$inputPath.vec"
-            Write-Host "Compiling $($svg.FullName) -> $outputPath"
-            dart run vector_graphics_compiler -i "$inputPath" -o "$outputPath"
-          }
-
-      - run: dart run build_runner build --force-aot
+      - name: Run code generation
+        run: melos run codegen
         working-directory: src
 
       - name: Build revitool CLI
-        run: dart compile exe src/lib/main_cli.dart -o revitool.exe --define=APP_VERSION=${{ env.NEW_VERSION }}
-
-      # `dart compile exe` skips build hooks, so revitool_native.dll is never
-      # built. `dart build cli` runs them but has no --define, so it is used for
-      # the DLL alone. The AppX bridge loads the DLL by bare name, which Windows
-      # resolves against the executable's directory, hence the copy.
-      - name: Build AppX bridge DLL
+        env:
+          APP_VERSION: ${{ env.NEW_VERSION }}
+        run: melos run build:cli
         working-directory: src
-        run: dart build cli -t lib/main_cli.dart -o build/cli
 
-      - name: Stage AppX bridge DLL next to the CLI
-        shell: pwsh
-        run: Copy-Item src/build/cli/bundle/lib/revitool_native.dll revitool.exe -Force
-
-      # fix meetrevision/playbook/issues/219
-      # todo: when AME Wizard allows certain tasks to run iso:true (like !run), we can remove this step
       - name: Download bundled AppX packages
-        shell: pwsh
-        run: |
-          # CLI refuses non-ReviOS hosts
-          New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' `
-            -Name 'EditionSubVersion' -Value 'ReviOS' -PropertyType String -Force | Out-Null
-
-          $path = "src\additionals\packages\appx"
-          New-Item -Path $path -ItemType Directory -Force | Out-Null
-
-          Write-Host "Downloading VCLibs AppX packages via revitool..."
-          .\revitool.exe msstore-apps --id 9NBLGGH3FRZM,9NBLGGH4RV3K -r RP --download $path
-          if ($LASTEXITCODE -ne 0) { throw "revitool exited with code $LASTEXITCODE" }
-
-          $deps = Join-Path $path "Dependencies"
-          if (Test-Path $deps) {
-            Get-ChildItem -Path $deps -File -Recurse | Move-Item -Destination $path -Force
-            Remove-Item $deps -Recurse -Force
-          }
-
-          $count = @(Get-ChildItem -Path $path -File | Where-Object { $_.Extension -match '\.(appx|msix)$' }).Count
-          Write-Host "Bundled $count AppX packages into $path"
-          if ($count -eq 0) { throw "No AppX packages downloaded" }
+        run: melos run bundle:appx
+        working-directory: src
       
       - name: Run tests
         continue-on-error: true
-        run: flutter test --reporter=expanded --dart-define=SKIP_INTEGRATION=true
+        run: melos run test
         working-directory: src
-
-      - name: Enable Administrator Privileges for revitool CLI app
-        shell: pwsh
-        run: |
-          & "${env:ProgramFiles(x86)}\Windows Kits\10\bin\10.0.26100.0\x64\mt.exe" -nologo -manifest src/windows/app.manifest -outputresource:revitool.exe;1
 
       - name: Build revitool GUI
         run: flutter build windows --build-name=${{ env.NEW_VERSION }} --build-number=1 --obfuscate --split-debug-info=/symbols --dart-define=APP_VERSION=${{ env.NEW_VERSION }}

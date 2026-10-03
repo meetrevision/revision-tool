@@ -910,7 +910,14 @@ $tryBody
     required String annotationName,
     required Element member,
   }) {
-    final String value = reader.read(field).stringValue;
+    final ConstantReader? fieldReader = reader.peek(field);
+    if (fieldReader == null || fieldReader.isNull || !fieldReader.isString) {
+      throw InvalidGenerationSourceError(
+        '@$annotationName requires a non-empty string "$field".',
+        element: member,
+      );
+    }
+    final String value = fieldReader.stringValue;
     if (value.isEmpty) {
       throw InvalidGenerationSourceError(
         '@$annotationName requires a non-empty string "$field".',

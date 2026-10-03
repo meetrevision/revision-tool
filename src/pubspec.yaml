@@ -116,12 +116,52 @@ melos:
         command: flutter test --reporter=expanded --dart-define=SKIP_INTEGRATION=true
       packageFilters:
         dirExists: test
+
+    codegen:slang:
+      description: Generate localization classes with slang.
+      run: dart run slang
+    codegen:vectors:
+      description: Compile SVG icons into vector graphics (.vec).
+      run: dart run vector_graphics_compiler --input-dir assets/icon/pane --out-dir assets/icon/pane
+    codegen:build_runner:
+      description: Run build_runner code generation.
+      run: dart run build_runner build
+    codegen:watch:
+      description: Watch build_runner code generation.
+      run: dart run build_runner watch
     codegen:
-      description: Run slang plus build_runner for the app.
-      exec:
-        command: dart run slang && dart run build_runner build --delete-conflicting-outputs
-      packageFilters:
-        scope: revitool
+      description: Run full code generation pipeline (slang, vectors, build_runner).
+      run: dart run slang && dart run vector_graphics_compiler --input-dir assets/icon/pane --out-dir assets/icon/pane && dart run build_runner build
+
+    build:cli:
+      description: Build revitool CLI with native bridge DLL and elevation manifest.
+      run: dart run tool/build_cli.dart
+    build:cli:dev:
+      description: Build dev revitool CLI without requiring UAC elevation.
+      run: dart run tool/build_cli.dart --no-manifest -o build/cli/revitool_dev.exe
+    build:gui:
+      description: Build the Windows GUI application.
+      run: flutter build windows --split-debug-info=/symbols
+    build:gui:release:
+      description: Build the release Windows GUI with obfuscation.
+      run: flutter build windows --obfuscate --split-debug-info=/symbols
+    
+    bundle:winsxs:
+      description: Download bundled WinSxS packages from GitHub releases.
+      run: dart run tool/bundle_winsxs.dart
+    bundle:appx:
+      description: Download bundled VCLibs AppX packages via revitool CLI.
+      run: dart run tool/bundle_appx.dart
+    build:installer:
+      description: Compile Inno Setup installer.
+      run: iscc ../inno-setup.iss
+    check:
+      description: Run static analysis and tests across all packages.
+      run: melos run analyze && melos run test
+
+    compile:c:
+      description: Compile C process checker helper.
+      run: gcc -shared -o ../native_utils/process_checker.dll ../native_utils/process_checker.c -lpsapi -O3
     frb:
       description: Regenerate the Rust bridge and its Dart bindings.
       exec:
@@ -129,12 +169,11 @@ melos:
       packageFilters:
         scope: revitool_native
     rust:
-      description: Lint and test the Rust crate.
+      description: Lint, test, and build the native Rust crate.
       exec:
         command: cd rust && cargo clippy --all-targets --all-features --locked -- -D warnings && cargo test && cargo build --release
       packageFilters:
         dirExists: rust
-
   
 
 # dependency_overrides:
