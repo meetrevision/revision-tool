@@ -10,6 +10,7 @@ class MockWinPackageRepository() extends Mock implements WinPackageRepository;
 void main() {
   setUpAll(() {
     registerFallbackValue(const CabAsset(name: '', downloadUrl: ''));
+    registerFallbackValue(WinPackageType.systemComponentsRemoval);
   });
   group('win_package versions', () {
     test('parses the version after the final double separator', () {
@@ -177,11 +178,26 @@ void main() {
       when(() => repository.fetchInstalledPackageNames(.systemComponentsRemoval))
           .thenAnswer((_) async => <String>[sameName].lock);
 
-      final Result<void> result = await service.install(force: true);
-
-      expect(result, isA<Success<void>>());
+      await expectLater(service.install(force: true), completion(isA<Success<void>>()));
       verify(() => repository.addPackage(any())).called(1);
       verifyNever(() => repository.removePackageByName(any()));
+    });
+  });
+
+  group('WinPackageService.uninstall', () {
+    late MockWinPackageRepository repository;
+    late SystemPackagesRemovalService service;
+
+    setUp(() {
+      repository = MockWinPackageRepository();
+      service = SystemPackagesRemovalService(repository: repository);
+      when(() => repository.removePackages(any())).thenAnswer((_) async {});
+    });
+
+    test('calls repository.removePackages with package type', () async {
+      await expectLater(service.uninstall(), completion(isA<Success<void>>()));
+
+      verify(() => repository.removePackages(.systemComponentsRemoval)).called(1);
     });
   });
 }

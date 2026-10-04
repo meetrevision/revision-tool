@@ -20,27 +20,23 @@ final class const WinPackageRepositoryImpl({required final ApiCabDataSource api}
   static const _cbsPackagesRegPath =
       r'SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages\';
 
+  static bool _isPackageKeyInstalled(String packageKey) {
+    final int? currentState = WinRegistryService.readInt(
+      LOCAL_MACHINE,
+      '$_cbsPackagesRegPath$packageKey',
+      'CurrentState',
+    );
+
+    if (currentState == null) return true;
+
+    // installation codes - https://forums.ivanti.com/s/article/Understand-Patch-installation-failure-codes?language=en_US
+    return currentState != 5 && currentState != 4294967264;
+  }
+
   static bool isCbsPackageInstalled(String packageName) {
     final RegistryKey packageRoot = LOCAL_MACHINE.open(_cbsPackagesRegPath);
     try {
-      final String? key = packageRoot.keys.lastWhereOrNull((e) => e.startsWith(packageName));
-      if (key == null) return false;
-
-      final int? currentState = WinRegistryService.readInt(
-        LOCAL_MACHINE,
-        '$_cbsPackagesRegPath$key',
-        'CurrentState',
-      );
-      final int? lastError = WinRegistryService.readInt(
-        LOCAL_MACHINE,
-        '$_cbsPackagesRegPath$key',
-        'LastError',
-      );
-
-      // installation codes - https://forums.ivanti.com/s/article/Understand-Patch-installation-failure-codes?language=en_US
-      return currentState != null &&
-          (currentState != 5 || currentState != 4294967264) &&
-          lastError == null;
+      return packageRoot.keys.where((e) => e.startsWith(packageName)).any(_isPackageKeyInstalled);
     } finally {
       packageRoot.close();
     }
@@ -100,9 +96,26 @@ final class const WinPackageRepositoryImpl({required final ApiCabDataSource api}
 
   @override
   Future<IList<String>> fetchInstalledPackageNames(WinPackageType type) async {
+    try {
+      final RegistryKey packageRoot = LOCAL_MACHINE.open(_cbsPackagesRegPath);
+      try {
+        final IList<String> fromRegistry = packageRoot.keys
+            .where((k) => k.startsWith(type.packageName))
+            .where(_isPackageKeyInstalled)
+            .toIList();
+        if (fromRegistry.isNotEmpty) return fromRegistry;
+      } finally {
+        packageRoot.close();
+      }
+    } catch (e) {
+      logger.d('CBS registry lookup unavailable for ${type.packageName}, falling back to DISM', error: e);
+    }
+
+    // Fallback: query via DISM PowerShell if registry yields no results
     final ProcessResult result = await runPSCommand(
-      '(Get-WindowsPackage -Online -PackageName "${type.packageName}*").PackageName',
+      'Get-WindowsPackage -Online -PackageName "${type.packageName}*" | Where-Object { \$_.PackageState -eq "Installed" } | Select-Object -ExpandProperty PackageName',
       stdout: true,
+      loggerInfoOutput: false,
     );
     return result.stdout
         .toString()
@@ -134,9 +147,13 @@ final class const WinPackageRepositoryImpl({required final ApiCabDataSource api}
   }
 
   @override
-  Future<void> removePackages(WinPackageType type) => runPSCommand(
-    'Get-WindowsPackage -Online -PackageName "${type.packageName}*" | Remove-WindowsPackage -Online -NoRestart',
-  );
+  Future<void> removePackages(WinPackageType type) async {
+    final IList<String> installed = await fetchInstalledPackageNames(type);
+    for (final name in installed) {
+      logger.i('winsxs: Removing package=$name');
+      await removePackageByName(name);
+    }
+  }
 
   @override
   Future<void> removePackageByName(String packageName) =>

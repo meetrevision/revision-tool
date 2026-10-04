@@ -186,9 +186,11 @@ abstract base class const WinPackageService({
 
   Future<Result<void>> uninstall() {
     return run(() async {
+      logger.i('winsxs: Uninstalling package=${_type.packageName}');
       try {
         await _repository.removePackages(_type);
       } catch (error) {
+        logger.w('winsxs: Initial package removal failed for ${_type.packageName}', error: error);
         try {
           final DownloadedPackage package = (await download()).when(
             success: (d) => d,
