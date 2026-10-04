@@ -85,9 +85,7 @@ final class const WinPackageRepositoryImpl({required final ApiCabDataSource api}
           .listSync()
           .whereType<File>()
           .map((file) => p.basename(file.path))
-          .firstWhereOrNull(
-            (name) => isWinPackageFile(name, type, WinRegistryService.cpuArch),
-          );
+          .firstWhereOrNull((name) => isWinPackageFile(name, type, WinRegistryService.cpuArch));
 
       if (packageFile != null) {
         final String fullPath = p.join(bundledPackagesPath, packageFile);
@@ -141,9 +139,8 @@ final class const WinPackageRepositoryImpl({required final ApiCabDataSource api}
   );
 
   @override
-  Future<void> removePackagesExcept(WinPackageType type, String keepPackageName) => runPSCommand(
-    'Get-WindowsPackage -Online -PackageName "${type.packageName}*" | Where-Object { \$_.PackageName -ne "$keepPackageName" } | Remove-WindowsPackage -Online -NoRestart',
-  );
+  Future<void> removePackageByName(String packageName) =>
+      runPSCommand('Remove-WindowsPackage -Online -NoRestart -PackageName "$packageName"');
 
   @override
   void deleteTempPackage(String packagePath) {

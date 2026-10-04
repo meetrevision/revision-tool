@@ -1,7 +1,16 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:revitool/core/error/result.dart';
+import 'package:revitool/core/services/win_registry_service.dart';
 import 'package:revitool/features/winsxs/winsxs.dart';
 
+class MockWinPackageRepository() extends Mock implements WinPackageRepository;
+
 void main() {
+  setUpAll(() {
+    registerFallbackValue(const CabAsset(name: '', downloadUrl: ''));
+  });
   group('win_package versions', () {
     test('parses the version after the final double separator', () {
       expect(
@@ -102,6 +111,77 @@ void main() {
         parsePackageVersion('Revision-ReviOS-AI-Removal.31bf3856ad364e35.amd64.2.3.1.0'),
         equals((2, 3, 1, 0)),
       );
+    });
+  });
+
+  group('WinPackageService.install', () {
+    late MockWinPackageRepository repository;
+    late SystemPackagesRemovalService service;
+
+    final releaseModel = ReleaseModel.fromJson(<String, dynamic>{
+      'tag_name': '2.3.1.0',
+      'assets': [
+        {
+          'name':
+              'Revision-ReviOS-SystemPackages-Removal.31bf3856ad364e35.${WinRegistryService.cpuArch}.2.3.1.0.cab',
+          'browser_download_url': 'https://example.com/system.cab',
+        },
+      ],
+    });
+
+    setUp(() {
+      repository = MockWinPackageRepository();
+      service = SystemPackagesRemovalService(repository: repository);
+
+      when(() => repository.ensureDirectory(any())).thenReturn(null);
+      when(() => repository.fetchRelease()).thenAnswer((_) async => releaseModel);
+      when(
+        () => repository.downloadAsset(
+          asset: any(named: 'asset'),
+          filePath: any(named: 'filePath'),
+        ),
+      ).thenAnswer((_) async {});
+      when(() => repository.fileExists(any())).thenReturn(true);
+      when(() => repository.fetchSignatureUsage(any()))
+          .thenAnswer((_) async => '1.3.6.1.4.1.311.10.3.6');
+      when(() => repository.addPackage(any())).thenAnswer((_) async {});
+      when(() => repository.removePackageByName(any())).thenAnswer((_) async {});
+      when(() => repository.deleteTempPackage(any())).thenReturn(null);
+    });
+
+    test('does not remove anything when no packages are installed', () async {
+      when(() => repository.fetchInstalledPackageNames(.systemComponentsRemoval))
+          .thenAnswer((_) async => const <String>[].lock);
+
+      final Result<void> result = await service.install();
+
+      expect(result, isA<Success<void>>());
+      verify(() => repository.addPackage(any())).called(1);
+      verifyNever(() => repository.removePackageByName(any()));
+    });
+
+    test('removes only older packages by exact CBS name', () async {
+      const olderName = 'Revision-ReviOS-SystemPackages-Removal~31bf3856ad364e35~amd64~~2.3.0.0';
+      when(() => repository.fetchInstalledPackageNames(.systemComponentsRemoval))
+          .thenAnswer((_) async => <String>[olderName].lock);
+
+      final Result<void> result = await service.install();
+
+      expect(result, isA<Success<void>>());
+      verify(() => repository.addPackage(any())).called(1);
+      verify(() => repository.removePackageByName(olderName)).called(1);
+    });
+
+    test('does not remove anything when force reinstalling same version', () async {
+      const sameName = 'Revision-ReviOS-SystemPackages-Removal~31bf3856ad364e35~amd64~~2.3.1.0';
+      when(() => repository.fetchInstalledPackageNames(.systemComponentsRemoval))
+          .thenAnswer((_) async => <String>[sameName].lock);
+
+      final Result<void> result = await service.install(force: true);
+
+      expect(result, isA<Success<void>>());
+      verify(() => repository.addPackage(any())).called(1);
+      verifyNever(() => repository.removePackageByName(any()));
     });
   });
 }

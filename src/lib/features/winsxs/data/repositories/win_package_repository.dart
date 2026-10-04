@@ -26,7 +26,7 @@ abstract interface class WinPackageRepository() {
 
   Future<void> removePackages(WinPackageType type);
 
-  Future<void> removePackagesExcept(WinPackageType type, String keepPackageName);
+  Future<void> removePackageByName(String packageName);
 
   void deleteTempPackage(String packagePath);
 

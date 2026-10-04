@@ -172,8 +172,15 @@ abstract base class const WinPackageService({
       throw InvalidWinSxSPackageSignatureException('Invalid signature: $packagePath');
     }
 
+    final IList<String> olderPackageNames = installedPackageNames.where((name) {
+      final WinPackageVersion? v = parsePackageVersion(name);
+      return v != null && comparePackageVersions(v, packageVersion) < 0;
+    }).toIList();
+
     await _repository.addPackage(packagePath);
-    await _repository.removePackagesExcept(_type, p.basenameWithoutExtension(packagePath));
+    for (final olderPackage in olderPackageNames) {
+      await _repository.removePackageByName(olderPackage);
+    }
     _repository.deleteTempPackage(packagePath);
   }
 
@@ -219,7 +226,6 @@ final class const DefenderRemovalService({
 }) extends WinPackageService {
   this : super(type: .defenderRemoval);
 
-  @override
   @override
   Future<Result<void>> install({bool force = false}) =>
       run(() => _security.disableDefenderCLI(force: force));
