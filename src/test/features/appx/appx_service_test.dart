@@ -6,6 +6,9 @@ import 'package:revitool/features/appx/appx.dart';
 
 import '../../helpers/fake_appx_repository.dart';
 
+const int _hrDestageFailed = 0x80073CF8;
+const int _hrCancelled = 0x80073CFA;
+
 void main() {
   group('appxBareName', () {
     test('drops the version and publisher', () {
@@ -137,7 +140,7 @@ void main() {
           ],
           outcome: const RemovalOutcomeModel(
             identifier: 'Microsoft.Nope_1.0.0.0_x64__abc',
-            extendedErrorCode: 0x80073CFA,
+            extendedErrorCode: _hrCancelled,
             errorText: 'Operation cancelled by the user.',
           ),
         ),
@@ -150,7 +153,7 @@ void main() {
       final AppException failure = (result as Failure<IList<AppxRemovalResult>>).exception;
       final refused = appxCause(failure)! as AppxRemovalRefusedException;
 
-      expect(refused.result.extendedErrorCode, equals(0x80073CFA));
+      expect(refused.result.extendedErrorCode, equals(_hrCancelled));
     });
 
     test('reports a missing bridge without throwing out of the Result', () async {
@@ -202,7 +205,7 @@ void main() {
     test('applies EndOfLife trick when standard removal is refused, then retries', () async {
       const refusedOutcome = RemovalOutcomeModel(
         identifier: 'x',
-        extendedErrorCode: 0x80073CFA,
+        extendedErrorCode: _hrCancelled,
         errorText: 'System package removal failed',
       );
       final repository = FakeAppxRepository(
@@ -231,7 +234,7 @@ void main() {
     test('falls back to preserveRoamable when standard and EOL both refuse', () async {
       const refusedOutcome = RemovalOutcomeModel(
         identifier: 'x',
-        extendedErrorCode: 0x80073CFA,
+        extendedErrorCode: _hrCancelled,
         errorText: 'Package in use',
       );
       final repository = FakeAppxRepository(
@@ -357,7 +360,7 @@ void main() {
     test('does not pass preserveRoamable when allUsers is true', () async {
       const failedOutcome = RemovalOutcomeModel(
         identifier: 'fail',
-        extendedErrorCode: 0x80073CFA,
+        extendedErrorCode: _hrCancelled,
         errorText: 'System package removal failed',
       );
       final repository = FakeAppxRepository(
@@ -375,6 +378,78 @@ void main() {
       await service.removePackages(prefixes: {desktopInstallerRow.fullName}, allUsers: true);
 
       expect(repository.preserveRoamingCalls, isNot(contains(true)));
+    });
+
+    test('retries failed packages in a second pass before completing', () async {
+      const transientRefusal = RemovalOutcomeModel(
+        identifier: 'msteams',
+        extendedErrorCode: _hrDestageFailed,
+        errorText: 'DeStage failed',
+      );
+      final repository = FakeAppxRepository(
+        rows: const [copilotRow, calculatorRow],
+        outcomes: const [
+          transientRefusal,
+          acceptedOutcome,
+          acceptedOutcome,
+        ],
+      );
+      final service = AppxService(repository: repository);
+
+      final Result<IList<AppxRemovalResult>> result = await service.removePackages(
+        prefixes: const {'Microsoft'},
+        allUsers: true,
+      );
+
+      final IList<AppxRemovalResult> removed = (result as Success<IList<AppxRemovalResult>>).value;
+      expect(removed, hasLength(2));
+      expect(repository.removedFullNames, hasLength(3));
+      expect(repository.scheduledRunOnce, isEmpty);
+    });
+
+    test('schedules remaining failed packages on startup when all retries fail', () async {
+      const permanentRefusal = RemovalOutcomeModel(
+        identifier: 'locked',
+        extendedErrorCode: _hrDestageFailed,
+        errorText: 'DeStage operation failed',
+      );
+      final repository = FakeAppxRepository(
+        rows: const [copilotRow],
+        outcome: permanentRefusal,
+      );
+      final service = AppxService(repository: repository);
+
+      final Result<IList<AppxRemovalResult>> result = await service.removePackages(
+        prefixes: const {'Microsoft.Copilot'},
+        allUsers: true,
+      );
+
+      expect(result, isA<Failure<IList<AppxRemovalResult>>>());
+      expect(repository.scheduledRunOnce, [
+        {copilotRow.fullName},
+      ]);
+    });
+
+    test('does not schedule on startup when scheduleOnStartup is false', () async {
+      const permanentRefusal = RemovalOutcomeModel(
+        identifier: 'locked',
+        extendedErrorCode: _hrDestageFailed,
+        errorText: 'DeStage operation failed',
+      );
+      final repository = FakeAppxRepository(
+        rows: const [copilotRow],
+        outcome: permanentRefusal,
+      );
+      final service = AppxService(repository: repository);
+
+      final Result<IList<AppxRemovalResult>> result = await service.removePackages(
+        prefixes: const {'Microsoft.Copilot'},
+        allUsers: true,
+        scheduleOnStartup: false,
+      );
+
+      expect(result, isA<Failure<IList<AppxRemovalResult>>>());
+      expect(repository.scheduledRunOnce, isEmpty);
     });
   });
 }

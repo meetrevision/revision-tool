@@ -41,6 +41,7 @@ final class AppxRemoveRequest({
   final IList<String> exclude = const .empty(),
   required final bool allUsers,
   required final bool preserveRoaming,
+  final bool scheduleStartup = true,
 }) extends AppxRequest;
 
 /// Configures arguments and flags for the `appx` command on [parser].
@@ -69,6 +70,11 @@ void configureAppxParser(ArgParser parser) {
     'preserve-roaming',
     help: 'Keeps roaming user data (with --remove, not with --all-users)',
   );
+  parser.addFlag(
+    'schedule-startup',
+    defaultsTo: true,
+    help: 'Schedules failed removals on next boot via RunOnce (with --remove)',
+  );
 }
 
 /// Parses command-line arguments into an [AppxRequest].
@@ -90,6 +96,7 @@ AppxRequest parseAppxRequest(ArgResults? argResults, String usage) {
   final bool provisioned = argResults?.flag('provisioned') ?? false;
   final bool allUsers = argResults?.flag('all-users') ?? false;
   final bool preserveRoaming = argResults?.flag('preserve-roaming') ?? false;
+  final bool scheduleStartup = argResults?.flag('schedule-startup') ?? true;
 
   final IList<String> match = need('match', 'package name prefix');
   final IList<String> users = need('users', 'package name');
@@ -116,6 +123,7 @@ AppxRequest parseAppxRequest(ArgResults? argResults, String usage) {
       exclude: exclude,
       allUsers: allUsers,
       preserveRoaming: preserveRoaming,
+      scheduleStartup: scheduleStartup,
     );
   }
   return AppxListRequest(prefixes: match, exclude: exclude, provisioned: provisioned);
@@ -174,6 +182,7 @@ final class AppxCommand({required final ProviderContainer container}) extends Co
           :final exclude,
           :final allUsers,
           :final preserveRoaming,
+          :final scheduleStartup,
         ) =>
           _remove(
             service,
@@ -181,6 +190,7 @@ final class AppxCommand({required final ProviderContainer container}) extends Co
             exclude: exclude,
             allUsers: allUsers,
             preserveRoaming: preserveRoaming,
+            scheduleStartup: scheduleStartup,
           ),
       };
     } on AppException catch (error) {
@@ -236,6 +246,7 @@ final class AppxCommand({required final ProviderContainer container}) extends Co
     required IList<String> exclude,
     required bool allUsers,
     required bool preserveRoaming,
+    required bool scheduleStartup,
   }) async {
     final IList<AppxPackage> packages = await _resolve(service, prefixes, exclude: exclude);
     for (final package in packages) {
@@ -245,6 +256,7 @@ final class AppxCommand({required final ProviderContainer container}) extends Co
       prefixes: packages.map((p) => p.fullName).toSet(),
       allUsers: allUsers,
       preserveRoaming: preserveRoaming,
+      scheduleOnStartup: scheduleStartup,
     );
     result.when(
       success: (removed) {

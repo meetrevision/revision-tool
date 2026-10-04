@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:revitool_native/revitool_native.dart' as bridge;
 import 'package:win32_registry/win32_registry.dart';
 
@@ -51,11 +53,20 @@ abstract interface class AppxRepository() {
 
   /// Whether the inbox application registry key exists for [fullName].
   Future<bool> hasInboxApplication({required String fullName});
+
+  /// Queues package removal to run once on the next reboot.
+  ///
+  /// Adds an entry to `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce`
+  /// with `--no-schedule-startup` so it will not try to queue itself again.
+  Future<void> scheduleRunOnce({required Set<String> fullNames, bool allUsers = false});
 }
 
 final class NativeAppxRepository() implements AppxRepository {
   static const String _storeBase =
       r'SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore';
+  static const String _runOncePath =
+      r'SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce';
+  static const String _runOnceValue = 'RevitoolAppxCleanup';
 
   // Cached initialization future.
   Future<void>? _init;
@@ -137,5 +148,21 @@ final class NativeAppxRepository() implements AppxRepository {
   Future<bool> hasInboxApplication({required String fullName}) async {
     final path = '$_storeBase\\InboxApplications\\$fullName';
     return WinRegistryService.keyExists(LOCAL_MACHINE, path);
+  }
+
+  @override
+  Future<void> scheduleRunOnce({required Set<String> fullNames, bool allUsers = false}) async {
+    if (fullNames.isEmpty) return;
+    final String exePath = Platform.resolvedExecutable;
+    final allUsersFlag = allUsers ? ' --all-users' : '';
+    final String namesArg = fullNames.join(',');
+    final command =
+        '"$exePath" appx$allUsersFlag --no-schedule-startup --remove "$namesArg"';
+    await WinRegistryService.writeRegistryValue(
+      LOCAL_MACHINE,
+      _runOncePath,
+      _runOnceValue,
+      command,
+    );
   }
 }

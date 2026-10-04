@@ -47,6 +47,7 @@ final class FakeAppxRepository({
   final List<String> markedFullNames = [];
   final List<String> markedDeprovisioned = [];
   final List<String> removedInboxApps = [];
+  final List<Set<String>> scheduledRunOnce = [];
   int _outcomeIndex = 0;
 
   @override
@@ -117,6 +118,14 @@ final class FakeAppxRepository({
   @override
   Future<bool> hasInboxApplication({required String fullName}) async =>
       removedInboxApps.contains(fullName);
+
+  @override
+  Future<void> scheduleRunOnce({
+    required Set<String> fullNames,
+    bool allUsers = false,
+  }) async {
+    scheduledRunOnce.add(fullNames);
+  }
 }
 
 /// Stands in for the loader error a missing `revitool_native.dll` produces.

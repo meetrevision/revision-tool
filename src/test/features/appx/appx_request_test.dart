@@ -40,6 +40,13 @@ void main() {
       final AppxRequest request = parse(['--remove', 'A', '--all-users']);
 
       expect((request as AppxRemoveRequest).allUsers, isTrue);
+      expect(request.scheduleStartup, isTrue);
+    });
+
+    test('disables startup scheduling with --no-schedule-startup', () {
+      final AppxRequest request = parse(['--remove', 'A', '--no-schedule-startup']);
+
+      expect((request as AppxRemoveRequest).scheduleStartup, isFalse);
     });
 
     test('rejects --all-users with --preserve-roaming', () {

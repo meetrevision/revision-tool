@@ -8,5 +8,8 @@ final appxRepositoryProvider = Provider<AppxRepository>((ref) => NativeAppxRepos
 
 /// Provides the default [AppxService].
 final appxServiceProvider = Provider<AppxService>(
-  (ref) => AppxService(repository: ref.watch(appxRepositoryProvider)),
+  (ref) => AppxService(
+    repository: ref.watch(appxRepositoryProvider),
+    retryDelay: AppxService.defaultRetryDelay,
+  ),
 );

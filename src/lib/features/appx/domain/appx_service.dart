@@ -8,8 +8,10 @@ import '../data/appx_repository.dart';
 import 'appx_exceptions.dart';
 import 'entities/appx_package.dart';
 
-/// Manages AppX packages through the native bridge and Windows registry.
-final class const AppxService({required final AppxRepository repository}) with BaseService {
+final class const AppxService({
+  required final AppxRepository repository,
+  final Duration retryDelay = Duration.zero,
+}) with BaseService {
   @override
   ErrorMapper get errorMapper => (error, stackTrace) {
     if (error is AppException) return error;
@@ -18,6 +20,9 @@ final class const AppxService({required final AppxRepository repository}) with B
     }
     return UnexpectedNetworkException(cause: error);
   };
+
+  /// Default wait before retrying packages that failed the first batch pass.
+  static const Duration defaultRetryDelay = Duration(seconds: 1);
 
   @override
   String get logTag => 'AppxService';
@@ -40,14 +45,23 @@ final class const AppxService({required final AppxRepository repository}) with B
     return removableAppxUsers(rows.map((r) => r.toDomain()).toIList());
   });
 
-  /// Removes all installed packages matching [prefixes], excluding [exclude].
+  /// Removes installed packages matching [prefixes], excluding [exclude].
   ///
-  /// Matches against package full names or bare names starting with any of [prefixes].
+  /// Matches full names or bare names starting with any of [prefixes].
+  ///
+  /// Tries removing every package first without stopping on errors. It then
+  /// retries any that failed, giving Windows background services time to
+  /// finish and release file locks.
+  ///
+  /// If [scheduleOnStartup] is true, anything that still fails is queued to
+  /// remove on next reboot using Windows RunOnce. Passes `--no-schedule-startup`
+  /// so it will not keep queuing itself in an endless reboot loop.
   Future<Result<IList<AppxRemovalResult>>> removePackages({
     required Set<String> prefixes,
     Set<String> exclude = const {},
     bool allUsers = false,
     bool preserveRoaming = false,
+    bool scheduleOnStartup = true,
   }) => run(() async {
     // Windows rejects preserveRoaming with allUsers; preserveRoaming applies per-user.
     final Set<String> cleanPrefixes = prefixes
@@ -74,14 +88,60 @@ final class const AppxService({required final AppxRepository repository}) with B
       return !isExcluded;
     }).toIList();
 
-    return [
-      for (final package in targets)
-        await _removePackage(
+    final succeeded = <AppxRemovalResult>[];
+    final failed = <PackageIdentityModel, Exception>{};
+
+    // Try removing every package first without stopping on errors.
+    for (final package in targets) {
+      try {
+        final AppxRemovalResult result = await _removePackage(
           fullName: package.fullName,
           allUsers: allUsers,
           preserveRoaming: preserveRoaming,
-        ),
-    ].toIList();
+        );
+        succeeded.add(result);
+      } on Exception catch (error) {
+        failed[package] = error;
+      }
+    }
+
+    // Retry failed packages. Windows background locks usually clear up
+    // while the other packages are being removed.
+    if (failed.isNotEmpty) {
+      if (retryDelay > .zero) {
+        await Future<void>.delayed(retryDelay);
+      }
+
+      final List<PackageIdentityModel> retryTargets = failed.keys.toList();
+      for (final package in retryTargets) {
+        try {
+          final AppxRemovalResult result = await _removePackage(
+            fullName: package.fullName,
+            allUsers: allUsers,
+            preserveRoaming: preserveRoaming,
+          );
+          succeeded.add(result);
+          failed.remove(package);
+        } on Exception catch (error) {
+          failed[package] = error;
+        }
+      }
+    }
+
+    if (failed.isNotEmpty) {
+      if (scheduleOnStartup) {
+        // If removal still fails, queue it for next boot.
+        // The flag prevents endless reboot loops if it keeps failing.
+        await repository.scheduleRunOnce(
+          fullNames: failed.keys.map((p) => p.fullName).toSet(),
+          allUsers: allUsers,
+        );
+      }
+
+      throw failed.values.first;
+    }
+
+    return succeeded.toIList();
   });
 
   /// Runs the removal pipeline for [fullName].
