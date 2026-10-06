@@ -61,33 +61,30 @@ class _MSStorePageState() extends ConsumerState<MSStorePage> {
 
     return ScaffoldPage(
       padding: kScaffoldPagePadding,
-      header: Padding(
-        padding: kScaffoldPagePadding.copyWith(bottom: 20.45),
-        child: Row(
-          spacing: 10,
-          children: [
-            Expanded(
-              child: TextBox(
-                controller: _textEditingController,
-                placeholder: t.search,
-                onSubmitted: (_) => _onSearchButtonPressed(),
-              ),
+      header: Row(
+        spacing: 10,
+        children: [
+          Expanded(
+            child: TextBox(
+              controller: _textEditingController,
+              placeholder: t.search,
+              onSubmitted: (_) => _onSearchButtonPressed(),
             ),
-            Semantics(
-              label: t.msstoreRing,
-              child: ComboBox<StoreRing>(
-                value: selectedRing,
-                onChanged: (value) {
-                  if (value == null) return;
-                  ref.read(storeControllerProvider.notifier).setRing(value);
-                },
-                items: StoreRing.values.map((ring) {
-                  return ComboBoxItem(value: ring, child: Text(ring.label));
-                }).toList(),
-              ),
+          ),
+          Semantics(
+            label: t.msstoreRing,
+            child: ComboBox<StoreRing>(
+              value: selectedRing,
+              onChanged: (value) {
+                if (value == null) return;
+                ref.read(storeControllerProvider.notifier).setRing(value);
+              },
+              items: StoreRing.values.map((ring) {
+                return ComboBoxItem(value: ring, child: Text(ring.label));
+              }).toList(),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
 
       content: searchState.when(
