@@ -16,6 +16,7 @@ import '../../../../i18n/generated/strings.g.dart';
 import '../../../../utils_gui.dart';
 import '../../domain/entities/download_state.dart';
 import '../../domain/entities/product_details.dart';
+import '../../domain/entities/store_download_info.dart';
 import '../providers/store_providers.dart';
 import '../widgets/ms_store_download_widget.dart';
 
@@ -828,12 +829,9 @@ class const _MoreMenuFlyout({required final String productId}) extends Stateless
 
 double _overallProgress(IMap<String, double> fileProgress, int downloadedBytes, int totalBytes) {
   if (totalBytes > 0) return downloadedBytes / totalBytes;
-  if (fileProgress.isEmpty) return 0;
-  final double totalProgress = fileProgress.values.fold<double>(
-    0,
-    (sum, progress) => sum + progress,
-  );
-  return totalProgress / fileProgress.length;
+  // Cached on the IMap instance, so repeated rebuilds within one 300ms
+  // progress flush do not re-fold the whole map.
+  return fileProgress.averageProgress;
 }
 
 class const _HeroIcon({required final String iconUrl, final Color? color}) extends StatelessWidget {

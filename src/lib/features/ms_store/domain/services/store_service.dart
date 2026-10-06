@@ -117,19 +117,14 @@ final class const StoreService({
     StoreArch arch = .auto,
   }) async {
     return run(() async {
-      // Group IDs by app type with a mutable accumulator, lock once at the end.
       final Map<StoreAppType, Set<String>> idsByType = {};
       for (final String id in productIds.map((id) => id.toUpperCase())) {
         final StoreAppType? type = .fromProductId(id);
         if (type == null) continue;
         idsByType.putIfAbsent(type, () => {}).add(id);
       }
-      // fromEntries builds the IMap in one pass (no intermediate Map copy).
-      final IMap<StoreAppType, ISet<String>> groupedIds = .fromEntries(
-        idsByType.entries.map((e) => MapEntry(e.key, e.value.lock)),
-      );
 
-      if (groupedIds.isEmpty) {
+      if (idsByType.isEmpty) {
         throw const UnexpectedNetworkException(message: 'At least one product ID required');
       }
 
@@ -137,17 +132,17 @@ final class const StoreService({
           ? (WinRegistryService.cpuArch == 'amd64' ? 'x64' : 'arm64')
           : arch.value;
 
-      var merged = const IMap<String, ISet<PackageInfo>>.empty();
+      final merged = <String, ISet<PackageInfo>>{};
 
       // Fetch for each type in parallel
-      for (final MapEntry<StoreAppType, ISet<String>> entry in groupedIds.entries) {
+      for (final MapEntry<StoreAppType, Set<String>> entry in idsByType.entries) {
         final StoreAppType type = entry.key;
         final StoreRepository repo = type == .uwp ? _uwpRepository : _win32Repository;
-        await Future.wait(
+
+        final List<(String, ISet<PackageInfo>)> fetched = await Future.wait(
           entry.value.map((productId) async {
             final ISet<PackageInfo> all = await repo.getPackages(productId: productId, ring: ring);
-            // Touch the arch-count cache so repeat inspections on the same
-            // instance are O(1). Cheap, zero overhead if unused elsewhere.
+
             all.cached(_archCounts);
             final ISet<PackageInfo> packages = all.where((p) {
               if (arch == .all) return true;
@@ -163,11 +158,14 @@ final class const StoreService({
                 cause: Exception('No matching packages for $productId arch=${arch.value}'),
               );
             }
-            merged = merged.add(productId, packages);
+            return (productId, packages);
           }),
         );
+        for (final (productId, packages) in fetched) {
+          merged[productId] = packages;
+        }
       }
-      return merged;
+      return .fromEntries(merged.entries);
     });
   }
 
@@ -199,11 +197,12 @@ final class const StoreService({
       final int totalBytes = flat.fold<int>(0, (s, e) => s + e.package.expectedBytes);
       var downloadedBytes = 0;
       var completedCount = 0;
-      var downloads = const ISet<StorePackageFileDownload>.empty();
-      if (cancelToken.isCancelled) return downloads;
+
+      final downloads = <StorePackageFileDownload>{};
+      if (cancelToken.isCancelled) return downloads.lock;
 
       for (final item in flat) {
-        if (cancelToken.isCancelled) return downloads;
+        if (cancelToken.isCancelled) return downloads.lock;
 
         final PackageInfo package = item.package;
         final String productId = item.productId;
@@ -231,7 +230,7 @@ final class const StoreService({
                 )
               : package.expectedBytes <= 0 || cachedFile.lengthSync() == package.expectedBytes;
           if (valid) {
-            downloads = downloads.add(
+            downloads.add(
               StorePackageFileDownload(
                 downloadId: downloadId,
                 ring: ring,
@@ -313,7 +312,7 @@ final class const StoreService({
           path: storedPath,
           bytes: lastTotal > 0 ? lastTotal : lastCount,
         );
-        downloads = downloads.add(download);
+        downloads.add(download);
         _trackDownloadedFile(storedPath);
         completedCount++;
         downloadedBytes += download.bytes;
@@ -331,7 +330,7 @@ final class const StoreService({
           ),
         );
       }
-      return downloads;
+      return downloads.lock;
     });
   }
 
@@ -351,7 +350,9 @@ final class const StoreService({
           .followedBy(downloads.where((d) => !(d.appType == .uwp && d.package.isDependency)))
           .toIList();
 
-      var results = const IMap<String, ProcessResult>.empty();
+      // Mutable buffer, locked into an IMap once at the end: one O(n) build
+      // instead of an n-deep unflushed chain of `IMap.add` nodes.
+      final results = <String, ProcessResult>{};
       for (final download in ordered) {
         final PackageInfo package = download.package;
         if (package.hasDigest) {
@@ -375,10 +376,10 @@ final class const StoreService({
             package.commandLines?.split(' ') ?? const [],
           ),
         };
-        results = results.add(package.id, installResult);
+        results[package.id] = installResult;
         if (installResult.exitCode == 0) _unlockFile(download.path);
       }
-      return results;
+      return .fromEntries(results.entries);
     });
   }
 

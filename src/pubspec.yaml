@@ -65,7 +65,7 @@ dependencies:
 
   # Other
   collection: ^1.19.1
-  fast_immutable_collections: ^11.2.0
+  fast_immutable_collections: ^12.0.0
   xml: ^7.0.1
   crypto: ^3.0.7
   flutter_svg: ^2.3.0

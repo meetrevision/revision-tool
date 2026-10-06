@@ -14,8 +14,7 @@ extension StorePackagesByProductIdX on StorePackagesByProductId {
   static final _byFileName = CacheKey<StorePackagesByProductId, Map<String, PackageInfo>>(
     (byProduct) => {
       for (final entry in byProduct.entries)
-        for (final pkg in entry.value)
-          (pkg.fileModel?.fileName ?? pkg.id): pkg,
+        for (final pkg in entry.value) (pkg.fileModel?.fileName ?? pkg.id): pkg,
     },
   );
 
@@ -34,9 +33,6 @@ extension StorePackagesByProductIdX on StorePackagesByProductId {
 
   int get totalPackageCount => cached(_totals).count;
   int get totalExpectedBytes => cached(_totals).bytes;
-
-  /// All packages flattened into a single immutable set.
-  ISet<PackageInfo> get flattened => values.expand((set) => set).toISet();
 }
 
 final class const StorePackageDownloadProgress({
@@ -59,9 +55,19 @@ final class const StorePackageFileDownload({
 
 extension StorePackageFileDownloadsX on ISet<StorePackageFileDownload> {
   /// Cached index by package ID for O(1) install-result correlation.
-  static final _byPackageId = CacheKey<ISet<StorePackageFileDownload>, Map<String, StorePackageFileDownload>>(
-    (downloads) => {for (final d in downloads) d.package.id: d},
-  );
+  static final _byPackageId =
+      CacheKey<ISet<StorePackageFileDownload>, Map<String, StorePackageFileDownload>>(
+        (downloads) => {for (final d in downloads) d.package.id: d},
+      );
 
   StorePackageFileDownload? findByPackageId(String id) => cached(_byPackageId)[id];
+}
+
+extension StoreFileProgressX on IMap<String, double> {
+  /// Sum of per-file progress, cached on the IMap instance.
+  static final _sum = CacheKey<IMap<String, double>, double>(
+    (progress) => progress.values.fold<double>(0, (sum, value) => sum + value),
+  );
+
+  double get averageProgress => isEmpty ? 0 : cached(_sum) / length;
 }
