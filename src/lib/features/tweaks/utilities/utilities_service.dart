@@ -211,11 +211,7 @@ powercfg -h off
               'Start',
             ) ==
             2 &&
-        WinRegistryService.readInt(
-              LOCAL_MACHINE,
-              r'SYSTEM\ControlSet001\Services\Ndu',
-              'Start',
-            ) ==
+        WinRegistryService.readInt(LOCAL_MACHINE, r'SYSTEM\ControlSet001\Services\Ndu', 'Start') ==
             2;
   }
 
@@ -392,6 +388,11 @@ bool hibernationStatus(Ref ref) {
 @riverpod
 bool fastStartupStatus(Ref ref) {
   return ref.watch(utilitiesServiceProvider).statusFastStartup;
+}
+
+@riverpod
+bool statusModernStandbyStatus(Ref ref) {
+  return ref.watch(utilitiesServiceProvider).statusModernStandby;
 }
 
 @riverpod

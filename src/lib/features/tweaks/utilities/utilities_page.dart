@@ -77,13 +77,21 @@ class const _FastStartupCard() extends ConsumerWidget {
 class const _ModernStandbyCard() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bool status = ref.watch(statusModernStandbyStatusProvider);
+
     return CardHighlight(
       icon: msicons.FluentIcons.power_20_regular,
       label: t.tweaksUtilitiesModernStandby,
       description: t.tweaksUtilitiesModernStandbyDescription,
       action: CardToggleSwitch(
-        value: false,
-        onChanged: (value) {}),
+        value: status,
+        onChanged: (value) async {
+          value
+              ? await ref.read(utilitiesServiceProvider).enableModernStandby()
+              : await ref.read(utilitiesServiceProvider).disableModernStandby();
+          ref.invalidate(statusModernStandbyStatusProvider);
+        },
+      ),
       children: [CardListTile(title: t.tweaksUtilitiesModernStandbyFullDescription)],
     );
   }
