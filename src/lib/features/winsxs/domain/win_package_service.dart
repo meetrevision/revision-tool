@@ -215,6 +215,10 @@ final class const SystemPackagesRemovalService({required super.repository})
   this : super(type: .systemComponentsRemoval);
 }
 
+final class const TelemetryRemovalService({required super.repository}) extends WinPackageService {
+  this : super(type: .telemetryRemoval);
+}
+
 final class const OneDriveRemovalService({required super.repository}) extends WinPackageService {
   this : super(type: .oneDriveRemoval);
 }

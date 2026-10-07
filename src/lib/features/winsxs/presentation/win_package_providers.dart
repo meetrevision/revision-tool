@@ -16,6 +16,7 @@ final ProviderFamily<WinPackageService, WinPackageType> winPackageServiceProvide
       );
       return switch (type) {
         .systemComponentsRemoval => SystemPackagesRemovalService(repository: repository),
+        .telemetryRemoval => TelemetryRemovalService(repository: repository),
         .oneDriveRemoval => OneDriveRemovalService(repository: repository),
         .defenderRemoval => DefenderRemovalService(
           security: ref.watch(securityServiceProvider),

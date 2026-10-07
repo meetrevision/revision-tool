@@ -5,6 +5,7 @@ enum WinPackageType({required final String packageName, required final String cl
     packageName: 'Revision-ReviOS-SystemPackages-Removal',
     cliKey: 'system-components-removal',
   ),
+  telemetryRemoval(packageName: 'Revision-ReviOS-Telemetry-Removal', cliKey: 'telemetry-removal'),
   defenderRemoval(packageName: 'Revision-ReviOS-Defender-Removal', cliKey: 'defender-removal'),
   aiRemoval(packageName: 'Revision-ReviOS-AI-Removal', cliKey: 'ai-removal'),
   oneDriveRemoval(packageName: 'Revision-ReviOS-OneDrive-Removal', cliKey: 'onedrive-removal'),

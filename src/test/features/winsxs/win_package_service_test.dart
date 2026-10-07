@@ -55,6 +55,17 @@ void main() {
   });
 
   group('WinSxS asset matching', () {
+    test('selects the telemetry removal cab on amd64', () {
+      expect(
+        isWinPackageFile(
+          'Revision-ReviOS-Telemetry-Removal.31bf3856ad364e35.amd64.2.4.0.0.cab',
+          .telemetryRemoval,
+          'amd64',
+        ),
+        isTrue,
+      );
+    });
+
     test('selects the dot-named cab for ai-removal on amd64', () {
       expect(
         isWinPackageFile(
