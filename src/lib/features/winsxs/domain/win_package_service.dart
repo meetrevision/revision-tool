@@ -272,11 +272,22 @@ final class const AiRemovalService({
       preserveRoaming: true,
     )).when(success: (_) {}, failure: (e) => throw e);
 
-    // Since 26200.9278 update, removing AIFabric components reverts Explorer ribbon to Win10 style. 58375086 aka 1561856655 should be set to 0 to keep the Win11 style ribbon.
+    // Prevent File Explorer from falling back to Windows 10 ribbon when Microsoft.AIFabric.CBS is removed.
+    // Recent Windows builds (26x00.9278+) query Microsoft.AIFabric.CBS when loading Windows App SDK.
+    // If AIFabric is missing, Explorer throws an error and falls back to the legacy ribbon.
+    //
+    // - 58375086 (1561856655/WindowsAppRuntime_NextIsDefault): Stops Explorer from requesting Windows App SDK 2.0.
+    // - 63366798(497250959): Gating check added in newer builds (26x00.9550+). If enabled, it forces Explorer to load AIFabric even when 58375086 is disabled. Both IDs must be disabled.
     await WinRegistryService.writeRegistryValue(
       LOCAL_MACHINE,
       r'SYSTEM\ControlSet001\Policies\Microsoft\FeatureManagement\Overrides',
       '1561856655',
+      0,
+    );
+    await WinRegistryService.writeRegistryValue(
+      LOCAL_MACHINE,
+      r'SYSTEM\ControlSet001\Policies\Microsoft\FeatureManagement\Overrides',
+      '497250959',
       0,
     );
 
