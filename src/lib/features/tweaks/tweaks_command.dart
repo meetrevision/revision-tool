@@ -39,9 +39,6 @@ class TweaksPatchesCommand() extends Command<void> {
   @override
   FutureOr<void> run() async {
     logger.i('$name: Applying main playbook patch...');
-
-    await const UpdatesServiceImpl().disableDriversWU();
-    await const UpdatesServiceImpl().enablePauseUpdatesWU();
     exit(0);
   }
 }
