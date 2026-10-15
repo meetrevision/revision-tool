@@ -21,9 +21,7 @@ import '../../i18n/generated/strings.g.dart';
 import '../services/win_registry_service.dart';
 import '../widgets/app_icon_image.dart';
 import '../widgets/page_header_with_breadcrumbs.dart';
-import 'app_router.dart';
 import 'app_routes.dart';
-import 'navigation_provider.dart';
 
 final class const AppShell({
   super.key,
@@ -56,10 +54,9 @@ final class _AppShellState() extends ConsumerState<AppShell> {
           label: (e.title! as Text).data!,
           onSelected: () async {
             final path = (item.key! as ValueKey).value.toString();
-            await context.push(path);
-            await Future<void>.delayed(const Duration(milliseconds: 17));
             _searchController.clear();
             _overlayPortalController.hide();
+            await context.push(path);
           },
         );
       })
@@ -84,24 +81,6 @@ final class _AppShellState() extends ConsumerState<AppShell> {
     return File(r'C:\ProgramData\Microsoft\User Account Pictures\user-192.png');
   })();
 
-  void _updateNavigationIndex() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final location = GoRouterState.of(context).uri.toString();
-      final RouteMeta? route = RouteMeta.fromPath(location, allowPrefix: true);
-      final int? index = AppRoutes.getPaneIndexFromRoute(route);
-      if (index != null) {
-        ref.read(navigationIndexProvider.notifier).index = index;
-      }
-    });
-  }
-
-  @override
-  void initState() {
-    _updateNavigationIndex();
-    super.initState();
-  }
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -111,23 +90,23 @@ final class _AppShellState() extends ConsumerState<AppShell> {
   }
 
   VoidCallback? backButtonAvailable(BuildContext context) {
-    final GoRouter router = ref.read(appRouterProvider);
-    final List<RouteMatchBase> matches = router.routerDelegate.currentConfiguration.matches;
-    final firstMatch = matches.first as ShellRouteMatch;
+    final GoRouter router = GoRouter.of(context);
+    if (!AppRoutes.hasNestedRoute(router)) return null;
 
-    final VoidCallback? onPressed = firstMatch.matches.length > 1
-        ? () {
-            context.pop();
-            _updateNavigationIndex();
-          }
-        : null;
-    return onPressed;
+    return () {
+      if (AppRoutes.hasNestedRoute(router) && router.canPop()) {
+        router.pop();
+      }
+    };
   }
 
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasFluentTheme(context));
     final int imgCacheSize = (imgXY * MediaQuery.devicePixelRatioOf(context)).toInt();
+    final String currentPath = GoRouterState.of(context).uri.path;
+    final int navigationIndex =
+        AppRoutes.getPaneIndexFromRoute(RouteMeta.fromPath(currentPath, allowPrefix: true)) ?? 0;
 
     final AutoSuggestBox<dynamic> autoSuggestBox = AutoSuggestBox(
       // Needed to override decoration when autoSuggestBox is an overlay
@@ -160,15 +139,12 @@ final class _AppShellState() extends ConsumerState<AppShell> {
     );
 
     return Listener(
-      onPointerDown: (PointerDownEvent event) async {
-        if (event.buttons & kBackMouseButton != 0 && context.canPop()) {
-          await Future<void>.delayed(
-            Duration(milliseconds: context.theme.fastAnimationDuration.inMilliseconds),
-          );
-          if (context.mounted && context.canPop()) {
-            context.pop();
-            _updateNavigationIndex();
-          }
+      onPointerDown: (PointerDownEvent event) {
+        final GoRouter router = GoRouter.of(context);
+        if (event.buttons & kBackMouseButton != 0 &&
+            AppRoutes.hasNestedRoute(router) &&
+            router.canPop()) {
+          router.pop();
         }
       },
       child: SafeArea(
@@ -253,13 +229,12 @@ final class _AppShellState() extends ConsumerState<AppShell> {
             acrylicDisabled: true,
             indicator: const StickyNavigationIndicator(indicatorSize: 3.5, leftPadding: 12.5),
             size: const .new(openWidth: 300, headerHeight: 90.5),
-            selected: ref.watch(navigationIndexProvider),
+            selected: navigationIndex,
             onItemPressed: (index) {
-              if (index == ref.read(navigationIndexProvider)) return;
-
               final RouteMeta route = AppRoutes.navigationRoutes[index];
-              ref.read(navigationIndexProvider.notifier).index = index;
-              context.push(route.path);
+              if (currentPath == route.path) return;
+
+              context.go(route.path);
             },
             displayMode: MediaQuery.widthOf(context) >= 800 ? .expanded : .minimal,
             header: RepaintBoundary(
@@ -296,11 +271,7 @@ final class _AppShellState() extends ConsumerState<AppShell> {
             ],
           ),
           paneBodyBuilder: (item, child) {
-            final String? name = item?.key is ValueKey
-                ? (item!.key! as ValueKey).value.toString()
-                : null;
             return FocusTraversalGroup(
-              key: ValueKey('body$name'),
               child: Builder(
                 builder: (context) => Padding(
                   padding: const EdgeInsetsDirectional.only(top: 9),

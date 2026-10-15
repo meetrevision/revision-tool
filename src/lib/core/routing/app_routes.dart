@@ -10,7 +10,7 @@ import '../../i18n/generated/strings.g.dart';
 enum RouteSection() {
   main,
   footer,
-  search
+  search,
 }
 
 enum RouteMeta({
@@ -134,6 +134,15 @@ class AppRoutes() {
   static int? getPaneIndexFromRoute(RouteMeta? route) =>
       route != null && route.section != RouteSection.search ? route.index : null;
 
+  static bool hasNestedRoute(GoRouter router) {
+    for (final RouteMatchBase match in router.routerDelegate.currentConfiguration.matches) {
+      if (match case final ShellRouteMatch shellMatch) {
+        return shellMatch.matches.length > 1;
+      }
+    }
+    return false;
+  }
+
   static List<BreadcrumbItem<String>> buildBreadcrumbs(String location, BuildContext context) {
     final List<String> segments = location.split('/').where((s) => s.isNotEmpty).toList();
     final FluentThemeData theme = FluentTheme.of(context);
@@ -159,34 +168,159 @@ class AppRoutes() {
     ];
   }
 
-  /// Creates a page with [HorizontalSlidePageTransition] for nested routes.
-  /// https://learn.microsoft.com/en-us/windows/apps/design/motion/timing-and-easing
-  static Page<T> buildPageWithHorizontalTransition<T>({
+  /// Creates a page-refresh transition for top-level destinations.
+  /// https://learn.microsoft.com/en-us/windows/apps/design/motion/page-refresh
+  static Page<T> buildPageWithEntranceTransition<T>({
+    required BuildContext context,
     required GoRouterState state,
-    required Color barrierColor,
     required Widget child,
   }) {
-    return CustomTransitionPage<T>(
+    return _NavigationPage<T>(
       key: state.pageKey,
+      name: state.matchedLocation,
+      drill: false,
+      disableAnimations: MediaQuery.disableAnimationsOf(context),
       child: child,
-      barrierColor: barrierColor,
-      transitionDuration: const Duration(milliseconds: 250),
-      reverseTransitionDuration: const Duration(milliseconds: 250),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final curvedAnimation = CurvedAnimation(
-          parent: animation,
-          curve: Curves.decelerate,
-          reverseCurve: Curves.easeIn,
-        );
-        return HorizontalSlidePageTransition(
-          fromLeft: false,
-          animation: curvedAnimation,
-          child: child,
-        );
-      },
+    );
+  }
+
+  /// Creates a directional drill transition for nested routes.
+  /// https://learn.microsoft.com/en-us/windows/apps/design/motion/drill
+  static Page<T> buildPageWithDrillTransition<T>({
+    required BuildContext context,
+    required GoRouterState state,
+    required Widget child,
+  }) {
+    return _NavigationPage<T>(
+      key: state.pageKey,
+      name: state.matchedLocation,
+      drill: true,
+      disableAnimations: MediaQuery.disableAnimationsOf(context),
+      child: child,
     );
   }
 }
+
+final class const _NavigationPage<T>({
+  required super.key,
+  required super.name,
+  required final bool drill,
+  required final bool disableAnimations,
+  required final Widget child,
+}) extends Page<T> {
+  @override
+  Route<T> createRoute(BuildContext context) => _NavigationRoute<T>(this);
+}
+
+final class _NavigationRoute<T>(_NavigationPage<T> page) extends PageRoute<T> {
+  this : super(settings: page);
+
+  _NavigationPage<T> get _page => settings as _NavigationPage<T>;
+
+  bool _coveredByDrill = false;
+
+  @override
+  Duration get transitionDuration => _page.disableAnimations
+      ? Duration.zero
+      : _page.drill
+      ? _drillTransitionDuration
+      : _pageTransitionDuration;
+
+  @override
+  bool get opaque => true;
+
+  @override
+  bool get maintainState => true;
+
+  @override
+  Color? get barrierColor => null;
+
+  @override
+  String? get barrierLabel => null;
+
+  @override
+  bool canTransitionTo(TransitionRoute<dynamic> nextRoute) =>
+      nextRoute is _NavigationRoute<dynamic>;
+
+  @override
+  bool canTransitionFrom(TransitionRoute<dynamic> previousRoute) =>
+      previousRoute is _NavigationRoute<dynamic>;
+
+  @override
+  void didChangeNext(Route<dynamic>? nextRoute) {
+    if (nextRoute != null) {
+      _coveredByDrill = nextRoute is _NavigationRoute<dynamic> && nextRoute._page.drill;
+    }
+    super.didChangeNext(nextRoute);
+  }
+
+  @override
+  void didPopNext(Route<dynamic> nextRoute) {
+    _coveredByDrill = nextRoute is _NavigationRoute<dynamic> && nextRoute._page.drill;
+    super.didPopNext(nextRoute);
+  }
+
+  @override
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) {
+    return Semantics(scopesRoute: true, explicitChildNodes: true, child: _page.child);
+  }
+
+  @override
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final bool disableAnimations =
+        _page.disableAnimations || MediaQuery.disableAnimationsOf(context);
+    final double entrance = disableAnimations ? 1 : animation.value;
+    final double exit = disableAnimations ? 0 : secondaryAnimation.value;
+    final bool replacingWithRefresh =
+        secondaryAnimation.status != AnimationStatus.dismissed && !_coveredByDrill;
+    final bool enteringDrill = _page.drill && !replacingWithRefresh;
+    final double entranceProgress = enteringDrill
+        ? _drillEntranceInterval.transform(entrance)
+        : _pageCurve.transform(entrance);
+    final double exitProgress = _coveredByDrill
+        ? _drillExitInterval.transform(exit)
+        : _pageCurve.transform(exit);
+
+    // Complementary drill phases prevent transparent Mica pages from painting over each other.
+    final double entranceOpacity = enteringDrill ? (entrance >= 0.5 ? 1 : 0) : entranceProgress;
+    final double exitOpacity = _coveredByDrill ? (exit < 0.5 ? 1 : 0) : 1 - exitProgress;
+    final double opacity = disableAnimations ? (isCurrent ? 1 : 0) : entranceOpacity * exitOpacity;
+    final double offset = disableAnimations
+        ? 0
+        : (enteringDrill ? _drillOffset * (1 - entranceProgress) : 0) -
+              (_coveredByDrill ? _drillOffset * exitProgress : 0);
+
+    // Keep the same subtree through entrance, cover, and reverse to preserve page state.
+    return ClipRect(
+      child: FractionalTranslation(
+        translation: Offset(offset, 0),
+        child: Opacity(
+          opacity: opacity,
+          child: IgnorePointer(
+            ignoring: opacity == 0,
+            child: ExcludeSemantics(excluding: opacity == 0, child: child),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+const _pageTransitionDuration = Duration(milliseconds: 260);
+const _drillTransitionDuration = Duration(milliseconds: 400);
+const _drillOffset = 0.12;
+const Curve _pageCurve = Curves.easeInOut;
+const _drillExitInterval = Interval(0, 0.5, curve: Curves.easeIn);
+const _drillEntranceInterval = Interval(0.5, 1, curve: Curves.easeOut);
 
 const _mainNavigationRoutes = <RouteMeta>[.home, .tweaks, .msStore];
 
