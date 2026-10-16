@@ -91,7 +91,7 @@ class _CaptionDoubleClickState extends State<_CaptionDoubleClick> {
   }
 
   Future<void> _toggleMaximized() async {
-    final PlatformWindow window = WindowPlus.instance;
+    final window = WindowPlus.instance;
     if (!window.enableCustomFrame || await window.fullscreen) return;
     if (await window.maximized) {
       await window.restore();

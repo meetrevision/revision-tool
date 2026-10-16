@@ -37,6 +37,15 @@ final class const StoreService({
 }) with BaseService {
   static final _locks = <String, RandomAccessFile>{};
 
+  /// Pass to [CancelToken.cancel] to pause a [download] rather than cancel it:
+  /// partially downloaded files are then kept so the next [download] call with
+  /// the same packages resumes them instead of starting over.
+  static const Object pauseReason = #storeDownloadPaused;
+
+  /// Final paths whose partial files were kept by a pause, so a later cancel
+  /// can discard them via [discardPartialDownloads].
+  static final _pausedPartials = <String>{};
+
   /// Cached arch index per package set. First lookup counts in O(n),
   /// repeat lookups on the same ISet instance hit the cache in O(1).
   static final _archCounts = CacheKey<ISet<PackageInfo>, Map<String, int>>((packages) {
@@ -90,6 +99,18 @@ final class const StoreService({
   }
 
   void _trackDownloadedFile(String path) => _lockFile(path);
+
+  static bool _isPaused(CancelToken token) => token.cancelError?.error == pauseReason;
+
+  /// Deletes partial files kept by a paused [download]. Call when the paused
+  /// download is cancelled for good.
+  Future<void> discardPartialDownloads() async {
+    final IList<String> paths = _pausedPartials.toIList();
+    _pausedPartials.clear();
+    for (final path in paths) {
+      await _fileService.discardPartialDownload(path);
+    }
+  }
 
   Future<Result<IList<SearchProduct>>> searchProducts(String query) => run(() async {
     final IList<SearchProduct> results = await _uwpRepository.searchProducts(query);
@@ -294,10 +315,12 @@ final class const StoreService({
         };
         if (cancelToken.isCancelled) throw const CancelledRequestException();
 
-        // Download with progress
+        // Download with progress. Resumes from a partial file left by a pause.
+        _pausedPartials.remove(storedPath);
+        final bool resuming = _fileService.hasPartialDownload(storedPath);
         var lastCount = 0;
         int lastTotal = package.expectedBytes;
-        final Result<void> result = await _fileService.download(
+        Future<Result<void>> downloadFile() => _fileService.download(
           url,
           storedPath,
           cancelToken: cancelToken,
@@ -321,9 +344,31 @@ final class const StoreService({
             );
           },
         );
+        Result<void> result = await downloadFile();
+
+        // A resumed file is stitched together from two responses; if it doesn't
+        // match the published digest (e.g. the package changed in between),
+        // throw it away and download it once more from scratch.
+        if (result is Success &&
+            resuming &&
+            package.hasDigest &&
+            !await _fileService.verifyFileDigest(
+              file: File(storedPath),
+              digest: package.digest!,
+              algorithm: package.algorithm!,
+            )) {
+          await File(storedPath).delete();
+          result = await downloadFile();
+        }
+
         if (result is Failure) {
           final file = File(storedPath);
           if (file.existsSync()) await file.delete();
+          if (_isPaused(cancelToken)) {
+            _pausedPartials.add(storedPath);
+          } else {
+            await _fileService.discardPartialDownload(storedPath);
+          }
           throw result.exception;
         }
 

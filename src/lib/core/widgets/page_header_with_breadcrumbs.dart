@@ -36,19 +36,25 @@ final class const PageHeaderBreadcrumbs({super.key, final Widget? trailing})
   /// Goes back to [location] when it is in the history, so it animates like the
   /// back button. Otherwise navigates to it as if it were.
   static void _navigateTo(BuildContext context, String location) {
-    final List<RouteMatchBase> history = _shellHistory(
+    final ShellRouteMatch? shell = _innermostShell(
       GoRouter.of(context).routerDelegate.currentConfiguration.matches,
     );
+    final List<RouteMatchBase> history = shell?.matches ?? const [];
     final int index = history.lastIndexWhere((match) => match.matchedLocation == location);
     if (index == history.length - 1) return;
 
-    if (index >= 0) {
+    // This header sits above the shell's navigator, so Navigator.of(context)
+    // would be the root one.
+    final NavigatorState? navigator = shell?.navigatorKey.currentState;
+    if (index >= 0 && navigator != null) {
       final ValueKey<String> pageKey = history[index].pageKey;
-      Navigator.of(context).popUntil(
-        (route) => switch (route.settings) {
-          Page<Object?>(:final key) => key == pageKey,
-          _ => false,
-        },
+      navigator.popUntil(
+        (route) =>
+            route.isFirst ||
+            switch (route.settings) {
+              Page<Object?>(:final key) => key == pageKey,
+              _ => false,
+            },
       );
       return;
     }
@@ -56,10 +62,10 @@ final class const PageHeaderBreadcrumbs({super.key, final Widget? trailing})
     unawaited(context.push(location, extra: FluentNavigationTransition.slideFromLeading));
   }
 
-  static List<RouteMatchBase> _shellHistory(List<RouteMatchBase> matches) =>
+  static ShellRouteMatch? _innermostShell(List<RouteMatchBase> matches) =>
       switch (matches.lastOrNull) {
-        final ShellRouteMatch shell => _shellHistory(shell.matches),
-        _ => matches,
+        final ShellRouteMatch shell => _innermostShell(shell.matches) ?? shell,
+        _ => null,
       };
 
   static Widget _chevronIconBuilder(BuildContext context, int index) {

@@ -2,11 +2,15 @@ import 'dart:async' show Timer;
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/di/injection.dart';
+import '../../../../core/error/result.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../../../extensions.dart';
 import '../../../../i18n/generated/strings.g.dart';
 import '../../domain/entities/search_product.dart';
+import '../providers/store_providers.dart';
 import 'ms_store_product_icon.dart';
 
 const BorderRadius _cardRadius = .all(.circular(8.0));
@@ -150,6 +154,7 @@ class _MSStoreProductCardState() extends State<MSStoreProductCard> {
                         enabled: false,
                         child: _CardContent(
                           product: widget.product,
+                          hovered: true,
                           extendedHover: _extendedHoverNotifier,
                           onPressed: _onPressed,
                         ),
@@ -203,6 +208,7 @@ class _MSStoreProductCardState() extends State<MSStoreProductCard> {
                     ),
                     child: _CardContent(
                       product: widget.product,
+                      hovered: _isHovered,
                       extendedHover: _extendedHoverNotifier,
                       onPressed: _onPressed,
                     ),
@@ -219,6 +225,7 @@ class _MSStoreProductCardState() extends State<MSStoreProductCard> {
 
 class const _CardContent({
   required final SearchProduct product,
+  required final bool hovered,
   required final ValueNotifier<bool> extendedHover,
   required final VoidCallback? onPressed,
 }) extends StatelessWidget {
@@ -239,8 +246,15 @@ class const _CardContent({
           title: title,
           trailing: ValueListenableBuilder<bool>(
             valueListenable: extendedHover,
-            builder: (context, value, _) =>
-                _HoverGetButton(isHovered: value, trailingText: price, onPressed: onPressed),
+            builder: (context, value, _) => _HoverGetButton(
+              productId: product.id,
+              isHovered: value,
+              // Starts the install lookup as soon as the pointer enters the
+              // card, so it's usually resolved before the hover button shows.
+              checkInstalled: hovered || value,
+              trailingText: price,
+              onPressed: onPressed,
+            ),
           ),
         ),
         const SizedBox(height: _sectionGap),
@@ -327,22 +341,34 @@ class const _CardHeader({
 }
 
 class const _HoverGetButton({
+  required final String productId,
   required final bool isHovered,
+  required final bool checkInstalled,
   required final String trailingText,
   required final VoidCallback? onPressed,
-}) extends StatelessWidget {
+}) extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final ResourceDictionary resources = context.theme.resources;
+    // Only looked up while hovered, so a page of results doesn't fire a
+    // network request per card. Lookup failures fall back to "Get".
+    final bool installed =
+        checkInstalled &&
+        productId.isNotEmpty &&
+        ref.watch(storeProductInstalledPackageProvider(productId)).value != null;
+
     return AnimatedContainer(
       duration: context.theme.fastAnimationDuration,
       curve: const Cubic(0, 0, 0, 1.0),
       child: isHovered
           ? FilledButton(
-              key: const ValueKey('get-button'),
+              key: ValueKey(installed ? 'open-button' : 'get-button'),
               style: const ButtonStyle(padding: WidgetStatePropertyAll(_pillPadding)),
-              onPressed: onPressed,
-              child: Text(t.get, style: const TextStyle(fontWeight: .bold)),
+              onPressed: installed ? () => _openApp(ref) : onPressed,
+              child: Text(
+                installed ? t.msstoreOpen : t.get,
+                style: const TextStyle(fontWeight: .bold),
+              ),
             )
           : FilledButton(
               key: const ValueKey('price-button'),
@@ -355,6 +381,18 @@ class const _HoverGetButton({
               child: Text(trailingText),
             ),
     );
+  }
+
+  /// Launches the installed app, like "Open" in the Store. If it can't be
+  /// launched, falls back to the product page, which shows the details.
+  Future<void> _openApp(WidgetRef ref) async {
+    final String? familyName = ref.read(storeProductPackageFamilyNameProvider(productId)).value;
+    if (familyName == null) {
+      onPressed?.call();
+      return;
+    }
+    final Result<void> result = await ref.read(appxServiceProvider).launch(familyName: familyName);
+    if (result is Failure) onPressed?.call();
   }
 }
 

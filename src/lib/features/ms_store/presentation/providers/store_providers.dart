@@ -6,10 +6,13 @@ import 'package:adaptive_palette/adaptive_palette.dart';
 import 'package:dio/dio.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/widgets.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../../../core/error/result.dart';
 import '../../../../i18n/generated/strings.g.dart';
+import '../../../appx/domain/entities/appx_package.dart';
 import '../../domain/entities/download_state.dart';
 import '../../domain/entities/package_info.dart';
 import '../../domain/entities/product_details.dart';
@@ -26,7 +29,6 @@ part 'store_providers.g.dart';
 /// synchronously instead of rebuilding on every identical List/Set/Map.
 typedef StoreState = ({
   StoreRing ring,
-  AsyncValue<IList<SearchProduct>> search,
   StoreDownloadState download,
   StorePackagesByProductId? sessionPackages,
   bool sessionInstallAfter,
@@ -36,14 +38,12 @@ typedef StoreState = ({
 extension StoreStateX on StoreState {
   StoreState copyWith({
     StoreRing? ring,
-    AsyncValue<IList<SearchProduct>>? search,
     StoreDownloadState? download,
     StorePackagesByProductId? sessionPackages,
     bool? sessionInstallAfter,
     ISet<StorePackageFileDownload>? sessionDownloads,
   }) => (
     ring: ring ?? this.ring,
-    search: search ?? this.search,
     download: download ?? this.download,
     sessionPackages: sessionPackages ?? this.sessionPackages,
     sessionInstallAfter: sessionInstallAfter ?? this.sessionInstallAfter,
@@ -76,7 +76,6 @@ class StoreController() extends _$StoreController {
 
     return (
       ring: .releasePreview,
-      search: const .data(IListConst([])),
       download: const .idle(),
       sessionPackages: null,
       sessionInstallAfter: false,
@@ -85,17 +84,6 @@ class StoreController() extends _$StoreController {
   }
 
   void setRing(StoreRing ring) => state = state.copyWith(ring: ring);
-
-  Future<void> search(String query) async {
-    state = state.copyWith(search: const .loading());
-    final Result<IList<SearchProduct>> result = await ref
-        .read(storeServiceProvider)
-        .searchProducts(query);
-    state = result.when(
-      success: (p) => state.copyWith(search: .data(p)),
-      failure: (e) => state.copyWith(search: .error(e, .current)),
-    );
-  }
 
   Future<void> download({
     required String productId,
@@ -136,7 +124,9 @@ class StoreController() extends _$StoreController {
         orElse: () => state.download,
       ),
     );
-    _cancelToken?.cancel();
+    // Pausing (not cancelling) keeps partially downloaded files on disk, so
+    // resume() continues from the bytes already downloaded.
+    _cancelToken?.cancel(StoreService.pauseReason);
     _progressTimer?.cancel();
     _progressTimer = null;
   }
@@ -175,10 +165,11 @@ class StoreController() extends _$StoreController {
     _progressTimer = null;
     _pendingProgress.clear();
     _pendingTotals = _zeroTotals;
-    ref.read(storeServiceProvider).releaseDownloadLocks();
+    final StoreService service = ref.read(storeServiceProvider)..releaseDownloadLocks();
+    // A paused download left partial files behind for resuming; drop them.
+    unawaited(service.discardPartialDownloads());
     state = (
       ring: state.ring,
-      search: state.search,
       download: const .idle(),
       sessionPackages: null,
       sessionInstallAfter: false,
@@ -376,6 +367,29 @@ class StoreController() extends _$StoreController {
   }
 }
 
+/// Search results for the MS Store page.
+///
+/// Kept separate from [StoreController] (which is `keepAlive` for downloads) so
+/// results are auto-disposed together with the page and its query text,
+/// instead of lingering after navigating to another page.
+@riverpod
+class StoreSearch() extends _$StoreSearch {
+  @override
+  AsyncValue<IList<SearchProduct>> build() => const .data(IListConst([]));
+
+  Future<void> search(String query) async {
+    state = const .loading();
+    final Result<IList<SearchProduct>> result = await ref
+        .read(storeServiceProvider)
+        .searchProducts(query);
+    if (!ref.mounted) return;
+    state = result.when(
+      success: (p) => .data(p),
+      failure: (e) => .error(e, .current),
+    );
+  }
+}
+
 @riverpod
 class StoreProductDetails() extends _$StoreProductDetails {
   @override
@@ -394,7 +408,30 @@ Future<String?> storeProductPackageFamilyName(Ref ref, String productId) async {
   final Result<String?> result = await ref
       .read(storeServiceProvider)
       .getPackageFamilyName(productId);
-  return result.when(success: (name) => name, failure: (error) => throw error);
+  return result.when(
+    success: (name) {
+      // A product's family name never changes: cache successful lookups for
+      // the session so hovering search results doesn't re-hit the network.
+      // Failures stay auto-disposed and are retried next time.
+      ref.keepAlive();
+      return name;
+    },
+    failure: (error) => throw error,
+  );
+}
+
+/// Installed package for [productId] for the current user, or `null`.
+///
+/// Built from the same providers as the product page, so search results and
+/// the product page always agree, and install/uninstall invalidations on the
+/// product page propagate here.
+@riverpod
+Future<AppxPackage?> storeProductInstalledPackage(Ref ref, String productId) async {
+  final String? familyName = await ref.watch(
+    storeProductPackageFamilyNameProvider(productId).future,
+  );
+  if (familyName == null) return null;
+  return ref.watch(appxInstalledPackageProvider(familyName).future);
 }
 
 @riverpod

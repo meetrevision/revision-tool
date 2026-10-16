@@ -736,7 +736,7 @@ class const _InstallPrimaryAction({
         final installing = message == t.msstoreInstalling;
         return _InstallProgressCard(
           key: const ValueKey('preparing'),
-          progress: 0,
+          progress: null,
           title: installing ? t.msstoreInstalling : t.msstorePreparingToDownload,
           subtitle: installing ? t.msstorePreparingInstaller : message ?? '',
           onCancel: () => ref.read(storeControllerProvider.notifier).cancel(),
@@ -759,6 +759,7 @@ class const _InstallPrimaryAction({
       paused: (_, progress, _, _, downloadedBytes, totalBytes) => _InstallProgressCard(
         key: const ValueKey('paused'),
         progress: _overallProgress(progress, downloadedBytes, totalBytes),
+        paused: true,
         title: t.msstorePaused,
         subtitle: totalBytes > 0
             ? t.msstorePausedBytesProgress(
@@ -841,68 +842,97 @@ class const _InstallPrimaryAction({
   }
 }
 
+/// Inline download/install status shown in place of the "Get" button.
+///
+/// Styled after the Microsoft Store: a neutral card with primary/secondary
+/// text, a thin accent progress bar along the bottom edge, and subtle icon
+/// buttons. Always rendered inside the hero's forced dark theme.
 class const _InstallProgressCard({
   super.key,
-  required final double progress,
+  /// 0..1, or `null` for an indeterminate bar (preparing / installing).
+  required final double? progress,
   required final String title,
   required final String subtitle,
+  final bool paused = false,
   final VoidCallback? onPause,
   final VoidCallback? onResume,
   final VoidCallback? onCancel,
 }) extends StatelessWidget {
+  static const _width = 360.0;
+  static const _height = 52.0;
+  static const _barHeight = 3.0;
+  static const _borderRadius = BorderRadius.all(Radius.circular(6));
+
   @override
   Widget build(BuildContext context) {
     final FluentThemeData theme = context.theme;
     final ResourceDictionary resources = theme.resources;
-    final double clampedProgress = progress.clamp(0, 1).toDouble();
+    final double? clampedProgress = progress?.clamp(0, 1).toDouble();
+
+    // Fluent fill/stroke tokens are already translucent (e.g. 5% white in dark
+    // mode), so never override their alpha with withAlpha(): that is what made
+    // this card an opaque light-gray slab under white text. Instead, lay the
+    // control fill over an opaque base so the card stays readable on top of
+    // busy hero artwork, then keep it just slightly see-through.
     final Color surfaceColor = Color.alphaBlend(
-      theme.accentColor.lightest.withAlpha(theme.brightness == .dark ? 10 : 18),
-      resources.cardBackgroundFillColorDefault.withAlpha(theme.brightness == .dark ? 220 : 238),
+      resources.controlFillColorDefault,
+      resources.solidBackgroundFillColorBase,
+    ).withAlpha(235);
+
+    final TextStyle titleStyle = theme.typography.bodyStrong!.copyWith(
+      color: resources.textFillColorPrimary,
+    );
+    final TextStyle subtitleStyle = theme.typography.caption!.copyWith(
+      color: resources.textFillColorSecondary,
+      fontFeatures: const [FontFeature.tabularFigures()],
     );
 
     return SizedBox(
-      width: 360,
-      height: 52,
-      child: ClipRRect(
-        borderRadius: .circular(6),
-        child: AnimatedContainer(
-          duration: theme.fastAnimationDuration,
-          decoration: BoxDecoration(
-            color: surfaceColor,
-            borderRadius: .circular(6),
-            border: .all(color: resources.cardStrokeColorDefault.withAlpha(120)),
-          ),
+      width: _width,
+      height: _height,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: _borderRadius,
+          border: .all(color: resources.controlStrokeColorDefault),
+        ),
+        child: ClipRRect(
+          borderRadius: _borderRadius,
           child: Stack(
             children: [
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: ProgressBar(value: clampedProgress * 100),
-              ),
               Padding(
-                padding: const .fromLTRB(14, 6, 8, 6),
+                padding: const .fromLTRB(14, 0, 6, _barHeight),
                 child: Row(
-                  spacing: 6,
+                  spacing: 2,
                   children: [
                     Expanded(
                       child: Column(
                         mainAxisAlignment: .center,
                         crossAxisAlignment: .start,
                         children: [
-                          Text(
-                            title,
-                            maxLines: 1,
-                            overflow: .ellipsis,
-                            style: context.theme.typography.bodyStrong,
+                          Row(
+                            spacing: 8,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  title,
+                                  maxLines: 1,
+                                  overflow: .ellipsis,
+                                  style: titleStyle,
+                                ),
+                              ),
+                              if (clampedProgress != null)
+                                Text(
+                                  '${(clampedProgress * 100).floor()}%',
+                                  style: subtitleStyle,
+                                ),
+                            ],
                           ),
                           Text(
                             subtitle,
                             maxLines: 1,
                             overflow: .ellipsis,
-                            style: context.theme.typography.caption!.copyWith(
-                              fontFeatures: [const FontFeature.tabularFigures()],
-                            ),
+                            style: subtitleStyle,
                           ),
                         ],
                       ),
@@ -911,7 +941,7 @@ class const _InstallProgressCard({
                       Tooltip(
                         message: t.msstorePause,
                         child: IconButton(
-                          icon: const Icon(msicons.FluentIcons.pause_20_filled),
+                          icon: const Icon(msicons.FluentIcons.pause_20_regular, size: 16),
                           onPressed: onPause,
                         ),
                       ),
@@ -919,7 +949,7 @@ class const _InstallProgressCard({
                       Tooltip(
                         message: t.msstoreResume,
                         child: IconButton(
-                          icon: const Icon(msicons.FluentIcons.play_20_filled),
+                          icon: const Icon(msicons.FluentIcons.play_20_regular, size: 16),
                           onPressed: onResume,
                         ),
                       ),
@@ -927,11 +957,23 @@ class const _InstallProgressCard({
                       Tooltip(
                         message: t.msstoreCancel,
                         child: IconButton(
-                          icon: const Icon(msicons.FluentIcons.dismiss_20_regular),
+                          icon: const Icon(msicons.FluentIcons.dismiss_20_regular, size: 16),
                           onPressed: onCancel,
                         ),
                       ),
                   ],
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: ProgressBar(
+                  value: clampedProgress == null ? null : clampedProgress * 100,
+                  strokeWidth: _barHeight,
+                  backgroundColor: resources.controlStrokeColorDefault,
+                  // Matches WinUI's paused ProgressBar state.
+                  activeColor: paused ? resources.systemFillColorCaution : null,
                 ),
               ),
             ],

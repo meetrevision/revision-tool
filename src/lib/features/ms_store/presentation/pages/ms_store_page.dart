@@ -42,7 +42,7 @@ class _MSStorePageState() extends ConsumerState<MSStorePage> {
     if (productId != null) {
       await context.push('${RouteMeta.msStore.path}/product/$productId');
     } else {
-      await ref.read(storeControllerProvider.notifier).search(query);
+      await ref.read(storeSearchProvider.notifier).search(query);
     }
   }
 
@@ -64,9 +64,7 @@ class _MSStorePageState() extends ConsumerState<MSStorePage> {
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<IList<SearchProduct>> searchState = ref.watch(
-      storeControllerProvider.select((s) => s.search),
-    );
+    final AsyncValue<IList<SearchProduct>> searchState = ref.watch(storeSearchProvider);
     final StoreRing selectedRing = ref.watch(storeControllerProvider.select((s) => s.ring));
 
     return ScaffoldPage(

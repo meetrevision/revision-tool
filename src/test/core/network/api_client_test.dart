@@ -135,7 +135,7 @@ void main() {
       expect(attempts, 0);
     });
 
-    test('download retry deletes partial file before retrying', () async {
+    test('download retry restarts when the server ignores the range request', () async {
       var attempts = 0;
       final Directory tempDir = Directory.systemTemp.createTempSync('api_client_test_');
       final file = File('${tempDir.path}\\download.txt');
@@ -166,6 +166,80 @@ void main() {
       expect(attempts, 2);
       expect(file.readAsStringSync(), 'complete');
 
+      tempDir.deleteSync(recursive: true);
+    });
+
+    test('download resumes a partial file with a range request', () async {
+      final Directory tempDir = Directory.systemTemp.createTempSync('api_client_test_');
+      final file = File('${tempDir.path}\\download.txt');
+      File(ApiClient.partialPathFor(file.path)).writeAsStringSync('comp');
+      String? rangeHeader;
+      final progress = <(int, int)>[];
+      final client = ApiClient(
+        dio: Dio()
+          ..httpClientAdapter = _SequenceAdapter((options, attempt) {
+            rangeHeader = options.headers[HttpHeaders.rangeHeader] as String?;
+            return ResponseBody.fromString(
+              'lete',
+              206,
+              headers: {
+                HttpHeaders.contentRangeHeader: ['bytes 4-7/8'],
+                Headers.contentLengthHeader: ['4'],
+              },
+            );
+          }),
+        retryPolicy: const RetryPolicy(maxRetries: 0),
+      );
+
+      final Result<Response<dynamic>> result = await client.downloadFile(
+        Uri.parse('https://example.test/download'),
+        file.path,
+        onReceiveProgress: (count, total) => progress.add((count, total)),
+      );
+
+      expect(result, isA<Success<Response<dynamic>>>());
+      expect(rangeHeader, 'bytes=4-');
+      expect(file.readAsStringSync(), 'complete');
+      expect(File(ApiClient.partialPathFor(file.path)).existsSync(), isFalse);
+      expect(progress.first, (4, 8));
+      expect(progress.last, (8, 8));
+
+      tempDir.deleteSync(recursive: true);
+    });
+
+    test('cancelled download keeps the partial file for resuming', () async {
+      final Directory tempDir = Directory.systemTemp.createTempSync('api_client_test_');
+      final file = File('${tempDir.path}\\download.txt');
+      final cancelToken = CancelToken();
+      final body = StreamController<Uint8List>();
+      final client = ApiClient(
+        dio: Dio()
+          ..httpClientAdapter = _SequenceAdapter((options, attempt) {
+            body.add(Uint8List.fromList('part'.codeUnits));
+            return ResponseBody(
+              body.stream,
+              200,
+              headers: {
+                Headers.contentLengthHeader: ['8'],
+              },
+            );
+          }),
+        retryPolicy: const RetryPolicy(maxRetries: 0),
+      );
+
+      final Result<Response<dynamic>> result = await client.downloadFile(
+        Uri.parse('https://example.test/download'),
+        file.path,
+        cancelToken: cancelToken,
+        onReceiveProgress: (count, total) => cancelToken.cancel('paused'),
+      );
+
+      expect(result, isA<Failure<Response<dynamic>>>());
+      expect((result as Failure<Response<dynamic>>).exception, isA<CancelledRequestException>());
+      expect(file.existsSync(), isFalse);
+      expect(File(ApiClient.partialPathFor(file.path)).readAsStringSync(), 'part');
+
+      await body.close();
       tempDir.deleteSync(recursive: true);
     });
   });

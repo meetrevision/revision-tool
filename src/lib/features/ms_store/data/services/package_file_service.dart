@@ -47,6 +47,19 @@ class const PackageFileService(final ApiClient _api) {
     return result.when(success: (_) => const .success(null), failure: Result<void>.failure);
   }
 
+  /// Whether an interrupted (e.g. paused) download of [path] can be resumed.
+  bool hasPartialDownload(String path) => File(ApiClient.partialPathFor(path)).existsSync();
+
+  /// Deletes the partial file of an interrupted download of [path], if any.
+  Future<void> discardPartialDownload(String path) async {
+    final file = File(ApiClient.partialPathFor(path));
+    try {
+      if (file.existsSync()) await file.delete();
+    } on FileSystemException {
+      // Still open by an in-flight request; that request cleans it up.
+    }
+  }
+
   /// Deletes the root temporary store folder
   Future<void> cleanup() async {
     final dir = Directory(_storeFolder);
