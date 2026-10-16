@@ -4,43 +4,39 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:win32/win32.dart';
+// ignore: implementation_imports
+import 'package:window_plus/src/platform/platform_window.dart';
 import 'package:window_plus/window_plus.dart';
 
-class CaptionTitleBar extends TitleBar {
-  const CaptionTitleBar({
-    super.key,
-    super.isBackButtonEnabled,
-    super.isBackButtonVisible,
-    super.backButton,
-    super.onBackRequested,
-    super.leftHeader,
-    super.icon,
-    super.title,
-    super.subtitle,
-    super.content,
-    super.endHeader,
-    super.height,
-    super.captionControls,
-    super.onDragStarted,
-    super.onDragEnded,
-    super.onDragCancelled,
-    super.onDragUpdated,
-  });
-
+final class const CaptionTitleBar({
+  super.key,
+  super.isBackButtonEnabled,
+  super.isBackButtonVisible,
+  super.backButton,
+  super.onBackRequested,
+  super.leftHeader,
+  super.icon,
+  super.title,
+  super.subtitle,
+  super.content,
+  super.endHeader,
+  super.height,
+  super.captionControls,
+  super.onDragStarted,
+  super.onDragEnded,
+  super.onDragCancelled,
+  super.onDragUpdated,
+}) extends TitleBar {
   @override
   Widget build(BuildContext context) => _CaptionDoubleClick(child: super.build(context));
 }
 
-class _CaptionDoubleClick extends StatefulWidget {
-  const _CaptionDoubleClick({required this.child});
-
-  final Widget child;
-
+final class const _CaptionDoubleClick({required final Widget child}) extends StatefulWidget {
   @override
   State<_CaptionDoubleClick> createState() => _CaptionDoubleClickState();
 }
 
-class _CaptionDoubleClickState extends State<_CaptionDoubleClick> {
+final class _CaptionDoubleClickState() extends State<_CaptionDoubleClick> {
   static const double _mouseSlop = 4.0;
 
   Duration? _lastDownTime;
@@ -83,7 +79,7 @@ class _CaptionDoubleClickState extends State<_CaptionDoubleClick> {
     WidgetsBinding.instance.hitTestInView(result, event.position, event.viewId);
 
     var pointerListeners = 0;
-    for (final entry in result.path) {
+    for (final HitTestEntry<HitTestTarget> entry in result.path) {
       if (identical(entry.target, self)) break;
       if (entry.target is RenderPointerListener) pointerListeners++;
     }
@@ -91,7 +87,7 @@ class _CaptionDoubleClickState extends State<_CaptionDoubleClick> {
   }
 
   Future<void> _toggleMaximized() async {
-    final window = WindowPlus.instance;
+    final PlatformWindow window = WindowPlus.instance;
     if (!window.enableCustomFrame || await window.fullscreen) return;
     if (await window.maximized) {
       await window.restore();
@@ -102,10 +98,6 @@ class _CaptionDoubleClickState extends State<_CaptionDoubleClick> {
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      behavior: .translucent,
-      onPointerDown: _handlePointerDown,
-      child: widget.child,
-    );
+    return Listener(behavior: .translucent, onPointerDown: _handlePointerDown, child: widget.child);
   }
 }

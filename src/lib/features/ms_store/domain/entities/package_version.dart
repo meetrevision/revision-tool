@@ -16,7 +16,7 @@ final class const PackageVersion(
   }
 
   static PackageVersion? fromPackageName(String name) => switch (name.split('_')) {
-    [_, final version, ...] => tryParse(version),
+    [_, final String version, ...] => tryParse(version),
     _ => null,
   };
 
@@ -39,10 +39,7 @@ final class const PackageVersion(
   String toString() => '$major.$minor.$build.$revision';
 }
 
-PackageVersion? latestPackageVersion(
-  Iterable<PackageInfo> packages, {
-  required String familyName,
-}) {
+PackageVersion? latestPackageVersion(Iterable<PackageInfo> packages, {required String familyName}) {
   if (familyName.toLowerCase().split('_') case [final name, final publisherId]) {
     PackageVersion? latest;
     for (final package in packages) {

@@ -52,7 +52,7 @@ final class const PageHeaderBreadcrumbs({super.key, final Widget? trailing})
         (route) =>
             route.isFirst ||
             switch (route.settings) {
-              Page<Object?>(:final key) => key == pageKey,
+              Page<Object?>(:final LocalKey? key) => key == pageKey,
               _ => false,
             },
       );

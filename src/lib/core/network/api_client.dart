@@ -174,8 +174,7 @@ class ApiClient({
         headers: existingBytes > 0 ? {HttpHeaders.rangeHeader: 'bytes=$existingBytes-'} : null,
         validateStatus: (status) =>
             status != null &&
-            ((status >= 200 && status < 300) ||
-                status == HttpStatus.requestedRangeNotSatisfiable),
+            ((status >= 200 && status < 300) || status == HttpStatus.requestedRangeNotSatisfiable),
       ),
     );
     final ResponseBody body = response.data!;
@@ -203,10 +202,10 @@ class ApiClient({
 
     // 206 = server sent only the missing bytes; anything else is the full file.
     final bool resumed = existingBytes > 0 && response.statusCode == HttpStatus.partialContent;
-    final int offset = resumed ? existingBytes : 0;
+    final offset = resumed ? existingBytes : 0;
     final int total = _totalDownloadLength(response.headers, offset);
 
-    final IOSink sink = partialFile.openWrite(mode: resumed ? FileMode.append : FileMode.write);
+    final IOSink sink = partialFile.openWrite(mode: resumed ? .append : .write);
     var received = offset;
     if (resumed) onReceiveProgress?.call(received, total);
 

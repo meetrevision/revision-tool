@@ -5,16 +5,16 @@ import 'package:flutter/rendering.dart';
 
 import 'fluent_motion.dart';
 
-enum FluentNavigationTransition {
+enum FluentNavigationTransition({
+  required final Duration forwardDuration,
+  required final Duration reverseDuration,
+}) {
   entrance(
     forwardDuration: FluentMotion.pageTransition,
     reverseDuration: FluentMotion.pageTransition,
   ),
 
-  slide(
-    forwardDuration: FluentMotion.pageTransition,
-    reverseDuration: FluentMotion.pageTransition,
-  ),
+  slide(forwardDuration: FluentMotion.pageTransition, reverseDuration: FluentMotion.pageTransition),
 
   /// [slide] mirrored, like WinUI's `SlideNavigationTransitionEffect.FromLeft`:
   /// used to navigate forward to a page that sits above the current one.
@@ -26,12 +26,6 @@ enum FluentNavigationTransition {
   drillIn(forwardDuration: FluentMotion.drillInScale, reverseDuration: FluentMotion.drillInFade),
 
   suppress(forwardDuration: Duration.zero, reverseDuration: Duration.zero);
-
-  const FluentNavigationTransition({required this.forwardDuration, required this.reverseDuration});
-
-  final Duration forwardDuration;
-
-  final Duration reverseDuration;
 
   NavigationTransitionFrame primaryFrame(Animation<double> animation, {required bool rtl}) {
     if (animation.status == .reverse) {
@@ -65,112 +59,99 @@ enum FluentNavigationTransition {
   double _side(bool rtl) => rtl != (this == slideFromLeading) ? -1.0 : 1.0;
 
   NavigationTransitionFrame _navigatingTo(double t, bool rtl) {
-    switch (this) {
-      case entrance:
-        if (t < _exitEnd) return .hidden;
-        return NavigationTransitionFrame(dy: FluentMotion.entranceOffset * (1.0 - _enter(t)));
-      case slide || slideFromLeading:
-        if (t < _exitEnd) return .hidden;
-        return NavigationTransitionFrame(
-          dx: _side(rtl) * FluentMotion.slideEnterOffset * (1.0 - _enter(t)),
-        );
-      case drillIn:
-        final double scale = FluentMotion.decelerate.transform(_unit(t));
-        final double fade = _part(t, FluentMotion.drillInScale, FluentMotion.drillInFade);
-        return NavigationTransitionFrame(
-          scale: FluentMotion.drillInFromScale + (1.0 - FluentMotion.drillInFromScale) * scale,
-          opacity: FluentMotion.drillOpacity.transform(fade),
-        );
-      case suppress:
-        return .identity;
-    }
+    return switch (this) {
+      entrance =>
+        t < _exitEnd ? .hidden : .new(dy: FluentMotion.entranceOffset * (1.0 - _enter(t))),
+      slide || slideFromLeading =>
+        t < _exitEnd
+            ? .hidden
+            : .new(dx: _side(rtl) * FluentMotion.slideEnterOffset * (1.0 - _enter(t))),
+      drillIn => .new(
+        scale:
+            FluentMotion.drillInFromScale +
+            (1.0 - FluentMotion.drillInFromScale) * FluentMotion.decelerate.transform(_unit(t)),
+        opacity: FluentMotion.drillOpacity.transform(
+          _part(t, FluentMotion.drillInScale, FluentMotion.drillInFade),
+        ),
+      ),
+      suppress => .identity,
+    };
   }
 
   NavigationTransitionFrame _navigatingAway(double t, bool rtl) {
-    switch (this) {
-      case entrance:
-        if (t >= _exitEnd) return .hidden;
-        return NavigationTransitionFrame(opacity: 1.0 - _exit(t));
-      case slide || slideFromLeading:
-        if (t >= _exitEnd) return .hidden;
-        return NavigationTransitionFrame(
-          dx: -_side(rtl) * FluentMotion.slideExitOffset * _exit(t),
-        );
-      case drillIn:
-        final double k = _part(t, FluentMotion.drillInScale, FluentMotion.drillExit);
-        return NavigationTransitionFrame(
-          scale: 1.0 + (FluentMotion.drillOutToScale - 1.0) * FluentMotion.decelerate.transform(k),
-          opacity: 1.0 - FluentMotion.drillOpacity.transform(k),
-        );
-      case suppress:
-        return .identity;
-    }
+    return switch (this) {
+      entrance => t >= _exitEnd ? .hidden : .new(opacity: 1.0 - _exit(t)),
+      slide || slideFromLeading =>
+        t >= _exitEnd ? .hidden : .new(dx: -_side(rtl) * FluentMotion.slideExitOffset * _exit(t)),
+      drillIn => .new(
+        scale:
+            1.0 +
+            (FluentMotion.drillOutToScale - 1.0) *
+                FluentMotion.decelerate.transform(
+                  _part(t, FluentMotion.drillInScale, FluentMotion.drillExit),
+                ),
+        opacity:
+            1.0 -
+            FluentMotion.drillOpacity.transform(
+              _part(t, FluentMotion.drillInScale, FluentMotion.drillExit),
+            ),
+      ),
+      suppress => .identity,
+    };
   }
 
   NavigationTransitionFrame _backNavigatingAway(double t, bool rtl) {
-    switch (this) {
-      case entrance:
-        if (t >= _exitEnd) return .hidden;
-        return NavigationTransitionFrame(dy: FluentMotion.entranceOffset * _exit(t));
-      case slide || slideFromLeading:
-        if (t >= _exitEnd) return .hidden;
-        return NavigationTransitionFrame(
-          dx: _side(rtl) * FluentMotion.slideEnterOffset * _exit(t),
-        );
-      case drillIn:
-        final double k = _part(t, FluentMotion.drillInFade, FluentMotion.drillExit);
-        return NavigationTransitionFrame(
-          scale:
-              1.0 - (1.0 - FluentMotion.drillBackOutToScale) * FluentMotion.decelerate.transform(k),
-          opacity: 1.0 - FluentMotion.drillOpacity.transform(k),
-        );
-      case suppress:
-        return .identity;
-    }
+    return switch (this) {
+      entrance => t >= _exitEnd ? .hidden : .new(dy: FluentMotion.entranceOffset * _exit(t)),
+      slide || slideFromLeading =>
+        t >= _exitEnd ? .hidden : .new(dx: _side(rtl) * FluentMotion.slideEnterOffset * _exit(t)),
+      drillIn => .new(
+        scale:
+            1.0 -
+            (1.0 - FluentMotion.drillBackOutToScale) *
+                FluentMotion.decelerate.transform(
+                  _part(t, FluentMotion.drillInFade, FluentMotion.drillExit),
+                ),
+        opacity:
+            1.0 -
+            FluentMotion.drillOpacity.transform(
+              _part(t, FluentMotion.drillInFade, FluentMotion.drillExit),
+            ),
+      ),
+      suppress => .identity,
+    };
   }
 
   NavigationTransitionFrame _backNavigatingTo(double t, bool rtl) {
-    switch (this) {
-      case entrance:
-        if (t < _exitEnd) return .hidden;
-        return NavigationTransitionFrame(opacity: _enter(t));
-      case slide || slideFromLeading:
-        if (t < _exitEnd) return .hidden;
-        return NavigationTransitionFrame(
-          dx: -_side(rtl) * FluentMotion.slideExitOffset * (1.0 - _enter(t)),
-        );
-      case drillIn:
-        final double k = _unit(t);
-        return NavigationTransitionFrame(
-          scale:
-              FluentMotion.drillBackFromScale -
-              (FluentMotion.drillBackFromScale - 1.0) * FluentMotion.drillBackScale.transform(k),
-          opacity: FluentMotion.drillOpacity.transform(k),
-        );
-      case suppress:
-        return .identity;
-    }
+    return switch (this) {
+      entrance => t < _exitEnd ? .hidden : .new(opacity: _enter(t)),
+      slide || slideFromLeading =>
+        t < _exitEnd
+            ? .hidden
+            : .new(dx: -_side(rtl) * FluentMotion.slideExitOffset * (1.0 - _enter(t))),
+      drillIn => .new(
+        scale:
+            FluentMotion.drillBackFromScale -
+            (FluentMotion.drillBackFromScale - 1.0) *
+                FluentMotion.drillBackScale.transform(_unit(t)),
+        opacity: FluentMotion.drillOpacity.transform(_unit(t)),
+      ),
+      suppress => .identity,
+    };
   }
 }
 
 @immutable
-class NavigationTransitionFrame {
-  const NavigationTransitionFrame({
-    this.opacity = 1.0,
-    this.dx = 0.0,
-    this.dy = 0.0,
-    this.scale = 1.0,
-  });
-
+final class const NavigationTransitionFrame({
+  final double opacity = 1.0,
+  final double dx = 0.0,
+  final double dy = 0.0,
+  final double scale = 1.0,
+}) {
   static const identity = NavigationTransitionFrame();
   static const hidden = NavigationTransitionFrame(opacity: 0.0);
 
-  final double opacity;
-  final double dx;
-  final double dy;
-  final double scale;
-
-  NavigationTransitionFrame combine(NavigationTransitionFrame other) => NavigationTransitionFrame(
+  NavigationTransitionFrame combine(NavigationTransitionFrame other) => .new(
     opacity: opacity * other.opacity,
     dx: dx + other.dx,
     dy: dy + other.dy,
@@ -182,26 +163,20 @@ class NavigationTransitionFrame {
       'NavigationTransitionFrame(opacity: $opacity, dx: $dx, dy: $dy, scale: $scale)';
 }
 
-class FluentTransitionPage<T> extends Page<T> {
-  const FluentTransitionPage({
-    required this.child,
-    this.transition = .entrance,
-    super.key,
-    super.name,
-    super.arguments,
-    super.restorationId,
-  });
-
-  final Widget child;
-
-  final FluentNavigationTransition transition;
-
+final class const FluentTransitionPage<T>({
+  required final Widget child,
+  final FluentNavigationTransition transition = .entrance,
+  super.key,
+  super.name,
+  super.arguments,
+  super.restorationId,
+}) extends Page<T> {
   @override
   Route<T> createRoute(BuildContext context) => _FluentTransitionRoute<T>(this);
 }
 
-class _FluentTransitionRoute<T> extends PageRoute<T> {
-  _FluentTransitionRoute(FluentTransitionPage<T> page) : super(settings: page);
+final class _FluentTransitionRoute<T>(FluentTransitionPage<T> page) extends PageRoute<T> {
+  this : super(settings: page);
 
   FluentTransitionPage<T> get _page => settings as FluentTransitionPage<T>;
 
@@ -231,11 +206,11 @@ class _FluentTransitionRoute<T> extends PageRoute<T> {
 
   @override
   Duration get transitionDuration =>
-      FluentMotion.animationsDisabled ? Duration.zero : transition.forwardDuration;
+      FluentMotion.animationsDisabled ? .zero : transition.forwardDuration;
 
   @override
   Duration get reverseTransitionDuration =>
-      FluentMotion.animationsDisabled ? Duration.zero : transition.reverseDuration;
+      FluentMotion.animationsDisabled ? .zero : transition.reverseDuration;
 
   @override
   Color? get barrierColor => null;
@@ -271,24 +246,17 @@ class _FluentTransitionRoute<T> extends PageRoute<T> {
   }
 }
 
-class _FluentRouteTransition extends StatefulWidget {
-  const _FluentRouteTransition({
-    required this.route,
-    required this.animation,
-    required this.secondaryAnimation,
-    required this.child,
-  });
-
-  final _FluentTransitionRoute<dynamic> route;
-  final Animation<double> animation;
-  final Animation<double> secondaryAnimation;
-  final Widget child;
-
+final class const _FluentRouteTransition({
+  required final _FluentTransitionRoute<dynamic> route,
+  required final Animation<double> animation,
+  required final Animation<double> secondaryAnimation,
+  required final Widget child,
+}) extends StatefulWidget {
   @override
   State<_FluentRouteTransition> createState() => _FluentRouteTransitionState();
 }
 
-class _FluentRouteTransitionState extends State<_FluentRouteTransition> {
+final class _FluentRouteTransitionState() extends State<_FluentRouteTransition> {
   static const _scaleSnapThreshold = 0.001;
 
   final _snapshotController = SnapshotController();
@@ -355,7 +323,7 @@ class _FluentRouteTransitionState extends State<_FluentRouteTransition> {
     final NavigationTransitionFrame raw = route.transition
         .primaryFrame(widget.animation, rtl: _rtl)
         .combine(route._coveringTransition.secondaryFrame(widget.secondaryAnimation, rtl: _rtl));
-    final NavigationTransitionFrame frame = (raw.scale - 1.0).abs() < _scaleSnapThreshold
+    final frame = (raw.scale - 1.0).abs() < _scaleSnapThreshold
         ? NavigationTransitionFrame(opacity: raw.opacity, dx: raw.dx, dy: raw.dy)
         : raw;
     _painter.frame = frame;
@@ -391,13 +359,14 @@ class _FluentRouteTransitionState extends State<_FluentRouteTransition> {
   }
 }
 
-class _TransitionFramePainter extends SnapshotPainter {
+final class _TransitionFramePainter() extends SnapshotPainter {
   NavigationTransitionFrame _frame = .identity;
 
   final _transform = Matrix4.identity();
   final _transformLayer = LayerHandle<TransformLayer>();
   final _opacityLayer = LayerHandle<OpacityLayer>();
 
+  NavigationTransitionFrame get frame => _frame;
   set frame(NavigationTransitionFrame value) {
     if (value.opacity == _frame.opacity &&
         value.dx == _frame.dx &&
@@ -412,12 +381,7 @@ class _TransitionFramePainter extends SnapshotPainter {
   int get _alpha => (_frame.opacity * 255).round().clamp(0, 255);
 
   @override
-  void paint(
-    PaintingContext context,
-    Offset offset,
-    Size size,
-    PaintingContextCallback painter,
-  ) {
+  void paint(PaintingContext context, Offset offset, Size size, PaintingContextCallback painter) {
     final int alpha = _alpha;
     final Offset shifted = offset.translate(_frame.dx, _frame.dy);
 
@@ -473,7 +437,7 @@ class _TransitionFramePainter extends SnapshotPainter {
     final int alpha = _alpha;
     if (alpha == 0) return;
 
-    final Rect destination = Rect.fromCenter(
+    final destination = Rect.fromCenter(
       center: (offset & size).center.translate(_frame.dx, _frame.dy),
       width: size.width * _frame.scale,
       height: size.height * _frame.scale,
@@ -484,7 +448,7 @@ class _TransitionFramePainter extends SnapshotPainter {
       destination,
       Paint()
         ..filterQuality = .medium
-        ..color = Color.fromARGB(alpha, 0, 0, 0),
+        ..color = .fromARGB(alpha, 0, 0, 0),
     );
   }
 

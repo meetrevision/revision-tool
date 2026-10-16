@@ -2,26 +2,21 @@ import 'package:fluent_ui/fluent_ui.dart';
 
 import 'fluent_motion.dart';
 
-class WinUINavigationIndicator extends NavigationIndicator {
-  const WinUINavigationIndicator({
-    super.key,
-    super.color,
-    this.indicatorSize = 3.0,
-    this.inset = 10.0,
-  });
-
-  final double indicatorSize;
-
-  final double inset;
-
+final class const WinUINavigationIndicator({
+  super.key,
+  super.color,
+  final double indicatorSize = 3.0,
+  final double inset = 10.0,
+}) extends NavigationIndicator {
   @override
   NavigationIndicatorState<WinUINavigationIndicator> createState() =>
       _WinUINavigationIndicatorState();
 }
 
-class _WinUINavigationIndicatorState extends NavigationIndicatorState<WinUINavigationIndicator>
+final class _WinUINavigationIndicatorState()
+    extends NavigationIndicatorState<WinUINavigationIndicator>
     with SingleTickerProviderStateMixin {
-  static final Map<int, _WinUINavigationIndicatorState> _byIndex = {};
+  static final _byIndex = <int, _WinUINavigationIndicatorState>{};
 
   late final AnimationController _controller = AnimationController(
     vsync: this,
@@ -116,7 +111,7 @@ class _WinUINavigationIndicatorState extends NavigationIndicatorState<WinUINavig
     if (mine is! RenderBox || theirs is! RenderBox) return null;
     if (!mine.attached || !theirs.attached || !mine.hasSize || !theirs.hasSize) return null;
 
-    final Offset delta = theirs.localToGlobal(Offset.zero) - mine.localToGlobal(Offset.zero);
+    final Offset delta = theirs.localToGlobal(.zero) - mine.localToGlobal(.zero);
     return _movesVertically ? delta.dy : delta.dx;
   }
 
@@ -163,7 +158,7 @@ class _WinUINavigationIndicatorState extends NavigationIndicatorState<WinUINavig
   }
 }
 
-const _stretchEnd = 1.0 / 3.0;
+const double _stretchEnd = 1.0 / 3.0;
 
 double _settleProgress(double t) => ((t - _stretchEnd) / (1.0 - _stretchEnd)).clamp(0.0, 1.0);
 
@@ -171,9 +166,7 @@ double _settleProgress(double t) => ((t - _stretchEnd) / (1.0 - _stretchEnd)).cl
   final double distance = to - from;
   if (distance == 0.0) return (from, from + length);
 
-  final double stretch = FluentMotion.indicatorStretch.transform(
-    (t / _stretchEnd).clamp(0.0, 1.0),
-  );
+  final double stretch = FluentMotion.indicatorStretch.transform((t / _stretchEnd).clamp(0.0, 1.0));
   final double settle = FluentMotion.decelerate.transform(_settleProgress(t));
 
   if (distance > 0.0) {
@@ -182,32 +175,20 @@ double _settleProgress(double t) => ((t - _stretchEnd) / (1.0 - _stretchEnd)).cl
   return (from + distance * stretch, from + length + distance * settle);
 }
 
-class _IndicatorPainter extends CustomPainter {
-  _IndicatorPainter({
-    required this.progress,
-    required this.color,
-    required this.from,
-    required this.to,
-    required this.outgoing,
-    required this.hidden,
-    required this.vertical,
-    required this.textDirection,
-    required this.thickness,
-    required this.inset,
-    required this.itemExtent,
-  }) : super(repaint: progress);
-
-  final Animation<double> progress;
-  final Color color;
-  final double from;
-  final double to;
-  final bool outgoing;
-  final bool hidden;
-  final bool vertical;
-  final TextDirection textDirection;
-  final double thickness;
-  final double inset;
-  final double itemExtent;
+class _IndicatorPainter({
+  required final Animation<double> progress,
+  required final Color color,
+  required final double from,
+  required final double to,
+  required final bool outgoing,
+  required final bool hidden,
+  required final bool vertical,
+  required final TextDirection textDirection,
+  required final double thickness,
+  required final double inset,
+  required final double itemExtent,
+}) extends CustomPainter {
+  this : super(repaint: progress);
 
   static const double _startPadding = 6.0;
 
@@ -238,15 +219,15 @@ class _IndicatorPainter extends CustomPainter {
       final double x = textDirection == .rtl
           ? size.width - _startPadding - thickness
           : _startPadding;
-      rect = Rect.fromLTRB(x, rest + start, x + thickness, rest + end);
+      rect = .fromLTRB(x, rest + start, x + thickness, rest + end);
     } else {
       final double y = size.height - thickness;
-      rect = Rect.fromLTRB(rest + start, y, rest + end, y + thickness);
+      rect = .fromLTRB(rest + start, y, rest + end, y + thickness);
     }
 
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, Radius.circular(thickness / 2.0)),
-      Paint()..color = color.withValues(alpha: color.a * opacity),
+      .fromRectAndRadius(rect, .circular(thickness / 2.0)),
+      .new()..color = color.withValues(alpha: color.a * opacity),
     );
   }
 

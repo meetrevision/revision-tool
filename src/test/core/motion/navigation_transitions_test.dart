@@ -3,15 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:revitool/core/motion/navigation_transitions.dart';
 import 'package:revitool/core/motion/winui_navigation_indicator.dart';
 
-class _At extends Animation<double> {
-  const _At(this.value, [this.status = .forward]);
-
-  @override
-  final double value;
-
-  @override
-  final AnimationStatus status;
-
+final class const _At(
+  @override final double value, [
+  @override final AnimationStatus status = .forward,
+]) extends Animation<double> {
   @override
   void addListener(void Function() listener) {}
 
@@ -37,17 +32,14 @@ void main() {
   group('FluentNavigationTransition', () {
     for (final FluentNavigationTransition transition in FluentNavigationTransition.values) {
       test('${transition.name} rests on the identity frame', () {
-        expect(transition.primaryFrame(const _At(1.0, .completed), rtl: false),
-            _isIdentity());
-        expect(transition.secondaryFrame(const _At(0.0, .dismissed), rtl: false),
-            _isIdentity());
-        expect(transition.secondaryFrame(const _At(0.0, .reverse), rtl: false),
-            _isIdentity());
+        expect(transition.primaryFrame(const _At(1.0, .completed), rtl: false), _isIdentity());
+        expect(transition.secondaryFrame(const _At(0.0, .dismissed), rtl: false), _isIdentity());
+        expect(transition.secondaryFrame(const _At(0.0, .reverse), rtl: false), _isIdentity());
       });
     }
 
     test('entrance hides the new page while the old one fades out', () {
-      const t = FluentNavigationTransition.entrance;
+      const FluentNavigationTransition t = .entrance;
       expect(t.primaryFrame(const _At(0.2), rtl: false).opacity, 0.0);
       final NavigationTransitionFrame covered = t.secondaryFrame(const _At(0.15), rtl: false);
       expect(covered.opacity, inExclusiveRange(0.0, 1.0));
@@ -64,18 +56,15 @@ void main() {
     });
 
     test('slide brings the new page in from the trailing side', () {
-      const t = FluentNavigationTransition.slide;
+      const FluentNavigationTransition t = .slide;
       expect(t.primaryFrame(const _At(0.5), rtl: false).dx, greaterThan(0.0));
       expect(t.primaryFrame(const _At(0.5), rtl: true).dx, lessThan(0.0));
       expect(t.secondaryFrame(const _At(0.2), rtl: false).dx, lessThan(0.0));
     });
 
     test('slide back moves the pages the other way', () {
-      const t = FluentNavigationTransition.slide;
-      final NavigationTransitionFrame popped = t.primaryFrame(
-        const _At(0.9, .reverse),
-        rtl: false,
-      );
+      const FluentNavigationTransition t = .slide;
+      final NavigationTransitionFrame popped = t.primaryFrame(const _At(0.9, .reverse), rtl: false);
       expect(popped.opacity, 1.0);
       expect(popped.dx, greaterThan(0.0));
       expect(t.primaryFrame(const _At(0.5, .reverse), rtl: false).opacity, 0.0);
@@ -88,14 +77,14 @@ void main() {
     });
 
     test('slide from leading mirrors slide', () {
-      const t = FluentNavigationTransition.slideFromLeading;
+      const FluentNavigationTransition t = .slideFromLeading;
       expect(t.primaryFrame(const _At(0.5), rtl: false).dx, lessThan(0.0));
       expect(t.primaryFrame(const _At(0.5), rtl: true).dx, greaterThan(0.0));
       expect(t.secondaryFrame(const _At(0.2), rtl: false).dx, greaterThan(0.0));
     });
 
     test('drill in zooms the new page in from 94%', () {
-      const t = FluentNavigationTransition.drillIn;
+      const FluentNavigationTransition t = .drillIn;
       final NavigationTransitionFrame start = t.primaryFrame(const _At(0.0), rtl: false);
       expect(start.scale, closeTo(0.94, _eps));
       expect(start.opacity, closeTo(0.0, _eps));

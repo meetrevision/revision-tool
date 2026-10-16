@@ -4,7 +4,11 @@ import 'dart:io';
 import 'package:ffi/ffi.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:win32/win32.dart'
-    show SPI_GETCLIENTAREAANIMATION, SYSTEM_PARAMETERS_INFO_UPDATE_FLAGS, SystemParametersInfo;
+    show
+        SPI_GETCLIENTAREAANIMATION,
+        SYSTEM_PARAMETERS_INFO_UPDATE_FLAGS,
+        SystemParametersInfo,
+        Win32Result;
 
 /// Motion tokens for Windows 11 style navigation.
 ///
@@ -18,8 +22,7 @@ import 'package:win32/win32.dart'
 /// See also:
 ///  * https://learn.microsoft.com/windows/apps/design/motion/page-transitions
 ///  * https://learn.microsoft.com/windows/apps/design/motion/timing-and-easing
-abstract final class FluentMotion {
-
+abstract final class FluentMotion() {
   /// The spline WinUI uses for content coming to rest, e.g. the incoming page
   /// in Entrance and Slide transitions: `KeySpline 0.1,0.9 0.2,1.0`.
   static const Curve decelerate = Cubic(0.1, 0.9, 0.2, 1.0);
@@ -47,7 +50,6 @@ abstract final class FluentMotion {
 
   /// Fluent "Slow Out, Fast In" curve for elements exiting the scene.
   static const Curve softOut = Cubic(1.0, 0.0, 1.0, 1.0);
-
 
   /// How long the outgoing page animates in Entrance and Slide transitions.
   static const Duration pageExit = Duration(milliseconds: 150);
@@ -78,7 +80,6 @@ abstract final class FluentMotion {
   static const Duration controlFast = Duration(milliseconds: 167);
   static const Duration controlFaster = Duration(milliseconds: 83);
 
-
   /// How far below its final position the incoming page starts in an Entrance
   /// transition, in logical pixels.
   static const double entranceOffset = 140;
@@ -106,7 +107,7 @@ abstract final class FluentMotion {
     if (!Platform.isWindows) return true;
     return using((arena) {
       final Pointer<Int32> enabled = arena<Int32>()..value = 1;
-      final result = SystemParametersInfo(
+      final Win32Result<bool> result = SystemParametersInfo(
         SPI_GETCLIENTAREAANIMATION,
         0,
         enabled,

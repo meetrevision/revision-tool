@@ -26,7 +26,7 @@ class _MSStorePageState() extends ConsumerState<MSStorePage> {
 
   static const _resultsTopGap = 18.0;
 
-  static final _horizontalPagePadding = kScaffoldPagePadding.copyWith(top: 0, bottom: 0);
+  static final EdgeInsets _horizontalPagePadding = kScaffoldPagePadding.copyWith(top: 0, bottom: 0);
 
   @override
   void dispose() {

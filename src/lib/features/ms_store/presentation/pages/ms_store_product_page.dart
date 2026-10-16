@@ -20,6 +20,7 @@ import '../../../../core/widgets/stacked_gradients.dart';
 import '../../../../extensions.dart';
 import '../../../../i18n/generated/strings.g.dart';
 import '../../../../utils_gui.dart';
+import '../../../appx/domain/entities/appx_package.dart';
 import '../../domain/entities/download_state.dart';
 import '../../domain/entities/product_details.dart';
 import '../../domain/entities/search_product.dart';
@@ -306,7 +307,10 @@ class const _HeroSection({
                                       begin: .center,
                                       end: .bottomCenter,
                                       stops: const [0.2, 1],
-                                      colors: [Colors.transparent, context.theme.scaffoldBackgroundColor],
+                                      colors: [
+                                        Colors.transparent,
+                                        context.theme.scaffoldBackgroundColor,
+                                      ],
                                     ),
                                   ]),
                                 )
@@ -559,14 +563,14 @@ class const _InstallActionBar({
     final bool active = state.isForProduct(productId);
 
     final String? familyName = ref.watch(storeProductPackageFamilyNameProvider(productId)).value;
-    final installedPackage = switch (familyName) {
+    final AsyncValue<AppxPackage?> installedPackage = switch (familyName) {
       final name? => ref.watch(appxInstalledPackageProvider(name)),
-      null => const AsyncData(null),
+      null => const .data(null),
     };
     final String? installedFamilyName = installedPackage.value != null ? familyName : null;
 
     final bool updateAvailable = switch ((installedFamilyName, installedPackage.value?.version)) {
-      (final name?, final version?) =>
+      (final String name?, final String version?) =>
         ref.watch(storeProductUpdateAvailableProvider(productId, name, version)).value ?? false,
       _ => false,
     };
@@ -719,99 +723,101 @@ class const _InstallPrimaryAction({
     final Widget? installedAction = !_isSettled(state)
         ? null
         : switch ((onUpdate, onOpen)) {
-            (final update?, _) => _PrimaryButton(
+            (final VoidCallback update?, _) => _PrimaryButton(
               key: const ValueKey('installed'),
               label: t.msstoreUpdate,
               onPressed: update,
             ),
-            (null, final open?) => _PrimaryButton(
+            (null, final VoidCallback open?) => _PrimaryButton(
               key: const ValueKey('installed'),
               label: t.msstoreOpen,
               onPressed: open,
             ),
             (null, null) => null,
           };
-    final Widget child = installedAction ?? state.maybeWhen(
-      preparing: (_, message) {
-        final installing = message == t.msstoreInstalling;
-        return _InstallProgressCard(
-          key: const ValueKey('preparing'),
-          progress: null,
-          title: installing ? t.msstoreInstalling : t.msstorePreparingToDownload,
-          subtitle: installing ? t.msstorePreparingInstaller : message ?? '',
-          onCancel: () => ref.read(storeControllerProvider.notifier).cancel(),
-        );
-      },
-      downloading: (_, progress, completed, total, downloadedBytes, totalBytes) =>
-          _InstallProgressCard(
-            key: const ValueKey('downloading'),
+    final Widget child =
+        installedAction ??
+        state.maybeWhen(
+          preparing: (_, message) {
+            final installing = message == t.msstoreInstalling;
+            return _InstallProgressCard(
+              key: const ValueKey('preparing'),
+              progress: null,
+              title: installing ? t.msstoreInstalling : t.msstorePreparingToDownload,
+              subtitle: installing ? t.msstorePreparingInstaller : message ?? '',
+              onCancel: () => ref.read(storeControllerProvider.notifier).cancel(),
+            );
+          },
+          downloading: (_, progress, completed, total, downloadedBytes, totalBytes) =>
+              _InstallProgressCard(
+                key: const ValueKey('downloading'),
+                progress: _overallProgress(progress, downloadedBytes, totalBytes),
+                title: t.msstoreDownloading,
+                subtitle: totalBytes > 0
+                    ? t.msstoreDownloadedBytesProgress(
+                        downloaded: downloadedBytes.formatBytes(),
+                        total: totalBytes.formatBytes(),
+                      )
+                    : t.msstoreDownloadingPackages(completed: completed, total: total),
+                onPause: () => ref.read(storeControllerProvider.notifier).pause(),
+                onCancel: () => ref.read(storeControllerProvider.notifier).cancel(),
+              ),
+          paused: (_, progress, _, _, downloadedBytes, totalBytes) => _InstallProgressCard(
+            key: const ValueKey('paused'),
             progress: _overallProgress(progress, downloadedBytes, totalBytes),
-            title: t.msstoreDownloading,
+            paused: true,
+            title: t.msstorePaused,
             subtitle: totalBytes > 0
-                ? t.msstoreDownloadedBytesProgress(
+                ? t.msstorePausedBytesProgress(
                     downloaded: downloadedBytes.formatBytes(),
                     total: totalBytes.formatBytes(),
                   )
-                : t.msstoreDownloadingPackages(completed: completed, total: total),
-            onPause: () => ref.read(storeControllerProvider.notifier).pause(),
+                : t.msstorePaused,
+            onResume: () => ref.read(storeControllerProvider.notifier).resume(),
             onCancel: () => ref.read(storeControllerProvider.notifier).cancel(),
           ),
-      paused: (_, progress, _, _, downloadedBytes, totalBytes) => _InstallProgressCard(
-        key: const ValueKey('paused'),
-        progress: _overallProgress(progress, downloadedBytes, totalBytes),
-        paused: true,
-        title: t.msstorePaused,
-        subtitle: totalBytes > 0
-            ? t.msstorePausedBytesProgress(
-                downloaded: downloadedBytes.formatBytes(),
-                total: totalBytes.formatBytes(),
-              )
-            : t.msstorePaused,
-        onResume: () => ref.read(storeControllerProvider.notifier).resume(),
-        onCancel: () => ref.read(storeControllerProvider.notifier).cancel(),
-      ),
-      completed: (_, _, installed) => SizedBox(
-        key: ValueKey(installed ? 'installed' : 'downloaded'),
-        height: 52,
-        width: 200,
-        child: FilledButton(
-          onPressed: installed
-              ? null
-              : () => ref.read(storeControllerProvider.notifier).installCurrentDownload(),
-          child: Align(
-            alignment: .centerLeft,
-            child: Text(
-              installed ? t.msstoreInstalled : t.install,
-              style: const TextStyle(fontWeight: .bold),
+          completed: (_, _, installed) => SizedBox(
+            key: ValueKey(installed ? 'installed' : 'downloaded'),
+            height: 52,
+            width: 200,
+            child: FilledButton(
+              onPressed: installed
+                  ? null
+                  : () => ref.read(storeControllerProvider.notifier).installCurrentDownload(),
+              child: Align(
+                alignment: .centerLeft,
+                child: Text(
+                  installed ? t.msstoreInstalled : t.install,
+                  style: const TextStyle(fontWeight: .bold),
+                ),
+              ),
             ),
           ),
-        ),
-      ),
-      error: (_, _) => SizedBox(
-        key: const ValueKey('error'),
-        height: 52,
-        width: 200,
-        child: FilledButton(
-          onPressed: onGet,
-          child: Align(
-            alignment: .centerLeft,
-            child: Text(t.msstoreRetry, style: const TextStyle(fontWeight: .bold)),
+          error: (_, _) => SizedBox(
+            key: const ValueKey('error'),
+            height: 52,
+            width: 200,
+            child: FilledButton(
+              onPressed: onGet,
+              child: Align(
+                alignment: .centerLeft,
+                child: Text(t.msstoreRetry, style: const TextStyle(fontWeight: .bold)),
+              ),
+            ),
           ),
-        ),
-      ),
-      orElse: () => SizedBox(
-        key: const ValueKey('get'),
-        height: 52,
-        width: 200,
-        child: FilledButton(
-          onPressed: onGet,
-          child: Align(
-            alignment: .centerLeft,
-            child: Text(t.get, style: const TextStyle(fontWeight: .bold)),
+          orElse: () => SizedBox(
+            key: const ValueKey('get'),
+            height: 52,
+            width: 200,
+            child: FilledButton(
+              onPressed: onGet,
+              child: Align(
+                alignment: .centerLeft,
+                child: Text(t.get, style: const TextStyle(fontWeight: .bold)),
+              ),
+            ),
           ),
-        ),
-      ),
-    );
+        );
 
     return AnimatedSize(
       duration: context.theme.mediumAnimationDuration,
@@ -849,6 +855,7 @@ class const _InstallPrimaryAction({
 /// buttons. Always rendered inside the hero's forced dark theme.
 class const _InstallProgressCard({
   super.key,
+
   /// 0..1, or `null` for an indeterminate bar (preparing / installing).
   required final double? progress,
   required final String title,
@@ -922,18 +929,10 @@ class const _InstallProgressCard({
                                 ),
                               ),
                               if (clampedProgress != null)
-                                Text(
-                                  '${(clampedProgress * 100).floor()}%',
-                                  style: subtitleStyle,
-                                ),
+                                Text('${(clampedProgress * 100).floor()}%', style: subtitleStyle),
                             ],
                           ),
-                          Text(
-                            subtitle,
-                            maxLines: 1,
-                            overflow: .ellipsis,
-                            style: subtitleStyle,
-                          ),
+                          Text(subtitle, maxLines: 1, overflow: .ellipsis, style: subtitleStyle),
                         ],
                       ),
                     ),
@@ -1143,7 +1142,7 @@ class const _HeroBanner({
   required final double height,
   required final VoidCallback onFrame,
 }) extends StatelessWidget {
-  static const _aspectRatio = 16 / 9;
+  static const double _aspectRatio = 16 / 9;
 
   static const _fetchStep = 120;
 
@@ -1397,10 +1396,8 @@ class const _AdditionalInfoSection({required final ProductDetails details})
   }
 }
 
-class const _ProductLoadingView({
-  required final SearchProduct? preview,
-  required final Key iconKey,
-}) extends StatelessWidget {
+class const _ProductLoadingView({required final SearchProduct? preview, required final Key iconKey})
+    extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
