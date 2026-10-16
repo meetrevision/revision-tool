@@ -87,6 +87,13 @@ void main() {
       expect(revealed.dx, inExclusiveRange(-150.0, 0.0));
     });
 
+    test('slide from leading mirrors slide', () {
+      const t = FluentNavigationTransition.slideFromLeading;
+      expect(t.primaryFrame(const _At(0.5), rtl: false).dx, lessThan(0.0));
+      expect(t.primaryFrame(const _At(0.5), rtl: true).dx, greaterThan(0.0));
+      expect(t.secondaryFrame(const _At(0.2), rtl: false).dx, greaterThan(0.0));
+    });
+
     test('drill in zooms the new page in from 94%', () {
       const t = FluentNavigationTransition.drillIn;
       final NavigationTransitionFrame start = t.primaryFrame(const _At(0.0), rtl: false);

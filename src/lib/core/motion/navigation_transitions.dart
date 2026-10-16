@@ -16,6 +16,13 @@ enum FluentNavigationTransition {
     reverseDuration: FluentMotion.pageTransition,
   ),
 
+  /// [slide] mirrored, like WinUI's `SlideNavigationTransitionEffect.FromLeft`:
+  /// used to navigate forward to a page that sits above the current one.
+  slideFromLeading(
+    forwardDuration: FluentMotion.pageTransition,
+    reverseDuration: FluentMotion.pageTransition,
+  ),
+
   drillIn(forwardDuration: FluentMotion.drillInScale, reverseDuration: FluentMotion.drillInFade),
 
   suppress(forwardDuration: Duration.zero, reverseDuration: Duration.zero);
@@ -55,14 +62,14 @@ enum FluentNavigationTransition {
   static double _part(double t, Duration total, Duration part) =>
       _unit(t * total.inMicroseconds / part.inMicroseconds);
 
-  static double _side(bool rtl) => rtl ? -1.0 : 1.0;
+  double _side(bool rtl) => rtl != (this == slideFromLeading) ? -1.0 : 1.0;
 
   NavigationTransitionFrame _navigatingTo(double t, bool rtl) {
     switch (this) {
       case entrance:
         if (t < _exitEnd) return .hidden;
         return NavigationTransitionFrame(dy: FluentMotion.entranceOffset * (1.0 - _enter(t)));
-      case slide:
+      case slide || slideFromLeading:
         if (t < _exitEnd) return .hidden;
         return NavigationTransitionFrame(
           dx: _side(rtl) * FluentMotion.slideEnterOffset * (1.0 - _enter(t)),
@@ -84,7 +91,7 @@ enum FluentNavigationTransition {
       case entrance:
         if (t >= _exitEnd) return .hidden;
         return NavigationTransitionFrame(opacity: 1.0 - _exit(t));
-      case slide:
+      case slide || slideFromLeading:
         if (t >= _exitEnd) return .hidden;
         return NavigationTransitionFrame(
           dx: -_side(rtl) * FluentMotion.slideExitOffset * _exit(t),
@@ -105,7 +112,7 @@ enum FluentNavigationTransition {
       case entrance:
         if (t >= _exitEnd) return .hidden;
         return NavigationTransitionFrame(dy: FluentMotion.entranceOffset * _exit(t));
-      case slide:
+      case slide || slideFromLeading:
         if (t >= _exitEnd) return .hidden;
         return NavigationTransitionFrame(
           dx: _side(rtl) * FluentMotion.slideEnterOffset * _exit(t),
@@ -127,7 +134,7 @@ enum FluentNavigationTransition {
       case entrance:
         if (t < _exitEnd) return .hidden;
         return NavigationTransitionFrame(opacity: _enter(t));
-      case slide:
+      case slide || slideFromLeading:
         if (t < _exitEnd) return .hidden;
         return NavigationTransitionFrame(
           dx: -_side(rtl) * FluentMotion.slideExitOffset * (1.0 - _enter(t)),

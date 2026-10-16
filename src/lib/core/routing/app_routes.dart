@@ -178,7 +178,10 @@ class AppRoutes() {
       key: state.pageKey,
       name: state.name,
       restorationId: state.pageKey.value,
-      transition: transition,
+      transition: switch (state.extra) {
+        final FluentNavigationTransition override => override,
+        _ => transition,
+      },
       child: child,
     );
   }
