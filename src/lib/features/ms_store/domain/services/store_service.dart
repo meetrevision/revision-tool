@@ -14,6 +14,7 @@ import '../../data/repositories/ms_store_repository.dart';
 import '../../data/services/package_file_service.dart';
 
 import '../entities/package_info.dart';
+import '../entities/package_version.dart';
 import '../entities/product_details.dart';
 import '../entities/search_product.dart';
 import '../entities/store_download_info.dart';
@@ -110,6 +111,28 @@ final class const StoreService({
       return _win32Repository.getProductDetails(productId);
     });
   }
+
+  Future<Result<String?>> getPackageFamilyName(String productId) => run(() async {
+    final String id = productId.toUpperCase();
+    if (StoreAppType.fromProductId(id) != .uwp) return null;
+    return _uwpRepository.getPackageFamilyName(id);
+  });
+
+  Future<Result<bool>> isUpdateAvailable({
+    required String productId,
+    required String familyName,
+    required String installedVersion,
+    StoreRing ring = .releasePreview,
+  }) => run(() async {
+    final PackageVersion? installed = PackageVersion.tryParse(installedVersion);
+    if (installed == null) return false;
+    final ISet<PackageInfo> packages = await _uwpRepository.getPackages(
+      productId: productId.toUpperCase(),
+      ring: ring,
+    );
+    final PackageVersion? latest = latestPackageVersion(packages, familyName: familyName);
+    return latest != null && latest > installed;
+  });
 
   Future<Result<StorePackagesByProductId>> getPackages({
     required Iterable<String> productIds,

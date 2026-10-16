@@ -52,9 +52,10 @@ sealed class Skus with _$Skus {
 @freezed
 sealed class FulfillmentData with _$FulfillmentData {
   const factory({
-    // Only WuCategoryId is used to call FE3 SyncUpdates.
-    // WuBundleId and PackageFamilyName are not needed.
+    // WuCategoryId is used to call FE3 SyncUpdates. PackageFamilyName links
+    // the product to its installed AppX package. WuBundleId is not needed.
     @JsonKey(name: 'WuCategoryId') String? wuCategoryId,
+    @JsonKey(name: 'PackageFamilyName') String? packageFamilyName,
   }) = _FulfillmentData;
 
   factory fromJson(Map<String, Object?> json) => _$FulfillmentDataFromJson(json);

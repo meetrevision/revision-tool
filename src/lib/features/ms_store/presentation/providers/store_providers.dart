@@ -389,6 +389,33 @@ class StoreProductDetails() extends _$StoreProductDetails {
   Future<void> refresh() async => ref.invalidateSelf();
 }
 
+@riverpod
+Future<String?> storeProductPackageFamilyName(Ref ref, String productId) async {
+  final Result<String?> result = await ref
+      .read(storeServiceProvider)
+      .getPackageFamilyName(productId);
+  return result.when(success: (name) => name, failure: (error) => throw error);
+}
+
+@riverpod
+Future<bool> storeProductUpdateAvailable(
+  Ref ref,
+  String productId,
+  String familyName,
+  String installedVersion,
+) async {
+  final StoreRing ring = ref.watch(storeControllerProvider.select((s) => s.ring));
+  final Result<bool> result = await ref
+      .read(storeServiceProvider)
+      .isUpdateAvailable(
+        productId: productId,
+        familyName: familyName,
+        installedVersion: installedVersion,
+        ring: ring,
+      );
+  return result.when(success: (available) => available, failure: (error) => throw error);
+}
+
 @Riverpod(keepAlive: true)
 Future<IList<Color>?> msStoreProductPalette(
   Ref ref,

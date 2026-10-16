@@ -4,7 +4,7 @@ import '../../data/appx_repository.dart';
 
 /// Installed or provisioned AppX package identity.
 final class const AppxPackage({
-  /// Full package identity (`Name.Version.Architecture_PublisherId`).
+  /// Full package identity (`Name_Version_Architecture_ResourceId_PublisherId`).
   required final String fullName,
 
   /// Package family name (`Name_PublisherId`).
@@ -12,7 +12,9 @@ final class const AppxPackage({
 
   /// Whether the package is currently installed for any user.
   required final bool installed,
-});
+}) {
+  String get version => fullName.split('_').elementAtOrNull(1) ?? '';
+}
 
 /// User installation state for an AppX package.
 final class const AppxPackageUser({

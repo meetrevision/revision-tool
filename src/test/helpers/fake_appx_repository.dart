@@ -39,6 +39,8 @@ final class FakeAppxRepository({
   final Exception? bridgeError,
   final Exception? readError,
   final Exception? storeKeyError,
+  final List<PackageIdentityModel> currentUserRows = const [],
+  final List<String> appIds = const [],
 }) implements AppxRepository {
   final List<String> removedFullNames = [];
   final List<bool> preserveRoamingCalls = [];
@@ -48,6 +50,7 @@ final class FakeAppxRepository({
   final List<String> markedDeprovisioned = [];
   final List<String> removedInboxApps = [];
   final List<Set<String>> scheduledRunOnce = [];
+  final List<String> launchedAppIds = [];
   int _outcomeIndex = 0;
 
   @override
@@ -72,6 +75,24 @@ final class FakeAppxRepository({
     await loadBridge();
     if (readError case final Exception error) throw error;
     return users;
+  }
+
+  @override
+  Future<List<PackageIdentityModel>> findForCurrentUser({required String familyName}) async {
+    await loadBridge();
+    if (readError case final Exception error) throw error;
+    return currentUserRows.where((r) => r.familyName == familyName).toList();
+  }
+
+  @override
+  Future<List<String>> appUserModelIds({required String fullName}) async {
+    await loadBridge();
+    return appIds;
+  }
+
+  @override
+  Future<void> launchApp({required String appUserModelId}) async {
+    launchedAppIds.add(appUserModelId);
   }
 
   @override

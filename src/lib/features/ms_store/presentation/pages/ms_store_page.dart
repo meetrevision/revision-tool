@@ -21,7 +21,12 @@ class const MSStorePage({super.key}) extends ConsumerStatefulWidget {
 
 class _MSStorePageState() extends ConsumerState<MSStorePage> {
   final _textEditingController = TextEditingController();
-  static const _spacing = 16.0;
+  static const _spacing = 18.0;
+  static const _maxColumns = 6;
+
+  static const _resultsTopGap = 18.0;
+
+  static final _horizontalPagePadding = kScaffoldPagePadding.copyWith(top: 0, bottom: 0);
 
   @override
   void dispose() {
@@ -39,6 +44,11 @@ class _MSStorePageState() extends ConsumerState<MSStorePage> {
     } else {
       await ref.read(storeControllerProvider.notifier).search(query);
     }
+  }
+
+  void _openProduct(SearchProduct product) {
+    if (product.id.isEmpty) return;
+    unawaited(context.push('${RouteMeta.msStore.path}/product/${product.id}', extra: product));
   }
 
   String? _extractProductId(String query) {
@@ -60,60 +70,68 @@ class _MSStorePageState() extends ConsumerState<MSStorePage> {
     final StoreRing selectedRing = ref.watch(storeControllerProvider.select((s) => s.ring));
 
     return ScaffoldPage(
-      padding: kScaffoldPagePadding,
-      header: Row(
-        spacing: 10,
-        children: [
-          Expanded(
-            child: TextBox(
-              controller: _textEditingController,
-              placeholder: t.search,
-              onSubmitted: (_) => _onSearchButtonPressed(),
+      padding: EdgeInsets.only(top: kScaffoldPagePadding.top),
+      header: Padding(
+        padding: _horizontalPagePadding,
+        child: Row(
+          spacing: 10,
+          children: [
+            Expanded(
+              child: TextBox(
+                controller: _textEditingController,
+                placeholder: t.search,
+                onSubmitted: (_) => _onSearchButtonPressed(),
+              ),
             ),
-          ),
-          Semantics(
-            label: t.msstoreRing,
-            child: ComboBox<StoreRing>(
-              value: selectedRing,
-              onChanged: (value) {
-                if (value == null) return;
-                ref.read(storeControllerProvider.notifier).setRing(value);
-              },
-              items: StoreRing.values.map((ring) {
-                return ComboBoxItem(value: ring, child: Text(ring.label));
-              }).toList(),
+            Semantics(
+              label: t.msstoreRing,
+              child: ComboBox<StoreRing>(
+                value: selectedRing,
+                onChanged: (value) {
+                  if (value == null) return;
+                  ref.read(storeControllerProvider.notifier).setRing(value);
+                },
+                items: StoreRing.values.map((ring) {
+                  return ComboBoxItem(value: ring, child: Text(ring.label));
+                }).toList(),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-
       content: searchState.when(
         data: (products) {
           if (products.isEmpty) return const SizedBox.shrink();
 
           return LayoutBuilder(
             builder: (context, constraints) {
+              final double gridWidth = constraints.maxWidth - kScaffoldPagePadding.horizontal;
               final int crossAxisCount =
-                  (constraints.maxWidth / (MSStoreProductCard.cardHeight / 1.22 + _spacing))
-                      .floor()
-                      .clamp(1, 6);
+                  ((gridWidth + _spacing) / (MSStoreProductCard.idealWidth + _spacing))
+                      .round()
+                      .clamp(1, _maxColumns);
+              final double cardWidth =
+                  (gridWidth - _spacing * (crossAxisCount - 1)) / crossAxisCount;
 
-              return GridView.count(
-                padding: kScaffoldPagePadding,
-                crossAxisCount: crossAxisCount,
-                mainAxisSpacing: _spacing,
-                crossAxisSpacing: _spacing,
-                children: products
-                    .map((p) {
-                      return MSStoreProductCard(
-                        product: p,
-                        onPressed: () {
-                          if (p.id.isEmpty) return;
-                          context.push('${RouteMeta.msStore.path}/product/${p.id}', extra: p);
-                        },
-                      );
-                    })
-                    .toList(growable: false),
+              return GridView.builder(
+                padding: kScaffoldPagePadding.copyWith(top: _resultsTopGap),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  mainAxisSpacing: _spacing,
+                  crossAxisSpacing: _spacing,
+                  mainAxisExtent: MSStoreProductCard.heightFor(
+                    cardWidth,
+                    MediaQuery.textScalerOf(context),
+                  ),
+                ),
+                itemCount: products.length,
+                itemBuilder: (context, index) {
+                  final SearchProduct product = products[index];
+                  return MSStoreProductCard(
+                    product: product,
+                    onPressed: () => _openProduct(product),
+                  );
+                },
               );
             },
           );

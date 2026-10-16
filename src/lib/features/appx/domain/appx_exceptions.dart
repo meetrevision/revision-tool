@@ -46,6 +46,23 @@ final class AppxRemovalRefusedException extends AppxException {
       'code=0x${result.extendedErrorCode.toRadixString(16)}; ${result.errorText}';
 }
 
+final class AppxPackageNotInstalledException extends AppxException {
+  // Constructed message quotes the family name.
+  // ignore: use_primary_constructors, unnecessary_type_name_in_constructor
+  AppxPackageNotInstalledException(this.familyName)
+    : super('$familyName is not installed for the current user');
+
+  final String familyName;
+}
+
+final class AppxNotLaunchableException extends AppxException {
+  // Constructed message quotes the package name.
+  // ignore: use_primary_constructors, unnecessary_type_name_in_constructor
+  AppxNotLaunchableException(this.fullName) : super('$fullName has no app to open');
+
+  final String fullName;
+}
+
 /// Thrown when package enumeration fails.
 final class AppxEnumerationException(super.message, [super.reason]) extends AppxException {
   @override

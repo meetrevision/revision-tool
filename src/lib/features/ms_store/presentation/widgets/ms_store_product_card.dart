@@ -4,14 +4,26 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
 
 import '../../../../core/widgets/app_image.dart';
-import '../../../../core/widgets/card_highlight.dart';
 import '../../../../extensions.dart';
 import '../../../../i18n/generated/strings.g.dart';
 import '../../domain/entities/search_product.dart';
+import 'ms_store_product_icon.dart';
 
 const BorderRadius _cardRadius = .all(.circular(8.0));
-const _iconXY = 64.0;
-const _innerPadding = 11.0;
+const _iconXY = 56.0;
+const _iconRadius = 4.0;
+const _innerPadding = 16.0;
+const _sectionGap = 12.0;
+const _headerSpacing = 12.0;
+const _titleFontSize = 14.0;
+const _titleLineHeight = 20.0;
+const _titleMaxLines = 2;
+const _captionFontSize = 12.0;
+const _captionLineHeight = 16.0;
+const _descriptionMaxLines = 2;
+const _posterAspectRatio = 1.71;
+const _posterRadius = 4.0;
+const EdgeInsets _pillPadding = .symmetric(horizontal: 8, vertical: 2);
 const _cardBorder = 1.5;
 const _hoverScale = 1.05;
 
@@ -20,9 +32,16 @@ class const MSStoreProductCard({
   required final SearchProduct product,
   final VoidCallback? onPressed,
 }) extends StatefulWidget {
-  /// Fixed grid row height — poster fills the remaining space, so the card is
-  /// width-independent and never overflows its cell.
-  static const cardHeight = 366.0;
+  static const idealWidth = 366.0;
+
+  static double heightFor(double width, TextScaler textScaler) {
+    final double titleBlock =
+        textScaler.scale(_titleLineHeight) * _titleMaxLines + textScaler.scale(_captionLineHeight);
+    final double header = titleBlock > _iconXY ? titleBlock : _iconXY;
+    final double description = textScaler.scale(_captionLineHeight) * _descriptionMaxLines;
+    final double poster = (width - _innerPadding * 2) / _posterAspectRatio;
+    return _innerPadding * 2 + header + _sectionGap + description + _sectionGap + poster;
+  }
 
   @override
   State<MSStoreProductCard> createState() => _MSStoreProductCardState();
@@ -55,6 +74,17 @@ class _MSStoreProductCardState() extends State<MSStoreProductCard> {
     if (!_overlayController.isShowing) _extendedHoverNotifier.value = false;
   }
 
+  VoidCallback? get _onPressed {
+    if (widget.onPressed case final onPressed?) {
+      return () {
+        _hoverTimer?.cancel();
+        _hideOverlay();
+        onPressed();
+      };
+    }
+    return null;
+  }
+
   void _hideOverlay() {
     if (!_overlayController.isShowing) return;
     _overlayController.hide();
@@ -66,54 +96,6 @@ class _MSStoreProductCardState() extends State<MSStoreProductCard> {
     _hoverTimer?.cancel();
     _extendedHoverNotifier.dispose();
     super.dispose();
-  }
-
-  Widget _buildContent(BuildContext context) {
-    final ResourceDictionary resources = context.theme.resources;
-    // Use domain entity. Title and displayPrice are always non-empty strings.
-    // Empty title means fallback to unknown label.
-    final String title = widget.product.title.isEmpty ? t.msstoreUnknown : widget.product.title;
-    final String price = widget.product.displayPrice.isEmpty
-        ? t.msstoreUnknown
-        : widget.product.displayPrice;
-    return Column(
-      mainAxisSize: .min,
-      crossAxisAlignment: .stretch,
-      children: [
-        CardListTile(
-          leading: _buildLeadingIcon(context),
-          title: title,
-          description: widget.product.productFamilyName.isEmpty
-              ? null
-              : widget.product.productFamilyName,
-          trailing: ValueListenableBuilder<bool>(
-            valueListenable: _extendedHoverNotifier,
-            builder: (context, value, _) =>
-                _HoverGetButton(isHovered: value, trailingText: price, onPressed: widget.onPressed),
-          ),
-          extraTrailingPadding: false,
-          contentPadding: const .fromLTRB(0, 0, 10, 0),
-        ),
-        Padding(
-          padding: const .all(6.0),
-          child: Text(
-            widget.product.description,
-            maxLines: 2,
-            overflow: .ellipsis,
-            style: TextStyle(color: resources.textFillColorSecondary, fontSize: 12),
-            textAlign: .start,
-          ),
-        ),
-        // Poster URL is chosen in DTO.toDomain() with fallback to images.
-        // Empty posterUrl means no image. Show placeholder icon.
-        Expanded(
-          child: _Poster(
-            posterUrl: widget.product.posterUrl,
-            backgroundColor: widget.product.posterBackgroundColor,
-          ),
-        ),
-      ],
-    );
   }
 
   Widget _buildOverlay(BuildContext context) {
@@ -164,7 +146,14 @@ class _MSStoreProductCardState() extends State<MSStoreProductCard> {
                     ),
                     child: Padding(
                       padding: const .all(_innerPadding),
-                      child: _buildContent(context),
+                      child: HeroMode(
+                        enabled: false,
+                        child: _CardContent(
+                          product: widget.product,
+                          extendedHover: _extendedHoverNotifier,
+                          onPressed: _onPressed,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -187,7 +176,7 @@ class _MSStoreProductCardState() extends State<MSStoreProductCard> {
         controller: _overlayController,
         overlayChildBuilder: _buildOverlay,
         child: HoverButton(
-          onPressed: widget.onPressed,
+          onPressed: _onPressed,
           builder: (_, states) => CompositedTransformTarget(
             link: _layerLink,
             child: FocusBorder(
@@ -212,7 +201,11 @@ class _MSStoreProductCardState() extends State<MSStoreProductCard> {
                                 : resources.cardBackgroundFillColorSecondary)
                           : Colors.transparent,
                     ),
-                    child: _buildContent(context),
+                    child: _CardContent(
+                      product: widget.product,
+                      extendedHover: _extendedHoverNotifier,
+                      onPressed: _onPressed,
+                    ),
                   ),
                 ),
               ),
@@ -222,17 +215,113 @@ class _MSStoreProductCardState() extends State<MSStoreProductCard> {
       ),
     );
   }
+}
 
-  Widget _buildLeadingIcon(BuildContext context) {
-    final String iconUrl = widget.product.iconUrl;
-    if (iconUrl.isEmpty) {
-      return const Icon(msicons.FluentIcons.store_microsoft_24_regular, size: _iconXY - 6);
-    }
+class const _CardContent({
+  required final SearchProduct product,
+  required final ValueNotifier<bool> extendedHover,
+  required final VoidCallback? onPressed,
+}) extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final ResourceDictionary resources = context.theme.resources;
+    // Use domain entity. Title and displayPrice are always non-empty strings.
+    // Empty title means fallback to unknown label.
+    final String title = product.title.isEmpty ? t.msstoreUnknown : product.title;
+    final String price = product.displayPrice.isEmpty
+        ? t.msstoreUnknown
+        : product.displayPrice;
+    return Column(
+      crossAxisAlignment: .stretch,
+      children: [
+        _CardHeader(
+          product: product,
+          title: title,
+          trailing: ValueListenableBuilder<bool>(
+            valueListenable: extendedHover,
+            builder: (context, value, _) =>
+                _HoverGetButton(isHovered: value, trailingText: price, onPressed: onPressed),
+          ),
+        ),
+        const SizedBox(height: _sectionGap),
+        Text(
+          product.description,
+          maxLines: _descriptionMaxLines,
+          overflow: .ellipsis,
+          style: TextStyle(
+            color: resources.textFillColorSecondary,
+            fontSize: _captionFontSize,
+            height: _captionLineHeight / _captionFontSize,
+          ),
+        ),
+        const SizedBox(height: _sectionGap),
+        // Poster URL is chosen in DTO.toDomain() with fallback to images.
+        // Empty posterUrl means no image. Show placeholder icon.
+        Expanded(
+          child: _Poster(
+            posterUrl: product.posterUrl,
+            backgroundColor: product.posterBackgroundColor,
+          ),
+        ),
+      ],
+    );
+  }
+}
 
-    return SizedBox(
-      width: _iconXY,
-      height: _iconXY,
-      child: AppImage(fetchPadding: 0, baseUrl: iconUrl, borderRadius: const .all(.circular(4.0))),
+class const _CardHeader({
+  required final SearchProduct product,
+  required final String title,
+  required final Widget trailing,
+}) extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final FluentThemeData theme = context.theme;
+
+    return Row(
+      crossAxisAlignment: .start,
+      spacing: _headerSpacing,
+      children: [
+        MSStoreProductIcon(
+          productId: product.id,
+          iconUrl: product.iconUrl,
+          size: _iconXY,
+          borderRadius: _iconRadius,
+          placeholder: const SizedBox.square(
+            dimension: _iconXY,
+            child: Icon(msicons.FluentIcons.store_microsoft_24_regular, size: _iconXY - 6),
+          ),
+        ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: .start,
+            children: [
+              Text(
+                title,
+                maxLines: _titleMaxLines,
+                overflow: .ellipsis,
+                style: TextStyle(
+                  fontSize: _titleFontSize,
+                  height: _titleLineHeight / _titleFontSize,
+                  fontWeight: .w600,
+                  color: theme.resources.textFillColorPrimary,
+                ),
+              ),
+              if (product.productFamilyName.isNotEmpty)
+                Text(
+                  product.productFamilyName,
+                  maxLines: 1,
+                  overflow: .ellipsis,
+                  style: TextStyle(
+                    fontSize: _captionFontSize,
+                    height: _captionLineHeight / _captionFontSize,
+                    color: theme.resources.textFillColorSecondary,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        trailing,
+      ],
     );
   }
 }
@@ -251,12 +340,14 @@ class const _HoverGetButton({
       child: isHovered
           ? FilledButton(
               key: const ValueKey('get-button'),
+              style: const ButtonStyle(padding: WidgetStatePropertyAll(_pillPadding)),
               onPressed: onPressed,
               child: Text(t.get, style: const TextStyle(fontWeight: .bold)),
             )
           : FilledButton(
               key: const ValueKey('price-button'),
               style: ButtonStyle(
+                padding: const WidgetStatePropertyAll(_pillPadding),
                 backgroundColor: .all(resources.cardBackgroundFillColorSecondary),
                 foregroundColor: .all(resources.textFillColorSecondary),
               ),
@@ -280,30 +371,26 @@ class const _Poster({required final String posterUrl, required final String back
         ? Color(int.parse(backgroundColor.replaceFirst('#', '0xFF')))
         : resources.cardBackgroundFillColorSecondary;
 
-    return Padding(
-      padding: const .all(7),
+    final placeholder = Icon(
+      msicons.FluentIcons.image_24_regular,
+      size: 48,
+      color: resources.textFillColorSecondary,
+    );
+    const BorderRadius radius = .all(.circular(_posterRadius));
+
+    return DecoratedBox(
+      position: .foreground,
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        border: .all(color: resources.controlStrokeColorDefault),
+      ),
       child: ClipRRect(
-        clipBehavior: .hardEdge,
-        borderRadius: const .all(.circular(6.0)),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: bg,
-            border: .all(color: resources.cardBackgroundFillColorSecondary, width: 1.5),
-          ),
+        borderRadius: radius,
+        child: ColoredBox(
+          color: bg,
           child: posterUrl.isEmpty
-              ? Icon(
-                  msicons.FluentIcons.image_24_regular,
-                  size: 48,
-                  color: resources.textFillColorSecondary,
-                )
-              : AppImage(
-                  baseUrl: posterUrl,
-                  errorWidget: Icon(
-                    msicons.FluentIcons.image_24_regular,
-                    size: 48,
-                    color: resources.textFillColorSecondary,
-                  ),
-                ),
+              ? placeholder
+              : AppImage(baseUrl: posterUrl, errorWidget: placeholder),
         ),
       ),
     );

@@ -194,6 +194,44 @@ pub async fn find_users(full_name: String) -> Result<Vec<PackageUserState>> {
     collect_users(&users)
 }
 
+/// Finds packages in family `family_name` installed for the calling user.
+pub async fn find_for_current_user(family_name: String) -> Result<Vec<PackageIdentity>> {
+    // An empty security ID means the calling user.
+    let packages = manager()?
+        .FindPackagesByUserSecurityIdPackageFamilyName(
+            &HSTRING::new(),
+            &HSTRING::from(family_name.as_str()),
+        )
+        .context("FindPackagesByUserSecurityIdPackageFamilyName")?;
+    collect_packages(&packages)
+}
+
+/// Lists the Application User Model IDs of the apps in `full_name` that are
+/// installed for the calling user, in Start menu order.
+///
+/// Launch one with `explorer.exe shell:AppsFolder\<id>`, which also starts it
+/// unelevated when the caller runs as administrator.
+pub async fn app_user_model_ids(full_name: String) -> Result<Vec<String>> {
+    let package = manager()?
+        .FindPackageByUserSecurityIdPackageFullName(
+            &HSTRING::new(),
+            &HSTRING::from(full_name.as_str()),
+        )
+        .context("FindPackageByUserSecurityIdPackageFullName")?;
+    let entries = package
+        .GetAppListEntriesAsync()
+        .context("Package::GetAppListEntriesAsync")?
+        .await
+        .context("Package::GetAppListEntriesAsync")?;
+    let iterator = entries.First().context("IVectorView::First")?;
+    collect(&iterator, |entry| {
+        Ok(entry
+            .AppUserModelId()
+            .context("AppListEntry::AppUserModelId")?
+            .to_string())
+    })
+}
+
 /// Lists packages installed for user `sid`.
 pub async fn list_for_user(sid: String) -> Result<Vec<PackageIdentity>> {
     let packages = manager()?

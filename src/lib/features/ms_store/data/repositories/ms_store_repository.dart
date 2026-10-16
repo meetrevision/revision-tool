@@ -59,6 +59,12 @@ abstract base class const StoreRepository() {
 
   Future<ISet<PackageInfo>> getPackages({required String productId, required StoreRing ring});
 
+  Future<String?> getPackageFamilyName(
+    String productId, {
+    String market = 'US',
+    String locale = 'en-us',
+  }) async => null;
+
   Future<String> getPackageDownloadUrl({
     required PackageInfo package,
     required StoreRing ring,
@@ -180,6 +186,26 @@ final class const UwpStoreRepository({
       ring: ring.value,
       digest: package.correlationDigest,
     );
+  }
+
+  @override
+  Future<String?> getPackageFamilyName(
+    String productId, {
+    String market = 'US',
+    String locale = 'en-us',
+  }) async {
+    final ProductDto product = await edge.getProductCategory(
+      productId,
+      market: market,
+      locale: locale,
+    );
+    final IList<Skus> skus = product.payload?.skus ?? const .empty();
+    for (final sku in skus) {
+      if (sku.fulfillmentData?.packageFamilyName?.trim() case final name? when name.isNotEmpty) {
+        return name;
+      }
+    }
+    return null;
   }
 
   static void clearSession() => Fe3DeliveryClient.clearSession();

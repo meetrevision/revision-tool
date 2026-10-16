@@ -32,6 +32,12 @@ abstract interface class AppxRepository() {
   /// Lists all users associated with [fullName].
   Future<List<PackageUserStateModel>> findUsers({required String fullName});
 
+  Future<List<PackageIdentityModel>> findForCurrentUser({required String familyName});
+
+  Future<List<String>> appUserModelIds({required String fullName});
+
+  Future<void> launchApp({required String appUserModelId});
+
   /// Removes [fullName] for the current user or all users.
   Future<RemovalOutcomeModel> removePackage({
     required String fullName,
@@ -96,6 +102,27 @@ final class NativeAppxRepository() implements AppxRepository {
   Future<List<PackageUserStateModel>> findUsers({required String fullName}) async {
     await loadBridge();
     return bridge.findUsers(fullName: fullName);
+  }
+
+  @override
+  Future<List<PackageIdentityModel>> findForCurrentUser({required String familyName}) async {
+    await loadBridge();
+    return bridge.findForCurrentUser(familyName: familyName);
+  }
+
+  @override
+  Future<List<String>> appUserModelIds({required String fullName}) async {
+    await loadBridge();
+    return bridge.appUserModelIds(fullName: fullName);
+  }
+
+  @override
+  Future<void> launchApp({required String appUserModelId}) async {
+    await Process.start(
+      'explorer.exe',
+      ['shell:AppsFolder\\$appUserModelId'],
+      mode: .detached,
+    );
   }
 
   @override

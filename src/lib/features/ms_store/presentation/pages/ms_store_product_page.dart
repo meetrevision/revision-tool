@@ -1,14 +1,20 @@
+import 'dart:async';
+
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as msicons;
+import 'package:flutter/semantics.dart' show SemanticsService;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/di/injection.dart';
+import '../../../../core/error/result.dart';
 import '../../../../core/extensions/int_bytes.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/settings/app_settings_provider.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../../../core/widgets/card_highlight.dart';
+import '../../../../core/widgets/loading_dialog.dart';
 import '../../../../core/widgets/pips_pager.dart';
 import '../../../../core/widgets/stacked_gradients.dart';
 import '../../../../extensions.dart';
@@ -16,11 +22,20 @@ import '../../../../i18n/generated/strings.g.dart';
 import '../../../../utils_gui.dart';
 import '../../domain/entities/download_state.dart';
 import '../../domain/entities/product_details.dart';
+import '../../domain/entities/search_product.dart';
 import '../../domain/entities/store_download_info.dart';
+import '../providers/ms_store_image_provider.dart';
 import '../providers/store_providers.dart';
 import '../widgets/ms_store_download_widget.dart';
+import '../widgets/ms_store_product_icon.dart';
 
 const BorderRadius _borderRadiusTop = .only(topLeft: .circular(8), topRight: .circular(8));
+const _heroIconSize = 100.0;
+const _heroIconRadius = 8.0;
+const _heroPadding = 40.0;
+const _heroWideSpacing = 23.5;
+const _heroNarrowSpacing = 12.0;
+const _wideScreenBreakpoint = 550.0;
 
 Color parseHexColor(String hexColor) {
   try {
@@ -30,8 +45,11 @@ Color parseHexColor(String hexColor) {
   }
 }
 
-class const MSStoreProductPage({super.key, required final String productId})
-    extends ConsumerStatefulWidget {
+class const MSStoreProductPage({
+  super.key,
+  required final String productId,
+  final SearchProduct? preview,
+}) extends ConsumerStatefulWidget {
   @override
   ConsumerState<MSStoreProductPage> createState() => _MSStoreProductPageState();
 }
@@ -39,6 +57,8 @@ class const MSStoreProductPage({super.key, required final String productId})
 class _MSStoreProductPageState() extends ConsumerState<MSStoreProductPage> {
   late final ScrollController _scrollController;
   late final ValueNotifier<bool> _showStickyCard;
+
+  final GlobalKey<State<StatefulWidget>> _heroIconKey = GlobalKey(debugLabel: 'Product icon');
 
   @override
   void initState() {
@@ -89,10 +109,7 @@ class _MSStoreProductPageState() extends ConsumerState<MSStoreProductPage> {
           ],
         );
       },
-      loading: () => ScaffoldPage.scrollable(
-        padding: kScaffoldPagePadding,
-        children: const [Center(child: ProgressRing())],
-      ),
+      loading: () => _ProductLoadingView(preview: widget.preview, iconKey: _heroIconKey),
       error: (error, stack) => ScaffoldPage.scrollable(
         padding: kScaffoldPagePadding,
         children: [Center(child: Text(t.msstoreProductLoadError(error: error)))],
@@ -102,7 +119,11 @@ class _MSStoreProductPageState() extends ConsumerState<MSStoreProductPage> {
 
   List<Widget> _buildContent(BuildContext context, WidgetRef ref, ProductDetails details) {
     return [
-      _HeroSection(details: details, onGet: () => _showInstallDialog(context, ref)),
+      _HeroSection(
+        details: details,
+        iconKey: _heroIconKey,
+        onGet: () => _showInstallDialog(context, ref),
+      ),
       const SizedBox(height: 50),
       if (details.screenshots.isNotEmpty) ...[
         _ContentCards(
@@ -184,8 +205,11 @@ class const _ContentCards({required final String title, required final Widget co
   }
 }
 
-class const _HeroSection({required final ProductDetails details, required final VoidCallback onGet})
-    extends ConsumerWidget {
+class const _HeroSection({
+  required final ProductDetails details,
+  required final Key iconKey,
+  required final VoidCallback onGet,
+}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final FluentThemeData theme = context.theme;
@@ -196,7 +220,7 @@ class const _HeroSection({required final ProductDetails details, required final 
 
     const divider = Divider(size: 16, direction: .vertical);
 
-    final bool isWideScreen = MediaQuery.widthOf(context) >= 550;
+    final bool isWideScreen = MediaQuery.widthOf(context) >= _wideScreenBreakpoint;
     final AsyncValue<IList<Color>?> paletteAsync = details.heroImageUrl.isNotEmpty
         ? ref.watch(msStoreProductPaletteProvider(details.id, details.heroImageUrl))
         : const AsyncValue.data(null);
@@ -220,80 +244,84 @@ class const _HeroSection({required final ProductDetails details, required final 
         constraints: BoxConstraints(minHeight: minHeight),
         child: Stack(
           children: [
-            if (details.heroImageUrl.isNotEmpty)
-              Positioned.fill(
-                child: Align(
-                  alignment: .centerRight,
-                  child: ClipRRect(
-                    clipBehavior: .hardEdge,
-                    borderRadius: _borderRadiusTop,
-                    child: Image.network(
-                      details.heroImageUrl,
-                      alignment: .centerRight,
-                      gaplessPlayback: true,
-                      cacheHeight: minHeight.toInt(),
-                    ),
-                  ),
-                ),
-              ),
             Positioned.fill(
-              child: ClipRRect(
-                clipBehavior: .hardEdge,
-                borderRadius: _borderRadiusTop,
-                child: paletteAsync.when(
-                  data: (palette) {
-                    return palette != null && palette.isNotEmpty
-                        ? Transform.scale(
-                            // without this and ClipRRect's clipBehavior set to hardEdge, RadialGradient renders edge border lines when the gradient's focal point is near the edge
-                            scale: 1.01,
-                            child: StackedGradient([
-                              RadialGradient(
-                                // center: const Alignment(0.99, 0.0),
-                                center: .centerRight,
-                                radius: 1.5,
-                                focal: isWideScreen ? .center : .topRight,
-                                colors: [
-                                  Colors.transparent,
-                                  palette.elementAt(1),
-                                  palette.elementAt(1),
-                                ],
-                                stops: isWideScreen ? null : const [0, 0.1, 0.2],
-                              ),
-                              LinearGradient(
-                                begin: .center,
-                                end: .bottomCenter,
-                                colors: [
-                                  palette.first.withAlpha(140),
-                                  darkTheme.scaffoldBackgroundColor.withAlpha(50),
-                                ],
-                              ),
-                              LinearGradient(
-                                begin: .topLeft,
-                                end: .bottomRight,
-                                stops: const [0, 0.5, 1],
-                                colors: [
-                                  darkTheme.scaffoldBackgroundColor.withAlpha(250),
-                                  Colors.transparent,
-                                  darkTheme.scaffoldBackgroundColor.withAlpha(250),
-                                ],
-                              ),
-                              LinearGradient(
-                                begin: .center,
-                                end: .bottomCenter,
-                                stops: const [0.2, 1],
-                                colors: [Colors.transparent, context.theme.scaffoldBackgroundColor],
-                              ),
-                            ]),
-                          )
-                        : decoratedBox;
-                  },
-                  loading: () => decoratedBox,
-                  error: (_, _) => decoratedBox,
+              child: _HeroBackground(
+                builder: (_, onBannerFrame) => Stack(
+                  fit: .expand,
+                  children: [
+                    if (details.heroImageUrl.isNotEmpty)
+                      Align(
+                        alignment: .centerRight,
+                        child: ClipRRect(
+                          clipBehavior: .hardEdge,
+                          borderRadius: _borderRadiusTop,
+                          child: _HeroBanner(
+                            url: details.heroImageUrl,
+                            height: minHeight,
+                            onFrame: onBannerFrame,
+                          ),
+                        ),
+                      ),
+                    ClipRRect(
+                      clipBehavior: .hardEdge,
+                      borderRadius: _borderRadiusTop,
+                      child: paletteAsync.when(
+                        data: (palette) {
+                          return palette != null && palette.isNotEmpty
+                              ? Transform.scale(
+                                  // without this and ClipRRect's clipBehavior set to hardEdge, RadialGradient renders edge border lines when the gradient's focal point is near the edge
+                                  scale: 1.01,
+                                  child: StackedGradient([
+                                    RadialGradient(
+                                      // center: const Alignment(0.99, 0.0),
+                                      center: .centerRight,
+                                      radius: 1.5,
+                                      focal: isWideScreen ? .center : .topRight,
+                                      colors: [
+                                        Colors.transparent,
+                                        palette.elementAt(1),
+                                        palette.elementAt(1),
+                                      ],
+                                      stops: isWideScreen ? null : const [0, 0.1, 0.2],
+                                    ),
+                                    LinearGradient(
+                                      begin: .center,
+                                      end: .bottomCenter,
+                                      colors: [
+                                        palette.first.withAlpha(140),
+                                        darkTheme.scaffoldBackgroundColor.withAlpha(50),
+                                      ],
+                                    ),
+                                    LinearGradient(
+                                      begin: .topLeft,
+                                      end: .bottomRight,
+                                      stops: const [0, 0.5, 1],
+                                      colors: [
+                                        darkTheme.scaffoldBackgroundColor.withAlpha(250),
+                                        Colors.transparent,
+                                        darkTheme.scaffoldBackgroundColor.withAlpha(250),
+                                      ],
+                                    ),
+                                    LinearGradient(
+                                      begin: .center,
+                                      end: .bottomCenter,
+                                      stops: const [0.2, 1],
+                                      colors: [Colors.transparent, context.theme.scaffoldBackgroundColor],
+                                    ),
+                                  ]),
+                                )
+                              : decoratedBox;
+                        },
+                        loading: () => decoratedBox,
+                        error: (_, _) => decoratedBox,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
             Padding(
-              padding: const .all(40),
+              padding: const .all(_heroPadding),
               child: Wrap(
                 crossAxisAlignment: isWideScreen ? .start : .center,
                 alignment: isWideScreen ? .start : .center,
@@ -304,9 +332,11 @@ class const _HeroSection({required final ProductDetails details, required final 
                     direction: isWideScreen ? .horizontal : .vertical,
                     mainAxisSize: .min,
                     crossAxisAlignment: isWideScreen ? .start : .center,
-                    spacing: isWideScreen ? 23.5 : 12,
+                    spacing: isWideScreen ? _heroWideSpacing : _heroNarrowSpacing,
                     children: [
                       _HeroIcon(
+                        key: iconKey,
+                        productId: details.id,
                         iconUrl: details.iconUrl,
                         color: parseHexColor(details.iconUrlBackground),
                       ),
@@ -383,7 +413,11 @@ class const _HeroSection({required final ProductDetails details, required final 
                           ),
                         ),
 
-                      _InstallActionBar(productId: details.id, onGet: onGet),
+                      _InstallActionBar(
+                        productId: details.id,
+                        title: details.title.isEmpty ? t.msstoreUnknown : details.title,
+                        onGet: onGet,
+                      ),
 
                       if (details.productRatings.isNotEmpty &&
                           details.productRatings.first.ratingId != 'Microsoft:E')
@@ -514,14 +548,53 @@ class _ShareButtonState() extends State<_ShareButton> {
   }
 }
 
-class const _InstallActionBar({required final String productId, required final VoidCallback onGet})
-    extends ConsumerWidget {
+class const _InstallActionBar({
+  required final String productId,
+  required final String title,
+  required final VoidCallback onGet,
+}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final StoreDownloadState state = ref.watch(storeControllerProvider.select((s) => s.download));
     final bool active = state.isForProduct(productId);
 
-    final bool isWideScreen = MediaQuery.widthOf(context) >= 550;
+    final String? familyName = ref.watch(storeProductPackageFamilyNameProvider(productId)).value;
+    final installedPackage = switch (familyName) {
+      final name? => ref.watch(appxInstalledPackageProvider(name)),
+      null => const AsyncData(null),
+    };
+    final String? installedFamilyName = installedPackage.value != null ? familyName : null;
+
+    final bool updateAvailable = switch ((installedFamilyName, installedPackage.value?.version)) {
+      (final name?, final version?) =>
+        ref.watch(storeProductUpdateAvailableProvider(productId, name, version)).value ?? false,
+      _ => false,
+    };
+
+    if (familyName case final name?) {
+      ref.listen(storeControllerProvider.select((s) => s.download), (_, next) {
+        if (next.isForProduct(productId) && _isFinishedInstall(next)) {
+          ref.invalidate(appxInstalledPackageProvider(name));
+        }
+      });
+    }
+
+    final bool staleInstall =
+        familyName != null &&
+        installedFamilyName == null &&
+        !installedPackage.isLoading &&
+        _isFinishedInstall(state);
+
+    final VoidCallback? onOpen = switch (installedFamilyName) {
+      final name? => () => unawaited(_openApp(context, ref, familyName: name)),
+      null => null,
+    };
+    final VoidCallback? onUninstall = switch (installedFamilyName) {
+      final name? => () => unawaited(_uninstallApp(context, ref, familyName: name, title: title)),
+      null => null,
+    };
+
+    final bool isWideScreen = MediaQuery.widthOf(context) >= _wideScreenBreakpoint;
 
     return Wrap(
       crossAxisAlignment: .center,
@@ -531,14 +604,20 @@ class const _InstallActionBar({required final String productId, required final V
       children: [
         _InstallPrimaryAction(
           productId: productId,
-          state: active ? state : const .idle(),
+          state: active && !staleInstall ? state : const .idle(),
           onGet: onGet,
+          onUpdate: updateAvailable ? onGet : null,
+          onOpen: onOpen,
         ),
         Row(
           mainAxisSize: .min,
           children: [
             _ShareButton(productId: productId),
-            _InstallMoreButton(productId: productId),
+            _InstallMoreButton(
+              productId: productId,
+              onOpen: updateAvailable ? onOpen : null,
+              onUninstall: onUninstall,
+            ),
           ],
         ),
       ],
@@ -546,14 +625,113 @@ class const _InstallActionBar({required final String productId, required final V
   }
 }
 
+bool _isFinishedInstall(StoreDownloadState state) =>
+    state.maybeWhen(completed: (_, _, installed) => installed, orElse: () => false);
+
+bool _isSettled(StoreDownloadState state) => state.maybeWhen(
+  preparing: (_, _) => false,
+  downloading: (_, _, _, _, _, _) => false,
+  paused: (_, _, _, _, _, _) => false,
+  error: (_, _) => false,
+  orElse: () => true,
+);
+
+Future<void> _openApp(BuildContext context, WidgetRef ref, {required String familyName}) async {
+  final Result<void> result = await ref.read(appxServiceProvider).launch(familyName: familyName);
+  if (!context.mounted) return;
+  if (result case Failure(:final exception)) {
+    await _showAppxError(context, t.msstoreOpenFailed(error: exception.message));
+  }
+}
+
+Future<void> _uninstallApp(
+  BuildContext context,
+  WidgetRef ref, {
+  required String familyName,
+  required String title,
+}) async {
+  final bool confirmed =
+      await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => ContentDialog(
+          title: Text(t.msstoreUninstallTitle(name: title)),
+          content: Text(t.msstoreUninstallDescription),
+          actions: [
+            FilledButton(
+              child: Text(t.msstoreUninstall),
+              onPressed: () => Navigator.pop(dialogContext, true),
+            ),
+            Button(
+              autofocus: true,
+              child: Text(t.msstoreCancel),
+              onPressed: () => Navigator.pop(dialogContext, false),
+            ),
+          ],
+        ),
+      ) ??
+      false;
+  if (!confirmed || !context.mounted) return;
+
+  final NavigatorState dialogNavigator = Navigator.of(context, rootNavigator: true);
+  unawaited(showLoadingDialog(context, t.msstoreUninstalling));
+  final Result<Object?> result = await ref
+      .read(appxServiceProvider)
+      .uninstall(familyName: familyName);
+  dialogNavigator.pop();
+
+  if (!context.mounted) return;
+  ref.invalidate(appxInstalledPackageProvider(familyName));
+  if (result case Failure(:final exception)) {
+    await _showAppxError(context, t.msstoreUninstallFailed(error: exception.message));
+  } else {
+    await SemanticsService.sendAnnouncement(
+      View.of(context),
+      t.msstoreUninstalled(name: title),
+      Directionality.of(context),
+    );
+  }
+}
+
+Future<void> _showAppxError(BuildContext context, String message) {
+  return displayInfoBar(
+    context,
+    builder: (context, close) => Semantics(
+      liveRegion: true,
+      child: InfoBar(
+        title: Text(t.msstoreError),
+        content: Text(message),
+        severity: .error,
+        onClose: close,
+      ),
+    ),
+  );
+}
+
 class const _InstallPrimaryAction({
   required final String productId,
   required final StoreDownloadState state,
   required final VoidCallback onGet,
+  final VoidCallback? onUpdate,
+  final VoidCallback? onOpen,
 }) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Widget child = state.maybeWhen(
+    final Widget? installedAction = !_isSettled(state)
+        ? null
+        : switch ((onUpdate, onOpen)) {
+            (final update?, _) => _PrimaryButton(
+              key: const ValueKey('installed'),
+              label: t.msstoreUpdate,
+              onPressed: update,
+            ),
+            (null, final open?) => _PrimaryButton(
+              key: const ValueKey('installed'),
+              label: t.msstoreOpen,
+              onPressed: open,
+            ),
+            (null, null) => null,
+          };
+    final Widget child = installedAction ?? state.maybeWhen(
       preparing: (_, message) {
         final installing = message == t.msstoreInstalling;
         return _InstallProgressCard(
@@ -764,7 +942,11 @@ class const _InstallProgressCard({
   }
 }
 
-class const _InstallMoreButton({required final String productId}) extends StatefulWidget {
+class const _InstallMoreButton({
+  required final String productId,
+  final VoidCallback? onOpen,
+  final VoidCallback? onUninstall,
+}) extends StatefulWidget {
   @override
   State<_InstallMoreButton> createState() => _InstallMoreButtonState();
 }
@@ -797,7 +979,11 @@ class _InstallMoreButtonState() extends State<_InstallMoreButton> {
               autoModeConfiguration: .new(preferredMode: .bottomLeft),
               barrierColor: Colors.transparent,
               navigatorKey: rootNavigatorKey.currentState,
-              builder: (context) => _MoreMenuFlyout(productId: widget.productId),
+              builder: (context) => _MoreMenuFlyout(
+                productId: widget.productId,
+                onOpen: widget.onOpen,
+                onUninstall: widget.onUninstall,
+              ),
             );
           },
         ),
@@ -806,11 +992,28 @@ class _InstallMoreButtonState() extends State<_InstallMoreButton> {
   }
 }
 
-class const _MoreMenuFlyout({required final String productId}) extends StatelessWidget {
+class const _MoreMenuFlyout({
+  required final String productId,
+  final VoidCallback? onOpen,
+  final VoidCallback? onUninstall,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MenuFlyout(
       items: [
+        if (onOpen case final open?)
+          MenuFlyoutItem(
+            leading: const Icon(msicons.FluentIcons.open_20_regular),
+            text: Text(t.msstoreOpen),
+            onPressed: open,
+          ),
+        if (onUninstall case final uninstall?)
+          MenuFlyoutItem(
+            leading: const Icon(msicons.FluentIcons.delete_20_regular),
+            text: Text(t.msstoreUninstall),
+            onPressed: uninstall,
+          ),
+        if (onOpen != null || onUninstall != null) const MenuFlyoutSeparator(),
         MenuFlyoutItem(
           leading: const Icon(msicons.FluentIcons.line_horizontal_3_20_regular),
           text: Text(t.msstoreChoosePackagesEllipsis),
@@ -827,6 +1030,30 @@ class const _MoreMenuFlyout({required final String productId}) extends Stateless
   }
 }
 
+class const _PrimaryButton({
+  super.key,
+  required final String label,
+  required final VoidCallback? onPressed,
+}) extends StatelessWidget {
+  static const _height = 52.0;
+  static const _width = 200.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: _height,
+      width: _width,
+      child: FilledButton(
+        onPressed: onPressed,
+        child: Align(
+          alignment: .centerLeft,
+          child: Text(label, style: const TextStyle(fontWeight: .bold)),
+        ),
+      ),
+    );
+  }
+}
+
 double _overallProgress(IMap<String, double> fileProgress, int downloadedBytes, int totalBytes) {
   if (totalBytes > 0) return downloadedBytes / totalBytes;
   // Cached on the IMap instance, so repeated rebuilds within one 300ms
@@ -834,26 +1061,90 @@ double _overallProgress(IMap<String, double> fileProgress, int downloadedBytes, 
   return fileProgress.averageProgress;
 }
 
-class const _HeroIcon({required final String iconUrl, final Color? color}) extends StatelessWidget {
+/// Draws the banner and its gradients into an image once, so scrolling doesn't
+/// redraw them every frame. Redrawn when it rebuilds or the banner loads.
+class const _HeroBackground({
+  required final Widget Function(BuildContext context, VoidCallback onBannerFrame) builder,
+}) extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return iconUrl.isNotEmpty
-        ? SizedBox(
-            width: 100,
-            height: 100,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: color ?? Colors.transparent,
-                borderRadius: .circular(8),
-              ),
-              child: AppImage(fetchPadding: 0, baseUrl: iconUrl, errorWidget: _placeholder()),
-            ),
-          )
-        : _placeholder();
+  State<_HeroBackground> createState() => _HeroBackgroundState();
+}
+
+class _HeroBackgroundState() extends State<_HeroBackground> {
+  final _snapshotController = SnapshotController(allowSnapshotting: true);
+
+  @override
+  void didUpdateWidget(_HeroBackground oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _snapshotController.clear();
   }
 
-  Widget _placeholder() {
-    return const DecoratedBox(decoration: BoxDecoration(color: Colors.grey));
+  @override
+  void dispose() {
+    _snapshotController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SnapshotWidget(
+      controller: _snapshotController,
+      mode: .permissive,
+      autoresize: true,
+      child: widget.builder(context, _snapshotController.clear),
+    );
+  }
+}
+
+class const _HeroBanner({
+  required final String url,
+  required final double height,
+  required final VoidCallback onFrame,
+}) extends StatelessWidget {
+  static const _aspectRatio = 16 / 9;
+
+  static const _fetchStep = 120;
+
+  @override
+  Widget build(BuildContext context) {
+    final double pixelHeight = height * MediaQuery.devicePixelRatioOf(context);
+    final int fetchHeight = (pixelHeight / _fetchStep).ceil() * _fetchStep;
+
+    return Image(
+      image: MSStoreImageProvider(
+        baseUrl: url,
+        width: (fetchHeight * _aspectRatio).round(),
+        height: fetchHeight,
+        fetchPadding: 0,
+      ),
+      height: height,
+      fit: .cover,
+      alignment: .centerRight,
+      gaplessPlayback: true,
+      frameBuilder: (context, child, frame, _) {
+        if (frame != null) onFrame();
+        return child;
+      },
+    );
+  }
+}
+
+class const _HeroIcon({
+  super.key,
+  required final String productId,
+  required final String iconUrl,
+  final Color? color,
+}) extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MSStoreProductIcon(
+      productId: productId,
+      iconUrl: iconUrl,
+      size: _heroIconSize,
+      borderRadius: _heroIconRadius,
+      backgroundColor: color,
+      placeholder: const DecoratedBox(decoration: BoxDecoration(color: Colors.grey)),
+    );
   }
 }
 
@@ -1061,5 +1352,74 @@ class const _AdditionalInfoSection({required final ProductDetails details})
     } catch (_) {
       return dateString;
     }
+  }
+}
+
+class const _ProductLoadingView({
+  required final SearchProduct? preview,
+  required final Key iconKey,
+}) extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ScaffoldPage.scrollable(
+      padding: kScaffoldPagePadding,
+      children: [
+        if (preview case final product?) _HeroPreview(product: product, iconKey: iconKey),
+        Center(child: ProgressRing(semanticLabel: t.msstoreWait)),
+      ],
+    );
+  }
+}
+
+class const _HeroPreview({required final SearchProduct product, required final Key iconKey})
+    extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final FluentThemeData theme = context.theme;
+    final bool isWideScreen = MediaQuery.widthOf(context) >= _wideScreenBreakpoint;
+    final TextAlign textAlign = isWideScreen ? .start : .center;
+
+    return Align(
+      alignment: AlignmentDirectional.topStart,
+      child: Padding(
+        padding: const .all(_heroPadding),
+        child: Wrap(
+          crossAxisAlignment: isWideScreen ? .start : .center,
+          alignment: isWideScreen ? .start : .center,
+          children: [
+            Flex(
+              direction: isWideScreen ? .horizontal : .vertical,
+              mainAxisSize: .min,
+              crossAxisAlignment: isWideScreen ? .start : .center,
+              spacing: isWideScreen ? _heroWideSpacing : _heroNarrowSpacing,
+              children: [
+                _HeroIcon(key: iconKey, productId: product.id, iconUrl: product.iconUrl),
+                Column(
+                  mainAxisSize: .min,
+                  crossAxisAlignment: isWideScreen ? .start : .center,
+                  children: [
+                    Text(
+                      product.title.isEmpty ? t.msstoreUnknown : product.title,
+                      style: theme.typography.title?.copyWith(fontSize: 32),
+                      maxLines: 2,
+                      textAlign: textAlign,
+                    ),
+                    if (product.publisherName.isNotEmpty)
+                      Text(
+                        product.publisherName,
+                        style: theme.typography.body?.copyWith(
+                          fontSize: 14,
+                          color: theme.resources.textFillColorSecondary,
+                        ),
+                        textAlign: textAlign,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

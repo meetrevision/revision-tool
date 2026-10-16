@@ -18,8 +18,10 @@ import 'package:window_plus/window_plus.dart';
 
 import '../../extensions.dart';
 import '../../i18n/generated/strings.g.dart';
+import '../motion/winui_navigation_indicator.dart';
 import '../services/win_registry_service.dart';
 import '../widgets/app_icon_image.dart';
+import '../widgets/caption_title_bar.dart';
 import '../widgets/page_header_with_breadcrumbs.dart';
 import 'app_router.dart';
 import 'app_routes.dart';
@@ -178,7 +180,7 @@ final class _AppShellState() extends ConsumerState<AppShell> {
             side: .new(width: 0, color: Colors.transparent),
             borderRadius: .only(topLeft: .circular(8.0)),
           ),
-          titleBar: TitleBar(
+          titleBar: CaptionTitleBar(
             backButton: () {
               final VoidCallback? onPressed = backButtonAvailable(context);
 
@@ -251,7 +253,7 @@ final class _AppShellState() extends ConsumerState<AppShell> {
           ),
           pane: NavigationPane(
             acrylicDisabled: true,
-            indicator: const StickyNavigationIndicator(indicatorSize: 3.5, leftPadding: 12.5),
+            indicator: const WinUINavigationIndicator(indicatorSize: 3.5, inset: 12.5),
             size: const .new(openWidth: 300, headerHeight: 90.5),
             selected: ref.watch(navigationIndexProvider),
             onItemPressed: (index) {

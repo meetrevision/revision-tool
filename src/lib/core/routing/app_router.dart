@@ -2,8 +2,8 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../extensions.dart';
 import '../../features/home/home_page.dart';
+import '../../features/ms_store/domain/entities/search_product.dart';
 import '../../features/ms_store/presentation/pages/ms_store_page.dart';
 import '../../features/ms_store/presentation/pages/ms_store_product_page.dart';
 import '../../features/tweaks/performance/performance_page.dart';
@@ -45,78 +45,66 @@ GoRouter appRouter(Ref ref) {
           GoRoute(
             path: RouteMeta.home.path,
             name: 'home',
-            builder: (context, state) => const HomePage(),
+            pageBuilder: (context, state) =>
+                AppRoutes.buildTopLevelPage(state: state, child: const HomePage()),
           ),
           GoRoute(
             path: RouteMeta.tweaks.path,
             name: 'tweaks',
-            builder: (context, state) => const TweaksPage(),
+            pageBuilder: (context, state) =>
+                AppRoutes.buildTopLevelPage(state: state, child: const TweaksPage()),
             routes: [
               GoRoute(
                 path: 'security',
                 name: 'security',
-                pageBuilder: (context, state) => AppRoutes.buildPageWithHorizontalTransition(
-                  barrierColor: context.theme.scaffoldBackgroundColor,
-                  state: state,
-                  child: const SecurityPage(),
-                ),
+                pageBuilder: (context, state) =>
+                    AppRoutes.buildSubPage(state: state, child: const SecurityPage()),
               ),
               GoRoute(
                 path: 'performance',
                 name: 'performance',
-                pageBuilder: (context, state) => AppRoutes.buildPageWithHorizontalTransition(
-                  barrierColor: context.theme.scaffoldBackgroundColor,
-                  state: state,
-                  child: const PerformancePage(),
-                ),
+                pageBuilder: (context, state) =>
+                    AppRoutes.buildSubPage(state: state, child: const PerformancePage()),
               ),
               GoRoute(
                 path: 'personalization',
                 name: 'personalization',
-                pageBuilder: (context, state) => AppRoutes.buildPageWithHorizontalTransition(
-                  barrierColor: context.theme.scaffoldBackgroundColor,
-                  state: state,
-                  child: const PersonalizationPage(),
-                ),
+                pageBuilder: (context, state) =>
+                    AppRoutes.buildSubPage(state: state, child: const PersonalizationPage()),
               ),
               GoRoute(
                 path: 'utilities',
                 name: 'utilities',
-                pageBuilder: (context, state) => AppRoutes.buildPageWithHorizontalTransition(
-                  barrierColor: context.theme.scaffoldBackgroundColor,
-                  state: state,
-                  child: const UtilitiesPage(),
-                ),
+                pageBuilder: (context, state) =>
+                    AppRoutes.buildSubPage(state: state, child: const UtilitiesPage()),
               ),
               GoRoute(
                 path: 'updates',
                 name: 'updates',
-                pageBuilder: (context, state) => AppRoutes.buildPageWithHorizontalTransition(
-                  barrierColor: context.theme.scaffoldBackgroundColor,
-                  state: state,
-                  child: const UpdatesPage(),
-                ),
+                pageBuilder: (context, state) =>
+                    AppRoutes.buildSubPage(state: state, child: const UpdatesPage()),
               ),
             ],
           ),
           GoRoute(
             path: RouteMeta.msStore.path,
             name: 'msstore',
-            builder: (context, state) => const MSStorePage(),
+            pageBuilder: (context, state) =>
+                AppRoutes.buildTopLevelPage(state: state, child: const MSStorePage()),
             routes: [
               GoRoute(
                 path: 'product/:productId',
                 name: 'msstore-product',
                 pageBuilder: (context, state) {
-                  // final SearchProduct? product = state.extra is SearchProduct
-                  //     ? state.extra! as SearchProduct
-                  //     : null;
                   final String productId = state.pathParameters['productId']!;
+                  final SearchProduct? preview = switch (state.extra) {
+                    final SearchProduct product => product,
+                    _ => null,
+                  };
 
-                  return AppRoutes.buildPageWithHorizontalTransition(
-                    barrierColor: context.theme.scaffoldBackgroundColor,
+                  return AppRoutes.buildDetailPage(
                     state: state,
-                    child: MSStoreProductPage(productId: productId),
+                    child: MSStoreProductPage(productId: productId, preview: preview),
                   );
                 },
               ),
@@ -125,7 +113,8 @@ GoRouter appRouter(Ref ref) {
           GoRoute(
             path: RouteMeta.settings.path,
             name: 'settings',
-            builder: (context, state) => const SettingsPage(),
+            pageBuilder: (context, state) =>
+                AppRoutes.buildTopLevelPage(state: state, child: const SettingsPage()),
           ),
         ],
       ),

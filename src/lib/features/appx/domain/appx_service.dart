@@ -45,6 +45,39 @@ final class const AppxService({
     return removableAppxUsers(rows.map((r) => r.toDomain()).toIList());
   });
 
+  ///
+  Future<Result<AppxPackage?>> findInstalled({required String familyName}) =>
+      run(() => _findInstalled(familyName));
+
+  ///
+  Future<Result<void>> launch({required String familyName}) => run(() async {
+    final AppxPackage package = await _requireInstalled(familyName);
+    final List<String> appIds = await repository.appUserModelIds(fullName: package.fullName);
+    if (appIds.firstOrNull case final appId?) {
+      return repository.launchApp(appUserModelId: appId);
+    }
+    throw AppxNotLaunchableException(package.fullName);
+  });
+
+  ///
+  Future<Result<AppxRemovalResult>> uninstall({required String familyName}) => run(() async {
+    final AppxPackage package = await _requireInstalled(familyName);
+    final RemovalOutcomeModel outcome = await repository.removePackage(fullName: package.fullName);
+    return _accepted(outcome);
+  });
+
+  Future<AppxPackage?> _findInstalled(String familyName) async {
+    final List<PackageIdentityModel> rows = await repository.findForCurrentUser(
+      familyName: familyName,
+    );
+    return rows.where((r) => !r.isFramework).firstOrNull?.toDomain(installed: true);
+  }
+
+  Future<AppxPackage> _requireInstalled(String familyName) async {
+    if (await _findInstalled(familyName) case final package?) return package;
+    throw AppxPackageNotInstalledException(familyName);
+  }
+
   /// Removes installed packages matching [prefixes], excluding [exclude].
   ///
   /// Matches full names or bare names starting with any of [prefixes].

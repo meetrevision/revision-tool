@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vector_graphics/vector_graphics.dart';
 
 import '../../i18n/generated/strings.g.dart';
+import '../motion/navigation_transitions.dart';
 
 enum RouteSection() {
   main,
@@ -159,31 +160,26 @@ class AppRoutes() {
     ];
   }
 
-  /// Creates a page with [HorizontalSlidePageTransition] for nested routes.
-  /// https://learn.microsoft.com/en-us/windows/apps/design/motion/timing-and-easing
-  static Page<T> buildPageWithHorizontalTransition<T>({
+  static Page<T> buildTopLevelPage<T>({required GoRouterState state, required Widget child}) =>
+      _buildPage(state: state, child: child, transition: FluentNavigationTransition.entrance);
+
+  static Page<T> buildSubPage<T>({required GoRouterState state, required Widget child}) =>
+      _buildPage(state: state, child: child, transition: FluentNavigationTransition.slide);
+
+  static Page<T> buildDetailPage<T>({required GoRouterState state, required Widget child}) =>
+      _buildPage(state: state, child: child, transition: FluentNavigationTransition.drillIn);
+
+  static Page<T> _buildPage<T>({
     required GoRouterState state,
-    required Color barrierColor,
     required Widget child,
+    required FluentNavigationTransition transition,
   }) {
-    return CustomTransitionPage<T>(
+    return FluentTransitionPage<T>(
       key: state.pageKey,
+      name: state.name,
+      restorationId: state.pageKey.value,
+      transition: transition,
       child: child,
-      barrierColor: barrierColor,
-      transitionDuration: const Duration(milliseconds: 250),
-      reverseTransitionDuration: const Duration(milliseconds: 250),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final curvedAnimation = CurvedAnimation(
-          parent: animation,
-          curve: Curves.decelerate,
-          reverseCurve: Curves.easeIn,
-        );
-        return HorizontalSlidePageTransition(
-          fromLeft: false,
-          animation: curvedAnimation,
-          child: child,
-        );
-      },
     );
   }
 }
