@@ -463,6 +463,82 @@ abstract class const WinRegistryService._private() {
       logger.e('$tag(createKey): $path', error: e, stackTrace: StackTrace.current);
     }
   }
+
+  static const int _featureSeed = 0x447F3700;
+
+  /// Encodes Feature ID to Windows FeatureManagement registry representation.
+  /// Direct bit-slice layout: b0[6:0]->[31:25], b0[7]->[0], b1->[24:17], b2->[16:9], b3->[8:1].
+  static int obfuscateFeatureId(int featureId) {
+    final int w = (featureId ^ _featureSeed) & 0xFFFFFFFF;
+    final int b0 = w & 0xFF;
+    final int b1 = (w >> 8) & 0xFF;
+    final int b2 = (w >> 16) & 0xFF;
+    final int b3 = (w >> 24) & 0xFF;
+
+    return (((b0 & 0x7F) << 25) | (b0 >> 7) | (b1 << 17) | (b2 << 9) | (b3 << 1)) & 0xFFFFFFFF;
+  }
+
+  /// Decodes Windows FeatureManagement registry representation back to Feature ID.
+  static int deobfuscateFeatureId(int obfuscatedValue) {
+    final int v = obfuscatedValue & 0xFFFFFFFF;
+    final int b0 = ((v >> 25) & 0x7F) | ((v & 1) << 7);
+    final int b1 = (v >> 17) & 0xFF;
+    final int b2 = (v >> 9) & 0xFF;
+    final int b3 = (v >> 1) & 0xFF;
+
+    final int w = b0 | (b1 << 8) | (b2 << 16) | (b3 << 24);
+    return (w ^ _featureSeed) & 0xFFFFFFFF;
+  }
+
+  static const String _featureOverridesControlPath =
+      r'SYSTEM\CurrentControlSet\Control\FeatureManagement\Overrides\8';
+  static const String _featureOverridesPolicyPath =
+      r'SYSTEM\ControlSet001\Policies\Microsoft\FeatureManagement\Overrides';
+
+  /// Sets the state of a Windows feature override in both primary and fallback locations.
+  ///
+  /// Primary: `[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FeatureManagement\Overrides\8\<obfuscatedId>]`
+  ///   - EnabledState: 1 = disabled, 2 = enabled
+  ///   - EnabledStateOptions, Variant, VariantPayload, VariantPayloadKind: 0
+  /// Fallback: `[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Policies\Microsoft\FeatureManagement\Overrides]`
+  ///   - `<obfuscatedId>`: 0 = disabled, 1 = enabled
+  static Future<void> _setFeatureState(int featureId, {required bool enabled}) async {
+    final int obfuscated = obfuscateFeatureId(featureId);
+    final controlPath = '$_featureOverridesControlPath\\$obfuscated';
+    final enabledState = enabled ? 2 : 1;
+    final policyState = enabled ? 1 : 0;
+
+    await Future.wait([
+      writeRegistryValue(LOCAL_MACHINE, controlPath, 'EnabledState', enabledState),
+      writeRegistryValue(LOCAL_MACHINE, controlPath, 'EnabledStateOptions', 0),
+      writeRegistryValue(LOCAL_MACHINE, controlPath, 'Variant', 0),
+      writeRegistryValue(LOCAL_MACHINE, controlPath, 'VariantPayload', 0),
+      writeRegistryValue(LOCAL_MACHINE, controlPath, 'VariantPayloadKind', 0),
+      writeRegistryValue(
+        LOCAL_MACHINE,
+        _featureOverridesPolicyPath,
+        obfuscated.toString(),
+        policyState,
+      ),
+    ]);
+  }
+
+  /// Enables a Windows feature override via its Feature ID.
+  static Future<void> enableFeature(int featureId) => _setFeatureState(featureId, enabled: true);
+
+  /// Disables a Windows feature override via its Feature ID.
+  static Future<void> disableFeature(int featureId) => _setFeatureState(featureId, enabled: false);
+
+  /// Deletes overrides for [featureId] from both primary and fallback locations.
+  static Future<void> deleteFeatureOverride(int featureId) async {
+    final int obfuscated = obfuscateFeatureId(featureId);
+    final controlPath = '$_featureOverridesControlPath\\$obfuscated';
+
+    await Future.wait([
+      deleteKey(LOCAL_MACHINE, controlPath),
+      deleteValue(LOCAL_MACHINE, _featureOverridesPolicyPath, obfuscated.toString()),
+    ]);
+  }
 }
 
 class const WinRegistryCliService() implements WinRegistryService {
