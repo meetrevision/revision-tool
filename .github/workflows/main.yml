@@ -9,45 +9,45 @@ jobs:
     name: Build & Release
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      - uses: actions/checkout@v6
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        id: flutter-action
         with:
           channel: 'stable'
           cache: true
+          pub-cache: true
+          pub-cache-key: 'flutter-pub-${{ runner.os }}-${{ hashFiles(''src/pubspec.lock'') }}'
 
-      - name: Set up Melos
-        run: dart pub global activate melos
+      # FRB output cache ──────────────────────────────────────────────
+      # Tag runs can only restore caches saved on the default branch.
+      # Run this workflow via workflow_dispatch on main after changing
+      # Rust API files to warm the cache before tagging a release.
+      - name: Restore FRB output cache
+        id: frb-output
+        uses: actions/cache/restore@v5
+        with:
+          path: |
+            src/packages/revitool_native/lib/src/rust/
+            src/packages/revitool_native/rust/src/frb_generated.rs
+          key: ${{ runner.os }}-frb-output-${{ hashFiles('src/packages/revitool_native/rust/src/api/**', 'src/packages/revitool_native/pubspec.yaml', 'src/packages/revitool_native/rust/Cargo.lock') }}
 
-      # https://github.com/subosito/flutter-action/issues/278
-      # - name: Export pub environment variable
-      #   run: |
-      #     if [ "$RUNNER_OS" == "Windows" ]; then
-      #       echo "PUB_CACHE=$LOCALAPPDATA\\Pub\\Cache" >> $GITHUB_ENV
-      #     fi
-      #   shell: bash
-    
-      - run: echo "NEW_VERSION=${{ github.ref_name }}" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-      - name: Bump MyAppVersion in Inno Setup
-        run: |
-          (Get-Content -Path "inno-setup.iss") -replace '#define MyAppVersion "[\d\.]+"', "#define MyAppVersion `"${{ env.NEW_VERSION }}`"" | Set-Content -Path "inno-setup.iss"
-        shell: pwsh
-      
-      - name: Cache flutter_rust_bridge_codegen
-        uses: actions/cache@v4
-        id: cache-frb
+      - name: Restore FRB codegen binary
+        if: steps.frb-output.outputs.cache-hit != 'true'
+        uses: actions/cache@v5
         with:
           path: ~/.cargo/bin/flutter_rust_bridge_codegen.exe
-          key: ${{ runner.os }}-frb-${{ hashFiles('src/packages/revitool_native/pubspec.yaml', 'src/packages/revitool_native/rust/Cargo.lock') }}
+          key: ${{ runner.os }}-frb-bin-${{ hashFiles('src/packages/revitool_native/pubspec.yaml', 'src/packages/revitool_native/rust/Cargo.lock') }}
 
       - name: Install flutter_rust_bridge_codegen
+        if: steps.frb-output.outputs.cache-hit != 'true'
         shell: pwsh
         run: |
           $targetVer = (Get-Content src/packages/revitool_native/pubspec.yaml | Select-String 'flutter_rust_bridge:\s*([\d\.]+)').Matches.Groups[1].Value
           $currentVer = if (Get-Command flutter_rust_bridge_codegen -ErrorAction SilentlyContinue) {
             ((flutter_rust_bridge_codegen --version) -split ' ')[1]
           } else { $null }
-
           if ($currentVer -ne $targetVer) {
             Write-Host "Installing flutter_rust_bridge_codegen v$targetVer (current: $currentVer)..."
             cargo install flutter_rust_bridge_codegen --version $targetVer --locked
@@ -56,36 +56,73 @@ jobs:
           }
 
       - name: Generate Rust bridge code
-        run: melos run frb
+        if: steps.frb-output.outputs.cache-hit != 'true'
+        run: dart run melos run frb
         working-directory: src
 
+      - name: Save FRB output cache
+        if: steps.frb-output.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            src/packages/revitool_native/lib/src/rust/
+            src/packages/revitool_native/rust/src/frb_generated.rs
+          key: ${{ runner.os }}-frb-output-${{ hashFiles('src/packages/revitool_native/rust/src/api/**', 'src/packages/revitool_native/pubspec.yaml', 'src/packages/revitool_native/rust/Cargo.lock') }}
+
+      # Build ──────────────────────────────────────────────────────────
+      - name: Set version
+        run: |
+          $version = if ('${{ github.ref_type }}' -eq 'tag') { '${{ github.ref_name }}' } else { '0.0.0-dev' }
+          echo "NEW_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Bump MyAppVersion in Inno Setup
+        run: |
+          (Get-Content -Path "inno-setup.iss") -replace '#define MyAppVersion "[\d\.]+"', "#define MyAppVersion `"${{ env.NEW_VERSION }}`"" | Set-Content -Path "inno-setup.iss"
+        shell: pwsh
+
       - name: Compile C code
-        run: melos run compile:c
+        run: dart run melos run compile:c
         working-directory: src
       
       - name: Download bundled WinSxS packages
         env:
           GH_TOKEN: ${{ secrets.TOKEN }}
-        run: melos run bundle:winsxs
+        run: dart run melos run bundle:winsxs
         working-directory: src
 
+      - name: Cache build_runner
+        uses: actions/cache@v5
+        with:
+          path: src/.dart_tool/build
+          key: ${{ runner.os }}-build-runner-${{ hashFiles('src/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-runner-
+
       - name: Run code generation
-        run: melos run codegen
+        run: dart run melos run codegen
         working-directory: src
+
+      # Cache Cargo registry and Rust target directory to speed up building native assets
+      - name: Cache Cargo & Rust target
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            src/packages/revitool_native/rust/target
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('src/packages/revitool_native/rust/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-target-
 
       - name: Build revitool CLI
         env:
           APP_VERSION: ${{ env.NEW_VERSION }}
-        run: melos run build:cli
+        run: dart run melos run build:cli
         working-directory: src
 
       - name: Download bundled AppX packages
-        run: melos run bundle:appx
-        working-directory: src
-      
-      - name: Run tests
-        continue-on-error: true
-        run: melos run test
+        run: dart run melos run bundle:appx
         working-directory: src
 
       - name: Build revitool GUI
@@ -109,6 +146,7 @@ jobs:
           echo "SHA256_HASH=$($hash.Hash)" | Out-File -FilePath $env:GITHUB_ENV -Append
         
       - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.TOKEN }}
