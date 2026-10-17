@@ -4,7 +4,6 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:path/path.dart' as p;
-import 'package:win32_registry/win32_registry.dart';
 
 import '../../../core/error/app_exception.dart';
 import '../../../core/error/result.dart';
@@ -273,23 +272,17 @@ final class const AiRemovalService({
     )).when(success: (_) {}, failure: (e) => throw e);
 
     // Prevent File Explorer from falling back to Windows 10 ribbon when Microsoft.AIFabric.CBS is removed.
-    // Recent Windows builds (26x00.9278+) query Microsoft.AIFabric.CBS when loading Windows App SDK.
+    // Recent Windows builds (26X00.9278+) query Microsoft.AIFabric.CBS when loading Windows App SDK.
     // If AIFabric is missing, Explorer throws an error and falls back to the legacy ribbon.
     //
-    // - 58375086 (1561856655/WindowsAppRuntime_NextIsDefault): Stops Explorer from requesting Windows App SDK 2.0.
-    // - 63366798(497250959): Gating check added in newer builds (26x00.9550+). If enabled, it forces Explorer to load AIFabric even when 58375086 is disabled. Both IDs must be disabled.
-    await WinRegistryService.writeRegistryValue(
-      LOCAL_MACHINE,
-      r'SYSTEM\ControlSet001\Policies\Microsoft\FeatureManagement\Overrides',
-      '1561856655',
-      0,
-    );
-    await WinRegistryService.writeRegistryValue(
-      LOCAL_MACHINE,
-      r'SYSTEM\ControlSet001\Policies\Microsoft\FeatureManagement\Overrides',
-      '497250959',
-      0,
-    );
+    // - 58375086(1561856655/WindowsAppRuntime_NextIsDefault): Stops Explorer from requesting Windows App SDK 2.0.
+    // - 63366798(497250959): Gating check added in newer builds (26X00.9550, no longer works on .9711). If enabled, it forces Explorer to load AIFabric even when 58375086 is disabled. Both IDs must be disabled.
+    // - 58375066(890768015/UseCentralWindowsAppRuntimeVersion) - 26X00.9711
+    await Future.wait([
+      WinRegistryService.disableFeature(58375086),
+      WinRegistryService.disableFeature(63366798),
+      WinRegistryService.disableFeature(58375066),
+    ]);
 
     return super.install(force: force);
   }
@@ -309,11 +302,11 @@ final class const AiRemovalService({
         await runPSCommand(
           'Add-AppxPackage -Register -DisableDevelopmentMode -Path "$_fabricAIPath"',
         );
-        await WinRegistryService.deleteValue(
-          LOCAL_MACHINE,
-          r'SYSTEM\ControlSet001\Policies\Microsoft\FeatureManagement\Overrides',
-          '1561856655',
-        );
+        await Future.wait([
+          WinRegistryService.deleteFeatureOverride(58375086),
+          WinRegistryService.deleteFeatureOverride(63366798),
+          WinRegistryService.deleteFeatureOverride(58375066),
+        ]);
       }
     });
   }
