@@ -388,11 +388,7 @@ void main() {
       );
       final repository = FakeAppxRepository(
         rows: const [copilotRow, calculatorRow],
-        outcomes: const [
-          transientRefusal,
-          acceptedOutcome,
-          acceptedOutcome,
-        ],
+        outcomes: const [transientRefusal, acceptedOutcome, acceptedOutcome],
       );
       final service = AppxService(repository: repository);
 
@@ -413,10 +409,7 @@ void main() {
         extendedErrorCode: _hrDestageFailed,
         errorText: 'DeStage operation failed',
       );
-      final repository = FakeAppxRepository(
-        rows: const [copilotRow],
-        outcome: permanentRefusal,
-      );
+      final repository = FakeAppxRepository(rows: const [copilotRow], outcome: permanentRefusal);
       final service = AppxService(repository: repository);
 
       final Result<IList<AppxRemovalResult>> result = await service.removePackages(
@@ -436,10 +429,7 @@ void main() {
         extendedErrorCode: _hrDestageFailed,
         errorText: 'DeStage operation failed',
       );
-      final repository = FakeAppxRepository(
-        rows: const [copilotRow],
-        outcome: permanentRefusal,
-      );
+      final repository = FakeAppxRepository(rows: const [copilotRow], outcome: permanentRefusal);
       final service = AppxService(repository: repository);
 
       final Result<IList<AppxRemovalResult>> result = await service.removePackages(
@@ -458,10 +448,7 @@ void main() {
         extendedErrorCode: _hrDestageFailed,
         errorText: 'DeStage operation failed',
       );
-      final repository = FakeAppxRepository(
-        rows: const [copilotRow],
-        outcome: permanentRefusal,
-      );
+      final repository = FakeAppxRepository(rows: const [copilotRow], outcome: permanentRefusal);
       final service = AppxService(repository: repository);
 
       final Result<IList<AppxRemovalResult>> result = await service.removePackages(

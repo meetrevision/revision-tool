@@ -5,6 +5,7 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:path/path.dart' as p;
 import 'package:win32_registry/win32_registry.dart';
 
+import '../../../../core/services/win32_crypto_helper.dart';
 import '../../../../core/services/win_registry_service.dart';
 import '../../../../utils.dart';
 import '../../domain/entities/win_package.dart';
@@ -108,7 +109,10 @@ final class const WinPackageRepositoryImpl({required final ApiCabDataSource api}
         packageRoot.close();
       }
     } catch (e) {
-      logger.d('CBS registry lookup unavailable for ${type.packageName}, falling back to DISM', error: e);
+      logger.d(
+        'CBS registry lookup unavailable for ${type.packageName}, falling back to DISM',
+        error: e,
+      );
     }
 
     // Fallback: query via DISM PowerShell if registry yields no results
@@ -127,10 +131,23 @@ final class const WinPackageRepositoryImpl({required final ApiCabDataSource api}
 
   @override
   Future<String> fetchSignatureUsage(String packagePath) async {
-    final ProcessResult result = await runPSCommand(
-      '(Get-AuthenticodeSignature -FilePath "$packagePath").SignerCertificate.Extensions.EnhancedKeyUsages.Value',
-    );
-    return result.stdout.toString().trim();
+    final List<String> oids = Win32CryptoHelper.getEnhancedKeyUsages(packagePath);
+    if (oids.contains('1.3.6.1.4.1.311.10.3.6')) {
+      return '1.3.6.1.4.1.311.10.3.6';
+    }
+    if (oids.isNotEmpty) {
+      return oids.first;
+    }
+
+    // Fallback to PowerShell if native extraction found no embedded certificates
+    try {
+      final ProcessResult result = await runPSCommand(
+        '(Get-AuthenticodeSignature -FilePath "$packagePath").SignerCertificate.Extensions.EnhancedKeyUsages.Value',
+      );
+      return result.stdout.toString().trim();
+    } catch (_) {
+      return '';
+    }
   }
 
   @override

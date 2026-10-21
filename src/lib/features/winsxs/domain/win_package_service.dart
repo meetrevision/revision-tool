@@ -48,7 +48,14 @@ abstract base class const WinPackageService({
     if (error is WinSxSException) {
       return UnexpectedNetworkException(message: error.message, cause: error);
     }
-    return UnexpectedNetworkException(cause: error);
+    if (error is ProcessException) {
+      final String msg = error.message.trim();
+      return UnexpectedNetworkException(
+        message: msg.isNotEmpty ? msg : error.toString(),
+        cause: error,
+      );
+    }
+    return UnexpectedNetworkException(message: error.toString(), cause: error);
   };
 
   @override
@@ -130,7 +137,25 @@ abstract base class const WinPackageService({
         success: (d) => d,
         failure: (e) => throw e,
       );
-      await _installCab(package.path, packageVersion: package.version, force: force);
+      try {
+        await _installCab(package.path, packageVersion: package.version, force: force);
+      } catch (error) {
+        if (_repository.findBundledPackage(_type) case final bundledPath?
+            when _repository.fileExists(bundledPath) && !p.equals(package.path, bundledPath)) {
+          logger.w(
+            'winsxs: Failed to install downloaded package, falling back to bundled package: $bundledPath',
+            error: error,
+          );
+          final WinPackageVersion? bundledVersion = parsePackageVersion(
+            p.basenameWithoutExtension(bundledPath),
+          );
+          if (bundledVersion != null) {
+            await _installCab(bundledPath, packageVersion: bundledVersion, force: force);
+            return;
+          }
+        }
+        rethrow;
+      }
     });
   }
 
@@ -266,7 +291,7 @@ final class const AiRemovalService({
       // - 63366798(497250959): Gating check in newer builds. If enabled, forces Explorer to load AIFabric even when 58375086 is disabled.
       // - 58375066(890768015/UseCentralWindowsAppRuntimeVersion) - 26X00.9711
       // - 61199980(WindowsAppRuntime_FallbackToStableFix) - 26X00.9711
-      // - 40012896(673801264/Servicing_FileExplorerRibbonFallbackFix): Disables fallback to legacy ribbon when XAML island fails.
+      // - 40012896(Servicing_FileExplorerRibbonFallbackFix): Disables fallback to legacy ribbon when XAML island fails.
       await Future.wait([
         WinRegistryService.disableFeature(58375086),
         WinRegistryService.disableFeature(63366798),

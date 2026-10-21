@@ -193,6 +193,23 @@ void main() {
       verify(() => repository.addPackage(any())).called(1);
       verifyNever(() => repository.removePackageByName(any()));
     });
+
+    test('falls back to bundled package when downloaded package installation fails', () async {
+      const bundledPath =
+          r'C:\bundled\Revision-ReviOS-SystemPackages-Removal.31bf3856ad364e35.amd64.2.3.1.0.cab';
+      when(() => repository.findBundledPackage(.systemComponentsRemoval)).thenReturn(bundledPath);
+      when(() => repository.fetchInstalledPackageNames(.systemComponentsRemoval))
+          .thenAnswer((_) async => const <String>[].lock);
+      when(() => repository.fetchSignatureUsage(any(that: isNot(bundledPath))))
+          .thenThrow(InvalidWinSxSPackageSignatureException('Signature check failed'));
+      when(() => repository.fetchSignatureUsage(bundledPath))
+          .thenAnswer((_) async => '1.3.6.1.4.1.311.10.3.6');
+
+      final Result<void> result = await service.install();
+
+      expect(result, isA<Success<void>>());
+      verify(() => repository.addPackage(bundledPath)).called(1);
+    });
   });
 
   group('WinPackageService.uninstall', () {
