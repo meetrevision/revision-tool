@@ -275,22 +275,26 @@ final class const AiRemovalService({
         WinRegistryService.disableFeature(40012896),
       ]);
 
-      try {
-        await _appx.removePackages(prefixes: const {'Microsoft.Copilot'}, allUsers: true);
-      } catch (e, st) {
-        logger.w('winsxs: Failed to remove Copilot package', error: e, stackTrace: st);
-      }
+      final Result<IList<AppxRemovalResult>> copilotResult = await _appx.removePackages(
+        prefixes: const {'Microsoft.Copilot'},
+        allUsers: true,
+      );
+      copilotResult.when(
+        success: (_) {},
+        failure: (e) => logger.w('winsxs: Failed to remove Copilot package', error: e),
+      );
 
       // AIFabric is restored by re-registering its on-disk manifest, so roaming
       // user data must survive for that restore to re-attach to it.
-      try {
-        await _appx.removePackages(
-          prefixes: const {'Microsoft.AIFabric.CBS.1.6'},
-          preserveRoaming: true,
-        );
-      } catch (e, st) {
-        logger.w('winsxs: Failed to remove AIFabric package', error: e, stackTrace: st);
-      }
+      final Result<IList<AppxRemovalResult>> fabricResult = await _appx.removePackages(
+        prefixes: const {'Microsoft.AIFabric.CBS.1.6'},
+        preserveRoaming: true,
+        scheduleOnStartup: false,
+      );
+      fabricResult.when(
+        success: (_) {},
+        failure: (e) => logger.w('winsxs: Failed to remove AIFabric package', error: e),
+      );
 
       (await super.install(force: force)).when(success: (_) {}, failure: (e) => throw e);
     });

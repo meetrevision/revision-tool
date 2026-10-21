@@ -162,7 +162,7 @@ final class const AppxService({
     }
 
     if (failed.isNotEmpty) {
-      if (scheduleOnStartup) {
+      if (scheduleOnStartup && !preserveRoaming) {
         // If removal still fails, queue it for next boot.
         // The flag prevents endless reboot loops if it keeps failing.
         await repository.scheduleRunOnce(
@@ -281,12 +281,19 @@ final class const AppxService({
     return true;
   }
 
+  static const int _hrPackageNotFound = 0x80073cf1;
+
   static bool _isSuccess(RemovalOutcomeModel outcome) =>
-      outcome.extendedErrorCode == 0 && outcome.errorText.isEmpty;
+      (outcome.extendedErrorCode == 0 && outcome.errorText.isEmpty) ||
+      outcome.extendedErrorCode == _hrPackageNotFound;
 
   /// Throws [AppxRemovalRefusedException] if [outcome] reports an error.
   static AppxRemovalResult _accepted(RemovalOutcomeModel outcome) {
     final AppxRemovalResult result = outcome.toDomain();
+    // 0x80073cf1: Package not registered for the target user; considered already removed.
+    if (result.extendedErrorCode == _hrPackageNotFound) {
+      return result;
+    }
     if (result.extendedErrorCode != 0 || result.errorText.isNotEmpty) {
       throw AppxRemovalRefusedException(result);
     }
