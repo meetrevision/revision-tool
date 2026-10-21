@@ -278,10 +278,12 @@ final class const AiRemovalService({
     // - 58375086(1561856655/WindowsAppRuntime_NextIsDefault): Stops Explorer from requesting Windows App SDK 2.0.
     // - 63366798(497250959): Gating check added in newer builds (26X00.9550, no longer works on .9711). If enabled, it forces Explorer to load AIFabric even when 58375086 is disabled. Both IDs must be disabled.
     // - 58375066(890768015/UseCentralWindowsAppRuntimeVersion) - 26X00.9711
+    // - 61199980(WindowsAppRuntime_FallbackToStableFix) - 26X00.9711
     await Future.wait([
       WinRegistryService.disableFeature(58375086),
       WinRegistryService.disableFeature(63366798),
       WinRegistryService.disableFeature(58375066),
+      WinRegistryService.disableFeature(61199980),
     ]);
 
     return super.install(force: force);
@@ -306,6 +308,7 @@ final class const AiRemovalService({
           WinRegistryService.deleteFeatureOverride(58375086),
           WinRegistryService.deleteFeatureOverride(63366798),
           WinRegistryService.deleteFeatureOverride(58375066),
+          WinRegistryService.deleteFeatureOverride(61199980),
         ]);
       }
     });
