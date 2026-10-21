@@ -529,8 +529,8 @@ abstract class const WinRegistryService._private() {
   /// Disables a Windows feature override via its Feature ID.
   static Future<void> disableFeature(int featureId) => _setFeatureState(featureId, enabled: false);
 
-  /// Deletes overrides for [featureId] from both primary and fallback locations.
-  static Future<void> deleteFeatureOverride(int featureId) async {
+  /// Resets overrides for [featureId] to Windows defaults (deletes the overrides).
+  static Future<void> resetFeature(int featureId) async {
     final int obfuscated = obfuscateFeatureId(featureId);
     final controlPath = '$_featureOverridesControlPath\\$obfuscated';
 

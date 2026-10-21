@@ -305,10 +305,10 @@ final class const AiRemovalService({
           'Add-AppxPackage -Register -DisableDevelopmentMode -Path "$_fabricAIPath"',
         );
         await Future.wait([
-          WinRegistryService.deleteFeatureOverride(58375086),
-          WinRegistryService.deleteFeatureOverride(63366798),
-          WinRegistryService.deleteFeatureOverride(58375066),
-          WinRegistryService.deleteFeatureOverride(61199980),
+          WinRegistryService.resetFeature(58375086),
+          WinRegistryService.resetFeature(63366798),
+          WinRegistryService.resetFeature(58375066),
+          WinRegistryService.resetFeature(61199980),
         ]);
       }
     });

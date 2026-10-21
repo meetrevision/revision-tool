@@ -539,7 +539,7 @@ void main() {
       test('enableFeature and disableFeature update feature overrides', () async {
         await expectLater(WinRegistryService.disableFeature(58375066), completes);
         await expectLater(WinRegistryService.enableFeature(58375066), completes);
-        await expectLater(WinRegistryService.deleteFeatureOverride(58375066), completes);
+        await expectLater(WinRegistryService.resetFeature(58375066), completes);
       });
     },
   );
@@ -611,11 +611,7 @@ void main() {
 
   group('WinRegistryService - Feature ID Obfuscation', () {
     test('obfuscates and deobfuscates known feature IDs correctly', () {
-      const cases = <int, int>{
-        58375086: 1561856655,
-        63366798: 497250959,
-        58375066: 890768015,
-      };
+      const cases = <int, int>{58375086: 1561856655, 63366798: 497250959, 58375066: 890768015};
 
       for (final MapEntry<int, int> entry in cases.entries) {
         expect(WinRegistryService.obfuscateFeatureId(entry.key), equals(entry.value));
