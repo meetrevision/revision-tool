@@ -6,6 +6,7 @@ import 'package:win32_registry/win32_registry.dart';
 
 import '../cli_generator/annotations.dart';
 import '../trusted_installer/trusted_installer_service.dart';
+import 'nt_feature_helper.dart';
 
 // @CliCommand(name: 'registry', description: 'Windows registry utilities')
 abstract class const WinRegistryService._private() {
@@ -495,49 +496,99 @@ abstract class const WinRegistryService._private() {
   static const String _featureOverridesPolicyPath =
       r'SYSTEM\ControlSet001\Policies\Microsoft\FeatureManagement\Overrides';
 
-  /// Sets the state of a Windows feature override in both primary and fallback locations.
-  ///
-  /// Primary: `[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FeatureManagement\Overrides\8\<obfuscatedId>]`
-  ///   - EnabledState: 1 = disabled, 2 = enabled
-  ///   - EnabledStateOptions, Variant, VariantPayload, VariantPayloadKind: 0
-  /// Fallback: `[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Policies\Microsoft\FeatureManagement\Overrides]`
-  ///   - `<obfuscatedId>`: 0 = disabled, 1 = enabled
-  static Future<void> _setFeatureState(int featureId, {required bool enabled}) async {
-    final int obfuscated = obfuscateFeatureId(featureId);
-    final controlPath = '$_featureOverridesControlPath\\$obfuscated';
-    final enabledState = enabled ? 2 : 1;
-    final policyState = enabled ? 1 : 0;
+  /// Sets Windows feature overrides across Boot (Registry), Runtime (ntdll), and BootStatus (BSD).
+  static Future<void> setFeatures(
+    Iterable<int> featureIds, {
+    required bool enabled,
+    int retryCount = 0,
+  }) async {
+    final List<int> ids = featureIds.toList(growable: false);
+    if (ids.isEmpty) return;
 
-    await Future.wait([
-      writeRegistryValue(LOCAL_MACHINE, controlPath, 'EnabledState', enabledState),
-      writeRegistryValue(LOCAL_MACHINE, controlPath, 'EnabledStateOptions', 0),
-      writeRegistryValue(LOCAL_MACHINE, controlPath, 'Variant', 0),
-      writeRegistryValue(LOCAL_MACHINE, controlPath, 'VariantPayload', 0),
-      writeRegistryValue(LOCAL_MACHINE, controlPath, 'VariantPayloadKind', 0),
-      writeRegistryValue(
-        LOCAL_MACHINE,
-        _featureOverridesPolicyPath,
-        obfuscated.toString(),
-        policyState,
-      ),
-    ]);
+    final stateVal = enabled ? 2 : 1;
+    final policyVal = enabled ? 1 : 0;
+
+    final registryTasks = <Future<void>>[
+      for (final featureId in ids) ...[
+        () async {
+          final controlPath = '$_featureOverridesControlPath\\${obfuscateFeatureId(featureId)}';
+          try {
+            final RegistryKey subKey = LOCAL_MACHINE.create(controlPath);
+            try {
+              subKey.setValue('EnabledState', .dword(stateVal));
+              subKey.setValue('EnabledStateOptions', const .dword(0));
+              subKey.setValue('Variant', const .dword(0));
+              subKey.setValue('VariantPayload', const .dword(0));
+              subKey.setValue('VariantPayloadKind', const .dword(0));
+            } finally {
+              subKey.close();
+            }
+            logger.i('$tag(setFeatures): $controlPath EnabledState = $stateVal');
+          } on WindowsException catch (e) {
+            // 0x80070005 = ERROR_ACCESS_DENIED
+            if (e.hr == -2147024891) {
+              logger.w(
+                '$tag(setFeatures): Access denied, retrying with TrustedInstaller: $controlPath',
+              );
+              if (retryCount > 0) rethrow;
+              return TrustedInstallerServiceImpl().executeWithTrustedInstaller(
+                () => setFeatures([featureId], enabled: enabled, retryCount: retryCount + 1),
+              );
+            }
+            logger.e('$tag(setFeatures): $controlPath', error: e, stackTrace: .current);
+          } catch (e, st) {
+            logger.e('$tag(setFeatures): $controlPath', error: e, stackTrace: st);
+          }
+        }(),
+        writeRegistryValue(
+          LOCAL_MACHINE,
+          _featureOverridesPolicyPath,
+          obfuscateFeatureId(featureId).toString(),
+          policyVal,
+        ),
+      ],
+    ];
+
+    await Future.wait(registryTasks);
+
+    // Apply runtime in-memory feature configuration so active processes immediately recognize the state.
+    await NtFeatureHelper.setRuntimeFeatures({for (final id in ids) id: enabled});
+
+    // Flag BootPending in system boot status data so Windows commits the overrides across reboot.
+    await NtFeatureHelper.updateBootStatusPending();
   }
 
-  /// Enables a Windows feature override via its Feature ID.
-  static Future<void> enableFeature(int featureId) => _setFeatureState(featureId, enabled: true);
+  /// Enables Windows feature overrides via their Feature IDs.
+  static Future<void> enableFeatures(Iterable<int> featureIds) =>
+      setFeatures(featureIds, enabled: true);
 
-  /// Disables a Windows feature override via its Feature ID.
-  static Future<void> disableFeature(int featureId) => _setFeatureState(featureId, enabled: false);
+  /// Disables Windows feature overrides via their Feature IDs.
+  static Future<void> disableFeatures(Iterable<int> featureIds) =>
+      setFeatures(featureIds, enabled: false);
 
-  /// Resets overrides for [featureId] to Windows defaults (deletes the overrides).
-  static Future<void> resetFeature(int featureId) async {
-    final int obfuscated = obfuscateFeatureId(featureId);
-    final controlPath = '$_featureOverridesControlPath\\$obfuscated';
+  /// Resets overrides for [featureIds] to Windows defaults (deletes the overrides).
+  static Future<void> resetFeatures(Iterable<int> featureIds) async {
+    final List<int> ids = featureIds.toList();
+    if (ids.isEmpty) return;
 
-    await Future.wait([
-      deleteKey(LOCAL_MACHINE, controlPath),
-      deleteValue(LOCAL_MACHINE, _featureOverridesPolicyPath, obfuscated.toString()),
-    ]);
+    final registryTasks = <Future<void>>[
+      for (final int featureId in ids) ...[
+        deleteKey(LOCAL_MACHINE, '$_featureOverridesControlPath\\${obfuscateFeatureId(featureId)}'),
+        deleteValue(
+          LOCAL_MACHINE,
+          _featureOverridesPolicyPath,
+          obfuscateFeatureId(featureId).toString(),
+        ),
+      ],
+    ];
+
+    await Future.wait(registryTasks);
+
+    // Reset runtime in-memory feature configuration.
+    await NtFeatureHelper.resetRuntimeFeatures(ids);
+
+    // Flag BootPending in system boot status data.
+    await NtFeatureHelper.updateBootStatusPending();
   }
 }
 

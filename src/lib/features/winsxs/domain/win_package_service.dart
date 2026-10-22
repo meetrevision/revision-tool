@@ -292,13 +292,7 @@ final class const AiRemovalService({
       // - 58375066(890768015/UseCentralWindowsAppRuntimeVersion) - 26X00.9711
       // - 61199980(WindowsAppRuntime_FallbackToStableFix) - 26X00.9711
       // - 40012896(Servicing_FileExplorerRibbonFallbackFix): Disables fallback to legacy ribbon when XAML island fails.
-      await Future.wait([
-        WinRegistryService.disableFeature(58375086),
-        WinRegistryService.disableFeature(63366798),
-        WinRegistryService.disableFeature(58375066),
-        WinRegistryService.disableFeature(61199980),
-        WinRegistryService.disableFeature(40012896),
-      ]);
+      await WinRegistryService.disableFeatures({58375086, 63366798, 58375066, 61199980, 40012896});
 
       final Result<IList<AppxRemovalResult>> copilotResult = await _appx.removePackages(
         prefixes: const {'Microsoft.Copilot'},
@@ -351,13 +345,7 @@ final class const AiRemovalService({
         }
       }
 
-      await Future.wait([
-        WinRegistryService.resetFeature(58375086),
-        WinRegistryService.resetFeature(63366798),
-        WinRegistryService.resetFeature(58375066),
-        WinRegistryService.resetFeature(61199980),
-        WinRegistryService.resetFeature(40012896),
-      ]);
+      await WinRegistryService.resetFeatures({58375086, 63366798, 58375066, 61199980, 40012896});
     });
   }
 }

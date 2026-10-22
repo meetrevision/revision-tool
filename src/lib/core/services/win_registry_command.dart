@@ -112,13 +112,14 @@ final class _FeatureOverrideCommand(final _FeatureOverrideAction _action) extend
     final Set<int> featureIds = WinRegistryServiceCliCommand.parseFeatureIds(argResults, usage);
 
     try {
+      await switch (_action) {
+        .enable => WinRegistryService.enableFeatures(featureIds),
+        .disable => WinRegistryService.disableFeatures(featureIds),
+        .reset => WinRegistryService.resetFeatures(featureIds),
+      };
       for (final featureId in featureIds) {
-        await switch (_action) {
-          .enable => WinRegistryService.enableFeature(featureId),
-          .disable => WinRegistryService.disableFeature(featureId),
-          .reset => WinRegistryService.resetFeature(featureId),
-        };
-        logger.i('Windows feature $featureId ${_action.pastTense}');
+        logger.i('Windows feature $featureId ${_action.pastTense}');
+
       }
     } on Exception catch (e, st) {
       logger.e('Failed to ${_action.name} Windows features', error: e, stackTrace: st);
