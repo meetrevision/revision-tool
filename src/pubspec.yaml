@@ -13,7 +13,7 @@ dependencies:
     sdk: flutter
 
   # Localization
-  slang: ^4.19.1
+  slang: ^4.19.2
   slang_flutter: ^4.19.0
 
   # UI
@@ -42,7 +42,7 @@ dependencies:
   dio: ^5.11.1
 
   # Shell
-  process_run: ^1.3.5
+  process_run: ^1.4.1
 
   # Interactivity with Windows
   win32: ^6.4.0
@@ -61,35 +61,35 @@ dependencies:
   args: ^2.7.0
 
   # Routing
-  go_router: ^18.0.1
+  go_router: ^18.1.2
 
   # Other
   collection: ^1.19.1
   fast_immutable_collections: ^12.0.0
   xml: ^7.0.1
-  crypto: ^3.0.7
-  flutter_svg: ^2.3.0
+  crypto: ^3.0.8
+  flutter_svg: ^2.3.2
 
   # Code generation dependencies
-  analyzer: ^14.3.0
+  analyzer: ^14.7.0
   build: ^4.0.11
-  code_builder: ^4.12.0
-  source_gen: ^4.3.0
+  code_builder: ^4.13.0
+  source_gen: ^4.3.1
 
-  vector_graphics: ^1.2.3
+  vector_graphics: ^1.2.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
   riverpod_lint: ^3.1.9
-  build_runner: ^2.16.1
-  freezed: ^4.0.1
-  json_serializable: ^6.14.1
+  build_runner: ^2.16.2
+  freezed: ^4.0.3
+  json_serializable: ^6.15.2
   riverpod_generator: ^4.0.9
   mocktail: ^1.0.5
   slang_build_runner: ^4.19.0
-  melos: ^8.9.0
+  melos: ^8.10.0
 
 workspace:
   - packages/revitool_native

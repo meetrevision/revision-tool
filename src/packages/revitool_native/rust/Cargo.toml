@@ -8,7 +8,7 @@ crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 anyhow = "1.0"
-flutter_rust_bridge = "=2.13.0"
+flutter_rust_bridge = "=2.14.0-beta.2"
 windows = { version = "0.62", features = ["Management_Deployment", "ApplicationModel", "ApplicationModel_Core"] }
 # PackageManager's Find methods name windows-collections types in their
 # signatures and `windows` does not re-export that crate, so the shared
