@@ -565,6 +565,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "flutter_rust_bridge",
+ "futures",
  "windows",
  "windows-collections",
 ]

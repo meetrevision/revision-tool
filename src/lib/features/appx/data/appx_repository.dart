@@ -18,6 +18,9 @@ typedef RemovalOutcomeModel = bridge.RemovalOutcome;
 /// Package registration progress for a user.
 typedef InstallStateModel = bridge.InstallState;
 
+/// Removal scope options for package removal.
+typedef PackageRemovalScopeModel = bridge.PackageRemovalScope;
+
 /// Accesses AppX packages and manages store registry keys.
 abstract interface class AppxRepository() {
   /// Loads the native bridge library.
@@ -38,11 +41,10 @@ abstract interface class AppxRepository() {
 
   Future<void> launchApp({required String appUserModelId});
 
-  /// Removes [fullName] for the current user or all users.
+  /// Removes [fullName] for the specified scope.
   Future<RemovalOutcomeModel> removePackage({
     required String fullName,
-    bool allUsers = false,
-    bool preserveRoamable = false,
+    PackageRemovalScopeModel scope = .currentUser,
   });
 
   /// Removes the provisioned package family [familyName].
@@ -70,8 +72,7 @@ abstract interface class AppxRepository() {
 final class NativeAppxRepository() implements AppxRepository {
   static const String _storeBase =
       r'SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore';
-  static const String _runOncePath =
-      r'SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce';
+  static const String _runOncePath = r'SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce';
   static const String _runOnceValue = 'RevitoolAppxCleanup';
 
   // Cached initialization future.
@@ -118,25 +119,16 @@ final class NativeAppxRepository() implements AppxRepository {
 
   @override
   Future<void> launchApp({required String appUserModelId}) async {
-    await Process.start(
-      'explorer.exe',
-      ['shell:AppsFolder\\$appUserModelId'],
-      mode: .detached,
-    );
+    await Process.start('explorer.exe', ['shell:AppsFolder\\$appUserModelId'], mode: .detached);
   }
 
   @override
   Future<RemovalOutcomeModel> removePackage({
     required String fullName,
-    bool allUsers = false,
-    bool preserveRoamable = false,
+    PackageRemovalScopeModel scope = .currentUser,
   }) async {
     await loadBridge();
-    return bridge.removePackage(
-      fullName: fullName,
-      allUsers: allUsers,
-      preserveRoamable: preserveRoamable,
-    );
+    return bridge.removePackage(fullName: fullName, scope: scope);
   }
 
   @override
@@ -183,8 +175,7 @@ final class NativeAppxRepository() implements AppxRepository {
     final String exePath = Platform.resolvedExecutable;
     final allUsersFlag = allUsers ? ' --all-users' : '';
     final String namesArg = fullNames.join(',');
-    final command =
-        '"$exePath" appx$allUsersFlag --no-schedule-startup --remove "$namesArg"';
+    final command = '"$exePath" appx$allUsersFlag --no-schedule-startup --remove "$namesArg"';
     await WinRegistryService.writeRegistryValue(
       LOCAL_MACHINE,
       _runOncePath,

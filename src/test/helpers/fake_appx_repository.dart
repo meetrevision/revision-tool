@@ -95,16 +95,18 @@ final class FakeAppxRepository({
     launchedAppIds.add(appUserModelId);
   }
 
+  final List<PackageRemovalScopeModel> scopeCalls = [];
+
   @override
   Future<RemovalOutcomeModel> removePackage({
     required String fullName,
-    bool allUsers = false,
-    bool preserveRoamable = false,
+    PackageRemovalScopeModel scope = PackageRemovalScopeModel.currentUser,
   }) async {
     await loadBridge();
     removedFullNames.add(fullName);
-    preserveRoamingCalls.add(preserveRoamable);
-    allUsersCalls.add(allUsers);
+    scopeCalls.add(scope);
+    preserveRoamingCalls.add(scope == PackageRemovalScopeModel.currentUserPreserveRoamable);
+    allUsersCalls.add(scope == PackageRemovalScopeModel.allUsers);
     if (outcomes != null && _outcomeIndex < outcomes!.length) {
       return outcomes![_outcomeIndex++];
     }
@@ -141,10 +143,7 @@ final class FakeAppxRepository({
       removedInboxApps.contains(fullName);
 
   @override
-  Future<void> scheduleRunOnce({
-    required Set<String> fullNames,
-    bool allUsers = false,
-  }) async {
+  Future<void> scheduleRunOnce({required Set<String> fullNames, bool allUsers = false}) async {
     scheduledRunOnce.add(fullNames);
   }
 }

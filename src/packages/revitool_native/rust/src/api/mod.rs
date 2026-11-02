@@ -1,3 +1,3 @@
-//! Package management over the WinRT deployment API.
+//! Package management over the `WinRT` deployment API.
 
 pub mod appx;

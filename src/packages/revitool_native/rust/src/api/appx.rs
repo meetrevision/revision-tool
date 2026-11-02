@@ -1,8 +1,6 @@
-//! AppX package management over the WinRT deployment API.
+//! `AppX` package management over the `WinRT` deployment API.
 //!
-//! Exposes domain types to Dart without leaking WinRT types.
-
-#![warn(missing_docs)]
+//! Exposes domain types to Dart without leaking `WinRT` types.
 
 use anyhow::{Context, Result};
 use windows::core::{RuntimeType, HSTRING};
@@ -21,12 +19,14 @@ const NETWORK_SERVICE_SID: &str = "S-1-5-20";
 ///
 /// Filters out SYSTEM, LocalService, and NetworkService SIDs returned by
 /// [`find_users`].
+#[must_use]
+#[flutter_rust_bridge::frb(sync)]
 pub fn is_service_account_sid(sid: &str) -> bool {
     matches!(sid, SYSTEM_SID | LOCAL_SERVICE_SID | NETWORK_SERVICE_SID)
 }
 
 /// Package installation state for a user.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum InstallState {
     /// Not registered for this user.
     NotInstalled,
@@ -43,17 +43,17 @@ pub enum InstallState {
 impl From<WinInstallState> for InstallState {
     fn from(value: WinInstallState) -> Self {
         match value {
-            state if state == WinInstallState::NotInstalled => Self::NotInstalled,
-            state if state == WinInstallState::Staged => Self::Staged,
-            state if state == WinInstallState::Installed => Self::Installed,
-            state if state == WinInstallState::Paused => Self::Paused,
+            WinInstallState::NotInstalled => Self::NotInstalled,
+            WinInstallState::Staged => Self::Staged,
+            WinInstallState::Installed => Self::Installed,
+            WinInstallState::Paused => Self::Paused,
             state => Self::Other(state.0),
         }
     }
 }
 
 /// Package identity and naming information.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct PackageIdentity {
     /// Full package name in `Name.Version.Architecture_PublisherId` format.
     pub full_name: String,
@@ -68,7 +68,7 @@ pub struct PackageIdentity {
 }
 
 /// Package installation state for a user.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct PackageUserState {
     /// User security identifier (SID).
     pub sid: String,
@@ -76,8 +76,29 @@ pub struct PackageUserState {
     pub install_state: InstallState,
 }
 
+impl PackageUserState {
+    /// Returns whether this user SID is a built-in service account.
+    #[must_use]
+    #[flutter_rust_bridge::frb(sync)]
+    pub fn is_service_account(&self) -> bool {
+        is_service_account_sid(&self.sid)
+    }
+}
+
+/// Scope and data preservation options for package removal.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub enum PackageRemovalScope {
+    /// Removes the package for the calling user.
+    #[default]
+    CurrentUser,
+    /// Removes the package for the calling user while retaining roamable data.
+    CurrentUserPreserveRoamable,
+    /// Removes the package for all users on the machine.
+    AllUsers,
+}
+
 /// Result of a removal or deprovisioning request.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct RemovalOutcome {
     /// Package full name or family name targeted by the request.
     pub identifier: String,
@@ -85,6 +106,15 @@ pub struct RemovalOutcome {
     pub extended_error_code: u32,
     /// Error message, or empty when successful.
     pub error_text: String,
+}
+
+impl RemovalOutcome {
+    /// Returns whether the removal succeeded without error.
+    #[must_use]
+    #[flutter_rust_bridge::frb(sync)]
+    pub const fn is_success(&self) -> bool {
+        self.extended_error_code == 0
+    }
 }
 
 // PackageManager is agile; no COM apartment initialization needed.
@@ -150,13 +180,17 @@ fn collect_users(users: &IIterable<PackageUserInformation>) -> Result<Vec<Packag
 }
 
 // Converts DeploymentResult into RemovalOutcome using ExtendedErrorCode.
+#[expect(
+    clippy::cast_sign_loss,
+    reason = "HRESULT failure codes have the sign bit set; u32 preserves the raw 32-bit error code representation"
+)]
 fn outcome_of(identifier: &str, result: &DeploymentResult) -> Result<RemovalOutcome> {
+    let hr = result
+        .ExtendedErrorCode()
+        .context("DeploymentResult::ExtendedErrorCode")?;
     Ok(RemovalOutcome {
         identifier: identifier.to_owned(),
-        extended_error_code: result
-            .ExtendedErrorCode()
-            .context("DeploymentResult::ExtendedErrorCode")?
-            .0 as u32,
+        extended_error_code: hr.0 as u32,
         error_text: result
             .ErrorText()
             .context("DeploymentResult::ErrorText")?
@@ -165,21 +199,36 @@ fn outcome_of(identifier: &str, result: &DeploymentResult) -> Result<RemovalOutc
 }
 
 /// Lists all packages installed for any user.
-pub async fn list_installed() -> Result<Vec<PackageIdentity>> {
+///
+/// # Errors
+///
+/// Returns an error if the package manager cannot be initialized or if the
+/// package enumeration query fails.
+pub fn list_installed() -> Result<Vec<PackageIdentity>> {
     let packages = manager()?.FindPackages().context("FindPackages")?;
     collect_packages(&packages)
 }
 
 /// Finds packages matching `family_name` across all users.
-pub async fn find_by_family_name(family_name: String) -> Result<Vec<PackageIdentity>> {
+///
+/// # Errors
+///
+/// Returns an error if the package manager cannot be initialized or if the
+/// family lookup query fails.
+pub fn find_by_family_name(family_name: &str) -> Result<Vec<PackageIdentity>> {
     let packages = manager()?
-        .FindPackagesByPackageFamilyName(&HSTRING::from(family_name.as_str()))
+        .FindPackagesByPackageFamilyName(&HSTRING::from(family_name))
         .context("FindPackagesByPackageFamilyName")?;
     collect_packages(&packages)
 }
 
 /// Lists machine-wide provisioned packages.
-pub async fn list_provisioned() -> Result<Vec<PackageIdentity>> {
+///
+/// # Errors
+///
+/// Returns an error if the package manager cannot be initialized or if the
+/// provisioned packages query fails.
+pub fn list_provisioned() -> Result<Vec<PackageIdentity>> {
     let packages = manager()?
         .FindProvisionedPackages()
         .context("FindProvisionedPackages")?;
@@ -187,21 +236,28 @@ pub async fn list_provisioned() -> Result<Vec<PackageIdentity>> {
 }
 
 /// Lists user install states for `full_name`, including service accounts.
-pub async fn find_users(full_name: String) -> Result<Vec<PackageUserState>> {
+///
+/// # Errors
+///
+/// Returns an error if the package manager cannot be initialized or if the
+/// user query fails.
+pub fn find_users(full_name: &str) -> Result<Vec<PackageUserState>> {
     let users = manager()?
-        .FindUsers(&HSTRING::from(full_name.as_str()))
+        .FindUsers(&HSTRING::from(full_name))
         .context("FindUsers")?;
     collect_users(&users)
 }
 
 /// Finds packages in family `family_name` installed for the calling user.
-pub async fn find_for_current_user(family_name: String) -> Result<Vec<PackageIdentity>> {
+///
+/// # Errors
+///
+/// Returns an error if the package manager cannot be initialized or if the
+/// user-specific family lookup fails.
+pub fn find_for_current_user(family_name: &str) -> Result<Vec<PackageIdentity>> {
     // An empty security ID means the calling user.
     let packages = manager()?
-        .FindPackagesByUserSecurityIdPackageFamilyName(
-            &HSTRING::new(),
-            &HSTRING::from(family_name.as_str()),
-        )
+        .FindPackagesByUserSecurityIdPackageFamilyName(&HSTRING::new(), &HSTRING::from(family_name))
         .context("FindPackagesByUserSecurityIdPackageFamilyName")?;
     collect_packages(&packages)
 }
@@ -211,13 +267,22 @@ pub async fn find_for_current_user(family_name: String) -> Result<Vec<PackageIde
 ///
 /// Launch one with `explorer.exe shell:AppsFolder\<id>`, which also starts it
 /// unelevated when the caller runs as administrator.
-pub async fn app_user_model_ids(full_name: String) -> Result<Vec<String>> {
-    let package = manager()?
-        .FindPackageByUserSecurityIdPackageFullName(
-            &HSTRING::new(),
-            &HSTRING::from(full_name.as_str()),
-        )
-        .context("FindPackageByUserSecurityIdPackageFullName")?;
+///
+/// # Errors
+///
+/// Returns an error if the package manager cannot be initialized or if
+/// querying the app list entries fails. Returns an empty list if the
+/// package is not installed for the calling user.
+pub async fn app_user_model_ids(full_name: &str) -> Result<Vec<String>> {
+    let package = match manager()?
+        .FindPackageByUserSecurityIdPackageFullName(&HSTRING::new(), &HSTRING::from(full_name))
+    {
+        Ok(pkg) => pkg,
+        // WinRT returns S_OK with a null pointer when the package is missing,
+        // which windows-core converts to an Error with HRESULT 0.
+        Err(e) if e.code().0 == 0 => return Ok(Vec::new()),
+        Err(e) => return Err(e).context("FindPackageByUserSecurityIdPackageFullName"),
+    };
     let entries = package
         .GetAppListEntriesAsync()
         .context("Package::GetAppListEntriesAsync")?
@@ -233,63 +298,77 @@ pub async fn app_user_model_ids(full_name: String) -> Result<Vec<String>> {
 }
 
 /// Lists packages installed for user `sid`.
-pub async fn list_for_user(sid: String) -> Result<Vec<PackageIdentity>> {
+///
+/// # Errors
+///
+/// Returns an error if the package manager cannot be initialized or if
+/// querying packages for the user fails.
+pub fn list_for_user(sid: &str) -> Result<Vec<PackageIdentity>> {
     let packages = manager()?
-        .FindPackagesByUserSecurityId(&HSTRING::from(sid.as_str()))
+        .FindPackagesByUserSecurityId(&HSTRING::from(sid))
         .context("FindPackagesByUserSecurityId")?;
     collect_packages(&packages)
 }
 
 /// Returns whether package removal is pending for the calling user.
-pub async fn is_removal_pending(full_name: String) -> Result<bool> {
+///
+/// # Errors
+///
+/// Returns an error if the package manager cannot be initialized or if
+/// checking the removal status fails.
+pub fn is_removal_pending(full_name: &str) -> Result<bool> {
     manager()?
-        .IsPackageRemovalPending(&HSTRING::from(full_name.as_str()))
+        .IsPackageRemovalPending(&HSTRING::from(full_name))
         .context("IsPackageRemovalPending")
 }
 
 /// Returns whether package removal is pending for user `sid`.
-pub async fn is_removal_pending_for_user(full_name: String, sid: String) -> Result<bool> {
+///
+/// # Errors
+///
+/// Returns an error if the package manager cannot be initialized or if
+/// checking the user removal status fails.
+pub fn is_removal_pending_for_user(full_name: &str, sid: &str) -> Result<bool> {
     manager()?
-        .IsPackageRemovalPendingForUser(
-            &HSTRING::from(full_name.as_str()),
-            &HSTRING::from(sid.as_str()),
-        )
+        .IsPackageRemovalPendingForUser(&HSTRING::from(full_name), &HSTRING::from(sid))
         .context("IsPackageRemovalPendingForUser")
 }
 
-/// Removes a package for the current user or all users.
-pub async fn remove_package(
-    full_name: String,
-    all_users: bool,
-    preserve_roamable: bool,
-) -> Result<RemovalOutcome> {
-    anyhow::ensure!(
-        !(all_users && preserve_roamable),
-        "PreserveRoamableApplicationData is not supported with RemoveForAllUsers"
-    );
-    let options = if all_users {
-        RemovalOptions::RemoveForAllUsers
-    } else if preserve_roamable {
-        RemovalOptions::PreserveRoamableApplicationData
-    } else {
-        RemovalOptions::None
+/// Removes a package for the specified scope.
+///
+/// # Errors
+///
+/// Returns an error if the package manager cannot be initialized or if
+/// initiating the removal operation fails.
+pub async fn remove_package(full_name: &str, scope: PackageRemovalScope) -> Result<RemovalOutcome> {
+    let options = match scope {
+        PackageRemovalScope::CurrentUser => RemovalOptions::None,
+        PackageRemovalScope::CurrentUserPreserveRoamable => {
+            RemovalOptions::PreserveRoamableApplicationData
+        }
+        PackageRemovalScope::AllUsers => RemovalOptions::RemoveForAllUsers,
     };
     let result = manager()?
-        .RemovePackageWithOptionsAsync(&HSTRING::from(full_name.as_str()), options)
+        .RemovePackageWithOptionsAsync(&HSTRING::from(full_name), options)
         .context("RemovePackageWithOptionsAsync")?
         .await
         .context("RemovePackageWithOptionsAsync")?;
-    outcome_of(&full_name, &result)
+    outcome_of(full_name, &result)
 }
 
 /// Deprovisions a package family across all users.
-pub async fn deprovision_all_users(family_name: String) -> Result<RemovalOutcome> {
+///
+/// # Errors
+///
+/// Returns an error if the package manager cannot be initialized or if
+/// initiating the deprovisioning operation fails.
+pub async fn deprovision_all_users(family_name: &str) -> Result<RemovalOutcome> {
     let result = manager()?
-        .DeprovisionPackageForAllUsersAsync(&HSTRING::from(family_name.as_str()))
+        .DeprovisionPackageForAllUsersAsync(&HSTRING::from(family_name))
         .context("DeprovisionPackageForAllUsersAsync")?
         .await
         .context("DeprovisionPackageForAllUsersAsync")?;
-    outcome_of(&family_name, &result)
+    outcome_of(family_name, &result)
 }
 
 #[cfg(test)]
@@ -346,10 +425,70 @@ mod tests {
     }
 
     #[test]
+    fn paused_state_maps_to_named_variant() {
+        assert_eq!(
+            InstallState::from(WinInstallState::Paused),
+            InstallState::Paused
+        );
+    }
+
+    #[test]
     fn reserved_slot_keeps_its_raw_number() {
         assert_eq!(
             InstallState::from(WinInstallState(4)),
             InstallState::Other(4)
         );
+    }
+
+    #[test]
+    fn removal_outcome_success_predicate() {
+        let success = RemovalOutcome {
+            identifier: "pkg".to_string(),
+            extended_error_code: 0,
+            error_text: String::new(),
+        };
+        assert!(success.is_success());
+
+        let failure = RemovalOutcome {
+            identifier: "pkg".to_string(),
+            extended_error_code: 0x8007_0005,
+            error_text: "Access denied".to_string(),
+        };
+        assert!(!failure.is_success());
+    }
+
+    #[test]
+    fn package_user_state_service_account_predicate() {
+        let service_user = PackageUserState {
+            sid: SYSTEM_SID.to_string(),
+            install_state: InstallState::Installed,
+        };
+        assert!(service_user.is_service_account());
+
+        let regular_user = PackageUserState {
+            sid: "S-1-5-21-100-200-300".to_string(),
+            install_state: InstallState::Installed,
+        };
+        assert!(!regular_user.is_service_account());
+    }
+
+    #[test]
+    fn package_removal_scope_defaults_to_current_user() {
+        assert_eq!(
+            PackageRemovalScope::default(),
+            PackageRemovalScope::CurrentUser
+        );
+    }
+
+    #[test]
+    fn nonexistent_package_app_user_model_ids_returns_empty_list() {
+        let result = futures::executor::block_on(app_user_model_ids(
+            "NonExistentPackage_1.0.0.0_x64__1234567890",
+        ));
+        assert!(
+            result.is_ok(),
+            "Expected Ok for missing package, got: {result:?}"
+        );
+        assert!(result.unwrap().is_empty());
     }
 }

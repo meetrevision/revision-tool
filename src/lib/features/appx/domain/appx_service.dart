@@ -192,11 +192,17 @@ final class const AppxService({
 
     await _removeInboxApp(fullName);
 
+    final PackageRemovalScopeModel targetScope = allUsers
+        ? .allUsers
+        : switch (preserveRoaming) {
+            true => .currentUserPreserveRoamable,
+            false => .currentUser,
+          };
+
     if (preserveRoaming) {
       final RemovalOutcomeModel outcome = await repository.removePackage(
         fullName: fullName,
-        allUsers: allUsers,
-        preserveRoamable: true,
+        scope: targetScope,
       );
       return _accepted(outcome);
     }
@@ -204,20 +210,23 @@ final class const AppxService({
     // Attempt 1: Standard removal.
     RemovalOutcomeModel outcome = await repository.removePackage(
       fullName: fullName,
-      allUsers: allUsers,
+      scope: targetScope,
     );
     if (_isSuccess(outcome)) return outcome.toDomain();
 
     // Attempt 2: Mark EndOfLife keys for system packages and retry.
     final bool eolMarked = await _markEndOfLife(fullName);
     if (eolMarked) {
-      outcome = await repository.removePackage(fullName: fullName, allUsers: allUsers);
+      outcome = await repository.removePackage(fullName: fullName, scope: targetScope);
       if (_isSuccess(outcome)) return outcome.toDomain();
     }
 
     // Attempt 3: Guaranteed unregistration fallback (preserveRoamable requires per-user).
     if (!allUsers) {
-      outcome = await repository.removePackage(fullName: fullName, preserveRoamable: true);
+      outcome = await repository.removePackage(
+        fullName: fullName,
+        scope: .currentUserPreserveRoamable,
+      );
       if (_isSuccess(outcome)) return outcome.toDomain();
     }
 
