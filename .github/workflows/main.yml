@@ -44,7 +44,7 @@ jobs:
         if: steps.frb-output.outputs.cache-hit != 'true'
         shell: pwsh
         run: |
-          $targetVer = (Get-Content src/packages/revitool_native/pubspec.yaml | Select-String 'flutter_rust_bridge:\s*([\d\.]+)').Matches.Groups[1].Value
+          $targetVer = (Get-Content src/packages/revitool_native/pubspec.yaml | Select-String '^\s*flutter_rust_bridge:\s*[\^~]?[''"]?([\w\.\-\+]+)').Matches.Groups[1].Value
           $currentVer = if (Get-Command flutter_rust_bridge_codegen -ErrorAction SilentlyContinue) {
             ((flutter_rust_bridge_codegen --version) -split ' ')[1]
           } else { $null }
