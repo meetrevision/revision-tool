@@ -180,6 +180,13 @@ class const UpdatesServiceImpl() implements UpdatesService {
         'PauseUpdatesExpiryTime',
         '2038-01-19T03:14:07Z',
       ),
+      // For whatever reason, since 2026 Q4, pausing updates no longer enough. Security updates may still get installed.
+      WinRegistryService.writeRegistryValue(
+        LOCAL_MACHINE,
+        r'SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU',
+        'NoAutoUpdate',
+        1,
+      ),
     ]);
   }
 
@@ -220,6 +227,12 @@ class const UpdatesServiceImpl() implements UpdatesService {
         LOCAL_MACHINE,
         r'SOFTWARE\Microsoft\WindowsUpdate\UX\Settings',
         'PauseUpdatesExpiryTime',
+      ),
+      //
+      WinRegistryService.deleteValue(
+        LOCAL_MACHINE,
+        r'SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU',
+        'NoAutoUpdate',
       ),
     ]);
   }
